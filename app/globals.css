@@ -20,6 +20,8 @@
 
   /* primary */
   --color-primary: var(--primary);
+  --color-primary-default: var(--primary-default);
+  --color-primary-hover: var(--primary-hover);
   --color-primary-foreground: var(--primary-foreground);
 
   /* secondary & muted */
@@ -87,6 +89,8 @@
 
   /* primary */
   --primary: #2563EB;
+  --primary-default: #3B82F6;
+  --primary-hover: #60A5FA;
   --primary-foreground: #FFFFFF;
 
   /* secondary & muted*/
