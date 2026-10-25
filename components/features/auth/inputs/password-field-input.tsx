@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { TextField, Label, Input, FieldError, TextFieldProps } from '@heroui/react';
 import { Eye, EyeSlash, TriangleExclamation } from '@gravity-ui/icons';
 
-interface PasswordFieldInputProps extends Omit<TextFieldProps, 'errorMessage'> {
+interface PasswordFieldInputProps extends TextFieldProps {
     label: string;
     placeholder?: string;
     errorMessage?: string;
@@ -41,12 +41,14 @@ export function PasswordFieldInput({
                 </button>
             </div>
 
-            <FieldError className='mt-1 text-sm text-destructive'>
-                <div className='flex items-center gap-1.5'>
-                    <TriangleExclamation width={16} height={16} />
-                    <span>{errorMessage}</span>
-                </div>
-            </FieldError>
+            {isInvalid && (
+                 <FieldError className='mt-1 text-sm text-destructive'>
+                    <div className='flex items-center gap-1.5'>
+                        <TriangleExclamation width={16} height={16} />
+                        <span>{errorMessage}</span>
+                    </div>
+                </FieldError>
+            )}
         </TextField>
     );
 }

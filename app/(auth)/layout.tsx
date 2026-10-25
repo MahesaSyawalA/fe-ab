@@ -7,8 +7,10 @@ export default function AuthLayout({
     console.log('Ini layouth untuk halaman auth');
 
     return (
-        <div>
-            {children}
-        </div>
+        <main className='flex min-h-screen items-center justify-center bg-white px-4 sm:px-6 lg:px-8'>
+            <div className='w-full max-w-100'>
+                {children}
+            </div>
+        </main>
     );
 }

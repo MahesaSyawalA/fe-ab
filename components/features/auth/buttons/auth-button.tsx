@@ -4,7 +4,7 @@ import { Button, ButtonProps, Spinner } from '@heroui/react';
 import { tv } from 'tailwind-variants';
 
 const authButtonVariants = tv({
-    base: 'font-semibold text-white transition-all rounded-[8px]',
+    base: 'font-semibold text-white text-sm md:text-base transition-all rounded-[8px]',
     variants: {
         color: {
             primary: 'bg-primary-default hover:bg-primary-hover data-[pressed=true]:bg-primary',
