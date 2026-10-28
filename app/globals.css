@@ -131,6 +131,9 @@
   --sidebar-border: #E8EAF0;
   --sidebar-ring: #60A5FA;
 
+  --sidebar-width: 16rem;
+  --sidebar-width-icon: 5.5rem;
+
 }
 
 @layer base {
