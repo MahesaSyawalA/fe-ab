@@ -4,20 +4,25 @@ import { LoginForm } from '@/components/features/auth/forms/login-form';
 export default function LoginPage() {
     return (
         <div className='flex w-full flex-col items-center justify-center py-10'>
-            <div className='flex flex-col items-center gap-4 text-center'>
-                <Image
-                    src='/assets/logos/ab-medical-logo.png'
-                    alt='AB Medical Logo'
-                    width={78}
-                    height={79}
-                    priority
-                    className='h-auto w-20 object-contain'
-                />
-                <div className='flex flex-col mt-2'>
-                    <h1 className='text-xl sm:text-2xl font-medium tracking-wide text-primary-default'>
+            <div className='mb-4 flex flex-col items-center gap-5 text-center'>
+
+                <div className='flex size-22 items-center justify-center rounded-md border border-border/80 bg-white p-1.5 shadow-sm'>
+                    <Image
+                        src='/assets/logos/ab-medical-app-logo.jpeg'
+                        alt='AB Medical Logo'
+                        width={447}
+                        height={447}
+                        sizes='96px'
+                        priority
+                        className='h-full w-full object-contain'
+                    />
+                </div>
+
+                <div className='flex flex-col mt-1'>
+                    <h1 className='text-xl sm:text-2xl font-medium tracking-wide text-primary'>
                         AB MEDICAL
                     </h1>
-                    <h2 className='text-xl sm:text-2xl font-medium tracking-wide text-primary-default'>
+                    <h2 className='text-xl sm:text-2xl font-medium tracking-wide text-primary'>
                         SALES TRACKING
                     </h2>
                 </div>
