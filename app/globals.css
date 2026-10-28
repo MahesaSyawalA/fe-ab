@@ -33,6 +33,8 @@
   /* accent */
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-accent-default: var(--accent-default);
+  --color-accent-hover: var(--accent-hover);
 
   /* feedback & priority labels */
   --color-destructive: var(--destructive);
@@ -100,8 +102,10 @@
   --muted-foreground: #9CA3AF; /* muted text */
 
   /* accent */
-  --accent: #EFF6FF;
-  --accent-foreground: #2563EB;
+  --accent: #ED5A21; 
+  --accent-foreground: #FFFFFF; 
+  --accent-default: #F27A4B;
+  --accent-hover: #F69A75;
 
   /* feedback & priority labels */
   --destructive: #EF4444;

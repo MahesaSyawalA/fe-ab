@@ -18,10 +18,10 @@ export function NavUser({ role }: { role: string }) {
       <SidebarMenuItem>
         <SidebarMenuButton
           tooltip='Settings'
-          className='hover:bg-transparent active:bg-transparent transition-all cursor-pointer group/menu-item text-foreground hover:text-primary-hover group-data-[collapsible=icon]:p-0! group-data-[collapsible=icon]:justify-center!'
+          className='hover:bg-transparent active:bg-transparent transition-all cursor-pointer group/menu-item text-foreground hover:text-accent-hover group-data-[collapsible=icon]:p-0! group-data-[collapsible=icon]:justify-center!'
           render={<Link href={settingsUrl} />}
         >
-          <div className='flex size-7 shrink-0 items-center justify-center rounded-md bg-secondary text-foreground group-hover/menu-item:bg-primary/10 group-hover/menu-item:text-primary-hover transition-colors'>
+          <div className='flex size-7 shrink-0 items-center justify-center rounded-md bg-secondary text-foreground group-hover/menu-item:bg-accent/10 group-hover/menu-item:text-accent-hover transition-colors'>
             <SettingsIcon className='size-4' />
           </div>
           <span className='truncate font-medium transition-colors duration-200 group-data-[collapsible=icon]:hidden'>

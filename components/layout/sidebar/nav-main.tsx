@@ -30,20 +30,22 @@ export function NavMain({
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton
                 tooltip={item.title}
-                className={`hover:bg-transparent active:bg-transparent transition-all cursor-pointer group/menu-item group-data-[collapsible=icon]:p-0! group-data-[collapsible=icon]:justify-center! ${!isActive && 'text-slate-700 hover:text-primary-hover'
+                className={`hover:bg-transparent active:bg-transparent transition-all cursor-pointer group/menu-item group-data-[collapsible=icon]:p-0! group-data-[collapsible=icon]:justify-center! ${
+                  !isActive ? 'text-foreground hover:text-accent-hover' : ''
                   }`}
                 render={<Link href={item.url} />}
               >
                 <div
-                  className={`flex size-7 shrink-0 items-center justify-center rounded-md transition-colors ${isActive
-                    ? 'bg-primary/10 text-primary'
-                    : 'bg-secondary text-foreground group-hover/menu-item:bg-primary/10 group-hover/menu-item:text-primary-hover'
+                  className={`flex size-7 shrink-0 items-center justify-center rounded-md transition-colors relative ${isActive
+                    ? 'bg-accent/10 text-accent before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:h-4 before:w-0.75 before:rounded-r-md before:bg-accent'
+                    : 'bg-secondary text-foreground group-hover/menu-item:bg-accent/10 group-hover/menu-item:text-accent-hover'
                     }`}
                 >
                   <item.icon className='size-4' />
                 </div>
+                
                 <span
-                  className={`truncate transition-colors duration-200 group-data-[collapsible=icon]:hidden ${isActive ? 'font-semibold text-primary' : 'font-medium'
+                  className={`truncate transition-colors duration-200 group-data-[collapsible=icon]:hidden ${isActive ? 'font-semibold text-accent' : 'font-medium'
                     }`}
                 >
                   {item.title}
