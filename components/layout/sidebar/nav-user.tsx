@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { LogOutIcon, SettingsIcon } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 import {
@@ -11,20 +12,33 @@ import {
 
 export function NavUser({ role }: { role: string }) {
 
+  const pathname = usePathname()
+
   const settingsUrl = `/${role}/pengaturan`
+
+  const isActive = pathname.startsWith(settingsUrl)
 
   return (
     <SidebarMenu className='gap-2 mb-2'>
       <SidebarMenuItem>
         <SidebarMenuButton
           tooltip='Settings'
-          className='hover:bg-transparent active:bg-transparent transition-all cursor-pointer group/menu-item text-foreground hover:text-accent-hover group-data-[collapsible=icon]:p-0! group-data-[collapsible=icon]:justify-center!'
+          className={`hover:bg-transparent active:bg-transparent transition-all cursor-pointer group/menu-item group-data-[collapsible=icon]:p-0! group-data-[collapsible=icon]:justify-center! ${!isActive ? 'text-foreground hover:text-accent-hover' : ''
+            }`}
           render={<Link href={settingsUrl} />}
         >
-          <div className='flex size-7 shrink-0 items-center justify-center rounded-md bg-secondary text-foreground group-hover/menu-item:bg-accent/10 group-hover/menu-item:text-accent-hover transition-colors'>
+          <div
+            className={`flex size-7 shrink-0 items-center justify-center rounded-md transition-colors relative ${isActive
+                ? 'bg-accent/10 text-accent before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:h-4 before:w-0.75 before:rounded-r-md before:bg-accent'
+                : 'bg-secondary text-foreground group-hover/menu-item:bg-accent/10 group-hover/menu-item:text-accent-hover'
+              }`}
+          >
             <SettingsIcon className='size-4' />
           </div>
-          <span className='truncate font-medium transition-colors duration-200 group-data-[collapsible=icon]:hidden'>
+          <span
+            className={`truncate transition-colors duration-200 group-data-[collapsible=icon]:hidden ${isActive ? 'font-semibold text-accent' : 'font-medium'
+              }`}
+          >
             Pengaturan
           </span>
         </SidebarMenuButton>
