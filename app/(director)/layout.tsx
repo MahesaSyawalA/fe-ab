@@ -7,7 +7,7 @@ export default function DirectorLayout({ children }: { children: React.ReactNode
         <SidebarProvider>
             <AppSidebar role='director' />
             <SidebarInset>
-                <AppHeader />
+                <AppHeader role='director' />
                 <main className='flex flex-1 flex-col gap-4 p-4 bg-card '>
                     {children}
                 </main>

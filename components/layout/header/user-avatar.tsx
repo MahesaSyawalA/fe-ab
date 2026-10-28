@@ -4,7 +4,14 @@ import { Avatar, Dropdown, Label, Chip } from '@heroui/react'
 import { LogOutIcon, SettingsIcon, UserIcon } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 
-export function UserAvatar() {
+interface UserAvatarProps {
+    role?: 'sales' | 'manager' | 'director'
+}
+
+export function UserAvatar({ role = 'sales' }: UserAvatarProps) {
+
+    const displayRole = role.charAt(0).toUpperCase() + role.slice(1)
+
     return (
         <Dropdown>
             <Dropdown.Trigger>
@@ -30,7 +37,7 @@ export function UserAvatar() {
                             <p className='text-sm font-medium leading-none text-foreground'>Maulana Tri</p>
                             <p className='mb-1 text-xs text-muted-foreground'>maulana@abmedical.id</p>
                             <Chip size='sm' color='warning' className='h-5 px-1 text-[11px] rounded-sm border border-border font-semibold'>
-                                Sales
+                                {displayRole}
                             </Chip>
                         </div>
                     </div>

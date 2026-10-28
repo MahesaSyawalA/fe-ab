@@ -3,7 +3,11 @@
 import { UserNotification } from '@/components/layout/header/user-notification'
 import { UserAvatar } from '@/components/layout/header/user-avatar'
 
-export function AppHeader() {
+interface AppHeaderProps {
+    role?: 'sales' | 'manager' | 'director'
+}
+
+export function AppHeader({ role }: AppHeaderProps) {
     return (
         <header className='flex h-16 shrink-0 items-center justify-between px-6 bg-background relative'>
             <div className='flex items-center gap-4'>
@@ -14,7 +18,7 @@ export function AppHeader() {
 
             <div className='flex items-center gap-4'>
                 <UserNotification />
-                <UserAvatar />
+                <UserAvatar role={role} />
             </div>
         </header>
     )
