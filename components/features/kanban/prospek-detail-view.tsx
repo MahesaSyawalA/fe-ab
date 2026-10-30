@@ -436,7 +436,7 @@ export function ProspekDetailView({
                                   {evType === 'audio' && <Mic className='size-3.5' />}
                                   {evType === 'dokumen' && <FileText className='size-3.5' />}
                                   {evType === 'teks' && <AlignLeft className='size-3.5' />}
-                                  <span>Bukti Wajib ({evType.toUpperCase()})</span>
+                                  <span>File Bukti ({evType.toUpperCase()})</span>
                                 </div>
                                 <span className='text-[10px] text-muted-foreground'>
                                   {akt.evidence.waktu_upload || akt.waktu_label}

@@ -10,6 +10,7 @@ import {
   CheckCircle2,
   Clock,
   DollarSign,
+  File,
   FileCheck2,
   FileText,
   MapPin,
@@ -17,6 +18,7 @@ import {
   Mic,
   MicOff,
   Package,
+  Paperclip,
   Pause,
   PhoneCall,
   Play,
@@ -28,6 +30,7 @@ import {
   Square,
   TrendingUp,
   Upload,
+  UploadCloud,
   UserCheck,
   Volume2,
   X,
@@ -127,26 +130,49 @@ export function StageActivityDrawer({
   const [catatan, setCatatan] = React.useState('');
 
   // ==========================================
-  // MANDATORY EVIDENCE SYSTEM STATE
+  // UNIFIED EVIDENCE FILE UPLOAD STATE
   // ==========================================
-  const [evidenceType, setEvidenceType] = React.useState<JenisEvidence>('foto');
   const [evidenceFile, setEvidenceFile] = React.useState<{
     name: string;
     size: string;
+    type?: string;
+    url?: string;
   } | null>(null);
   const [evidenceDeskripsi, setEvidenceDeskripsi] = React.useState('');
-  const [evidenceRefNo, setEvidenceRefNo] = React.useState('');
   const [evidenceError, setEvidenceError] = React.useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
 
-  // Voice recording simulation states
-  const [isRecording, setIsRecording] = React.useState(false);
-  const [recordingSeconds, setRecordingSeconds] = React.useState(0);
-  const [recordedAudio, setRecordedAudio] = React.useState<{
-    name: string;
-    duration: string;
-  } | null>(null);
-  const [isPlayingAudio, setIsPlayingAudio] = React.useState(false);
-  const recordingTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+  // Helper function to detect file type from file name
+  const detectFileType = (fileName: string): JenisEvidence => {
+    const ext = fileName.split('.').pop()?.toLowerCase() || '';
+    if (['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'].includes(ext)) return 'foto';
+    if (['mp3', 'm4a', 'wav', 'ogg', 'aac'].includes(ext)) return 'audio';
+    if (['txt', 'notes', 'md'].includes(ext)) return 'teks';
+    return 'dokumen';
+  };
+
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const sizeInKb = file.size / 1024;
+      const formattedSize =
+        sizeInKb > 1024
+          ? `${(sizeInKb / 1024).toFixed(1)} MB`
+          : `${Math.round(sizeInKb)} KB`;
+
+      const objectUrl = file.type.startsWith('image/')
+        ? URL.createObjectURL(file)
+        : undefined;
+
+      setEvidenceFile({
+        name: file.name,
+        size: formattedSize,
+        type: file.type,
+        url: objectUrl,
+      });
+      setEvidenceError(false);
+    }
+  };
 
   // Visit specifics
   const [koordinatGps] = React.useState('-6.2088, 106.8456');
@@ -189,49 +215,6 @@ export function StageActivityDrawer({
   const [noInvoiceBast, setNoInvoiceBast] = React.useState('');
   const [metodePembayaran, setMetodePembayaran] = React.useState('Transfer Bank Mandiri');
 
-  // Audio Recording timer effect
-  React.useEffect(() => {
-    if (isRecording) {
-      recordingTimerRef.current = setInterval(() => {
-        setRecordingSeconds((prev) => prev + 1);
-      }, 1000);
-    } else {
-      if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
-    }
-    return () => {
-      if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
-    };
-  }, [isRecording]);
-
-  const handleStartRecording = () => {
-    setRecordingSeconds(0);
-    setIsRecording(true);
-    setRecordedAudio(null);
-    setEvidenceError(false);
-  };
-
-  const handleStopRecording = () => {
-    setIsRecording(false);
-    const mins = Math.floor(recordingSeconds / 60);
-    const secs = recordingSeconds % 60;
-    const durationStr = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-    const audioName = `voice_note_${stageType}_${Date.now()}.m4a`;
-    setRecordedAudio({
-      name: audioName,
-      duration: durationStr || '00:15',
-    });
-    if (!evidenceDeskripsi) {
-      setEvidenceDeskripsi(`Rekaman suara penjelasan aktivitas ${targetStage?.nama_tahap}`);
-    }
-    setEvidenceError(false);
-  };
-
-  const formatTimer = (sec: number) => {
-    const mins = Math.floor(sec / 60);
-    const secs = sec % 60;
-    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-  };
-
   // Handle Faskes change in Create mode
   const handleFaskesChange = (pelangganId: string) => {
     setSelectedPelangganId(pelangganId);
@@ -251,9 +234,6 @@ export function StageActivityDrawer({
     if (!open || !targetStage) return;
 
     setEvidenceError(false);
-    setIsRecording(false);
-    setRecordingSeconds(0);
-    setIsPlayingAudio(false);
 
     // Initial Evidence setup per stage
     const faskesName = ticket?.nama_faskes || 'RS Harapan Sehat';
@@ -261,74 +241,53 @@ export function StageActivityDrawer({
 
     switch (targetStage.jenis_tahap) {
       case 'visit':
-        setEvidenceType('foto');
         setEvidenceFile({
           name: `foto_kunjungan_${faskesName.toLowerCase().replace(/\s+/g, '_')}.jpg`,
           size: '1.4 MB',
         });
-        setRecordedAudio(null);
         setEvidenceDeskripsi('Dokumentasi foto kunjungan dan observasi faskes bersama PIC');
-        setEvidenceRefNo('GPS-VALID-RADIUS-38M');
         break;
       case 'kebutuhan':
-        setEvidenceType('dokumen');
         setEvidenceFile({
           name: `form_survei_kebutuhan_alkes_${randNum}.pdf`,
           size: '860 KB',
         });
-        setRecordedAudio(null);
-        setEvidenceDeskripsi('Formulir asesmen spesifikasi unit dan kesiapan ruangan ICU faskes');
-        setEvidenceRefNo(`SURVEI-KBTH-${randNum}`);
+        setEvidenceDeskripsi('Formulir asesmen spesifikasi unit dan kesiapan ruangan');
         break;
       case 'opportunity':
-        setEvidenceType('audio');
-        setEvidenceFile(null);
-        setRecordedAudio({
+        setEvidenceFile({
           name: `voice_note_kesepakatan_komite_${randNum}.m4a`,
-          duration: '01:15',
+          size: '1.1 MB',
         });
         setEvidenceDeskripsi('Rekaman suara konfirmasi alokasi belanja alkes dari komite pengadaan');
-        setEvidenceRefNo(`OPP-AUDIO-${randNum}`);
         break;
       case 'follow_up':
-        setEvidenceType('audio');
-        setEvidenceFile(null);
-        setRecordedAudio({
+        setEvidenceFile({
           name: `rekaman_panggilan_negosiasi_${randNum}.m4a`,
-          duration: '00:48',
+          size: '680 KB',
         });
         setEvidenceDeskripsi('Rekaman telepon konfirmasi penawaran harga dan tanggapan diskon');
-        setEvidenceRefNo(`FLW-NOTE-${randNum}`);
         break;
       case 'quotation':
-        setEvidenceType('dokumen');
         setEvidenceFile({
           name: `surat_penawaran_resmi_signed_${randNum}.pdf`,
           size: '780 KB',
         });
-        setRecordedAudio(null);
         setEvidenceDeskripsi('Surat penawaran harga resmi bernomor dan berstempel AB Medical');
-        setEvidenceRefNo(`QUO/ABM/2026/10/${randNum}`);
         break;
       case 'po':
-        setEvidenceType('dokumen');
         setEvidenceFile({
           name: `scan_purchase_order_faskes_${randNum}.pdf`,
           size: '1.2 MB',
         });
-        setRecordedAudio(null);
         setEvidenceDeskripsi('Scan dokumen Purchase Order resmi berstempel basah dari Faskes');
-        setEvidenceRefNo(`PO-RS-2026-${randNum}`);
         break;
       case 'revenue':
-        setEvidenceType('dokumen');
         setEvidenceFile({
           name: `bukti_transfer_lunas_mandiri_${randNum}.pdf`,
           size: '640 KB',
         });
-        setRecordedAudio(null);
         setEvidenceDeskripsi('Bukti transfer pelunasan 100% dan Berita Acara Serah Terima (BAST)');
-        setEvidenceRefNo(`BAST-INV-${randNum}`);
         break;
     }
 
@@ -469,19 +428,7 @@ export function StageActivityDrawer({
 
   // Validate mandatory evidence
   const isEvidenceValid = (): boolean => {
-    if (evidenceType === 'foto') {
-      return Boolean(evidenceFile && evidenceDeskripsi.trim());
-    }
-    if (evidenceType === 'audio') {
-      return Boolean(recordedAudio && evidenceDeskripsi.trim());
-    }
-    if (evidenceType === 'dokumen') {
-      return Boolean(evidenceFile && evidenceDeskripsi.trim());
-    }
-    if (evidenceType === 'teks') {
-      return Boolean(evidenceDeskripsi.trim().length >= 8);
-    }
-    return false;
+    return Boolean(evidenceFile && evidenceDeskripsi.trim());
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -507,15 +454,16 @@ export function StageActivityDrawer({
         ).replace(/\D/g, ''),
       ) || 100_000_000;
 
+    const detectedTipe = evidenceFile ? detectFileType(evidenceFile.name) : 'dokumen';
     const currentEvidence: EvidenceItem = {
-      tipe: evidenceType,
-      nama_file:
-        evidenceType === 'audio'
-          ? recordedAudio?.name
-          : evidenceFile?.name,
+      tipe: detectedTipe,
+      nama_file: evidenceFile?.name,
       ukuran_file: evidenceFile?.size,
-      durasi_audio: recordedAudio?.duration,
       deskripsi: evidenceDeskripsi.trim(),
+      url_preview: evidenceFile?.url,
+      jenis: detectedTipe,
+      file_size: evidenceFile?.size,
+      catatan: evidenceDeskripsi.trim(),
     };
 
     // IF CREATE MODE
@@ -748,7 +696,7 @@ export function StageActivityDrawer({
                 <span className='text-primary font-medium'>{ticket.nama_faskes}</span>
               </>
             ) : (
-              <span>Lengkapi data prospek dan bukti aktivitas wajib sesuai tahap {targetStage.nama_tahap}.</span>
+              <span>Lengkapi data prospek dan lampiran bukti aktivitas sesuai tahap {targetStage.nama_tahap}.</span>
             )}
           </DrawerDescription>
         </DrawerHeader>
@@ -761,9 +709,9 @@ export function StageActivityDrawer({
               <div className='flex items-start gap-2.5 rounded-2xl border border-rose-300 bg-rose-50 p-3 text-rose-800 animate-in fade-in slide-in-from-top-2'>
                 <ShieldAlert className='size-4 shrink-0 mt-0.5 text-rose-600' />
                 <div className='flex flex-col gap-0.5 text-xs'>
-                  <span className='font-bold text-rose-900'>Bukti / Evidence Aktivitas Wajib Diisi!</span>
+                  <span className='font-bold text-rose-900'>File Bukti Aktivitas Belum Dilampirkan</span>
                   <span>
-                    Mohon unggah foto, rekam suara, lampirkan dokumen, atau tuliskan keterangan verifikasi sebelum memindahkan tiket.
+                    Mohon pilih/unggah file bukti aktivitas dan isi keterangan sebelum menyimpan.
                   </span>
                 </div>
               </div>
@@ -778,7 +726,9 @@ export function StageActivityDrawer({
                 </div>
 
                 <div className='flex flex-col gap-1.5'>
-                  <Label className='text-xs font-semibold'>Fasilitas Kesehatan (Faskes)</Label>
+                  <Label className='text-xs font-semibold'>
+                    Fasilitas Kesehatan (Faskes) <span className='text-rose-500'>*</span>
+                  </Label>
                   <NativeSelect
                     value={selectedPelangganId}
                     onChange={(e) => handleFaskesChange(e.target.value)}
@@ -794,7 +744,9 @@ export function StageActivityDrawer({
                 </div>
 
                 <div className='flex flex-col gap-1.5'>
-                  <Label className='text-xs font-semibold'>Judul Prospek / Pengadaan</Label>
+                  <Label className='text-xs font-semibold'>
+                    Judul Prospek / Pengadaan <span className='text-rose-500'>*</span>
+                  </Label>
                   <Input
                     value={judulProspek}
                     onChange={(e) => setJudulProspek(e.target.value)}
@@ -834,7 +786,9 @@ export function StageActivityDrawer({
 
                 <div className='grid grid-cols-2 gap-3'>
                   <div className='flex flex-col gap-1.5'>
-                    <Label className='text-xs font-semibold'>Tanggal Kunjungan</Label>
+                    <Label className='text-xs font-semibold'>
+                      Tanggal Kunjungan <span className='text-rose-500'>*</span>
+                    </Label>
                     <Input
                       type='date'
                       value={tanggalAktivitas}
@@ -844,7 +798,9 @@ export function StageActivityDrawer({
                     />
                   </div>
                   <div className='flex flex-col gap-1.5'>
-                    <Label className='text-xs font-semibold'>Jam Kunjungan</Label>
+                    <Label className='text-xs font-semibold'>
+                      Jam Kunjungan <span className='text-rose-500'>*</span>
+                    </Label>
                     <Input
                       type='time'
                       value={jamAktivitas}
@@ -857,7 +813,9 @@ export function StageActivityDrawer({
 
                 <div className='grid grid-cols-2 gap-3'>
                   <div className='flex flex-col gap-1.5'>
-                    <Label className='text-xs font-semibold'>PIC yang Ditemui</Label>
+                    <Label className='text-xs font-semibold'>
+                      PIC yang Ditemui <span className='text-rose-500'>*</span>
+                    </Label>
                     <Input
                       value={picDitemui}
                       onChange={(e) => setPicDitemui(e.target.value)}
@@ -878,7 +836,9 @@ export function StageActivityDrawer({
                 </div>
 
                 <div className='flex flex-col gap-1.5'>
-                  <Label className='text-xs font-semibold'>Hasil & Catatan Kunjungan Lapangan</Label>
+                  <Label className='text-xs font-semibold'>
+                    Hasil & Catatan Kunjungan Lapangan <span className='text-rose-500'>*</span>
+                  </Label>
                   <Textarea
                     rows={2}
                     value={catatan}
@@ -895,7 +855,9 @@ export function StageActivityDrawer({
             {stageType === 'kebutuhan' && (
               <div className='flex flex-col gap-3.5'>
                 <div className='flex flex-col gap-1.5'>
-                  <Label className='text-xs font-semibold'>Produk / Alkes yang Dibutuhkan</Label>
+                  <Label className='text-xs font-semibold'>
+                    Produk / Alkes yang Dibutuhkan <span className='text-rose-500'>*</span>
+                  </Label>
                   <Input
                     value={jenisAlkes}
                     onChange={(e) => setJenisAlkes(e.target.value)}
@@ -907,7 +869,9 @@ export function StageActivityDrawer({
 
                 <div className='grid grid-cols-2 gap-3'>
                   <div className='flex flex-col gap-1.5'>
-                    <Label className='text-xs font-semibold'>Jumlah Unit</Label>
+                    <Label className='text-xs font-semibold'>
+                      Jumlah Unit <span className='text-rose-500'>*</span>
+                    </Label>
                     <Input
                       type='number'
                       min={1}
@@ -918,7 +882,9 @@ export function StageActivityDrawer({
                     />
                   </div>
                   <div className='flex flex-col gap-1.5'>
-                    <Label className='text-xs font-semibold'>Urgensi Pengadaan</Label>
+                    <Label className='text-xs font-semibold'>
+                      Urgensi Pengadaan <span className='text-rose-500'>*</span>
+                    </Label>
                     <NativeSelect
                       value={urgensiPengadaan}
                       onChange={(e) => setUrgensiPengadaan(e.target.value)}
@@ -947,7 +913,9 @@ export function StageActivityDrawer({
                 </div>
 
                 <div className='flex flex-col gap-1.5'>
-                  <Label className='text-xs font-semibold'>Spesifikasi & Kebutuhan Teknis Ruangan</Label>
+                  <Label className='text-xs font-semibold'>
+                    Spesifikasi & Kebutuhan Teknis Ruangan <span className='text-rose-500'>*</span>
+                  </Label>
                   <Textarea
                     rows={2}
                     value={spesifikasiKebutuhan}
@@ -965,7 +933,9 @@ export function StageActivityDrawer({
               <div className='flex flex-col gap-3.5'>
                 <div className='grid grid-cols-2 gap-3'>
                   <div className='flex flex-col gap-1.5'>
-                    <Label className='text-xs font-semibold'>Estimasi Nilai Closing (Rp)</Label>
+                    <Label className='text-xs font-semibold'>
+                      Estimasi Nilai Closing (Rp) <span className='text-rose-500'>*</span>
+                    </Label>
                     <InputGroup className='h-10 rounded-xl border-border bg-card shadow-none'>
                       <InputGroupAddon align='inline-start' className='pl-3 text-xs font-bold text-primary'>
                         Rp
@@ -980,7 +950,9 @@ export function StageActivityDrawer({
                     </InputGroup>
                   </div>
                   <div className='flex flex-col gap-1.5'>
-                    <Label className='text-xs font-semibold'>Target Closing</Label>
+                    <Label className='text-xs font-semibold'>
+                      Target Closing <span className='text-rose-500'>*</span>
+                    </Label>
                     <Input
                       type='date'
                       value={targetClosing}
@@ -992,7 +964,9 @@ export function StageActivityDrawer({
                 </div>
 
                 <div className='flex flex-col gap-1.5'>
-                  <Label className='text-xs font-semibold'>Tingkat Probabilitas (Win Rate)</Label>
+                  <Label className='text-xs font-semibold'>
+                    Tingkat Probabilitas (Win Rate) <span className='text-rose-500'>*</span>
+                  </Label>
                   <div className='grid grid-cols-4 gap-2'>
                     {['25%', '50%', '75%', '90%'].map((rate) => (
                       <Button
@@ -1030,7 +1004,9 @@ export function StageActivityDrawer({
               <div className='flex flex-col gap-3.5'>
                 <div className='grid grid-cols-2 gap-3'>
                   <div className='flex flex-col gap-1.5'>
-                    <Label className='text-xs font-semibold'>Media Komunikasi</Label>
+                    <Label className='text-xs font-semibold'>
+                      Media Komunikasi <span className='text-rose-500'>*</span>
+                    </Label>
                     <NativeSelect
                       value={mediaKomunikasi}
                       onChange={(e) => setMediaKomunikasi(e.target.value)}
@@ -1043,7 +1019,9 @@ export function StageActivityDrawer({
                     </NativeSelect>
                   </div>
                   <div className='flex flex-col gap-1.5'>
-                    <Label className='text-xs font-semibold'>Respon Klien</Label>
+                    <Label className='text-xs font-semibold'>
+                      Respon Klien <span className='text-rose-500'>*</span>
+                    </Label>
                     <NativeSelect
                       value={responKlien}
                       onChange={(e) => setResponKlien(e.target.value)}
@@ -1059,7 +1037,9 @@ export function StageActivityDrawer({
 
                 <div className='grid grid-cols-2 gap-3'>
                   <div className='flex flex-col gap-1.5'>
-                    <Label className='text-xs font-semibold'>Jadwal Follow Up Berikutnya</Label>
+                    <Label className='text-xs font-semibold'>
+                      Jadwal Follow Up Berikutnya <span className='text-rose-500'>*</span>
+                    </Label>
                     <Input
                       type='date'
                       value={jadwalFollowUp}
@@ -1091,7 +1071,9 @@ export function StageActivityDrawer({
               <div className='flex flex-col gap-3.5'>
                 <div className='grid grid-cols-2 gap-3'>
                   <div className='flex flex-col gap-1.5'>
-                    <Label className='text-xs font-semibold'>Nomor Penawaran (Quotation)</Label>
+                    <Label className='text-xs font-semibold'>
+                      Nomor Penawaran (Quotation) <span className='text-rose-500'>*</span>
+                    </Label>
                     <Input
                       value={noQuotation}
                       onChange={(e) => setNoQuotation(e.target.value)}
@@ -1101,7 +1083,9 @@ export function StageActivityDrawer({
                     />
                   </div>
                   <div className='flex flex-col gap-1.5'>
-                    <Label className='text-xs font-semibold'>Total Nilai Penawaran (Rp)</Label>
+                    <Label className='text-xs font-semibold'>
+                      Total Nilai Penawaran (Rp) <span className='text-rose-500'>*</span>
+                    </Label>
                     <InputGroup className='h-10 rounded-xl border-border bg-card shadow-none'>
                       <InputGroupAddon align='inline-start' className='pl-3 text-xs font-bold text-primary'>
                         Rp
@@ -1119,7 +1103,9 @@ export function StageActivityDrawer({
 
                 <div className='grid grid-cols-2 gap-3'>
                   <div className='flex flex-col gap-1.5'>
-                    <Label className='text-xs font-semibold'>Masa Berlaku Penawaran</Label>
+                    <Label className='text-xs font-semibold'>
+                      Masa Berlaku Penawaran <span className='text-rose-500'>*</span>
+                    </Label>
                     <NativeSelect
                       value={masaBerlaku}
                       onChange={(e) => setMasaBerlaku(e.target.value)}
@@ -1149,7 +1135,9 @@ export function StageActivityDrawer({
               <div className='flex flex-col gap-3.5'>
                 <div className='grid grid-cols-2 gap-3'>
                   <div className='flex flex-col gap-1.5'>
-                    <Label className='text-xs font-semibold'>Nomor Purchase Order (PO)</Label>
+                    <Label className='text-xs font-semibold'>
+                      Nomor Purchase Order (PO) <span className='text-rose-500'>*</span>
+                    </Label>
                     <Input
                       value={noPo}
                       onChange={(e) => setNoPo(e.target.value)}
@@ -1159,7 +1147,9 @@ export function StageActivityDrawer({
                     />
                   </div>
                   <div className='flex flex-col gap-1.5'>
-                    <Label className='text-xs font-semibold'>Nominal Total PO (Rp)</Label>
+                    <Label className='text-xs font-semibold'>
+                      Nominal Total PO (Rp) <span className='text-rose-500'>*</span>
+                    </Label>
                     <InputGroup className='h-10 rounded-xl border-border bg-card shadow-none'>
                       <InputGroupAddon align='inline-start' className='pl-3 text-xs font-bold text-sky-600'>
                         Rp
@@ -1177,7 +1167,9 @@ export function StageActivityDrawer({
 
                 <div className='grid grid-cols-2 gap-3'>
                   <div className='flex flex-col gap-1.5'>
-                    <Label className='text-xs font-semibold'>Target Tanggal Pengiriman Unit</Label>
+                    <Label className='text-xs font-semibold'>
+                      Target Tanggal Pengiriman Unit <span className='text-rose-500'>*</span>
+                    </Label>
                     <Input
                       type='date'
                       value={targetPengiriman}
@@ -1187,7 +1179,9 @@ export function StageActivityDrawer({
                     />
                   </div>
                   <div className='flex flex-col gap-1.5'>
-                    <Label className='text-xs font-semibold'>Termin Pembayaran</Label>
+                    <Label className='text-xs font-semibold'>
+                      Termin Pembayaran <span className='text-rose-500'>*</span>
+                    </Label>
                     <NativeSelect
                       value={terminPembayaran}
                       onChange={(e) => setTerminPembayaran(e.target.value)}
@@ -1207,7 +1201,9 @@ export function StageActivityDrawer({
             {stageType === 'revenue' && (
               <div className='flex flex-col gap-3.5'>
                 <div className='flex flex-col gap-1.5'>
-                  <Label className='text-xs font-semibold'>Hasil Penjualan Akhir</Label>
+                  <Label className='text-xs font-semibold'>
+                    Hasil Penjualan Akhir <span className='text-rose-500'>*</span>
+                  </Label>
                   <div className='grid grid-cols-2 gap-3'>
                     <Button
                       type='button'
@@ -1242,7 +1238,9 @@ export function StageActivityDrawer({
 
                 <div className='grid grid-cols-2 gap-3'>
                   <div className='flex flex-col gap-1.5'>
-                    <Label className='text-xs font-semibold'>Realisasi Nilai Revenue (Rp)</Label>
+                    <Label className='text-xs font-semibold'>
+                      Realisasi Nilai Revenue (Rp) <span className='text-rose-500'>*</span>
+                    </Label>
                     <InputGroup className='h-10 rounded-xl border-border bg-card shadow-none'>
                       <InputGroupAddon align='inline-start' className='pl-3 text-xs font-bold text-emerald-600'>
                         Rp
@@ -1268,7 +1266,9 @@ export function StageActivityDrawer({
                 </div>
 
                 <div className='flex flex-col gap-1.5'>
-                  <Label className='text-xs font-semibold'>Metode Pembayaran</Label>
+                  <Label className='text-xs font-semibold'>
+                    Metode Pembayaran <span className='text-rose-500'>*</span>
+                  </Label>
                   <NativeSelect
                     value={metodePembayaran}
                     onChange={(e) => setMetodePembayaran(e.target.value)}
@@ -1301,277 +1301,172 @@ export function StageActivityDrawer({
                   </div>
                   <div className='flex flex-col'>
                     <span className='text-xs font-bold text-foreground'>
-                      Bukti Aktivitas (Evidence)
+                      File Bukti Aktivitas <span className='text-rose-500'>*</span>
                     </span>
                     <span className='text-[10px] text-muted-foreground'>
-                      Wajib dilampirkan sebagai verifikasi perpindahan tahap
+                      Unggah file foto, rekaman suara audio, dokumen PDF/Word, atau berkas catatan
                     </span>
                   </div>
                 </div>
-
-                <Badge className='h-5 rounded-full border border-rose-300 bg-rose-100 text-[10px] font-bold text-rose-700 shadow-none'>
-                  WAJIB DIISI
-                </Badge>
               </div>
 
-              {/* Format Evidence Selector */}
-              <div className='flex flex-col gap-1.5'>
-                <Label className='text-[11px] font-semibold text-muted-foreground'>
-                  Pilih Format Bukti:
-                </Label>
-                <div className='grid grid-cols-4 gap-1.5'>
-                  {[
-                    { type: 'foto' as JenisEvidence, label: 'Foto', icon: Camera },
-                    { type: 'audio' as JenisEvidence, label: 'Audio', icon: Mic },
-                    { type: 'dokumen' as JenisEvidence, label: 'Dokumen', icon: FileText },
-                    { type: 'teks' as JenisEvidence, label: 'Notulen', icon: MessageSquare },
-                  ].map(({ type, label, icon: Icon }) => (
-                    <button
-                      key={type}
-                      type='button'
-                      onClick={() => {
-                        setEvidenceType(type);
-                        setEvidenceError(false);
-                      }}
-                      className={cn(
-                        'flex items-center justify-center gap-1.5 rounded-xl border py-2 text-xs font-semibold transition-all cursor-pointer',
-                        evidenceType === type
-                          ? 'border-primary bg-primary text-white shadow-xs'
-                          : 'border-border bg-white text-muted-foreground hover:bg-muted/50 hover:text-foreground',
+              {/* Hidden Real File Input */}
+              <input
+                ref={fileInputRef}
+                type='file'
+                accept='image/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx,.txt'
+                onChange={handleFileInputChange}
+                className='hidden'
+              />
+
+              {/* Unified File Upload Zone / Attached File Card */}
+              {evidenceFile ? (
+                <div className='flex items-center justify-between gap-3 rounded-xl border border-border/80 bg-white p-3 shadow-xs'>
+                  <div className='flex items-center gap-3 min-w-0'>
+                    <div className='flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary'>
+                      {detectFileType(evidenceFile.name) === 'foto' ? (
+                        <Camera className='size-5' />
+                      ) : detectFileType(evidenceFile.name) === 'audio' ? (
+                        <Mic className='size-5' />
+                      ) : detectFileType(evidenceFile.name) === 'teks' ? (
+                        <FileText className='size-5' />
+                      ) : (
+                        <File className='size-5' />
                       )}
-                    >
-                      <Icon className='size-3.5' />
-                      {label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* EVIDENCE INPUT: FOTO */}
-              {evidenceType === 'foto' && (
-                <div className='flex flex-col gap-2.5 rounded-xl border border-dashed border-border bg-white p-3'>
-                  {evidenceFile ? (
-                    <Attachment className='rounded-xl border-border bg-muted/20'>
-                      <AttachmentMedia>
-                        <FileType type='image' className='size-8' />
-                      </AttachmentMedia>
-                      <AttachmentContent>
-                        <AttachmentTitle className='text-xs font-semibold'>
-                          {evidenceFile.name}
-                        </AttachmentTitle>
-                        <AttachmentDescription className='text-[11px]'>
-                          {evidenceFile.size} · Terverifikasi GPS
-                        </AttachmentDescription>
-                      </AttachmentContent>
-                      <AttachmentActions>
-                        <AttachmentAction
-                          variant='ghost'
-                          size='icon'
-                          onClick={() => setEvidenceFile(null)}
-                          className='size-7 text-muted-foreground hover:text-destructive'
-                          title='Hapus foto'
-                        >
-                          <X className='size-3.5' />
-                        </AttachmentAction>
-                      </AttachmentActions>
-                    </Attachment>
-                  ) : (
-                    <Button
-                      type='button'
-                      variant='outline'
-                      onClick={() =>
-                        setEvidenceFile({
-                          name: `bukti_foto_${stageType}_${Date.now()}.jpg`,
-                          size: '1.4 MB',
-                        })
-                      }
-                      className='h-12 w-full gap-2 rounded-xl border-dashed border-primary/40 bg-primary/5 text-xs font-semibold text-primary hover:bg-primary/10 cursor-pointer'
-                    >
-                      <Camera className='size-4' />
-                      Ambil Foto Kamera / Unggah Galeri
-                    </Button>
-                  )}
-                </div>
-              )}
-
-              {/* EVIDENCE INPUT: AUDIO RECORDING (VOICE NOTE) */}
-              {evidenceType === 'audio' && (
-                <div className='flex flex-col gap-2.5 rounded-xl border border-border bg-white p-3.5'>
-                  {isRecording ? (
-                    /* Active Recording Indicator */
-                    <div className='flex items-center justify-between rounded-xl border border-rose-200 bg-rose-50/70 p-3 animate-pulse'>
-                      <div className='flex items-center gap-2.5'>
-                        <span className='size-3 rounded-full bg-rose-600 animate-ping' />
-                        <span className='text-xs font-bold text-rose-700'>
-                          Merekam Audio... ({formatTimer(recordingSeconds)})
+                    </div>
+                    <div className='flex flex-col min-w-0'>
+                      <span className='text-xs font-semibold text-foreground truncate'>
+                        {evidenceFile.name}
+                      </span>
+                      <div className='flex items-center gap-2 text-[10px] text-muted-foreground'>
+                        <span>{evidenceFile.size}</span>
+                        <span>•</span>
+                        <span className='capitalize font-medium text-primary'>
+                          {detectFileType(evidenceFile.name) === 'foto'
+                            ? 'Foto / Gambar'
+                            : detectFileType(evidenceFile.name) === 'audio'
+                              ? 'Rekaman Audio'
+                              : detectFileType(evidenceFile.name) === 'teks'
+                                ? 'Catatan Teks'
+                                : 'Dokumen Berkas'}
                         </span>
                       </div>
-                      <Button
-                        type='button'
-                        size='sm'
-                        onClick={handleStopRecording}
-                        className='h-8 gap-1.5 rounded-lg bg-rose-600 text-xs font-semibold text-white hover:bg-rose-700 cursor-pointer'
-                      >
-                        <Square className='size-3.5' />
-                        Selesai
-                      </Button>
                     </div>
-                  ) : recordedAudio ? (
-                    /* Recorded Audio Player Card */
-                    <div className='flex flex-col gap-2 rounded-xl border border-border bg-slate-50 p-2.5'>
-                      <div className='flex items-center justify-between'>
-                        <div className='flex items-center gap-2'>
-                          <button
-                            type='button'
-                            onClick={() => setIsPlayingAudio(!isPlayingAudio)}
-                            className='flex size-8 items-center justify-center rounded-full bg-primary text-white shadow-xs hover:bg-primary/90 cursor-pointer'
-                            aria-label={isPlayingAudio ? 'Pause' : 'Play'}
-                          >
-                            {isPlayingAudio ? (
-                              <Pause className='size-3.5' />
-                            ) : (
-                              <Play className='size-3.5 ml-0.5' />
-                            )}
-                          </button>
-                          <div className='flex flex-col'>
-                            <span className='text-xs font-bold text-foreground'>
-                              {recordedAudio.name}
-                            </span>
-                            <span className='text-[10px] text-muted-foreground'>
-                              Durasi: {recordedAudio.duration} · Format: M4A Audio
-                            </span>
-                          </div>
-                        </div>
-
-                        <button
-                          type='button'
-                          onClick={() => setRecordedAudio(null)}
-                          className='rounded-md p-1 text-muted-foreground hover:text-destructive cursor-pointer'
-                          title='Rekam ulang'
-                        >
-                          <RotateCcw className='size-3.5' />
-                        </button>
-                      </div>
-
-                      {/* Equalizer animation bar */}
-                      <div className='flex h-2 w-full items-center gap-1 rounded-full bg-muted/60 px-2 overflow-hidden'>
-                        <div
-                          className={cn(
-                            'h-1 rounded-full bg-primary transition-all duration-300',
-                            isPlayingAudio ? 'w-3/4 animate-pulse' : 'w-1/3',
-                          )}
-                        />
-                      </div>
-                    </div>
-                  ) : (
-                    /* Recording Trigger Button */
-                    <div className='flex flex-col gap-2'>
-                      <Button
-                        type='button'
-                        variant='outline'
-                        onClick={handleStartRecording}
-                        className='h-12 w-full gap-2 rounded-xl border-dashed border-rose-300 bg-rose-50/50 text-xs font-bold text-rose-700 hover:bg-rose-100 hover:text-rose-800 cursor-pointer'
-                      >
-                        <Mic className='size-4 text-rose-600' />
-                        Mulai Rekam Suara (Voice Note)
-                      </Button>
-                      <button
-                        type='button'
-                        onClick={() =>
-                          setRecordedAudio({
-                            name: `audio_upload_${stageType}_${Date.now()}.m4a`,
-                            duration: '00:45',
-                          })
-                        }
-                        className='text-center text-[11px] text-muted-foreground hover:text-primary underline cursor-pointer'
-                      >
-                        atau unggah file audio yang sudah ada (.m4a, .mp3)
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* EVIDENCE INPUT: DOKUMEN / PDF */}
-              {evidenceType === 'dokumen' && (
-                <div className='flex flex-col gap-2.5 rounded-xl border border-dashed border-border bg-white p-3'>
-                  {evidenceFile ? (
-                    <Attachment className='rounded-xl border-border bg-muted/20'>
-                      <AttachmentMedia>
-                        <FileType type='pdf' className='size-8' />
-                      </AttachmentMedia>
-                      <AttachmentContent>
-                        <AttachmentTitle className='text-xs font-semibold'>
-                          {evidenceFile.name}
-                        </AttachmentTitle>
-                        <AttachmentDescription className='text-[11px]'>
-                          {evidenceFile.size} · Dokumen Resmi
-                        </AttachmentDescription>
-                      </AttachmentContent>
-                      <AttachmentActions>
-                        <AttachmentAction
-                          variant='ghost'
-                          size='icon'
-                          onClick={() => setEvidenceFile(null)}
-                          className='size-7 text-muted-foreground hover:text-destructive'
-                          title='Hapus dokumen'
-                        >
-                          <X className='size-3.5' />
-                        </AttachmentAction>
-                      </AttachmentActions>
-                    </Attachment>
-                  ) : (
-                    <Button
-                      type='button'
-                      variant='outline'
-                      onClick={() =>
-                        setEvidenceFile({
-                          name: `dokumen_${stageType}_resmi_${Date.now()}.pdf`,
-                          size: '950 KB',
-                        })
-                      }
-                      className='h-12 w-full gap-2 rounded-xl border-dashed border-primary/40 bg-primary/5 text-xs font-semibold text-primary hover:bg-primary/10 cursor-pointer'
-                    >
-                      <Upload className='size-4' />
-                      Unggah File Dokumen Resmi (PDF / Scan)
-                    </Button>
-                  )}
-                </div>
-              )}
-
-              {/* EVIDENCE INPUT: TEKS NOTULENSI */}
-              {evidenceType === 'teks' && (
-                <div className='flex flex-col gap-2 rounded-xl border border-border bg-white p-3'>
-                  <div className='flex items-center justify-between'>
-                    <Label className='text-[11px] font-semibold text-foreground'>
-                      Nomor Referensi / Surat Tugas
-                    </Label>
-                    <span className='text-[10px] text-muted-foreground'>Opsional</span>
                   </div>
-                  <Input
-                    value={evidenceRefNo}
-                    onChange={(e) => setEvidenceRefNo(e.target.value)}
-                    placeholder='e.g. NOTULEN/ABM/2026/...'
-                    className='h-9 rounded-lg text-xs'
-                  />
+                  <button
+                    type='button'
+                    onClick={() => {
+                      setEvidenceFile(null);
+                      if (fileInputRef.current) fileInputRef.current.value = '';
+                    }}
+                    className='rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-destructive cursor-pointer shrink-0'
+                    title='Hapus file'
+                  >
+                    <X className='size-4' />
+                  </button>
+                </div>
+              ) : (
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className={cn(
+                    'group flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-4 text-center cursor-pointer transition-all',
+                    evidenceError && !evidenceFile
+                      ? 'border-rose-400 bg-rose-50/60'
+                      : 'border-border/80 bg-white hover:border-primary/50 hover:bg-primary/5',
+                  )}
+                >
+                  <div className='flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary group-hover:scale-105 transition-transform'>
+                    <UploadCloud className='size-5' />
+                  </div>
+                  <div className='flex flex-col gap-0.5'>
+                    <span className='text-xs font-semibold text-foreground'>
+                      Pilih atau Unggah File Bukti
+                    </span>
+                    <span className='text-[10px] text-muted-foreground'>
+                      Mendukung foto, audio rekaman, dokumen PDF/Word, atau file catatan
+                    </span>
+                  </div>
+                  <Button
+                    type='button'
+                    variant='outline'
+                    size='sm'
+                    className='mt-1 h-8 rounded-lg text-[11px] font-semibold gap-1.5 pointer-events-none'
+                  >
+                    <Paperclip className='size-3.5' />
+                    Pilih File dari Perangkat
+                  </Button>
                 </div>
               )}
 
-              {/* Keterangan Deskripsi Bukti (Wajib) */}
-              <div className='flex flex-col gap-1.5'>
-                <div className='flex items-center justify-between'>
-                  <Label className='text-xs font-semibold text-foreground'>
-                    Keterangan Bukti / Ringkasan Verifikasi
-                  </Label>
-                  <span className='text-[10px] font-bold text-rose-600'>*Wajib</span>
-                </div>
+              {/* Quick sample file presets */}
+              <div className='flex flex-wrap items-center gap-1.5 pt-0.5'>
+                <span className='text-[10px] text-muted-foreground'>Contoh cepat:</span>
+                <button
+                  type='button'
+                  onClick={() => {
+                    setEvidenceFile({
+                      name: `foto_kunjungan_${stageType}_${Date.now()}.jpg`,
+                      size: '1.4 MB',
+                    });
+                    setEvidenceError(false);
+                  }}
+                  className='rounded-md border border-border/60 bg-white px-2 py-0.5 text-[10px] text-muted-foreground hover:border-primary hover:text-primary cursor-pointer'
+                >
+                  + Foto
+                </button>
+                <button
+                  type='button'
+                  onClick={() => {
+                    setEvidenceFile({
+                      name: `rekaman_suara_${stageType}_${Date.now()}.m4a`,
+                      size: '920 KB',
+                    });
+                    setEvidenceError(false);
+                  }}
+                  className='rounded-md border border-border/60 bg-white px-2 py-0.5 text-[10px] text-muted-foreground hover:border-primary hover:text-primary cursor-pointer'
+                >
+                  + Audio
+                </button>
+                <button
+                  type='button'
+                  onClick={() => {
+                    setEvidenceFile({
+                      name: `dokumen_${stageType}_resmi_${Date.now()}.pdf`,
+                      size: '750 KB',
+                    });
+                    setEvidenceError(false);
+                  }}
+                  className='rounded-md border border-border/60 bg-white px-2 py-0.5 text-[10px] text-muted-foreground hover:border-primary hover:text-primary cursor-pointer'
+                >
+                  + Dokumen PDF
+                </button>
+                <button
+                  type='button'
+                  onClick={() => {
+                    setEvidenceFile({
+                      name: `catatan_notulen_${stageType}_${Date.now()}.txt`,
+                      size: '35 KB',
+                    });
+                    setEvidenceError(false);
+                  }}
+                  className='rounded-md border border-border/60 bg-white px-2 py-0.5 text-[10px] text-muted-foreground hover:border-primary hover:text-primary cursor-pointer'
+                >
+                  + Catatan Teks
+                </button>
+              </div>
+
+              {/* Keterangan Deskripsi Bukti */}
+              <div className='flex flex-col gap-1.5 pt-1 border-t border-border/60'>
+                <Label className='text-xs font-semibold text-foreground'>
+                  Keterangan Bukti <span className='text-rose-500'>*</span>
+                </Label>
                 <Input
                   value={evidenceDeskripsi}
                   onChange={(e) => {
                     setEvidenceDeskripsi(e.target.value);
                     if (e.target.value.trim()) setEvidenceError(false);
                   }}
-                  placeholder='e.g. Foto serah terima di ICU / Rekaman konfirmasi Direktur / Dokumen PO basah'
+                  placeholder='Tuliskan ringkasan bukti verifikasi (e.g. Foto serah terima / Rekaman konfirmasi / Dokumen PO basah)'
                   className={cn(
                     'h-10 rounded-xl text-xs bg-white',
                     evidenceError && !evidenceDeskripsi.trim() && 'border-rose-400 focus-visible:ring-rose-400',
@@ -1584,7 +1479,9 @@ export function StageActivityDrawer({
             {/* Common: Priority Picker for non-revenue */}
             {stageType !== 'revenue' && (
               <div className='flex flex-col gap-2 pt-1 border-t border-border/60'>
-                <Label className='text-xs font-semibold'>Prioritas Tiket</Label>
+                <Label className='text-xs font-semibold'>
+                  Prioritas Tiket <span className='text-rose-500'>*</span>
+                </Label>
                 <div className='grid grid-cols-3 gap-2'>
                   {(['rendah', 'sedang', 'tinggi'] as TiketPrioritas[]).map((p) => {
                     const cfg = PRIORITY_CONFIG[p];
