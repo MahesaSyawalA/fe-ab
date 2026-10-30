@@ -51,12 +51,13 @@ export function countActiveFilters(filter: KanbanFilterState): number {
 }
 
 const FILTER_STAGE_OPTIONS = [
-  { id: 'prospek', label: 'Prospek' },
-  { id: 'kunjungan', label: 'Kunjungan' },
-  { id: 'penawaran', label: 'Penawaran' },
-  { id: 'negosiasi', label: 'Negosiasi' },
-  { id: 'won', label: 'Won' },
-  { id: 'lost', label: 'Lost' },
+  { id: 'visit', label: 'Visit' },
+  { id: 'kebutuhan', label: 'Kebutuhan' },
+  { id: 'opportunity', label: 'Opportunity' },
+  { id: 'follow_up', label: 'Follow Up' },
+  { id: 'quotation', label: 'Quotation' },
+  { id: 'po', label: 'PO' },
+  { id: 'revenue', label: 'Revenue' },
 ];
 
 const FILTER_PRIORITY_OPTIONS = PRIORITY_ORDER.slice()
@@ -146,15 +147,15 @@ export function KanbanFilterDrawer({
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange} showSwipeHandle>
-      <DrawerContent className='mx-auto max-w-lg rounded-t-3xl bg-card'>
-        <DrawerHeader className='px-5 pt-2 pb-2 text-left'>
+      <DrawerContent className='fixed inset-x-0 bottom-0 mx-auto w-full sm:max-w-lg max-h-[92dvh] flex flex-col rounded-t-[28px] bg-card border-t border-border shadow-2xl overflow-hidden'>
+        <DrawerHeader className='shrink-0 px-5 pt-2 pb-2 text-left border-b border-border/60 bg-card'>
           <DrawerTitle className='text-base font-bold text-foreground'>Filter Tiket</DrawerTitle>
           <DrawerDescription className='text-xs text-muted-foreground'>
             {countActiveFilters(draft)} filter dipilih
           </DrawerDescription>
         </DrawerHeader>
 
-        <div className='flex flex-col gap-4 overflow-y-auto px-5 py-3'>
+        <div className='no-scrollbar flex-1 min-h-0 overflow-y-auto px-5 py-3 flex flex-col gap-4'>
           <PillGroup label='Tahap' options={FILTER_STAGE_OPTIONS} selected={draft.stages} onToggle={toggleIn('stages')} />
           <PillGroup label='Prioritas' options={FILTER_PRIORITY_OPTIONS} selected={draft.priorities} onToggle={toggleIn('priorities')} />
 
@@ -216,16 +217,16 @@ export function KanbanFilterDrawer({
           </div>
         </div>
 
-        <DrawerFooter className='grid grid-cols-2 gap-3 px-5 pt-2 pb-6'>
+        <DrawerFooter className='shrink-0 z-10 grid grid-cols-2 gap-3 px-5 py-3 border-t border-border/70 bg-card shadow-[0_-4px_16px_rgba(0,0,0,0.06)] pb-4 sm:pb-3'>
           <Button
             type='button'
             variant='outline'
             onClick={() => setDraft(INITIAL_KANBAN_FILTER)}
-            className='h-11 rounded-xl text-xs font-semibold shadow-none cursor-pointer'
+            className='h-10 rounded-xl text-xs font-semibold shadow-none cursor-pointer'
           >
             Reset
           </Button>
-          <Button type='button' onClick={handleApply} className='h-11 rounded-xl text-xs font-semibold cursor-pointer'>
+          <Button type='button' onClick={handleApply} className='h-10 rounded-xl text-xs font-semibold cursor-pointer'>
             Terapkan Filter
           </Button>
         </DrawerFooter>

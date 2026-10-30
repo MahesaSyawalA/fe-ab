@@ -24,10 +24,29 @@ export interface Tiket {
   updated_at: Date | string;
 }
 
+export type JenisEvidence = 'foto' | 'audio' | 'dokumen' | 'teks';
+
+export interface EvidenceItem {
+  id?: string;
+  tipe: JenisEvidence;
+  nama_file?: string;
+  ukuran_file?: string;
+  durasi_audio?: string;
+  deskripsi: string;
+  url_preview?: string;
+  jenis?: JenisEvidence;
+  waktu_upload?: string;
+  file_size?: string;
+  durasi_detik?: number;
+  catatan?: string;
+  url_file?: string;
+}
+
 export interface AktivitasWithDetails extends Aktivitas {
   nama_petugas: string;
   pic_ditemui: string;
   waktu_label: string;
+  evidence?: EvidenceItem | null;
 }
 
 export interface RiwayatTahapWithDetails extends RiwayatTahap {

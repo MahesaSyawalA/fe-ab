@@ -69,14 +69,14 @@ export function ResponsiveModal({
   if (isMobile) {
     return (
       <Drawer open={open} onOpenChange={onOpenChange} showSwipeHandle>
-        <DrawerContent className='mx-auto max-w-lg rounded-t-3xl bg-card'>
-          <DrawerHeader className='flex flex-row items-start justify-between px-5 pt-2 pb-1 text-left'>
+        <DrawerContent className='fixed inset-x-0 bottom-0 mx-auto w-full sm:max-w-lg max-h-[92dvh] flex flex-col rounded-t-[28px] bg-card border-t border-border shadow-2xl overflow-hidden'>
+          <DrawerHeader className='shrink-0 flex flex-row items-start justify-between px-5 pt-2 pb-1 text-left border-b border-border/60 bg-card'>
             {heading}
             <DrawerClose render={closeButton}>
               <X className='size-4' />
             </DrawerClose>
           </DrawerHeader>
-          <div className='max-h-[80vh] overflow-y-auto px-5 pb-6'>{children}</div>
+          <div className='no-scrollbar flex-1 min-h-0 overflow-y-auto px-5 py-4 pb-6'>{children}</div>
         </DrawerContent>
       </Drawer>
     );

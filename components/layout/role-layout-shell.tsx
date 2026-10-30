@@ -29,11 +29,11 @@ export function RoleLayoutShell({ role, children }: RoleLayoutShellProps) {
   return (
     <SidebarProvider>
       <AppSidebar role={role} />
-      <SidebarInset>
+      <SidebarInset className='min-w-0 max-w-full overflow-x-hidden'>
         <AppHeader role={role} />
-        <main className='flex min-w-0 flex-1 flex-col gap-4 overflow-x-hidden p-4 bg-background'>
+        <div className='flex min-w-0 max-w-full flex-1 flex-col gap-4 overflow-x-hidden p-4 bg-background'>
           {children}
-        </main>
+        </div>
       </SidebarInset>
     </SidebarProvider>
   );

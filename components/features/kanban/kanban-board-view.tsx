@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowRight, MoreHorizontal, Plus } from 'lucide-react';
+import { arrayMove } from '@dnd-kit/sortable';
 import {
   Kanban,
   KanbanBoard,
@@ -24,9 +25,10 @@ import {
   KanbanFilterState,
 } from './kanban-filter-drawer';
 import { TambahKolomDialog } from './tambah-kolom-dialog';
+import { StageActivityDrawer, StageDrawerMode } from './stage-activity-drawer';
 import { useKanbanStore } from '@/lib/kanban-store';
-import { TEAM_CONTRIBUTIONS } from '@/constants/kanban-constants';
-import { TiketWithDetails } from '@/types/ticket.types';
+import { KanbanStageColumn, TEAM_CONTRIBUTIONS } from '@/constants/kanban-constants';
+import { AktivitasWithDetails, TiketWithDetails } from '@/types/ticket.types';
 import { cn, formatCompactRupiah } from '@/lib/utils';
 
 export type KanbanUserRole = 'sales' | 'manager' | 'director';
@@ -36,20 +38,28 @@ interface KanbanBoardViewProps {
   basePath: string;
 }
 
+interface PendingStageMove {
+  ticket: TiketWithDetails;
+  fromStage: KanbanStageColumn | null;
+  targetStage: KanbanStageColumn;
+  targetIndex?: number;
+}
+
 export function KanbanBoardView({ role, basePath }: KanbanBoardViewProps) {
   const router = useRouter();
   const {
     stages,
     ticketsByStage,
     setTicketsByStage,
-    moveTicketToStage,
+    addTicket,
+    moveTicketWithStageUpdate,
   } = useKanbanStore();
 
   const canCreateColumn = role === 'manager' || role === 'director';
 
   const [searchQuery, setSearchQuery] = React.useState('');
   const [selectedStageId, setSelectedStageId] = React.useState<string>(
-    stages[0]?.id_tahap ?? 'penawaran',
+    stages[0]?.id_tahap ?? 'visit',
   );
   const [filterOpen, setFilterOpen] = React.useState(false);
   const [filterState, setFilterState] = React.useState<KanbanFilterState>(
@@ -57,10 +67,19 @@ export function KanbanBoardView({ role, basePath }: KanbanBoardViewProps) {
   );
   const [isTambahKolomOpen, setIsTambahKolomOpen] = React.useState(false);
 
-  // Dragging active states to match Image 2 mockup
+  // Dragging active states
   const [activeDraggedTicketId, setActiveDraggedTicketId] = React.useState<
     string | null
   >(null);
+  const dragSourceStageRef = React.useRef<string | null>(null);
+
+  // Stage Activity Drawer state (supports 'move' and 'create' modes)
+  const [drawerMode, setDrawerMode] = React.useState<StageDrawerMode>('move');
+  const [targetStageForAction, setTargetStageForAction] =
+    React.useState<KanbanStageColumn | null>(null);
+  const [pendingStageMove, setPendingStageMove] =
+    React.useState<PendingStageMove | null>(null);
+  const [isStageDrawerOpen, setIsStageDrawerOpen] = React.useState(false);
 
   const columnRefs = React.useRef<Record<string, HTMLElement | null>>({});
 
@@ -141,12 +160,12 @@ export function KanbanBoardView({ role, basePath }: KanbanBoardViewProps) {
       });
     });
     return {
-      totalPipelineLabel: total > 0 ? formatCompactRupiah(total) : 'Rp3,52 M',
-      activeTicketsCount: count || 9,
+      totalPipelineLabel: total > 0 ? formatCompactRupiah(total) : 'Rp6,15 M',
+      activeTicketsCount: count || 11,
     };
   }, [ticketsByStage]);
 
-  // Build stage filter chips matching mockup (`• Penawaran 2`, `• Negosiasi 2`, `• Selesai 2`, ...)
+  // Stage filter chips (all 7 stages)
   const stageChips: ChipFilterItem[] = React.useMemo(
     () =>
       stages.map((stage) => ({
@@ -172,7 +191,7 @@ export function KanbanBoardView({ role, basePath }: KanbanBoardViewProps) {
     }
   };
 
-  // Next stage for quick-move floating pill (`→ Pindah ke Negosiasi`)
+  // Next stage for floating quick-move pill
   const currentStageIndex = stages.findIndex(
     (s) => s.id_tahap === selectedStageId,
   );
@@ -183,59 +202,247 @@ export function KanbanBoardView({ role, basePath }: KanbanBoardViewProps) {
 
   const handleQuickMove = () => {
     if (!quickMoveTicket || !nextStage) return;
-    moveTicketToStage(quickMoveTicket.id_tiket, nextStage.id_tahap);
-    setSelectedStageId(nextStage.id_tahap);
+    const currentStageObj =
+      stages.find((s) => s.id_tahap === selectedStageId) ??
+      stages.find((s) => s.id_tahap === quickMoveTicket.id_tahap) ??
+      stages[0];
+
+    setDrawerMode('move');
+    setTargetStageForAction(nextStage);
+    setPendingStageMove({
+      ticket: quickMoveTicket,
+      fromStage: currentStageObj,
+      targetStage: nextStage,
+      targetIndex: 0,
+    });
+    setIsStageDrawerOpen(true);
+  };
+
+  // Trigger Add Card Drawer for a specific stage
+  const handleOpenAddCardDrawer = (stage: KanbanStageColumn) => {
+    setDrawerMode('create');
+    setTargetStageForAction(stage);
+    setPendingStageMove(null);
+    setIsStageDrawerOpen(true);
+  };
+
+  // Drag-and-drop end resolution handler
+  const handleDragOrMoveEnd = (
+    activeId: string,
+    overId: string | undefined,
+  ) => {
+    if (!overId) return;
+
+    // Source stage identification
+    let fromStageId = dragSourceStageRef.current;
+    let draggedTicket: TiketWithDetails | null = null;
+
+    for (const [stageId, list] of Object.entries(ticketsByStage)) {
+      const match = list.find((t) => t.id_tiket === activeId);
+      if (match) {
+        if (!fromStageId) fromStageId = stageId;
+        draggedTicket = match;
+        break;
+      }
+    }
+
+    // Target stage identification
+    let toStageId: string | null = null;
+    if (stages.some((s) => s.id_tahap === overId)) {
+      toStageId = overId;
+    } else {
+      for (const [stageId, list] of Object.entries(ticketsByStage)) {
+        if (list.some((t) => t.id_tiket === overId)) {
+          toStageId = stageId;
+          break;
+        }
+      }
+    }
+
+    if (!fromStageId || !toStageId || !draggedTicket) return;
+
+    // If dropped in the SAME stage, perform item reordering
+    if (fromStageId === toStageId) {
+      const list = [...(ticketsByStage[fromStageId] ?? [])];
+      const oldIdx = list.findIndex((t) => t.id_tiket === activeId);
+      const newIdx = list.findIndex((t) => t.id_tiket === overId);
+      if (oldIdx !== -1 && newIdx !== -1 && oldIdx !== newIdx) {
+        setTicketsByStage({
+          ...ticketsByStage,
+          [fromStageId]: arrayMove(list, oldIdx, newIdx),
+        });
+      }
+      return;
+    }
+
+    // Dropped into a DIFFERENT activity/stage! Trigger the bottom Drawer form!
+    const fromStageObj = stages.find((s) => s.id_tahap === fromStageId) ?? null;
+    const toStageObj = stages.find((s) => s.id_tahap === toStageId) ?? null;
+
+    if (toStageObj) {
+      setDrawerMode('move');
+      setTargetStageForAction(toStageObj);
+      setPendingStageMove({
+        ticket: draggedTicket,
+        fromStage: fromStageObj,
+        targetStage: toStageObj,
+        targetIndex: 0,
+      });
+      setIsStageDrawerOpen(true);
+    }
+  };
+
+  // Confirm ticket move
+  const handleConfirmStageMove = ({
+    id_tiket,
+    fromStageId,
+    toStageId,
+    targetIndex,
+    ticketUpdates,
+    activity,
+  }: {
+    id_tiket: string;
+    fromStageId: string;
+    toStageId: string;
+    targetIndex?: number;
+    ticketUpdates: Partial<TiketWithDetails>;
+    activity: AktivitasWithDetails;
+  }) => {
+    moveTicketWithStageUpdate({
+      id_tiket,
+      fromStageId,
+      toStageId,
+      targetIndex,
+      ticketUpdates,
+      activity,
+    });
+
+    setSelectedStageId(toStageId);
+    const colEl = columnRefs.current[toStageId];
+    if (colEl) {
+      colEl.scrollIntoView({
+        behavior: 'smooth',
+        inline: 'start',
+        block: 'nearest',
+      });
+    }
+    setPendingStageMove(null);
+  };
+
+  // Confirm new ticket creation in that stage
+  const handleConfirmCreateTicket = (newTicket: TiketWithDetails) => {
+    addTicket(newTicket);
+    setSelectedStageId(newTicket.id_tahap);
+    const colEl = columnRefs.current[newTicket.id_tahap];
+    if (colEl) {
+      colEl.scrollIntoView({
+        behavior: 'smooth',
+        inline: 'start',
+        block: 'nearest',
+      });
+    }
+    setPendingStageMove(null);
   };
 
   return (
-    <div className='relative flex w-full min-w-0 flex-col gap-3.5 pb-16'>
+    <div className='relative flex w-full max-w-full min-w-0 flex-col gap-3.5 pb-20'>
       {/* Page Title */}
-      <div className='flex flex-col gap-0.5'>
+      <div className='flex flex-col gap-0.5 w-full max-w-full'>
         <h1 className='text-lg font-bold tracking-tight text-foreground'>
           Papan Kanban
         </h1>
         <p className='text-xs text-muted-foreground'>
-          Pipeline tiket · Squad Jakarta 1
+          Pipeline 7 Tahap Aktivitas Penjualan · Squad Jakarta 1
         </p>
       </div>
 
       {/* Search Bar + Filter Button */}
-      <SearchFilterBar
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        onOpenFilterModal={() => setFilterOpen(true)}
-        activeFilterCount={activeFilterCount}
-      />
+      <div className='w-full max-w-full min-w-0'>
+        <SearchFilterBar
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          onOpenFilterModal={() => setFilterOpen(true)}
+          activeFilterCount={activeFilterCount}
+        />
+      </div>
 
       {/* Blue Pipeline Summary Card */}
-      <KanbanPipelineCard
-        totalPipelineLabel={totalPipelineLabel}
-        activeTicketsCount={activeTicketsCount}
-        targetPercentage={62}
-        showTeamContributions={canCreateColumn}
-        teamContributions={TEAM_CONTRIBUTIONS}
-      />
+      <div className='w-full max-w-full min-w-0'>
+        <KanbanPipelineCard
+          totalPipelineLabel={totalPipelineLabel}
+          activeTicketsCount={activeTicketsCount}
+          targetPercentage={68}
+          showTeamContributions={canCreateColumn}
+          teamContributions={TEAM_CONTRIBUTIONS}
+        />
+      </div>
 
-      {/* Stage Filter Chips (`• Penawaran 2`, `• Negosiasi 2`, `• Selesai 2`) */}
-      <ChipFilter
-        items={stageChips}
-        selectedId={selectedStageId}
-        onSelect={handleSelectStageChip}
-      />
+      {/* Stage Filter Chips (7 Tahapan: Visit, Kebutuhan, Opportunity, Follow Up, Quotation, PO, Revenue) */}
+      <div className='w-full max-w-full min-w-0 overflow-hidden'>
+        <ChipFilter
+          items={stageChips}
+          selectedId={selectedStageId}
+          onSelect={handleSelectStageChip}
+        />
+      </div>
 
-      {/* Kanban Columns Board */}
-      <Kanban
-        value={ticketsByStage}
-        onValueChange={setTicketsByStage}
-        getItemValue={(item) => item.id_tiket}
+      {/* Kanban Columns Board with drag-and-drop & automatic Bottom Drawer */}
+      <div className='w-full max-w-full min-w-0'>
+        <Kanban
+          id='kanban-board-dnd'
+          className='w-full max-w-full min-w-0'
+          value={ticketsByStage}
+          onValueChange={setTicketsByStage}
+          getItemValue={(item) => item.id_tiket}
         onDragStart={(event) => {
-          setActiveDraggedTicketId(event.active.id as string);
+          const activeId = event.active.id as string;
+          setActiveDraggedTicketId(activeId);
+          for (const [stageId, list] of Object.entries(ticketsByStage)) {
+            if (list.some((t) => t.id_tiket === activeId)) {
+              dragSourceStageRef.current = stageId;
+              break;
+            }
+          }
         }}
-        onDragEnd={() => {
+        onDragEnd={(event) => {
           setActiveDraggedTicketId(null);
+          if (event.over) {
+            handleDragOrMoveEnd(String(event.active.id), String(event.over.id));
+          }
+          dragSourceStageRef.current = null;
         }}
         onDragCancel={() => {
           setActiveDraggedTicketId(null);
+          dragSourceStageRef.current = null;
+        }}
+        onMove={({ activeContainer, activeIndex, overContainer, overIndex }) => {
+          if (activeContainer === overContainer) {
+            const list = ticketsByStage[activeContainer] ?? [];
+            const reordered = arrayMove(list, activeIndex, overIndex);
+            setTicketsByStage({
+              ...ticketsByStage,
+              [activeContainer]: reordered,
+            });
+            return;
+          }
+
+          const fromStageObj =
+            stages.find((s) => s.id_tahap === activeContainer) ?? null;
+          const toStageObj =
+            stages.find((s) => s.id_tahap === overContainer) ?? null;
+          const draggedItem = ticketsByStage[activeContainer]?.[activeIndex];
+
+          if (!draggedItem || !toStageObj) return;
+
+          setDrawerMode('move');
+          setTargetStageForAction(toStageObj);
+          setPendingStageMove({
+            ticket: draggedItem,
+            fromStage: fromStageObj,
+            targetStage: toStageObj,
+            targetIndex: overIndex,
+          });
+          setIsStageDrawerOpen(true);
         }}
       >
         <KanbanBoard className='no-scrollbar flex w-full min-w-0 items-start gap-3.5 overflow-x-auto pb-4'>
@@ -252,15 +459,12 @@ export function KanbanBoardView({ role, basePath }: KanbanBoardViewProps) {
                 ref={(el) => {
                   columnRefs.current[stage.id_tahap] = el;
                 }}
-                className={cn(
-                  'w-[290px] shrink-0 sm:w-[310px]',
-                  !canCreateColumn && 'w-full sm:w-[310px]',
-                )}
+                className='w-[290px] shrink-0 sm:w-[310px]'
               >
                 <KanbanColumn
                   value={stage.id_tahap}
                   className={cn(
-                    'flex flex-col gap-3 rounded-2xl border p-3 transition-all',
+                    'flex flex-col min-h-[440px] gap-3 rounded-2xl border p-3 transition-all',
                     isHoldingInColumn
                       ? 'border-2 border-dashed border-[#2563EB] bg-[#EFF6FF]/70'
                       : isFocusedStage
@@ -270,9 +474,15 @@ export function KanbanBoardView({ role, basePath }: KanbanBoardViewProps) {
                 >
                   {/* Column Header */}
                   <div className='flex items-center justify-between px-1 pt-0.5'>
-                    <h3 className='text-xs font-bold text-foreground'>
-                      {stage.nama_tahap} ({items.length})
-                    </h3>
+                    <div className='flex items-center gap-2'>
+                      <span
+                        className='size-2.5 rounded-full'
+                        style={{ backgroundColor: stage.dotColor }}
+                      />
+                      <h3 className='text-xs font-bold text-foreground'>
+                        {stage.nama_tahap} ({items.length})
+                      </h3>
+                    </div>
                     <button
                       type='button'
                       onClick={() => setSelectedStageId(stage.id_tahap)}
@@ -286,7 +496,7 @@ export function KanbanBoardView({ role, basePath }: KanbanBoardViewProps) {
                   {/* Ticket Cards List */}
                   <KanbanColumnContent
                     value={stage.id_tahap}
-                    className='flex flex-col gap-2.5'
+                    className='flex flex-1 flex-col gap-2.5 min-h-[140px]'
                   >
                     {items.map((ticket) => {
                       const isItemDragging =
@@ -315,15 +525,11 @@ export function KanbanBoardView({ role, basePath }: KanbanBoardViewProps) {
                     })}
                   </KanbanColumnContent>
 
-                  {/* + Add Card Button (Allowed for both Sales and Manager/Owner) */}
+                  {/* + Add Card Button -> Automatically opens stage-specific form drawer! */}
                   <Button
                     type='button'
                     variant='outline'
-                    onClick={() =>
-                      router.push(
-                        `${basePath}/tambah?tahap=${stage.id_tahap}`,
-                      )
-                    }
+                    onClick={() => handleOpenAddCardDrawer(stage)}
                     className='h-9 w-full gap-1.5 rounded-xl border-dashed border-border bg-white text-xs font-semibold text-muted-foreground shadow-none hover:border-primary/40 hover:bg-primary/5 hover:text-primary cursor-pointer'
                   >
                     <Plus className='size-3.5' />
@@ -348,7 +554,7 @@ export function KanbanBoardView({ role, basePath }: KanbanBoardViewProps) {
           </div>
         </KanbanBoard>
 
-        {/* Floating Tilted Drag Overlay (matches Image 2) */}
+        {/* Floating Tilted Drag Overlay */}
         <KanbanOverlay>
           {({ value, variant }) => {
             if (variant === 'column') return null;
@@ -357,7 +563,7 @@ export function KanbanBoardView({ role, basePath }: KanbanBoardViewProps) {
               .find((t) => t.id_tiket === value);
             if (!draggedTicket) return null;
             return (
-              <div className='w-[290px] rotate-[2deg] scale-[1.02] transition-transform sm:w-[310px]'>
+              <div className='w-[290px] rotate-[2deg] scale-[1.02] transition-transform sm:w-[310px] pointer-events-none'>
                 <KanbanTicketCard
                   ticket={draggedTicket}
                   isSelected
@@ -368,8 +574,9 @@ export function KanbanBoardView({ role, basePath }: KanbanBoardViewProps) {
           }}
         </KanbanOverlay>
       </Kanban>
+      </div>
 
-      {/* Floating Bottom Quick-Move Pill (`→ Pindah ke Negosiasi`) */}
+      {/* Floating Bottom Quick-Move Pill (`→ Pindah ke [Tahap]`) */}
       {quickMoveTicket && nextStage && (
         <div className='fixed bottom-5 left-1/2 z-30 -translate-x-1/2'>
           <Button
@@ -383,6 +590,27 @@ export function KanbanBoardView({ role, basePath }: KanbanBoardViewProps) {
         </div>
       )}
 
+      {/* Smooth Shadcn UI Bottom Drawer Form (for Move & Add Card) */}
+      <StageActivityDrawer
+        open={isStageDrawerOpen}
+        onOpenChange={setIsStageDrawerOpen}
+        mode={drawerMode}
+        ticket={pendingStageMove?.ticket ?? null}
+        fromStage={pendingStageMove?.fromStage ?? null}
+        targetStage={
+          drawerMode === 'create'
+            ? targetStageForAction
+            : pendingStageMove?.targetStage ?? targetStageForAction
+        }
+        targetIndex={pendingStageMove?.targetIndex}
+        onConfirmMove={handleConfirmStageMove}
+        onCreateTicket={handleConfirmCreateTicket}
+        onCancelMove={() => {
+          setPendingStageMove(null);
+          setTargetStageForAction(null);
+        }}
+      />
+
       {/* Filter Tiket Bottom Sheet Drawer */}
       <KanbanFilterDrawer
         open={filterOpen}
@@ -391,7 +619,7 @@ export function KanbanBoardView({ role, basePath }: KanbanBoardViewProps) {
         onApply={setFilterState}
       />
 
-      {/* Tambah Kolom Board Baru (Drawer on Mobile, Dialog on Desktop) */}
+      {/* Tambah Kolom Board Baru */}
       <TambahKolomDialog
         open={isTambahKolomOpen}
         onOpenChange={setIsTambahKolomOpen}

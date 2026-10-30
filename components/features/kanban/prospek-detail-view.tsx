@@ -10,6 +10,12 @@ import {
   LayoutGrid,
   Pencil,
   Plus,
+  Camera,
+  Mic,
+  FileText,
+  AlignLeft,
+  Paperclip,
+  Volume2,
 } from 'lucide-react';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { Card, CardContent } from '@/components/ui/card';
@@ -95,11 +101,11 @@ export function ProspekDetailView({
 
   const handleNegotiationResult = (result: 'negosiasi' | 'won' | 'lost') => {
     if (result === 'negosiasi') {
-      moveTicketToStage(ticket.id_tiket, 'negosiasi');
+      moveTicketToStage(ticket.id_tiket, 'follow_up');
     } else if (result === 'won') {
-      updateTicket(ticket.id_tiket, { status: 'won', id_tahap: 'selesai' });
+      updateTicket(ticket.id_tiket, { status: 'won', id_tahap: 'revenue' });
     } else {
-      updateTicket(ticket.id_tiket, { status: 'lost', id_tahap: 'selesai' });
+      updateTicket(ticket.id_tiket, { status: 'lost', id_tahap: 'revenue' });
     }
     setNegotiationDrawerOpen(false);
   };
@@ -413,6 +419,72 @@ export function ProspekDetailView({
                             {akt.catatan}
                           </p>
                         </div>
+
+                        {akt.evidence && (() => {
+                          const evType = akt.evidence.tipe || akt.evidence.jenis || 'foto';
+                          const evDesc = akt.evidence.deskripsi || akt.evidence.catatan || '';
+                          const evFile = akt.evidence.nama_file;
+                          const evSize = akt.evidence.ukuran_file || akt.evidence.file_size;
+                          const evDuration = akt.evidence.durasi_audio || (akt.evidence.durasi_detik ? `00:${String(akt.evidence.durasi_detik).padStart(2, '0')}` : undefined);
+                          const evPreview = akt.evidence.url_preview || akt.evidence.url_file;
+
+                          return (
+                            <div className='mt-2 flex flex-col gap-1.5 rounded-xl border border-primary/20 bg-primary/5 p-2.5 text-xs'>
+                              <div className='flex items-center justify-between'>
+                                <div className='flex items-center gap-1.5 font-semibold text-primary text-[11px]'>
+                                  {evType === 'foto' && <Camera className='size-3.5' />}
+                                  {evType === 'audio' && <Mic className='size-3.5' />}
+                                  {evType === 'dokumen' && <FileText className='size-3.5' />}
+                                  {evType === 'teks' && <AlignLeft className='size-3.5' />}
+                                  <span>Bukti Wajib ({evType.toUpperCase()})</span>
+                                </div>
+                                <span className='text-[10px] text-muted-foreground'>
+                                  {akt.evidence.waktu_upload || akt.waktu_label}
+                                </span>
+                              </div>
+
+                              {evFile && (
+                                <div className='flex items-center gap-1.5 text-[11px] text-foreground font-medium'>
+                                  <Paperclip className='size-3 text-muted-foreground' />
+                                  <span className='truncate'>{evFile}</span>
+                                  {evSize && (
+                                    <span className='text-[10px] text-muted-foreground'>
+                                      ({evSize})
+                                    </span>
+                                  )}
+                                </div>
+                              )}
+
+                              {evDuration && (
+                                <div className='flex items-center gap-2 rounded-lg bg-background/80 px-2.5 py-1.5 border border-border/50'>
+                                  <Volume2 className='size-3.5 text-primary' />
+                                  <span className='text-[11px] font-semibold text-foreground'>
+                                    Rekaman Suara Lapangan
+                                  </span>
+                                  <span className='text-[10px] font-mono text-muted-foreground ml-auto'>
+                                    {evDuration}
+                                  </span>
+                                </div>
+                              )}
+
+                              {evDesc && (
+                                <p className='text-[11px] text-foreground/80 italic bg-background/50 p-1.5 rounded-lg border border-border/40'>
+                                  "{evDesc}"
+                                </p>
+                              )}
+
+                              {evPreview && (
+                                <div className='mt-1 overflow-hidden rounded-lg border border-border/60 max-w-[180px]'>
+                                  <img
+                                    src={evPreview}
+                                    alt='Evidence'
+                                    className='h-24 w-full object-cover'
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })()}
                       </CardContent>
                     </Card>
                   ))}
@@ -450,8 +522,8 @@ export function ProspekDetailView({
         onOpenChange={setActivityDrawerOpen}
         showSwipeHandle
       >
-        <DrawerContent className='mx-auto max-w-lg rounded-t-3xl bg-card'>
-          <DrawerHeader className='px-5 pt-2 pb-1 text-left'>
+        <DrawerContent className='fixed inset-x-0 bottom-0 mx-auto w-full sm:max-w-lg max-h-[92dvh] flex flex-col rounded-t-[28px] bg-card border-t border-border shadow-2xl overflow-hidden'>
+          <DrawerHeader className='shrink-0 px-5 pt-2 pb-1 text-left border-b border-border/60 bg-card'>
             <DrawerTitle className='text-base font-bold text-foreground'>
               Tambah Aktivitas Kunjungan
             </DrawerTitle>
@@ -513,8 +585,8 @@ export function ProspekDetailView({
         onOpenChange={setNegotiationDrawerOpen}
         showSwipeHandle
       >
-        <DrawerContent className='mx-auto max-w-lg rounded-t-3xl bg-card'>
-          <DrawerHeader className='px-5 pt-2 pb-2 text-left'>
+        <DrawerContent className='fixed inset-x-0 bottom-0 mx-auto w-full sm:max-w-lg max-h-[92dvh] flex flex-col rounded-t-[28px] bg-card border-t border-border shadow-2xl overflow-hidden'>
+          <DrawerHeader className='shrink-0 px-5 pt-2 pb-2 text-left border-b border-border/60 bg-card'>
             <DrawerTitle className='text-base font-bold text-foreground'>
               Tentukan Hasil Negosiasi
             </DrawerTitle>

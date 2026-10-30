@@ -47,7 +47,7 @@ interface ProspekFormViewProps {
 export function ProspekFormView({
   mode,
   basePath,
-  initialStageId = 'prospek',
+  initialStageId = 'visit',
   ticket,
 }: ProspekFormViewProps) {
   const router = useRouter();
@@ -157,7 +157,7 @@ export function ProspekFormView({
       kode_tiket: `TKT-0${randomNum}`,
       id_pelanggan: selectedOutletId,
       id_user: 'usr-1',
-      id_tahap: initialStageId || 'prospek',
+      id_tahap: initialStageId || 'visit',
       id_kontak: chosenKontak?.id_kontak ?? null,
       judul: judul.trim(),
       nama_faskes: selectedOutlet?.nama_faskes ?? 'RS Harapan Sehat',

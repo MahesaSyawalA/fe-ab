@@ -6,6 +6,15 @@ import {
 } from '@/constants/kanban-constants';
 import { AktivitasWithDetails, TiketWithDetails } from '@/types/ticket.types';
 
+interface MoveTicketWithStageUpdateParams {
+  id_tiket: string;
+  fromStageId: string;
+  toStageId: string;
+  targetIndex?: number;
+  ticketUpdates?: Partial<TiketWithDetails>;
+  activity?: AktivitasWithDetails;
+}
+
 interface KanbanStoreState {
   stages: KanbanStageColumn[];
   ticketsByStage: Record<string, TiketWithDetails[]>;
@@ -13,6 +22,7 @@ interface KanbanStoreState {
   addTicket: (ticket: TiketWithDetails) => void;
   updateTicket: (id_tiket: string, updated: Partial<TiketWithDetails>) => void;
   moveTicketToStage: (id_tiket: string, targetStageId: string) => void;
+  moveTicketWithStageUpdate: (params: MoveTicketWithStageUpdateParams) => void;
   addStage: (
     input:
       | string
@@ -50,7 +60,7 @@ export const useKanbanStore = create<KanbanStoreState>((set, get) => ({
 
   addTicket: (ticket) =>
     set((state) => {
-      const stageId = ticket.id_tahap || 'prospek';
+      const stageId = ticket.id_tahap || 'visit';
       const currentList = state.ticketsByStage[stageId] ?? [];
       return {
         ticketsByStage: {
@@ -128,8 +138,8 @@ export const useKanbanStore = create<KanbanStoreState>((set, get) => ({
             id_tahap_tujuan: targetStageId,
             nama_tahap_asal: fromStageName,
             nama_tahap_tujuan: toStageName,
-            id_user: 'usr-1',
-            nama_user: 'Rina Putri',
+            id_user: (found as TiketWithDetails).id_user || 'usr-1',
+            nama_user: (found as TiketWithDetails).nama_sales || 'Rina Putri',
             waktu_pindah: new Date().toISOString(),
             waktu_label: 'Baru saja',
           },
@@ -138,6 +148,79 @@ export const useKanbanStore = create<KanbanStoreState>((set, get) => ({
       };
 
       nextMap[targetStageId] = [updatedTicket, ...(nextMap[targetStageId] ?? [])];
+      return { ticketsByStage: nextMap };
+    }),
+
+  moveTicketWithStageUpdate: ({
+    id_tiket,
+    fromStageId,
+    toStageId,
+    targetIndex,
+    ticketUpdates = {},
+    activity,
+  }) =>
+    set((state) => {
+      let found: TiketWithDetails | null = null;
+      const nextMap: Record<string, TiketWithDetails[]> = {};
+
+      Object.entries(state.ticketsByStage).forEach(([stageId, items]) => {
+        const remaining: TiketWithDetails[] = [];
+        items.forEach((item) => {
+          if (item.id_tiket === id_tiket) {
+            found = item;
+          } else {
+            remaining.push(item);
+          }
+        });
+        nextMap[stageId] = remaining;
+      });
+
+      if (!found) return state;
+
+      const fromStageName =
+        state.stages.find((s) => s.id_tahap === fromStageId)?.nama_tahap ?? fromStageId;
+      const toStageName =
+        state.stages.find((s) => s.id_tahap === toStageId)?.nama_tahap ?? toStageId;
+
+      const newRiwayatItem = {
+        id_riwayat: `rw-${Date.now()}`,
+        id_tiket,
+        id_tahap_asal: fromStageId,
+        id_tahap_tujuan: toStageId,
+        nama_tahap_asal: fromStageName,
+        nama_tahap_tujuan: toStageName,
+        id_user: (found as TiketWithDetails).id_user || 'usr-1',
+        nama_user: (found as TiketWithDetails).nama_sales || 'Rina Putri',
+        waktu_pindah: new Date().toISOString(),
+        waktu_label: 'Baru saja',
+      };
+
+      const updatedTicket: TiketWithDetails = {
+        ...(found as TiketWithDetails),
+        ...ticketUpdates,
+        id_tahap: toStageId,
+        updated_at: new Date().toISOString(),
+        aktivitas_list: activity
+          ? [activity, ...((found as TiketWithDetails).aktivitas_list ?? [])]
+          : (found as TiketWithDetails).aktivitas_list,
+        riwayat_list: [
+          newRiwayatItem,
+          ...((found as TiketWithDetails).riwayat_list ?? []),
+        ],
+      };
+
+      const targetList = [...(nextMap[toStageId] ?? [])];
+      if (
+        typeof targetIndex === 'number' &&
+        targetIndex >= 0 &&
+        targetIndex <= targetList.length
+      ) {
+        targetList.splice(targetIndex, 0, updatedTicket);
+      } else {
+        targetList.unshift(updatedTicket);
+      }
+      nextMap[toStageId] = targetList.map((t, idx) => ({ ...t, posisi: idx + 1 }));
+
       return { ticketsByStage: nextMap };
     }),
 
@@ -197,4 +280,3 @@ export const useKanbanStore = create<KanbanStoreState>((set, get) => ({
     return undefined;
   },
 }));
-

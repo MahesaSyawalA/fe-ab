@@ -8,7 +8,7 @@ import { ProspekDetailView } from './prospek-detail-view';
 
 export function ProspekCreatePageContainer({ basePath }: { basePath: string }) {
   const searchParams = useSearchParams();
-  const tahap = searchParams.get('tahap') || 'prospek';
+  const tahap = searchParams.get('tahap') || 'visit';
 
   return (
     <ProspekFormView

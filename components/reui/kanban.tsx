@@ -179,11 +179,13 @@ export interface KanbanRootProps<T> extends Omit<
   onDragStart?: (event: DragStartEvent) => void
   onDragEnd?: (event: DragEndEvent) => void
   onDragCancel?: (event: DragCancelEvent) => void
+  id?: string
   accessibility?: React.ComponentProps<typeof DndContext>["accessibility"]
   modifiers?: Modifiers
 }
 
 function Kanban<T>({
+  id = "kanban-dnd-context",
   value,
   onValueChange,
   getItemValue,
@@ -631,13 +633,14 @@ function Kanban<T>({
   const defaultProps = {
     "data-slot": "kanban",
     "data-dragging": activeId !== null,
-    className: cn(activeId !== null && "cursor-grabbing!", className),
+    className: cn("w-full min-w-0 max-w-full", activeId !== null && "cursor-grabbing!", className),
     children,
   }
 
   return (
     <KanbanContext.Provider value={contextValue}>
       <DndContext
+        id={id}
         sensors={sensors}
         modifiers={modifiers}
         accessibility={accessibility}
@@ -665,7 +668,11 @@ function KanbanBoard({ className, render, ...props }: KanbanBoardProps) {
 
   const defaultProps = {
     "data-slot": "kanban-board",
-    className: cn("grid auto-rows-fr gap-4 sm:grid-cols-3", className),
+    className: cn(
+      "w-full min-w-0 max-w-full",
+      className?.includes("flex") ? "" : "grid auto-rows-fr gap-4 sm:grid-cols-3",
+      className
+    ),
     children: props.children,
   }
 
@@ -731,6 +738,7 @@ function KanbanColumn({
         "data-disabled": disabled,
         ref: setNodeRef,
         style,
+        suppressHydrationWarning: true,
         className: cn(
           "group/kanban-column flex flex-col",
           isSortableDragging && "opacity-50 z-50",
@@ -849,6 +857,7 @@ function KanbanItem({
         "data-disabled": disabled,
         ref: setNodeRef,
         style,
+        suppressHydrationWarning: true,
         ...attributes,
         className: cn(
           isSortableDragging && "opacity-50 z-50",
