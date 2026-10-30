@@ -20,9 +20,17 @@ export function RoleLayoutShell({ role, children }: RoleLayoutShellProps) {
 
   if (isStandaloneSubpage) {
     return (
-      <div className='flex min-h-svh w-full min-w-0 flex-col overflow-x-hidden bg-background'>
-        {children}
-      </div>
+      <SidebarProvider>
+        <div className='hidden md:contents'>
+          <AppSidebar role={role} hideOnMobile />
+        </div>
+        <SidebarInset className='min-w-0 max-w-full overflow-x-hidden'>
+          <AppHeader role={role} className='hidden md:flex' />
+          <div className='flex min-w-0 max-w-full flex-1 flex-col overflow-x-hidden bg-background p-0 md:p-6 lg:p-8'>
+            {children}
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
     );
   }
 

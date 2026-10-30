@@ -80,7 +80,7 @@ export function PelangganView({ basePath = '/sales/pelanggan' }: PelangganViewPr
   }, [pelangganList, selectedCategory, searchQuery]);
 
   return (
-    <div className='mx-auto flex w-full max-w-xl min-w-0 flex-col gap-4 pb-8'>
+    <div className='mx-auto flex w-full max-w-7xl min-w-0 flex-col gap-5 pb-12'>
       <PelangganListHeader
         title='Pelanggan'
         subtitle='Daftar Pelanggan - Jakarta'
@@ -95,7 +95,7 @@ export function PelangganView({ basePath = '/sales/pelanggan' }: PelangganViewPr
         filterChips={filterChips}
       />
 
-      <div className='flex w-full min-w-0 flex-col gap-3'>
+      <div className='grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4 w-full min-w-0'>
         {filteredList.length > 0 ? (
           filteredList.map((client) => (
             <PelangganCard
@@ -108,9 +108,9 @@ export function PelangganView({ basePath = '/sales/pelanggan' }: PelangganViewPr
         ) : (
           <Card
             size='sm'
-            className='rounded-2xl border border-border ring-0 py-8 text-center shadow-none'
+            className='col-span-full rounded-2xl border border-border ring-0 py-12 text-center shadow-none'
           >
-            <CardContent className='items-center justify-center gap-1'>
+            <CardContent className='items-center justify-center gap-1.5'>
               <p className='text-sm font-semibold text-foreground'>
                 Tidak ada pelanggan ditemukan
               </p>

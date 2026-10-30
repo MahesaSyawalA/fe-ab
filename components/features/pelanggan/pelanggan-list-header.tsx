@@ -14,17 +14,17 @@ export function PelangganListHeader({
   onAddClick,
 }: PelangganListHeaderProps) {
   return (
-    <div className='flex flex-col items-start gap-3'>
+    <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 w-full'>
       <div>
-        <h1 className='text-lg font-bold text-foreground tracking-tight leading-snug'>
+        <h1 className='text-lg sm:text-xl font-bold text-foreground tracking-tight leading-snug'>
           {title}
         </h1>
-        <p className='text-xs text-secondary-foreground'>{subtitle}</p>
+        <p className='text-xs sm:text-sm text-secondary-foreground'>{subtitle}</p>
       </div>
 
       <Button
         onClick={onAddClick}
-        className='h-9 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground font-medium text-xs px-3.5 gap-1.5 shadow-xs cursor-pointer'
+        className='h-9.5 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-xs px-4 gap-1.5 shadow-xs cursor-pointer self-start sm:self-auto'
       >
         <Plus className='size-3.5 stroke-[2.5]' />
         Tambah Pelanggan

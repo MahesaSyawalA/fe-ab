@@ -31,9 +31,9 @@ export function FormStepProfil({ data, onChange, onNext }: FormStepProfilProps) 
   return (
     <Card
       size='sm'
-      className='w-full min-w-0 rounded-2xl border border-border ring-0 py-4 shadow-2xs'
+      className='w-full min-w-0 rounded-2xl border border-border ring-0 py-4 md:py-6 shadow-2xs bg-card'
     >
-      <CardContent className='gap-4 px-4'>
+      <CardContent className='gap-5 px-4 md:px-6'>
         <SectionHeader
           icon={<Hospital className='size-4' />}
           title='Informasi Outlet'
@@ -53,50 +53,56 @@ export function FormStepProfil({ data, onChange, onNext }: FormStepProfilProps) 
         {/* Tipe Outlet */}
         <div className='flex flex-col gap-1.5'>
           <Label className='gap-0.5 text-xs font-medium text-foreground'>
-            <span>Tipe</span>
+            <span>Tipe Outlet</span>
             <span className='text-destructive'>*</span>
           </Label>
           <OptionCardGroup
             options={OUTLET_TYPES}
             value={data.tipe_faskes}
             onChange={(val) => onChange({ tipe_faskes: val })}
+            className='grid grid-cols-1 sm:grid-cols-2 gap-3'
           />
         </div>
 
-        {/* Alamat Lengkap Outlet */}
-        <div className='flex flex-col gap-1.5'>
-          <Label className='gap-0.5 text-xs font-medium text-foreground'>
-            <span>Alamat Lengkap Outlet</span>
-            <span className='text-destructive'>*</span>
-          </Label>
-          <Textarea
-            rows={4}
-            value={data.alamat}
-            onChange={(e) => onChange({ alamat: e.target.value })}
-            placeholder='Contoh: Jl. Salemba Raya No. 42A, RT 03 / RW 05, Kenari, Senen, Jakarta Pusat 10430'
-            className='min-h-24 resize-none rounded-xl border-border bg-card p-3 text-xs text-foreground placeholder:text-muted-foreground shadow-2xs'
-            required
+        {/* Alamat & Foto Outlet (2 columns on desktop) */}
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-4 items-start'>
+          {/* Alamat Lengkap Outlet */}
+          <div className='flex flex-col gap-1.5'>
+            <Label className='gap-0.5 text-xs font-medium text-foreground'>
+              <span>Alamat Lengkap Outlet</span>
+              <span className='text-destructive'>*</span>
+            </Label>
+            <Textarea
+              rows={5}
+              value={data.alamat}
+              onChange={(e) => onChange({ alamat: e.target.value })}
+              placeholder='Contoh: Jl. Salemba Raya No. 42A, RT 03 / RW 05, Kenari, Senen, Jakarta Pusat 10430'
+              className='min-h-[148px] resize-none rounded-xl border-border bg-card p-3 text-xs text-foreground placeholder:text-muted-foreground shadow-2xs'
+              required
+            />
+          </div>
+
+          {/* Foto Outlet */}
+          <FileUpload
+            label='Foto Outlet'
+            helperText='Unggah 1 foto beresolusi jelas yang memperlihatkan identitas outlet resmi'
+            value={data.img_url}
+            onChange={(url) => onChange({ img_url: url })}
+            onRemove={() => onChange({ img_url: '' })}
           />
         </div>
-
-        {/* Foto Outlet */}
-        <FileUpload
-          label='Foto Outlet'
-          helperText='Unggah 1 foto beresolusi jelas yang memperlihatkan identitas outlet resmi'
-          value={data.img_url}
-          onChange={(url) => onChange({ img_url: url })}
-          onRemove={() => onChange({ img_url: '' })}
-        />
 
         {/* Submit Step 1 */}
-        <Button
-          type='button'
-          onClick={onNext}
-          disabled={!isValid}
-          className='mt-1 h-10 w-full rounded-xl bg-primary hover:bg-primary/90 text-xs font-medium text-primary-foreground shadow-xs disabled:opacity-50 cursor-pointer'
-        >
-          Simpan
-        </Button>
+        <div className='flex justify-end pt-2'>
+          <Button
+            type='button'
+            onClick={onNext}
+            disabled={!isValid}
+            className='h-10 w-full md:w-auto md:min-w-48 rounded-xl bg-primary hover:bg-primary/90 text-xs font-medium text-primary-foreground shadow-xs disabled:opacity-50 cursor-pointer'
+          >
+            Lanjut ke Lokasi
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );

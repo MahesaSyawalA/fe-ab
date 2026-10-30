@@ -1,15 +1,17 @@
 'use client'
 
+import { cn } from '@/lib/utils'
 import { UserNotification } from '@/components/layout/header/user-notification'
 import { UserAvatar } from '@/components/layout/header/user-avatar'
 
 interface AppHeaderProps {
     role?: 'sales' | 'manager' | 'director'
+    className?: string
 }
 
-export function AppHeader({ role }: AppHeaderProps) {
+export function AppHeader({ role, className }: AppHeaderProps) {
    return (
-        <header className='sticky top-0 z-50 flex h-16 w-full max-w-full shrink-0 items-center justify-between border-b border-border/40 bg-background px-6'>
+        <header className={cn('sticky top-0 z-50 flex h-16 w-full max-w-full shrink-0 items-center justify-between border-b border-border/40 bg-background px-6', className)}>
             <div className='flex items-center gap-4'>
                 <span className='font-medium text-base text-foreground md:absolute md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2'>
                     AB Medical+

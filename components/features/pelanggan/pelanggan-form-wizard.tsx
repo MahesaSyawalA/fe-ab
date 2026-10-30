@@ -103,12 +103,16 @@ export function PelangganFormWizard({
   };
 
   return (
-    <div className='mx-auto flex w-full max-w-xl min-w-0 flex-col gap-4'>
-      {/* Top Header with Centered Title */}
-      <SubpageHeader title='Tambah Pelanggan Baru' onBack={handlePrevStep} />
+    <div className='mx-auto flex w-full max-w-xl md:max-w-4xl lg:max-w-5xl min-w-0 flex-col gap-4 md:gap-6 pb-12'>
+      {/* Top Header */}
+      <SubpageHeader
+        title='Tambah Pelanggan Baru'
+        subtitle='Lengkapi profil outlet, titik koordinat peta, dan kontak PIC baru'
+        onBack={handlePrevStep}
+      />
 
       {/* Stepper Indicator */}
-      <div className='px-4 py-1'>
+      <div className='px-4 py-2 md:px-6 md:py-4 bg-card md:rounded-2xl md:border md:border-border/60 md:shadow-2xs'>
         <Stepper
           steps={WIZARD_STEPS}
           currentStep={currentStep}

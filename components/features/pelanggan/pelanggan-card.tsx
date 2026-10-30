@@ -115,9 +115,6 @@ export function PelangganCard({
                 <AlertTitle className='text-xs font-semibold text-amber-500 leading-tight'>
                   Belum ada kontak
                 </AlertTitle>
-                <AlertDescription className='text-[11px] text-secondary-foreground leading-tight mt-0.5'>
-                  Tambahkan APA / Tenaga Teknis
-                </AlertDescription>
               </div>
             </div>
 

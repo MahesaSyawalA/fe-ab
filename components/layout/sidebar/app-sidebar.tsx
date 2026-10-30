@@ -21,10 +21,15 @@ import { salesMenu, managerMenu, directorMenu } from '@/constants/sidebar-menus'
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   role: 'sales' | 'manager' | 'director'
+  hideOnMobile?: boolean
 }
 
-export function AppSidebar({ role, ...props }: AppSidebarProps) {
+export function AppSidebar({ role, hideOnMobile, ...props }: AppSidebarProps) {
   const { toggleSidebar, state, isMobile, openMobile } = useSidebar()
+
+  if (hideOnMobile && isMobile) {
+    return null
+  }
 
   const menuItems =
     role === 'sales' ? salesMenu :
