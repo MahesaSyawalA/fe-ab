@@ -1,5 +1,3 @@
-'use client';
-
 import * as React from 'react';
 import { Stepper, StepItem } from '@/components/ui/stepper';
 import { SubpageHeader } from '@/components/ui/subpage-header';
@@ -90,7 +88,6 @@ export function PelangganFormWizard({
         id_kontak: `kt-${Date.now()}-${i}`,
         id_pelanggan: newId,
         nama: c.nama,
-        kategori_peran: 'KOL / Penentu Klinis',
         jabatan: c.jabatan,
         no_telp: c.no_telp,
         email: c.email,
@@ -106,53 +103,50 @@ export function PelangganFormWizard({
   };
 
   return (
-    <div className='mx-auto flex min-h-svh w-full max-w-xl min-w-0 flex-col bg-background pb-10'>
-      {/* White Top Header + Stepper Band without Sidebar */}
-      <div className='bg-card pb-4 shadow-2xs'>
-        <SubpageHeader title='Tambah Pelanggan Baru' onBack={handlePrevStep} />
+    <div className='mx-auto flex w-full max-w-xl min-w-0 flex-col gap-4'>
+      {/* Top Header with Centered Title */}
+      <SubpageHeader title='Tambah Pelanggan Baru' onBack={handlePrevStep} />
 
-        <div className='px-8 pt-2'>
-          <Stepper
-            steps={WIZARD_STEPS}
-            currentStep={currentStep}
-            onStepClick={(step) => {
-              if (step <= currentStep) setCurrentStep(step);
-            }}
-          />
-        </div>
+      {/* Stepper Indicator */}
+      <div className='px-4 py-1'>
+        <Stepper
+          steps={WIZARD_STEPS}
+          currentStep={currentStep}
+          onStepClick={(step) => {
+            if (step <= currentStep) setCurrentStep(step);
+          }}
+        />
       </div>
 
-      {/* Step Content */}
-      <div className='px-4 pt-4'>
-        {currentStep === 1 && (
-          <FormStepProfil
-            data={profilData}
-            onChange={(fields) =>
-              setProfilData((prev) => ({ ...prev, ...fields }))
-            }
-            onNext={handleNextStep}
-          />
-        )}
+      {/* Step Contents */}
+      {currentStep === 1 && (
+        <FormStepProfil
+          data={profilData}
+          onChange={(fields) =>
+            setProfilData((prev) => ({ ...prev, ...fields }))
+          }
+          onNext={handleNextStep}
+        />
+      )}
 
-        {currentStep === 2 && (
-          <FormStepLokasi
-            data={lokasiData}
-            onChange={(fields) =>
-              setLokasiData((prev) => ({ ...prev, ...fields }))
-            }
-            onNext={handleNextStep}
-          />
-        )}
+      {currentStep === 2 && (
+        <FormStepLokasi
+          data={lokasiData}
+          onChange={(fields) =>
+            setLokasiData((prev) => ({ ...prev, ...fields }))
+          }
+          onNext={handleNextStep}
+        />
+      )}
 
-        {currentStep === 3 && (
-          <FormStepKontak
-            contacts={contacts}
-            onChangeContacts={setContacts}
-            onSubmit={handleFinalSubmit}
-            isSubmitting={isSubmitting}
-          />
-        )}
-      </div>
+      {currentStep === 3 && (
+        <FormStepKontak
+          contacts={contacts}
+          onChangeContacts={setContacts}
+          onSubmit={handleFinalSubmit}
+          isSubmitting={isSubmitting}
+        />
+      )}
     </div>
   );
 }
