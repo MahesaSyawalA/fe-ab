@@ -564,7 +564,7 @@ export function StageActivityDrawer({
     if (!ticket) return;
 
     const ticketUpdates: Partial<TiketWithDetails> = {
-      prioritas,
+      prioritas: ticket.prioritas, // Prioritas tidak bisa diganti saat pindah tiket
       estimasi_nilai: parsedNilai,
     };
 
@@ -688,13 +688,28 @@ export function StageActivityDrawer({
 
           <DrawerDescription className='text-xs text-muted-foreground flex items-center gap-1.5 mt-0.5'>
             {mode === 'move' && ticket ? (
-              <>
+              <span className='flex flex-wrap items-center gap-1.5'>
                 <span className='font-semibold text-foreground/80'>{ticket.kode_tiket}</span>
                 <span>·</span>
-                <span className='truncate'>{ticket.judul}</span>
+                <span className='truncate max-w-[180px]'>{ticket.judul}</span>
                 <span>·</span>
                 <span className='text-primary font-medium'>{ticket.nama_faskes}</span>
-              </>
+                <span>·</span>
+                <span
+                  className={cn(
+                    'inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-semibold',
+                    PRIORITY_CONFIG[ticket.prioritas]?.badgeClass || 'bg-muted text-muted-foreground',
+                  )}
+                >
+                  <span
+                    className={cn(
+                      'size-1.5 rounded-full',
+                      PRIORITY_CONFIG[ticket.prioritas]?.dotClass,
+                    )}
+                  />
+                  {PRIORITY_CONFIG[ticket.prioritas]?.label || ticket.prioritas}
+                </span>
+              </span>
             ) : (
               <span>Lengkapi data prospek dan lampiran bukti aktivitas sesuai tahap {targetStage.nama_tahap}.</span>
             )}
@@ -1476,8 +1491,8 @@ export function StageActivityDrawer({
               </div>
             </div>
 
-            {/* Common: Priority Picker for non-revenue */}
-            {stageType !== 'revenue' && (
+            {/* Priority Picker: Only shown when creating a new ticket/card in any activity */}
+            {mode === 'create' && (
               <div className='flex flex-col gap-2 pt-1 border-t border-border/60'>
                 <Label className='text-xs font-semibold'>
                   Prioritas Tiket <span className='text-rose-500'>*</span>
