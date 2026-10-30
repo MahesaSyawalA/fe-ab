@@ -47,7 +47,7 @@ export function FileUpload({
       )}
 
       {value ? (
-        <div className='relative mt-1 h-36 w-full overflow-hidden rounded-xl border border-border bg-secondary/40'>
+        <div className='relative mt-1 h-44 sm:h-52 md:h-60 w-full overflow-hidden rounded-xl border border-border bg-secondary/40'>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={value} alt='Preview' className='size-full object-cover' />
           <Button
@@ -67,7 +67,7 @@ export function FileUpload({
       ) : (
         <div
           onClick={() => inputRef.current?.click()}
-          className='group mt-1 flex w-full cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-border bg-secondary/20 p-5 text-center transition-colors hover:border-primary/50 hover:bg-primary/4'
+          className='group mt-1 flex w-full cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-border bg-secondary/20 p-6 md:p-8 text-center transition-colors hover:border-primary/50 hover:bg-primary/4'
         >
           <div className='mb-2 flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary transition-transform group-hover:scale-105'>
             <UploadCloud className='size-4' />

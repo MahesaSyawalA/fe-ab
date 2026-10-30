@@ -108,6 +108,7 @@ export function PelangganDetailView({
                 <Button
                   variant='ghost'
                   size='sm'
+                  nativeButton={false}
                   render={
                     <a
                       href={googleMapsUrl}

@@ -101,6 +101,7 @@ export function PicCard({
           <Button
             variant='ghost'
             size='sm'
+            nativeButton={false}
             className='h-9 w-full gap-1.5 rounded-lg bg-blue-50/90 hover:bg-blue-100/80 text-xs font-semibold text-primary hover:text-primary'
             render={<a href={noTelp ? `tel:${noTelp}` : '#'} />}
           >
@@ -111,6 +112,7 @@ export function PicCard({
           <Button
             variant='ghost'
             size='sm'
+            nativeButton={false}
             className='h-9 w-full gap-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100/80 text-xs font-semibold text-emerald-700 hover:text-emerald-700'
             render={
               <a
@@ -127,6 +129,7 @@ export function PicCard({
           <Button
             variant='ghost'
             size='sm'
+            nativeButton={false}
             className='h-9 w-full gap-1.5 rounded-lg bg-amber-50 hover:bg-amber-100/80 text-xs font-semibold text-amber-500 hover:text-amber-500'
             render={<a href={email ? `mailto:${email}` : '#'} />}
           >

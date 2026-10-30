@@ -64,33 +64,30 @@ export function FormStepProfil({ data, onChange, onNext }: FormStepProfilProps) 
           />
         </div>
 
-        {/* Alamat & Foto Outlet (2 columns on desktop) */}
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-4 items-start'>
-          {/* Alamat Lengkap Outlet */}
-          <div className='flex flex-col gap-1.5'>
-            <Label className='gap-0.5 text-xs font-medium text-foreground'>
-              <span>Alamat Lengkap Outlet</span>
-              <span className='text-destructive'>*</span>
-            </Label>
-            <Textarea
-              rows={5}
-              value={data.alamat}
-              onChange={(e) => onChange({ alamat: e.target.value })}
-              placeholder='Contoh: Jl. Salemba Raya No. 42A, RT 03 / RW 05, Kenari, Senen, Jakarta Pusat 10430'
-              className='min-h-[148px] resize-none rounded-xl border-border bg-card p-3 text-xs text-foreground placeholder:text-muted-foreground shadow-2xs'
-              required
-            />
-          </div>
-
-          {/* Foto Outlet */}
-          <FileUpload
-            label='Foto Outlet'
-            helperText='Unggah 1 foto beresolusi jelas yang memperlihatkan identitas outlet resmi'
-            value={data.img_url}
-            onChange={(url) => onChange({ img_url: url })}
-            onRemove={() => onChange({ img_url: '' })}
+        {/* Alamat Lengkap Outlet (Full Width) */}
+        <div className='flex flex-col gap-1.5'>
+          <Label className='gap-0.5 text-xs font-medium text-foreground'>
+            <span>Alamat Lengkap Outlet</span>
+            <span className='text-destructive'>*</span>
+          </Label>
+          <Textarea
+            rows={4}
+            value={data.alamat}
+            onChange={(e) => onChange({ alamat: e.target.value })}
+            placeholder='Contoh: Jl. Salemba Raya No. 42A, RT 03 / RW 05, Kenari, Senen, Jakarta Pusat 10430'
+            className='min-h-24 resize-none rounded-xl border-border bg-card p-3 text-xs text-foreground placeholder:text-muted-foreground shadow-2xs'
+            required
           />
         </div>
+
+        {/* Foto Outlet (Full Width below Alamat) */}
+        <FileUpload
+          label='Foto Outlet'
+          helperText='Unggah 1 foto beresolusi jelas yang memperlihatkan identitas outlet resmi'
+          value={data.img_url}
+          onChange={(url) => onChange({ img_url: url })}
+          onRemove={() => onChange({ img_url: '' })}
+        />
 
         {/* Submit Step 1 */}
         <div className='flex justify-end pt-2'>

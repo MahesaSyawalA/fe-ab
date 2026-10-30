@@ -92,6 +92,7 @@ export function PelangganCard({
                 <Button
                   variant='ghost'
                   size='icon-xs'
+                  nativeButton={false}
                   onClick={(e) => e.stopPropagation()}
                   className='text-primary hover:bg-primary/10 hover:text-primary'
                   title='Hubungi PIC'
