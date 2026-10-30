@@ -1,5 +1,5 @@
+import { KanbanBoardView } from '@/components/features/kanban/kanban-board-view';
+
 export default function ManagerKanbanPage() {
-    return (
-        <div>ManagerKanbanPage</div>
-    )
+  return <KanbanBoardView role='manager' basePath='/manager/kanban' />;
 }
