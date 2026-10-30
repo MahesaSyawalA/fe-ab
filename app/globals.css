@@ -136,7 +136,7 @@
   --sidebar-ring: #60A5FA;
 
   --sidebar-width: 16rem;
-  --sidebar-width-icon: 5.5rem;
+  --sidebar-width-icon: 3.75rem;
 
 }
 
@@ -151,5 +151,14 @@
 
   html {
     @apply font-sans;
+  }
+}
+
+
+@utility no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
   }
 }

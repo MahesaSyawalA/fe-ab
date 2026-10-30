@@ -5,6 +5,8 @@ export interface Kontak {
     jabatan: string;
     no_telp: string;
     email: string;
+    kategori_peran?: string;
+    inisial?: string;
     created_at: Date | string;
     updated_at: Date | string;
 }

@@ -9,14 +9,14 @@ interface AppHeaderProps {
 
 export function AppHeader({ role }: AppHeaderProps) {
     return (
-        <header className='flex h-16 shrink-0 items-center justify-between px-6 bg-background relative'>
+        <header className='flex h-16 shrink-0 items-center justify-between pl-7 pr-4 sm:px-6 bg-card relative'>
             <div className='flex items-center gap-4'>
                 <span className='font-medium text-base text-foreground md:absolute md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2'>
                     AB Medical+
                 </span>
             </div>
 
-            <div className='flex items-center gap-4'>
+            <div className='flex items-center gap-3 sm:gap-4'>
                 <UserNotification />
                 <UserAvatar role={role} />
             </div>

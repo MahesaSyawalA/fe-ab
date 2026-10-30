@@ -1,3 +1,5 @@
+import { Kontak } from './contact.types';
+
 export interface Pelanggan {
     id_pelanggan: string;
     nama_faskes: string;
@@ -11,6 +13,15 @@ export interface Pelanggan {
     updated_at: Date | string;
 }
 
+export interface PelangganWithDetails extends Pelanggan {
+    jarak_km?: number | string;
+    tiket_aktif?: number;
+    total_kunjungan?: number;
+    estimasi_nilai?: string;
+    status?: 'Aktif' | 'Nonaktif' | 'Prospek';
+    kontak_list?: Kontak[];
+}
+
 export interface CreatePelangganInput {
     nama_faskes: string;
     tipe_faskes: string;
@@ -19,6 +30,12 @@ export interface CreatePelangganInput {
     longitude: number;
     radius_kunjungan: number;
     img_url: string;
+    kontak?: Array<{
+        nama: string;
+        jabatan: string;
+        no_telp: string;
+        email: string;
+    }>;
 }
 
 export interface UpdatePelangganInput {

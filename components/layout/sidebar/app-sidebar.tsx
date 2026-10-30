@@ -35,12 +35,12 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
 
   return (
     <Sidebar collapsible='icon' {...props}>
-      <SidebarHeader className='mt-4 group-data-[collapsible=icon]:mt-2 transition-all'>
+      <SidebarHeader className='mt-3 group-data-[collapsible=icon]:mt-3 group-data-[collapsible=icon]:px-0 transition-all'>
         <SidebarMenu>
-          <SidebarMenuItem>
-            <div className='flex items-center justify-between w-full px-1 group-data-[collapsible=icon]:px-0 transition-all'>
+          <SidebarMenuItem className='w-full'>
+            <div className='relative flex items-center justify-between w-full px-1 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 transition-all'>
               <div className='flex items-center gap-2'>
-                <div className='flex aspect-square size-10 group-data-[collapsible=icon]:size-8 items-center justify-center rounded-lg bg-card p-0.5 border border-border shrink-0 transition-all'>
+                <div className='flex aspect-square size-10 group-data-[collapsible=icon]:size-9 items-center justify-center rounded-xl bg-card p-0.5 border border-border shrink-0 transition-all'>
                   <Image
                     src='/assets/logos/ab-medical-app-logo.jpeg'
                     alt='AB Medical Logo'
@@ -60,13 +60,15 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
               </div>
 
               <button
+                type='button'
                 onClick={toggleSidebar}
-                className='flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-white shadow-sm hover:bg-primary-hover transition-colors'
+                className='flex size-6 shrink-0 items-center justify-center rounded-full bg-primary text-white shadow-md hover:bg-primary-hover transition-all cursor-pointer md:absolute md:-right-5 md:top-1/2 md:-translate-y-1/2 group-data-[collapsible=icon]:absolute group-data-[collapsible=icon]:-right-3 group-data-[collapsible=icon]:top-1/2 group-data-[collapsible=icon]:-translate-y-1/2 in-data-[mobile=true]:static in-data-[mobile=true]:translate-y-0 z-30'
+                title={isExpanded ? 'Tutup Sidebar' : 'Buka Sidebar'}
               >
                 {isExpanded ? (
-                  <ChevronLeft className='h-4 w-4' />
+                  <ChevronLeft className='size-3.5 stroke-[2.5]' />
                 ) : (
-                  <ChevronRight className='h-4 w-4' />
+                  <ChevronRight className='size-3.5 stroke-[2.5]' />
                 )}
               </button>
 
@@ -80,6 +82,8 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
       <SidebarContent>
         <NavMain items={menuItems} />
       </SidebarContent>
+
+      <SidebarSeparator className='mx-auto mb-1 w-8 group-data-[state=expanded]:w-auto' />
 
       <SidebarFooter>
         <NavUser role={role} />

@@ -22,7 +22,7 @@ export function NavMain({
 
   return (
     <SidebarGroup>
-      <SidebarMenu className='gap-2'>
+      <SidebarMenu className='gap-2.5'>
         {items.map((item) => {
           const isActive = pathname.startsWith(item.url)
 
@@ -30,14 +30,14 @@ export function NavMain({
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton
                 tooltip={item.title}
-                className={`hover:bg-transparent active:bg-transparent transition-all cursor-pointer group/menu-item group-data-[collapsible=icon]:p-0! group-data-[collapsible=icon]:justify-center! ${
+                className={`hover:bg-transparent active:bg-transparent transition-all cursor-pointer group/menu-item group-data-[collapsible=icon]:p-0! group-data-[collapsible=icon]:justify-center! group-data-[collapsible=icon]:overflow-visible! ${
                   !isActive ? 'text-foreground hover:text-accent-hover' : ''
                   }`}
                 render={<Link href={item.url} />}
               >
                 <div
-                  className={`flex size-7 shrink-0 items-center justify-center rounded-md transition-colors relative ${isActive
-                    ? 'bg-accent/10 text-accent before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:h-4 before:w-0.75 before:rounded-r-md before:bg-accent'
+                  className={`flex size-8 shrink-0 items-center justify-center rounded-lg transition-colors relative ${isActive
+                    ? 'bg-accent/10 text-accent before:absolute before:-left-1.5 before:top-1/2 before:-translate-y-1/2 before:h-4 before:w-0.75 before:rounded-r-md before:bg-accent'
                     : 'bg-secondary text-foreground group-hover/menu-item:bg-accent/10 group-hover/menu-item:text-accent-hover'
                     }`}
                 >
