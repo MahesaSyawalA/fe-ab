@@ -397,7 +397,7 @@ export function StageActivityDrawer({
         id_tiket: newId,
         tanggal: tanggalAktivitas,
         catatan: activityNote,
-        jenis_kegiatan: 'kunjungan',
+        jenis_kegiatan: (targetStage.jenis_tahap as any) || 'visit',
         jadwal_follow_up: jadwalFollowUp || null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
@@ -491,9 +491,14 @@ export function StageActivityDrawer({
       ticketUpdates.file_penawaran = evidenceFile;
     }
 
+    const effectiveFromStageId = fromStage?.id_tahap || ticket?.id_tahap;
+    const isSameStage = effectiveFromStageId === targetStage.id_tahap;
+
     const activityNote =
       catatan.trim() ||
-      `Perpindahan tahap ke ${targetStage.nama_tahap} oleh ${ticket.nama_sales || 'Sales'}.`;
+      (isSameStage
+        ? `Aktivitas tahap ${targetStage.nama_tahap} oleh ${ticket.nama_sales || 'Sales'}.`
+        : `Perpindahan tahap ke ${targetStage.nama_tahap} oleh ${ticket.nama_sales || 'Sales'}.`);
 
     const newActivity: AktivitasWithDetails = {
       id_aktivitas: `akt-${Date.now()}`,
@@ -501,7 +506,7 @@ export function StageActivityDrawer({
       id_tiket: ticket.id_tiket,
       tanggal: tanggalAktivitas,
       catatan: activityNote,
-      jenis_kegiatan: 'kunjungan',
+      jenis_kegiatan: (targetStage.jenis_tahap as any) || 'visit',
       jadwal_follow_up: jadwalFollowUp || null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
@@ -536,6 +541,14 @@ export function StageActivityDrawer({
       ? INITIAL_KANBAN_STAGES.find((s) => s.id_tahap === ticket.id_tahap) || null
       : null);
 
+  const isSameStage =
+    mode === 'move' &&
+    Boolean(
+      effectiveFromStage &&
+        targetStage &&
+        effectiveFromStage.id_tahap === targetStage.id_tahap,
+    );
+
   return (
     <Drawer open={open} onOpenChange={onOpenChange} showSwipeHandle>
       <DrawerContent className='fixed inset-x-0 bottom-0 mx-auto w-full sm:max-w-xl md:max-w-2xl max-h-[90dvh] flex flex-col p-0 rounded-t-2xl border-t border-border shadow-xl bg-card overflow-hidden'>
@@ -544,7 +557,7 @@ export function StageActivityDrawer({
           <div className='flex items-center justify-between gap-2 mb-1'>
             {mode === 'move' ? (
               <div className='flex items-center gap-1.5 min-w-0 flex-wrap'>
-                {effectiveFromStage && (
+                {!isSameStage && effectiveFromStage && (
                   <>
                     <Badge
                       variant='outline'
@@ -565,7 +578,7 @@ export function StageActivityDrawer({
                   style={{ backgroundColor: targetStage.dotColor }}
                 >
                   <span className='size-1.5 rounded-full bg-white/80' />
-                  {targetStage.nama_tahap}
+                  {isSameStage ? `Aktivitas: ${targetStage.nama_tahap}` : targetStage.nama_tahap}
                 </Badge>
               </div>
             ) : (
@@ -785,7 +798,11 @@ export function StageActivityDrawer({
             >
               <CheckCircle2 className='size-3.5 shrink-0' />
               <span className='truncate'>
-                {mode === 'create' ? 'Tambah Card' : 'Simpan & Pindahkan'}
+                {mode === 'create'
+                  ? 'Tambah Card'
+                  : isSameStage
+                    ? 'Simpan Aktivitas'
+                    : 'Simpan & Pindahkan'}
               </span>
             </Button>
           </DrawerFooter>
