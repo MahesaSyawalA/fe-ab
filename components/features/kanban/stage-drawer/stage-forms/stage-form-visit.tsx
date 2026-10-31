@@ -37,11 +37,11 @@ export function StageFormVisit({
   onCatatanChange,
 }: StageFormVisitProps) {
   return (
-    <div className='flex flex-col gap-3.5'>
-      <div className='rounded-2xl border border-blue-200 bg-blue-50/70 p-3'>
+    <div className='flex flex-col gap-3'>
+      <div className='rounded-xl border border-blue-200 bg-blue-50/70 px-3 py-2'>
         <div className='flex items-center justify-between'>
           <div className='flex items-center gap-2'>
-            <div className='flex size-8 items-center justify-center rounded-xl bg-blue-600 text-white'>
+            <div className='flex size-7 items-center justify-center rounded-lg bg-blue-600 text-white'>
               <MapPin className='size-4' />
             </div>
             <div className='flex flex-col'>
@@ -59,7 +59,7 @@ export function StageFormVisit({
         </div>
       </div>
 
-      <div className='grid grid-cols-2 gap-3'>
+      <div className='grid grid-cols-2 gap-2.5'>
         <div className='flex flex-col gap-1.5'>
           <Label className='text-xs font-semibold'>
             Tanggal Kunjungan <span className='text-rose-500'>*</span>
@@ -68,7 +68,7 @@ export function StageFormVisit({
             type='date'
             value={tanggalAktivitas}
             onChange={(e) => onTanggalChange(e.target.value)}
-            className='h-10 rounded-xl text-xs'
+            className='h-9 rounded-xl text-xs'
             required
           />
         </div>
@@ -80,13 +80,13 @@ export function StageFormVisit({
             type='time'
             value={jamAktivitas}
             onChange={(e) => onJamChange(e.target.value)}
-            className='h-10 rounded-xl text-xs'
+            className='h-9 rounded-xl text-xs'
             required
           />
         </div>
       </div>
 
-      <div className='grid grid-cols-2 gap-3'>
+      <div className='grid grid-cols-2 gap-2.5'>
         <div className='flex flex-col gap-1.5'>
           <Label className='text-xs font-semibold'>
             PIC yang Ditemui <span className='text-rose-500'>*</span>
@@ -95,7 +95,7 @@ export function StageFormVisit({
             value={picDitemui}
             onChange={(e) => onPicChange(e.target.value)}
             placeholder='e.g. dr. Hendra Sp.PD'
-            className='h-10 rounded-xl text-xs'
+            className='h-9 rounded-xl text-xs'
             required
           />
         </div>
@@ -105,7 +105,7 @@ export function StageFormVisit({
             value={jabatanPic}
             onChange={(e) => onJabatanChange(e.target.value)}
             placeholder='e.g. Kepala Instalasi'
-            className='h-10 rounded-xl text-xs'
+            className='h-9 rounded-xl text-xs'
           />
         </div>
       </div>

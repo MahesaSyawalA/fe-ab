@@ -35,12 +35,12 @@ export function StageFormRevenue({
   onMetodePembayaranChange,
 }: StageFormRevenueProps) {
   return (
-    <div className='flex flex-col gap-3.5'>
+    <div className='flex flex-col gap-3'>
       <div className='flex flex-col gap-1.5'>
         <Label className='text-xs font-semibold'>
           Hasil Penjualan Akhir <span className='text-rose-500'>*</span>
         </Label>
-        <div className='grid grid-cols-2 gap-3'>
+        <div className='grid grid-cols-2 gap-2.5'>
           <Button
             type='button'
             variant='outline'
@@ -72,12 +72,12 @@ export function StageFormRevenue({
         </div>
       </div>
 
-      <div className='grid grid-cols-2 gap-3'>
+      <div className='grid grid-cols-2 gap-2.5'>
         <div className='flex flex-col gap-1.5'>
           <Label className='text-xs font-semibold'>
             Realisasi Nilai Revenue (Rp) <span className='text-rose-500'>*</span>
           </Label>
-          <InputGroup className='h-10 rounded-xl border-border bg-card shadow-none'>
+          <InputGroup className='h-9 rounded-xl border-border bg-card shadow-none'>
             <InputGroupAddon align='inline-start' className='pl-3 text-xs font-bold text-emerald-600'>
               Rp
             </InputGroupAddon>
@@ -96,7 +96,7 @@ export function StageFormRevenue({
             value={noInvoiceBast}
             onChange={(e) => onNoInvoiceBastChange(e.target.value)}
             placeholder='INV/ABM/... & BAST-...'
-            className='h-10 rounded-xl text-xs'
+            className='h-9 rounded-xl text-xs'
           />
         </div>
       </div>
@@ -108,7 +108,7 @@ export function StageFormRevenue({
         <NativeSelect
           value={metodePembayaran}
           onChange={(e) => onMetodePembayaranChange(e.target.value)}
-          className='h-10 rounded-xl text-xs'
+          className='h-9 rounded-xl text-xs'
         >
           <option value='Transfer Bank Mandiri'>Transfer Bank Mandiri PT AB Medical</option>
           <option value='BCA Virtual Account'>BCA Virtual Account</option>

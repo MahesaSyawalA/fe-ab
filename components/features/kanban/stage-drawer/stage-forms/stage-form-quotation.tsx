@@ -33,8 +33,8 @@ export function StageFormQuotation({
   onRevisiKeChange,
 }: StageFormQuotationProps) {
   return (
-    <div className='flex flex-col gap-3.5'>
-      <div className='grid grid-cols-2 gap-3'>
+    <div className='flex flex-col gap-3'>
+      <div className='grid grid-cols-2 gap-2.5'>
         <div className='flex flex-col gap-1.5'>
           <Label className='text-xs font-semibold'>
             Nomor Penawaran (Quotation) <span className='text-rose-500'>*</span>
@@ -43,7 +43,7 @@ export function StageFormQuotation({
             value={noQuotation}
             onChange={(e) => onNoQuotationChange(e.target.value)}
             placeholder='QUO/ABM/2026/...'
-            className='h-10 rounded-xl text-xs font-semibold'
+            className='h-9 rounded-xl text-xs font-semibold'
             required
           />
         </div>
@@ -51,7 +51,7 @@ export function StageFormQuotation({
           <Label className='text-xs font-semibold'>
             Total Nilai Penawaran (Rp) <span className='text-rose-500'>*</span>
           </Label>
-          <InputGroup className='h-10 rounded-xl border-border bg-card shadow-none'>
+          <InputGroup className='h-9 rounded-xl border-border bg-card shadow-none'>
             <InputGroupAddon align='inline-start' className='pl-3 text-xs font-bold text-primary'>
               Rp
             </InputGroupAddon>
@@ -66,7 +66,7 @@ export function StageFormQuotation({
         </div>
       </div>
 
-      <div className='grid grid-cols-2 gap-3'>
+      <div className='grid grid-cols-2 gap-2.5'>
         <div className='flex flex-col gap-1.5'>
           <Label className='text-xs font-semibold'>
             Masa Berlaku Penawaran <span className='text-rose-500'>*</span>
@@ -74,7 +74,7 @@ export function StageFormQuotation({
           <NativeSelect
             value={masaBerlaku}
             onChange={(e) => onMasaBerlakuChange(e.target.value)}
-            className='h-10 rounded-xl text-xs'
+            className='h-9 rounded-xl text-xs'
           >
             <option value='14 Hari Kalender'>14 Hari Kalender</option>
             <option value='30 Hari Kalender'>30 Hari Kalender</option>
@@ -88,7 +88,7 @@ export function StageFormQuotation({
             min={1}
             value={revisiKe}
             onChange={(e) => onRevisiKeChange(e.target.value)}
-            className='h-10 rounded-xl text-xs'
+            className='h-9 rounded-xl text-xs'
           />
         </div>
       </div>

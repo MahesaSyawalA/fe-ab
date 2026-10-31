@@ -33,13 +33,13 @@ export function StageFormOpportunity({
   onAnalisisKompetitorChange,
 }: StageFormOpportunityProps) {
   return (
-    <div className='flex flex-col gap-3.5'>
-      <div className='grid grid-cols-2 gap-3'>
+    <div className='flex flex-col gap-3'>
+      <div className='grid grid-cols-2 gap-2.5'>
         <div className='flex flex-col gap-1.5'>
           <Label className='text-xs font-semibold'>
             Estimasi Nilai Closing (Rp) <span className='text-rose-500'>*</span>
           </Label>
-          <InputGroup className='h-10 rounded-xl border-border bg-card shadow-none'>
+          <InputGroup className='h-9 rounded-xl border-border bg-card shadow-none'>
             <InputGroupAddon align='inline-start' className='pl-3 text-xs font-bold text-primary'>
               Rp
             </InputGroupAddon>
@@ -60,7 +60,7 @@ export function StageFormOpportunity({
             type='date'
             value={targetClosing}
             onChange={(e) => onTargetClosingChange(e.target.value)}
-            className='h-10 rounded-xl text-xs'
+            className='h-9 rounded-xl text-xs'
             required
           />
         </div>
@@ -96,7 +96,7 @@ export function StageFormOpportunity({
           value={analisisKompetitor}
           onChange={(e) => onAnalisisKompetitorChange(e.target.value)}
           placeholder='Kompetitor yang masuk dan keunggulan teknologi kita...'
-          className='h-10 rounded-xl text-xs'
+          className='h-9 rounded-xl text-xs'
         />
       </div>
     </div>

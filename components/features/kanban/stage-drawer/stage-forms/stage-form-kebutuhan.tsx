@@ -38,7 +38,7 @@ export function StageFormKebutuhan({
   onSpesifikasiChange,
 }: StageFormKebutuhanProps) {
   return (
-    <div className='flex flex-col gap-3.5'>
+    <div className='flex flex-col gap-3'>
       <div className='flex flex-col gap-1.5'>
         <Label className='text-xs font-semibold'>
           Produk / Alkes yang Dibutuhkan <span className='text-rose-500'>*</span>
@@ -47,12 +47,12 @@ export function StageFormKebutuhan({
           value={jenisAlkes}
           onChange={(e) => onJenisAlkesChange(e.target.value)}
           placeholder='e.g. Mesin Hemodialisa, USG 4D, Ventilator ICU'
-          className='h-10 rounded-xl text-xs'
+          className='h-9 rounded-xl text-xs'
           required
         />
       </div>
 
-      <div className='grid grid-cols-2 gap-3'>
+      <div className='grid grid-cols-2 gap-2.5'>
         <div className='flex flex-col gap-1.5'>
           <Label className='text-xs font-semibold'>
             Jumlah Unit <span className='text-rose-500'>*</span>
@@ -62,7 +62,7 @@ export function StageFormKebutuhan({
             min={1}
             value={jumlahUnit}
             onChange={(e) => onJumlahUnitChange(e.target.value)}
-            className='h-10 rounded-xl text-xs'
+            className='h-9 rounded-xl text-xs'
             required
           />
         </div>
@@ -73,7 +73,7 @@ export function StageFormKebutuhan({
           <NativeSelect
             value={urgensiPengadaan}
             onChange={(e) => onUrgensiChange(e.target.value)}
-            className='h-10 rounded-xl text-xs'
+            className='h-9 rounded-xl text-xs'
           >
             <option value='Mendesak'>Mendesak (Bulan Ini)</option>
             <option value='Rutin'>Rutin / Semester Berjalan</option>
@@ -84,7 +84,7 @@ export function StageFormKebutuhan({
 
       <div className='flex flex-col gap-1.5'>
         <Label className='text-xs font-semibold'>Perkiraan Anggaran Klien (Budget Rp)</Label>
-        <InputGroup className='h-10 rounded-xl border-border bg-card shadow-none'>
+        <InputGroup className='h-9 rounded-xl border-border bg-card shadow-none'>
           <InputGroupAddon align='inline-start' className='pl-3 text-xs font-bold text-muted-foreground'>
             Rp
           </InputGroupAddon>

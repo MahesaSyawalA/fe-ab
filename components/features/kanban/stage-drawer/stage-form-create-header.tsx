@@ -36,7 +36,7 @@ export function StageFormCreateHeader({
         <NativeSelect
           value={selectedPelangganId}
           onChange={(e) => onFaskesChange(e.target.value)}
-          className='h-10 rounded-xl text-xs bg-white'
+          className='h-9 rounded-xl text-xs bg-white'
           required
         >
           {pelangganList.map((p) => (
@@ -55,7 +55,7 @@ export function StageFormCreateHeader({
           value={judulProspek}
           onChange={(e) => onJudulChange(e.target.value)}
           placeholder='e.g. Pengadaan Mesin Hemodialisa 6 Unit'
-          className='h-10 rounded-xl text-xs bg-white'
+          className='h-9 rounded-xl text-xs bg-white'
           required
         >
         </Input>

@@ -33,8 +33,8 @@ export function StageFormFollowUp({
   onEstimasiNilaiChange,
 }: StageFormFollowUpProps) {
   return (
-    <div className='flex flex-col gap-3.5'>
-      <div className='grid grid-cols-2 gap-3'>
+    <div className='flex flex-col gap-3'>
+      <div className='grid grid-cols-2 gap-2.5'>
         <div className='flex flex-col gap-1.5'>
           <Label className='text-xs font-semibold'>
             Media Komunikasi <span className='text-rose-500'>*</span>
@@ -42,7 +42,7 @@ export function StageFormFollowUp({
           <NativeSelect
             value={mediaKomunikasi}
             onChange={(e) => onMediaKomunikasiChange(e.target.value)}
-            className='h-10 rounded-xl text-xs'
+            className='h-9 rounded-xl text-xs'
           >
             <option value='WhatsApp'>WhatsApp Messenger</option>
             <option value='Telepon'>Panggilan Telepon</option>
@@ -57,7 +57,7 @@ export function StageFormFollowUp({
           <NativeSelect
             value={responKlien}
             onChange={(e) => onResponKlienChange(e.target.value)}
-            className='h-10 rounded-xl text-xs'
+            className='h-9 rounded-xl text-xs'
           >
             <option value='Tertarik & Minta Simulasi'>Tertarik & Minta Simulasi</option>
             <option value='Menunggu Persetujuan Direksi'>Menunggu Persetujuan Direksi</option>
@@ -67,7 +67,7 @@ export function StageFormFollowUp({
         </div>
       </div>
 
-      <div className='grid grid-cols-2 gap-3'>
+      <div className='grid grid-cols-2 gap-2.5'>
         <div className='flex flex-col gap-1.5'>
           <Label className='text-xs font-semibold'>
             Jadwal Follow Up Berikutnya <span className='text-rose-500'>*</span>
@@ -76,13 +76,13 @@ export function StageFormFollowUp({
             type='date'
             value={jadwalFollowUp}
             onChange={(e) => onJadwalFollowUpChange(e.target.value)}
-            className='h-10 rounded-xl text-xs'
+            className='h-9 rounded-xl text-xs'
             required
           />
         </div>
         <div className='flex flex-col gap-1.5'>
           <Label className='text-xs font-semibold'>Penyesuaian Nilai (Rp)</Label>
-          <InputGroup className='h-10 rounded-xl border-border bg-card shadow-none'>
+          <InputGroup className='h-9 rounded-xl border-border bg-card shadow-none'>
             <InputGroupAddon align='inline-start' className='pl-3 text-xs font-bold text-muted-foreground'>
               Rp
             </InputGroupAddon>
