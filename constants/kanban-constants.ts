@@ -81,6 +81,62 @@ export const PROGRES_TAHAP_STEPS = [
   { id: 'revenue', label: 'Revenue' },
 ];
 
+export const AKTIVITAS_STAGE_CONFIG: Record<
+  string,
+  { label: string; badgeClass: string; dotColor: string }
+> = {
+  visit: {
+    label: 'Visit',
+    badgeClass: 'bg-blue-50 text-blue-700 border-blue-200',
+    dotColor: '#2563EB',
+  },
+  kebutuhan: {
+    label: 'Kebutuhan',
+    badgeClass: 'bg-purple-50 text-purple-700 border-purple-200',
+    dotColor: '#7C3AED',
+  },
+  opportunity: {
+    label: 'Opportunity',
+    badgeClass: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+    dotColor: '#4F46E5',
+  },
+  follow_up: {
+    label: 'Follow Up',
+    badgeClass: 'bg-amber-50 text-amber-700 border-amber-200',
+    dotColor: '#F59E0B',
+  },
+  quotation: {
+    label: 'Quotation',
+    badgeClass: 'bg-pink-50 text-pink-700 border-pink-200',
+    dotColor: '#EC4899',
+  },
+  po: {
+    label: 'PO',
+    badgeClass: 'bg-sky-50 text-sky-700 border-sky-200',
+    dotColor: '#0EA5E9',
+  },
+  revenue: {
+    label: 'Revenue',
+    badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    dotColor: '#10B981',
+  },
+  kunjungan: {
+    label: 'Visit',
+    badgeClass: 'bg-blue-50 text-blue-700 border-blue-200',
+    dotColor: '#2563EB',
+  },
+  penawaran: {
+    label: 'Quotation',
+    badgeClass: 'bg-pink-50 text-pink-700 border-pink-200',
+    dotColor: '#EC4899',
+  },
+  closing: {
+    label: 'Revenue',
+    badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    dotColor: '#10B981',
+  },
+};
+
 export const TEAM_CONTRIBUTIONS: TeamContributionItem[] = [
   {
     id: 'tc-1',
@@ -229,7 +285,7 @@ export const INITIAL_TICKETS_BY_STAGE: Record<string, TiketWithDetails[]> = {
           waktu_label: '29 Okt • 14:30 WIB',
           nama_petugas: 'Sarah Nabila',
           pic_ditemui: 'Ibu Nina SKM',
-          jenis_kegiatan: 'kunjungan',
+          jenis_kegiatan: 'kebutuhan',
           catatan: 'Identifikasi spesifikasi ruang ICU. Faskes membutuhkan unit siap integrasi gas medis sentral dan sertifikat BPFK.',
           jadwal_follow_up: '2026-11-05',
           created_at: '2026-10-29T14:30:00Z',

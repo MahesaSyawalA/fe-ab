@@ -1,4 +1,14 @@
-export type JenisKegiatan = 'kunjungan' | 'follow_up' | 'penawaran' | 'closing';
+export type JenisKegiatan =
+  | 'visit'
+  | 'kebutuhan'
+  | 'opportunity'
+  | 'follow_up'
+  | 'quotation'
+  | 'po'
+  | 'revenue'
+  | 'kunjungan'
+  | 'penawaran'
+  | 'closing';
 
 export interface Aktivitas {
     id_aktivitas: string;
