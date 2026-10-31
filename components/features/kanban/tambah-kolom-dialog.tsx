@@ -16,13 +16,13 @@ interface TambahKolomDialogProps {
 }
 
 const JENIS_TAHAP_OPTIONS: { value: JenisTahap; label: string }[] = [
-  { value: 'visit', label: 'VISIT (Kunjungan)' },
-  { value: 'kebutuhan', label: 'KEBUTUHAN (Kebutuhan Pelanggan)' },
-  { value: 'opportunity', label: 'OPPORTUNITY (Peluang)' },
-  { value: 'follow_up', label: 'FOLLOW_UP (Follow Up / Tindak Lanjut)' },
-  { value: 'quotation', label: 'QUOTATION (Penawaran Harga)' },
-  { value: 'po', label: 'PO (Purchase Order)' },
-  { value: 'revenue', label: 'REVENUE (Pendapatan / Penjualan)' },
+  { value: 'visit', label: 'Visit' },
+  { value: 'kebutuhan', label: 'Kebutuhan' },
+  { value: 'opportunity', label: 'Opportunity' },
+  { value: 'follow_up', label: 'Follow Up' },
+  { value: 'quotation', label: 'Quotation' },
+  { value: 'po', label: 'PO' },
+  { value: 'revenue', label: 'Revenue' },
 ];
 
 const CHECKBOX_FIELDS = [
