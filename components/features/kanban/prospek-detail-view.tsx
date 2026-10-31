@@ -22,9 +22,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
 import {
   Drawer,
   DrawerContent,
@@ -32,10 +29,16 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from '@/components/ui/drawer';
-import { PRIORITY_CONFIG, PROGRES_TAHAP_STEPS } from '@/constants/kanban-constants';
+import {
+  AKTIVITAS_STAGE_CONFIG,
+  INITIAL_KANBAN_STAGES,
+  PRIORITY_CONFIG,
+  PROGRES_TAHAP_STEPS,
+} from '@/constants/kanban-constants';
 import { useKanbanStore } from '@/lib/kanban-store';
 import { TiketWithDetails } from '@/types/ticket.types';
 import { cn, formatFullRupiah } from '@/lib/utils';
+import { StageActivityDrawer } from './stage-activity-drawer';
 
 interface ProspekDetailViewProps {
   ticket: TiketWithDetails;
@@ -57,16 +60,15 @@ export function ProspekDetailView({
   const [negotiationDrawerOpen, setNegotiationDrawerOpen] =
     React.useState(false);
 
-  const [petugasName, setPetugasName] = React.useState('Dimas Arya');
-  const [picDitemui, setPicDitemui] = React.useState(
-    ticket.nama_pic || 'dr. Hendra Sp.PD-KGH',
-  );
-  const [catatanAktivitas, setCatatanAktivitas] = React.useState(
-    'Presentasi spesifikasi mesin hemodialisa generasi terbaru. Tim teknis RS sangat tertarik dengan fitur ultrafiltrasi presisi tinggi. Memerlukan simulasi penawaran resmi dan agenda demo kalibrasi.',
-  );
+  const currentStage = React.useMemo(() => {
+    return (
+      stages.find((s) => s.id_tahap === ticket.id_tahap) ||
+      INITIAL_KANBAN_STAGES.find((s) => s.id_tahap === ticket.id_tahap) ||
+      stages[0]
+    );
+  }, [stages, ticket.id_tahap]);
 
-  const stageObj = stages.find((s) => s.id_tahap === ticket.id_tahap);
-  const stageLabel = stageObj?.nama_tahap ?? 'Penawaran';
+  const stageLabel = currentStage?.nama_tahap ?? 'Penawaran';
 
   const currentStepIdx = Math.max(
     0,
@@ -77,27 +79,6 @@ export function ProspekDetailView({
 
   const aktivitasList = ticket.aktivitas_list ?? [];
   const riwayatList = ticket.riwayat_list ?? [];
-
-  const handleSaveActivity = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!catatanAktivitas.trim()) return;
-
-    addActivity(ticket.id_tiket, {
-      id_aktivitas: `akt-${Date.now()}`,
-      id_user: 'usr-2',
-      id_tiket: ticket.id_tiket,
-      tanggal: new Date().toISOString(),
-      waktu_label: '24 Okt • 10:15 WIB',
-      nama_petugas: petugasName || 'Dimas Arya',
-      pic_ditemui: picDitemui || 'dr. Hendra Sp.PD-KGH',
-      jenis_kegiatan: 'kunjungan',
-      catatan: catatanAktivitas.trim(),
-      jadwal_follow_up: null,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    });
-    setActivityDrawerOpen(false);
-  };
 
   const handleNegotiationResult = (result: 'negosiasi' | 'won' | 'lost') => {
     if (result === 'negosiasi') {
@@ -394,9 +375,23 @@ export function ProspekDetailView({
                     >
                       <CardContent className='flex flex-col gap-3 p-4'>
                         <div className='flex items-center justify-between gap-2'>
-                          <span className='text-xs font-bold tracking-wide text-primary uppercase'>
-                            {akt.jenis_kegiatan}
-                          </span>
+                          {(() => {
+                            const config = AKTIVITAS_STAGE_CONFIG[akt.jenis_kegiatan] || {
+                              label: akt.jenis_kegiatan,
+                              badgeClass: 'bg-primary/10 text-primary border-primary/20',
+                            };
+                            return (
+                              <Badge
+                                variant='outline'
+                                className={cn(
+                                  'h-5 px-2 text-[10px] font-bold uppercase tracking-wider rounded-md border',
+                                  config.badgeClass,
+                                )}
+                              >
+                                {config.label}
+                              </Badge>
+                            );
+                          })()}
                           <span className='text-[11px] text-muted-foreground'>
                             {akt.waktu_label}
                           </span>
@@ -528,68 +523,23 @@ export function ProspekDetailView({
         </div>
       </div>
 
-      {/* Drawer: Tambah Aktivitas */}
-      <Drawer
+      {/* Drawer: Tambah Aktivitas Dinamis Sesuai Tahap Prospek */}
+      <StageActivityDrawer
         open={activityDrawerOpen}
         onOpenChange={setActivityDrawerOpen}
-        showSwipeHandle
-      >
-        <DrawerContent className='fixed inset-x-0 bottom-0 mx-auto w-full sm:max-w-lg max-h-[92dvh] flex flex-col rounded-t-[28px] bg-card border-t border-border shadow-2xl overflow-hidden'>
-          <DrawerHeader className='shrink-0 px-5 pt-2 pb-1 text-left border-b border-border/60 bg-card'>
-            <DrawerTitle className='text-base font-bold text-foreground'>
-              Tambah Aktivitas Kunjungan
-            </DrawerTitle>
-          </DrawerHeader>
-          <form
-            onSubmit={handleSaveActivity}
-            className='flex flex-col gap-3.5 px-5 py-3'
-          >
-            <div className='flex flex-col gap-1.5'>
-              <Label className='text-xs font-semibold'>Nama Petugas</Label>
-              <Input
-                value={petugasName}
-                onChange={(e) => setPetugasName(e.target.value)}
-                className='h-10 rounded-xl text-xs'
-              />
-            </div>
-            <div className='flex flex-col gap-1.5'>
-              <Label className='text-xs font-semibold'>PIC Ditemui</Label>
-              <Input
-                value={picDitemui}
-                onChange={(e) => setPicDitemui(e.target.value)}
-                className='h-10 rounded-xl text-xs'
-              />
-            </div>
-            <div className='flex flex-col gap-1.5'>
-              <Label className='text-xs font-semibold'>
-                Catatan & Pembahasan
-              </Label>
-              <Textarea
-                rows={4}
-                value={catatanAktivitas}
-                onChange={(e) => setCatatanAktivitas(e.target.value)}
-                className='rounded-xl text-xs'
-              />
-            </div>
-            <DrawerFooter className='grid grid-cols-2 gap-3 px-0 pt-2 pb-4'>
-              <Button
-                type='button'
-                variant='outline'
-                onClick={() => setActivityDrawerOpen(false)}
-                className='h-10 rounded-xl text-xs font-semibold cursor-pointer'
-              >
-                Batal
-              </Button>
-              <Button
-                type='submit'
-                className='h-10 rounded-xl bg-primary text-xs font-semibold text-primary-foreground cursor-pointer'
-              >
-                Simpan Aktivitas
-              </Button>
-            </DrawerFooter>
-          </form>
-        </DrawerContent>
-      </Drawer>
+        mode='move'
+        ticket={ticket}
+        fromStage={currentStage}
+        targetStage={currentStage}
+        onConfirmMove={({ activity, ticketUpdates }) => {
+          addActivity(ticket.id_tiket, activity);
+          if (ticketUpdates && Object.keys(ticketUpdates).length > 0) {
+            updateTicket(ticket.id_tiket, ticketUpdates);
+          }
+          setActivityDrawerOpen(false);
+        }}
+        onCancelMove={() => setActivityDrawerOpen(false)}
+      />
 
       {/* Drawer: Tentukan Hasil Negosiasi */}
       <Drawer
