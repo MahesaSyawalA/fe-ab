@@ -187,60 +187,72 @@ export function ProspekDetailView({
             </CardContent>
           </Card>
 
-          {/* Progres Tahap Card */}
+          {/* Progres Tahap Card (Scrollable & Clean Alignment) */}
           <Card className='rounded-2xl border-border/70 bg-card py-0 shadow-xs ring-0'>
-            <CardContent className='flex flex-col gap-3 p-4'>
-              <span className='text-xs font-semibold text-foreground'>
-                Progres tahap
-              </span>
+            <CardContent className='flex flex-col gap-2.5 p-3.5 sm:p-4'>
+              <div className='flex items-center justify-between'>
+                <span className='text-xs font-semibold text-foreground'>
+                  Progres tahap
+                </span>
+                <span className='text-[10px] text-muted-foreground font-medium'>
+                  {Math.min(currentStepIdx + 1, PROGRES_TAHAP_STEPS.length)} dari {PROGRES_TAHAP_STEPS.length} Tahap
+                </span>
+              </div>
 
-              <div className='flex items-center justify-between px-1'>
-                {PROGRES_TAHAP_STEPS.map((step, index) => {
-                  const isCompleted = index <= currentStepIdx;
-                  const isLast = index === PROGRES_TAHAP_STEPS.length - 1;
+              {/* Scrollable Stepper Track */}
+              <div className='overflow-x-auto no-scrollbar -mx-1 px-1 py-1.5'>
+                <div className='flex items-start min-w-[580px]'>
+                  {PROGRES_TAHAP_STEPS.map((step, index) => {
+                    const isCompleted = index <= currentStepIdx;
+                    const isCurrent = index === currentStepIdx;
+                    const isLast = index === PROGRES_TAHAP_STEPS.length - 1;
 
-                  return (
-                    <React.Fragment key={step.id}>
-                      <div className='flex flex-col items-center gap-1.5'>
-                        <div
-                          className={cn(
-                            'flex size-6 items-center justify-center rounded-full text-xs transition-colors',
-                            isCompleted
-                              ? 'bg-primary text-primary-foreground'
-                              : 'border border-muted-foreground/40 bg-card text-muted-foreground',
-                          )}
-                        >
-                          {isCompleted ? (
-                            <Check className='size-3.5 stroke-[2.5]' />
-                          ) : (
-                            <CircleDot className='size-3.5' />
-                          )}
+                    return (
+                      <React.Fragment key={step.id}>
+                        <div className='flex flex-col items-center shrink-0 w-16'>
+                          <div
+                            className={cn(
+                              'flex size-6 items-center justify-center rounded-full text-xs font-semibold transition-all shrink-0',
+                              isCompleted
+                                ? 'bg-primary text-primary-foreground shadow-xs'
+                                : 'border border-muted-foreground/30 bg-muted/30 text-muted-foreground',
+                              isCurrent && 'ring-2 ring-primary/25 ring-offset-1',
+                            )}
+                          >
+                            {isCompleted ? (
+                              <Check className='size-3.5 stroke-[2.5]' />
+                            ) : (
+                              <CircleDot className='size-3' />
+                            )}
+                          </div>
+                          <span
+                            className={cn(
+                              'mt-1.5 text-[10px] font-medium whitespace-nowrap text-center transition-colors',
+                              isCurrent
+                                ? 'text-primary font-bold'
+                                : isCompleted
+                                  ? 'text-foreground font-medium'
+                                  : 'text-muted-foreground',
+                            )}
+                          >
+                            {step.label}
+                          </span>
                         </div>
-                        <span
-                          className={cn(
-                            'text-[10px] font-medium',
-                            isCompleted
-                              ? 'text-foreground'
-                              : 'text-muted-foreground',
-                          )}
-                        >
-                          {step.label}
-                        </span>
-                      </div>
 
-                      {!isLast && (
-                        <div
-                          className={cn(
-                            'mb-4 h-0.5 flex-1 mx-1.5 rounded-full',
-                            index < currentStepIdx
-                              ? 'bg-primary'
-                              : 'bg-border',
-                          )}
-                        />
-                      )}
-                    </React.Fragment>
-                  );
-                })}
+                        {!isLast && (
+                          <div
+                            className={cn(
+                              'h-[2px] flex-1 min-w-8 mt-3 rounded-full mx-1 transition-colors',
+                              index < currentStepIdx
+                                ? 'bg-primary'
+                                : 'bg-slate-200 dark:bg-slate-700',
+                            )}
+                          />
+                        )}
+                      </React.Fragment>
+                    );
+                  })}
+                </div>
               </div>
             </CardContent>
           </Card>
