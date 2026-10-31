@@ -12,6 +12,8 @@ import {
 } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { usePelangganStore } from '@/lib/pelanggan-store';
 import {
   AktivitasWithDetails,
@@ -65,21 +67,47 @@ export function StageActivityDrawer({
   const [picDitemui, setPicDitemui] = React.useState('');
   const [jabatanPic, setJabatanPic] = React.useState('');
   const [noTelpPic, setNoTelpPic] = React.useState('');
-  const [tanggalAktivitas, setTanggalAktivitas] = React.useState(
-    new Date().toISOString().slice(0, 10),
-  );
-  const [jamAktivitas, setJamAktivitas] = React.useState('10:30');
+  const [waktuAktivitas, setWaktuAktivitas] = React.useState(() => {
+    const d = new Date();
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  });
+  const tanggalAktivitas = waktuAktivitas.slice(0, 10);
+  const jamAktivitas = waktuAktivitas.slice(11, 16);
   const [prioritas, setPrioritas] = React.useState<TiketPrioritas>('sedang');
   const [catatan, setCatatan] = React.useState('');
 
   // Unified Evidence File Upload state
   const [evidenceFile, setEvidenceFile] = React.useState<EvidenceFileState | null>(null);
-  const [evidenceDeskripsi, setEvidenceDeskripsi] = React.useState('');
   const [evidenceError, setEvidenceError] = React.useState(false);
 
   // Visit specifics
   const [koordinatGps] = React.useState('-6.2088, 106.8456');
-  const [statusRadius] = React.useState('Valid (Dalam Radius 38m)');
+  const [statusRadius] = React.useState('Dalam Radius (38m)');
+
+  // Relasi Data Client & Kontak PIC
+  const currentPelanggan = React.useMemo(() => {
+    if (mode === 'create') {
+      return pelangganList.find((p) => p.id_pelanggan === selectedPelangganId) || pelangganList[0];
+    }
+    return (
+      pelangganList.find(
+        (p) =>
+          p.id_pelanggan === ticket?.id_pelanggan ||
+          p.nama_faskes.toLowerCase() === ticket?.nama_faskes.toLowerCase(),
+      ) || null
+    );
+  }, [mode, selectedPelangganId, ticket, pelangganList]);
+
+  const kontakList = React.useMemo(() => {
+    return currentPelanggan?.kontak_list || [];
+  }, [currentPelanggan]);
+
+  const handlePicSelect = (nama: string, jabatan: string, noTelp?: string) => {
+    setPicDitemui(nama);
+    setJabatanPic(jabatan);
+    if (noTelp) setNoTelpPic(noTelp);
+  };
 
   // Kebutuhan specifics
   const [jenisAlkes, setJenisAlkes] = React.useState('');
@@ -148,49 +176,42 @@ export function StageActivityDrawer({
           name: `foto_kunjungan_${faskesName.toLowerCase().replace(/\s+/g, '_')}.jpg`,
           size: '1.4 MB',
         });
-        setEvidenceDeskripsi('Dokumentasi foto kunjungan dan observasi faskes bersama PIC');
         break;
       case 'kebutuhan':
         setEvidenceFile({
           name: `form_survei_kebutuhan_alkes_${randNum}.pdf`,
           size: '860 KB',
         });
-        setEvidenceDeskripsi('Formulir asesmen spesifikasi unit dan kesiapan ruangan');
         break;
       case 'opportunity':
         setEvidenceFile({
           name: `voice_note_kesepakatan_komite_${randNum}.m4a`,
           size: '1.1 MB',
         });
-        setEvidenceDeskripsi('Rekaman suara konfirmasi alokasi belanja alkes dari komite pengadaan');
         break;
       case 'follow_up':
         setEvidenceFile({
           name: `rekaman_panggilan_negosiasi_${randNum}.m4a`,
           size: '680 KB',
         });
-        setEvidenceDeskripsi('Rekaman telepon konfirmasi penawaran harga dan tanggapan diskon');
         break;
       case 'quotation':
         setEvidenceFile({
           name: `surat_penawaran_resmi_signed_${randNum}.pdf`,
           size: '780 KB',
         });
-        setEvidenceDeskripsi('Surat penawaran harga resmi bernomor dan berstempel AB Medical');
         break;
       case 'po':
         setEvidenceFile({
           name: `scan_purchase_order_faskes_${randNum}.pdf`,
           size: '1.2 MB',
         });
-        setEvidenceDeskripsi('Scan dokumen Purchase Order resmi berstempel basah dari Faskes');
         break;
       case 'revenue':
         setEvidenceFile({
           name: `bukti_transfer_lunas_mandiri_${randNum}.pdf`,
           size: '640 KB',
         });
-        setEvidenceDeskripsi('Bukti transfer pelunasan 100% dan Berita Acara Serah Terima (BAST)');
         break;
     }
 
@@ -331,7 +352,7 @@ export function StageActivityDrawer({
 
   // Validate mandatory evidence
   const isEvidenceValid = (): boolean => {
-    return Boolean(evidenceFile && evidenceDeskripsi.trim());
+    return Boolean(evidenceFile);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -387,7 +408,7 @@ export function StageActivityDrawer({
           tipe: evidenceFile ? detectFileType(evidenceFile.name) : 'dokumen',
           nama_file: evidenceFile?.name || 'bukti_aktivitas.pdf',
           file_size: evidenceFile?.size || '500 KB',
-          deskripsi: evidenceDeskripsi.trim(),
+          deskripsi: evidenceFile?.name || 'Bukti aktivitas',
           waktu_upload: 'Baru saja',
           url_preview: evidenceFile?.url,
         },
@@ -491,7 +512,7 @@ export function StageActivityDrawer({
         tipe: evidenceFile ? detectFileType(evidenceFile.name) : 'dokumen',
         nama_file: evidenceFile?.name || 'bukti_aktivitas.pdf',
         file_size: evidenceFile?.size || '500 KB',
-        deskripsi: evidenceDeskripsi.trim(),
+        deskripsi: evidenceFile?.name || 'Bukti aktivitas',
         waktu_upload: 'Baru saja',
         url_preview: evidenceFile?.url,
       },
@@ -613,9 +634,13 @@ export function StageActivityDrawer({
               <div className='flex items-start gap-2 rounded-xl border border-rose-300 bg-rose-50 px-3 py-2 text-rose-800 animate-in fade-in slide-in-from-top-2'>
                 <ShieldAlert className='size-4 shrink-0 mt-0.5 text-rose-600' />
                 <div className='flex flex-col gap-0.5 text-xs'>
-                  <span className='font-bold text-rose-900'>File Bukti Aktivitas Wajib Dilampirkan</span>
+                  <span className='font-bold text-rose-900'>
+                    {stageType === 'kebutuhan'
+                      ? 'File Aktivitas Wajib Dilampirkan'
+                      : 'File Bukti Aktivitas Wajib Dilampirkan'}
+                  </span>
                   <span className='text-[11px]'>
-                    Unggah file bukti aktivitas dan isi keterangan sebelum menyimpan.
+                    Unggah file {stageType === 'kebutuhan' ? 'aktivitas' : 'bukti aktivitas'} sebelum menyimpan.
                   </span>
                 </div>
               </div>
@@ -637,33 +662,16 @@ export function StageActivityDrawer({
               <StageFormVisit
                 koordinatGps={koordinatGps}
                 statusRadius={statusRadius}
-                tanggalAktivitas={tanggalAktivitas}
-                onTanggalChange={setTanggalAktivitas}
-                jamAktivitas={jamAktivitas}
-                onJamChange={setJamAktivitas}
+                waktuAktivitas={waktuAktivitas}
+                onWaktuChange={setWaktuAktivitas}
                 picDitemui={picDitemui}
-                onPicChange={setPicDitemui}
+                onPicSelect={handlePicSelect}
                 jabatanPic={jabatanPic}
-                onJabatanChange={setJabatanPic}
-                catatan={catatan}
-                onCatatanChange={setCatatan}
+                kontakList={kontakList}
               />
             )}
 
-            {stageType === 'kebutuhan' && (
-              <StageFormKebutuhan
-                jenisAlkes={jenisAlkes}
-                onJenisAlkesChange={setJenisAlkes}
-                jumlahUnit={jumlahUnit}
-                onJumlahUnitChange={setJumlahUnit}
-                urgensiPengadaan={urgensiPengadaan}
-                onUrgensiChange={setUrgensiPengadaan}
-                estimasiBudget={estimasiBudget}
-                onEstimasiBudgetChange={setEstimasiBudget}
-                spesifikasiKebutuhan={spesifikasiKebutuhan}
-                onSpesifikasiChange={setSpesifikasiKebutuhan}
-              />
-            )}
+            {/* Tahap Kebutuhan: input di atasnya dihilangkan sesuai permintaan, hanya upload file aktivitas dan catatan aktivitas */}
 
             {stageType === 'opportunity' && (
               <StageFormOpportunity
@@ -682,12 +690,8 @@ export function StageActivityDrawer({
               <StageFormFollowUp
                 mediaKomunikasi={mediaKomunikasi}
                 onMediaKomunikasiChange={setMediaKomunikasi}
-                responKlien={responKlien}
-                onResponKlienChange={setResponKlien}
                 jadwalFollowUp={jadwalFollowUp}
                 onJadwalFollowUpChange={setJadwalFollowUp}
-                estimasiNilai={estimasiNilai}
-                onEstimasiNilaiChange={setEstimasiNilai}
               />
             )}
 
@@ -697,8 +701,6 @@ export function StageActivityDrawer({
                 onNoQuotationChange={setNoQuotation}
                 nilaiQuotation={nilaiQuotation}
                 onNilaiQuotationChange={setNilaiQuotation}
-                masaBerlaku={masaBerlaku}
-                onMasaBerlakuChange={setMasaBerlaku}
                 revisiKe={revisiKe}
                 onRevisiKeChange={setRevisiKe}
               />
@@ -712,8 +714,6 @@ export function StageActivityDrawer({
                 onNominalPoChange={setNominalPo}
                 targetPengiriman={targetPengiriman}
                 onTargetPengirimanChange={setTargetPengiriman}
-                terminPembayaran={terminPembayaran}
-                onTerminPembayaranChange={setTerminPembayaran}
               />
             )}
 
@@ -723,10 +723,6 @@ export function StageActivityDrawer({
                 onStatusClosingChange={setStatusClosing}
                 realisasiRevenue={realisasiRevenue}
                 onRealisasiRevenueChange={setRealisasiRevenue}
-                noInvoiceBast={noInvoiceBast}
-                onNoInvoiceBastChange={setNoInvoiceBast}
-                metodePembayaran={metodePembayaran}
-                onMetodePembayaranChange={setMetodePembayaran}
               />
             )}
 
@@ -734,12 +730,34 @@ export function StageActivityDrawer({
             <StageFormEvidence
               evidenceFile={evidenceFile}
               onEvidenceFileChange={setEvidenceFile}
-              evidenceDeskripsi={evidenceDeskripsi}
-              onEvidenceDeskripsiChange={setEvidenceDeskripsi}
               evidenceError={evidenceError}
               onEvidenceErrorChange={setEvidenceError}
               stageType={stageType}
             />
+
+            {/* HASIL & CATATAN KUNJUNGAN / AKTIVITAS (Diletakkan di bawah posisi upload file) */}
+            <div className='flex flex-col gap-1.5'>
+              <Label className='text-xs font-semibold text-foreground'>
+                {stageType === 'visit'
+                  ? 'Hasil & Catatan Kunjungan Lapangan'
+                  : 'Catatan Aktivitas'}{' '}
+                <span className='text-rose-500'>*</span>
+              </Label>
+              <Textarea
+                rows={2}
+                value={catatan}
+                onChange={(e) => setCatatan(e.target.value)}
+                placeholder={
+                  stageType === 'visit'
+                    ? 'Tuliskan hasil diskusi kunjungan, respon dokter/PIC, dan pengamatan ruangan faskes...'
+                    : stageType === 'kebutuhan'
+                      ? 'Tuliskan catatan aktivitas dan identifikasi kebutuhan klien...'
+                      : 'Tuliskan catatan aktivitas...'
+                }
+                className='rounded-xl text-xs'
+                required
+              />
+            </div>
 
             {/* Priority Picker: Only shown when creating a new ticket/card in any activity */}
             {mode === 'create' && (
