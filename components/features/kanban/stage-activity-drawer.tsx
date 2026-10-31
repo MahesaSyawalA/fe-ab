@@ -517,38 +517,39 @@ export function StageActivityDrawer({
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange} showSwipeHandle>
-      <DrawerContent className='fixed inset-x-0 bottom-0 mx-auto w-full sm:max-w-xl md:max-w-2xl max-h-[92dvh] flex flex-col p-0 rounded-t-[28px] border-t border-border shadow-2xl bg-card overflow-hidden'>
-        {/* Header Drawer */}
-        <DrawerHeader className='shrink-0 px-4 sm:px-6 pt-3 pb-3 border-b border-border/70 bg-card/95 backdrop-blur-sm text-left'>
-          <div className='flex items-center justify-between gap-3 mb-1.5'>
+      <DrawerContent className='fixed inset-x-0 bottom-0 mx-auto w-full sm:max-w-xl md:max-w-2xl max-h-[90dvh] flex flex-col p-0 rounded-t-2xl border-t border-border shadow-xl bg-card overflow-hidden'>
+        {/* Header Drawer (Compact) */}
+        <DrawerHeader className='shrink-0 px-4 sm:px-6 py-2.5 border-b border-border/70 bg-card text-left'>
+          <div className='flex items-center justify-between gap-2 mb-1'>
             {mode === 'move' ? (
-              <div className='flex items-center gap-2'>
+              <div className='flex items-center gap-1.5 min-w-0 flex-wrap'>
                 {effectiveFromStage && (
-                  <Badge
-                    variant='outline'
-                    className='h-6 gap-1.5 rounded-full border-border bg-muted/40 px-2.5 text-[11px] font-medium text-muted-foreground'
-                  >
-                    <span
-                      className='size-2 rounded-full'
-                      style={{ backgroundColor: effectiveFromStage.dotColor }}
-                    />
-                    {effectiveFromStage.nama_tahap}
-                  </Badge>
+                  <>
+                    <Badge
+                      variant='outline'
+                      className='h-5 gap-1 rounded-full border-border bg-muted/40 px-2 text-[10px] font-medium text-muted-foreground'
+                    >
+                      <span
+                        className='size-1.5 rounded-full'
+                        style={{ backgroundColor: effectiveFromStage.dotColor }}
+                      />
+                      {effectiveFromStage.nama_tahap}
+                    </Badge>
+                    <ArrowRight className='size-3 text-muted-foreground shrink-0' />
+                  </>
                 )}
 
-                <ArrowRight className='size-3.5 text-muted-foreground' />
-
                 <Badge
-                  className='h-6 gap-1.5 rounded-full px-2.5 text-[11px] font-semibold text-white shadow-xs'
+                  className='h-5 gap-1 rounded-full px-2 text-[10px] font-semibold text-white shadow-xs'
                   style={{ backgroundColor: targetStage.dotColor }}
                 >
-                  <span className='size-2 rounded-full bg-white/80' />
+                  <span className='size-1.5 rounded-full bg-white/80' />
                   {targetStage.nama_tahap}
                 </Badge>
               </div>
             ) : (
               <Badge
-                className='h-6 gap-1.5 rounded-full px-2.5 text-[11px] font-semibold text-white shadow-xs'
+                className='h-5 gap-1 rounded-full px-2 text-[10px] font-semibold text-white shadow-xs'
                 style={{ backgroundColor: targetStage.dotColor }}
               >
                 <Plus className='size-3' />
@@ -559,31 +560,33 @@ export function StageActivityDrawer({
             <button
               type='button'
               onClick={handleClose}
-              className='size-7 rounded-full flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer'
+              className='size-7 rounded-full flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer shrink-0 ml-auto'
               title='Tutup Drawer'
             >
               <X className='size-4' />
             </button>
           </div>
 
-          <DrawerTitle className='text-base font-bold text-foreground'>
-            {mode === 'move'
-              ? `Update Aktivitas: ${targetStage.nama_tahap}`
-              : `Tambah Card Baru di Tahap ${targetStage.nama_tahap}`}
+          <DrawerTitle className='text-sm sm:text-base font-bold text-foreground truncate'>
+            {mode === 'move' && ticket ? (
+              <span className='flex items-center gap-1.5 truncate'>
+                <span className='text-foreground'>{ticket.kode_tiket}</span>
+                <span className='text-muted-foreground font-normal'>—</span>
+                <span className='truncate font-semibold'>{ticket.judul}</span>
+              </span>
+            ) : (
+              `Tambah Card Baru di Tahap ${targetStage.nama_tahap}`
+            )}
           </DrawerTitle>
 
           <DrawerDescription className='text-xs text-muted-foreground flex items-center gap-1.5 mt-0.5'>
             {mode === 'move' && ticket ? (
-              <span className='flex flex-wrap items-center gap-1.5'>
-                <span className='font-semibold text-foreground/80'>{ticket.kode_tiket}</span>
-                <span>·</span>
-                <span className='truncate max-w-45'>{ticket.judul}</span>
-                <span>·</span>
+              <span className='flex flex-wrap items-center gap-1.5 text-[11px]'>
                 <span className='text-primary font-medium'>{ticket.nama_faskes}</span>
                 <span>·</span>
                 <span
                   className={cn(
-                    'inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-semibold',
+                    'inline-flex items-center gap-1 rounded px-1.5 py-0.2 text-[10px] font-medium',
                     PRIORITY_CONFIG[ticket.prioritas]?.badgeClass || 'bg-muted text-muted-foreground',
                   )}
                 >
@@ -597,22 +600,22 @@ export function StageActivityDrawer({
                 </span>
               </span>
             ) : (
-              <span>Lengkapi data prospek dan lampiran bukti aktivitas sesuai tahap {targetStage.nama_tahap}.</span>
+              <span>Lengkapi data prospek dan bukti aktivitas tahap {targetStage.nama_tahap}.</span>
             )}
           </DrawerDescription>
         </DrawerHeader>
 
         {/* Scrollable Form Body */}
         <form onSubmit={handleSubmit} className='flex flex-1 min-h-0 flex-col overflow-hidden'>
-          <div className='no-scrollbar flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 py-4 flex flex-col gap-4'>
+          <div className='no-scrollbar flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 py-3 flex flex-col gap-3'>
             {/* EVIDENCE ERROR BANNER */}
             {evidenceError && (
-              <div className='flex items-start gap-2.5 rounded-2xl border border-rose-300 bg-rose-50 p-3 text-rose-800 animate-in fade-in slide-in-from-top-2'>
+              <div className='flex items-start gap-2 rounded-xl border border-rose-300 bg-rose-50 px-3 py-2 text-rose-800 animate-in fade-in slide-in-from-top-2'>
                 <ShieldAlert className='size-4 shrink-0 mt-0.5 text-rose-600' />
                 <div className='flex flex-col gap-0.5 text-xs'>
-                  <span className='font-bold text-rose-900'>File Bukti Aktivitas Belum Dilampirkan</span>
-                  <span>
-                    Mohon pilih/unggah file bukti aktivitas dan isi keterangan sebelum menyimpan.
+                  <span className='font-bold text-rose-900'>File Bukti Aktivitas Wajib Dilampirkan</span>
+                  <span className='text-[11px]'>
+                    Unggah file bukti aktivitas dan isi keterangan sebelum menyimpan.
                   </span>
                 </div>
               </div>
@@ -748,23 +751,23 @@ export function StageActivityDrawer({
           </div>
 
           {/* Drawer Footer Actions (Always Pinned & Fully Visible) */}
-          <DrawerFooter className='shrink-0 z-10 flex flex-row items-center justify-end gap-2 px-4 sm:px-6 py-3 border-t border-border/70 bg-card/95 backdrop-blur-sm shadow-[0_-4px_16px_rgba(0,0,0,0.06)] pb-4 sm:pb-3'>
+          <DrawerFooter className='shrink-0 z-10 flex flex-row items-center justify-end gap-2 px-4 sm:px-6 py-2.5 border-t border-border/70 bg-card shadow-[0_-4px_16px_rgba(0,0,0,0.04)] pb-3 sm:pb-2.5'>
             <Button
               type='button'
               variant='outline'
               onClick={handleClose}
-              className='h-10 shrink-0 rounded-xl px-4 text-xs font-semibold cursor-pointer'
+              className='h-8.5 shrink-0 rounded-xl px-3.5 text-xs font-semibold cursor-pointer'
             >
               Batal
             </Button>
             <Button
               type='submit'
-              className='h-10 flex-1 sm:flex-none gap-2 rounded-xl px-4 sm:px-5 text-xs font-semibold text-white shadow-md cursor-pointer'
+              className='h-8.5 flex-1 sm:flex-none gap-2 rounded-xl px-4 sm:px-5 text-xs font-semibold text-white shadow-sm cursor-pointer'
               style={{ backgroundColor: targetStage.dotColor }}
             >
-              <CheckCircle2 className='size-4 shrink-0' />
+              <CheckCircle2 className='size-3.5 shrink-0' />
               <span className='truncate'>
-                {mode === 'create' ? 'Tambah Card Baru' : 'Simpan & Pindahkan Tiket'}
+                {mode === 'create' ? 'Tambah Card' : 'Simpan & Pindahkan'}
               </span>
             </Button>
           </DrawerFooter>
