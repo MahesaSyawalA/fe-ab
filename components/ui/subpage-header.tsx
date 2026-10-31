@@ -23,7 +23,7 @@ export function SubpageHeader({
       {/* Mobile Top App Bar (< md) */}
       <header
         className={cn(
-          'relative flex h-14 w-full shrink-0 items-center justify-between border-b border-border/30 bg-card px-4 md:hidden',
+          'sticky top-0 z-40 flex h-14 w-full shrink-0 items-center justify-between border-b border-border/40 bg-background/95 backdrop-blur-md supports-backdrop-filter:bg-background/80 px-4 md:hidden',
           className
         )}
       >

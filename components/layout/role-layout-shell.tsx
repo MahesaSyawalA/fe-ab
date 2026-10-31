@@ -24,9 +24,9 @@ export function RoleLayoutShell({ role, children }: RoleLayoutShellProps) {
         <div className='hidden md:contents'>
           <AppSidebar role={role} hideOnMobile />
         </div>
-        <SidebarInset className='min-w-0 max-w-full overflow-x-hidden'>
+        <SidebarInset className='min-w-0 max-w-full overflow-x-clip'>
           <AppHeader role={role} className='hidden md:flex' />
-          <div className='flex min-w-0 max-w-full flex-1 flex-col overflow-x-hidden bg-background p-0 md:p-6 lg:p-8'>
+          <div className='flex min-w-0 max-w-full flex-1 flex-col overflow-x-clip bg-background p-0 md:p-6 lg:p-8'>
             {children}
           </div>
         </SidebarInset>
@@ -37,9 +37,9 @@ export function RoleLayoutShell({ role, children }: RoleLayoutShellProps) {
   return (
     <SidebarProvider>
       <AppSidebar role={role} />
-      <SidebarInset className='min-w-0 max-w-full overflow-x-hidden'>
+      <SidebarInset className='min-w-0 max-w-full overflow-x-clip'>
         <AppHeader role={role} />
-        <div className='flex min-w-0 max-w-full flex-1 flex-col gap-4 overflow-x-hidden p-4 bg-background'>
+        <div className='flex min-w-0 max-w-full flex-1 flex-col gap-4 overflow-x-clip p-4 bg-background'>
           {children}
         </div>
       </SidebarInset>
