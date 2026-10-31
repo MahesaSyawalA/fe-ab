@@ -464,7 +464,7 @@ export function KanbanBoardView({ role, basePath }: KanbanBoardViewProps) {
                 <KanbanColumn
                   value={stage.id_tahap}
                   className={cn(
-                    'flex flex-col min-h-[440px] gap-3 rounded-2xl border p-3 transition-all',
+                    'flex flex-col gap-3 rounded-2xl border p-3 transition-all',
                     isHoldingInColumn
                       ? 'border-2 border-dashed border-[#2563EB] bg-[#EFF6FF]/70'
                       : isFocusedStage
@@ -496,7 +496,10 @@ export function KanbanBoardView({ role, basePath }: KanbanBoardViewProps) {
                   {/* Ticket Cards List */}
                   <KanbanColumnContent
                     value={stage.id_tahap}
-                    className='flex flex-1 flex-col gap-2.5 min-h-[140px]'
+                    className={cn(
+                      'flex flex-col gap-2.5',
+                      items.length === 0 && '-mb-3',
+                    )}
                   >
                     {items.map((ticket) => {
                       const isItemDragging =
