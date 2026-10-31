@@ -540,18 +540,20 @@ export function KanbanBoardView({ role, basePath }: KanbanBoardViewProps) {
             );
           })}
 
-          {/* + Tambah List Button */}
-          <div className='w-[270px] shrink-0 sm:w-[290px]'>
-            <Button
-              type='button'
-              variant='outline'
-              onClick={() => setIsTambahKolomOpen(true)}
-              className='h-11 w-full gap-1.5 rounded-xl border-dashed border-primary/50 bg-primary/5 text-xs font-semibold text-primary shadow-none hover:bg-primary/10 hover:text-primary cursor-pointer'
-            >
-              <Plus className='size-3.5' />
-              Tambah List
-            </Button>
-          </div>
+          {/* + Tambah List: hanya Manager Sales & Director/Owner */}
+          {canCreateColumn && (
+            <div className='w-[270px] shrink-0 sm:w-[290px]'>
+              <Button
+                type='button'
+                variant='outline'
+                onClick={() => setIsTambahKolomOpen(true)}
+                className='h-11 w-full gap-1.5 rounded-xl border-dashed border-primary/50 bg-primary/5 text-xs font-semibold text-primary shadow-none hover:bg-primary/10 hover:text-primary cursor-pointer'
+              >
+                <Plus className='size-3.5' />
+                Tambah List
+              </Button>
+            </div>
+          )}
         </KanbanBoard>
 
         {/* Floating Tilted Drag Overlay */}
@@ -619,11 +621,13 @@ export function KanbanBoardView({ role, basePath }: KanbanBoardViewProps) {
         onApply={setFilterState}
       />
 
-      {/* Tambah Kolom Board Baru */}
-      <TambahKolomDialog
-        open={isTambahKolomOpen}
-        onOpenChange={setIsTambahKolomOpen}
-      />
+      {/* Tambah Kolom Board Baru: hanya Manager Sales & Director/Owner */}
+      {canCreateColumn && (
+        <TambahKolomDialog
+          open={isTambahKolomOpen}
+          onOpenChange={setIsTambahKolomOpen}
+        />
+      )}
     </div>
   );
 }
