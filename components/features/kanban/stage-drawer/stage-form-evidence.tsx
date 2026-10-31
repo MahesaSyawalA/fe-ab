@@ -13,20 +13,21 @@ const EVIDENCE_ICON = { foto: Camera, audio: Mic, teks: FileText, dokumen: File 
 interface StageFormEvidenceProps {
   evidenceFile: EvidenceFileState | null;
   onEvidenceFileChange: (file: EvidenceFileState | null) => void;
-  evidenceDeskripsi: string;
-  onEvidenceDeskripsiChange: (val: string) => void;
+  evidenceDeskripsi?: string;
+  onEvidenceDeskripsiChange?: (val: string) => void;
   evidenceError: boolean;
   onEvidenceErrorChange: (err: boolean) => void;
-  stageType: string;
+  stageType?: string;
+  label?: string;
 }
 
 export function StageFormEvidence({
   evidenceFile,
   onEvidenceFileChange,
-  evidenceDeskripsi,
-  onEvidenceDeskripsiChange,
   evidenceError,
   onEvidenceErrorChange,
+  stageType,
+  label,
 }: StageFormEvidenceProps) {
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
 
@@ -44,11 +45,12 @@ export function StageFormEvidence({
   };
 
   const FileIcon = evidenceFile ? EVIDENCE_ICON[detectFileType(evidenceFile.name)] : Paperclip;
+  const displayLabel = label || (stageType === 'kebutuhan' ? 'Upload File Aktivitas' : 'Bukti Aktivitas');
 
   return (
     <div className='flex flex-col gap-1.5'>
       <Label className='text-xs font-semibold text-foreground'>
-        Bukti Aktivitas <span className='text-rose-500'>*</span>
+        {displayLabel} <span className='text-rose-500'>*</span>
       </Label>
 
       <input
@@ -92,20 +94,6 @@ export function StageFormEvidence({
           Unggah foto, audio, atau dokumen
         </Button>
       )}
-
-      <Input
-        value={evidenceDeskripsi}
-        onChange={(e) => {
-          onEvidenceDeskripsiChange(e.target.value);
-          if (e.target.value.trim()) onEvidenceErrorChange(false);
-        }}
-        placeholder='Keterangan bukti (singkat)'
-        className={cn(
-          'h-9 rounded-xl text-xs',
-          evidenceError && !evidenceDeskripsi.trim() && 'border-rose-400 focus-visible:ring-rose-400',
-        )}
-        required
-      />
     </div>
   );
 }

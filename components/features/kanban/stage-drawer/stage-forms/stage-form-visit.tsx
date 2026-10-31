@@ -4,124 +4,113 @@ import * as React from 'react';
 import { MapPin } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+import { NativeSelect } from '@/components/ui/native-select';
+import { Kontak } from '@/types/contact.types';
 
 interface StageFormVisitProps {
   koordinatGps: string;
-  statusRadius: string;
-  tanggalAktivitas: string;
-  onTanggalChange: (val: string) => void;
-  jamAktivitas: string;
-  onJamChange: (val: string) => void;
+  statusRadius?: string;
+  waktuAktivitas: string;
+  onWaktuChange: (val: string) => void;
   picDitemui: string;
-  onPicChange: (val: string) => void;
+  onPicSelect: (nama: string, jabatan: string, noTelp?: string) => void;
   jabatanPic: string;
-  onJabatanChange: (val: string) => void;
-  catatan: string;
-  onCatatanChange: (val: string) => void;
+  kontakList?: Kontak[];
 }
 
 export function StageFormVisit({
   koordinatGps,
-  statusRadius,
-  tanggalAktivitas,
-  onTanggalChange,
-  jamAktivitas,
-  onJamChange,
+  waktuAktivitas,
+  onWaktuChange,
   picDitemui,
-  onPicChange,
+  onPicSelect,
   jabatanPic,
-  onJabatanChange,
-  catatan,
-  onCatatanChange,
+  kontakList = [],
 }: StageFormVisitProps) {
+  // Pastikan kontak list minimal punya item PIC saat ini jika belum ada di kontakList
+  const options = React.useMemo(() => {
+    const list = [...kontakList];
+    if (picDitemui && !list.some((k) => k.nama.toLowerCase() === picDitemui.toLowerCase())) {
+      list.unshift({
+        id_kontak: 'current-pic',
+        id_pelanggan: '',
+        nama: picDitemui,
+        jabatan: jabatanPic || 'PIC Terpilih',
+        no_telp: '',
+        email: '',
+        created_at: '',
+        updated_at: '',
+      });
+    }
+    return list;
+  }, [kontakList, picDitemui, jabatanPic]);
+
   return (
     <div className='flex flex-col gap-3'>
-      <div className='rounded-xl border border-blue-200 bg-blue-50/70 px-3 py-2'>
-        <div className='flex items-center justify-between'>
-          <div className='flex items-center gap-2'>
-            <div className='flex size-7 items-center justify-center rounded-lg bg-blue-600 text-white'>
-              <MapPin className='size-4' />
-            </div>
-            <div className='flex flex-col'>
-              <span className='text-xs font-bold text-blue-900'>
-                Check-in Lokasi Kunjungan
-              </span>
-              <span className='text-[11px] text-blue-700'>
-                Koordinat GPS: {koordinatGps}
-              </span>
-            </div>
-          </div>
-          <Badge className='bg-emerald-600 text-white text-[10px] h-5 rounded-full px-2'>
-            {statusRadius}
-          </Badge>
+      {/* Section Geo (Simple & Compact) */}
+      <div className='flex items-center justify-between gap-2 rounded-xl border border-blue-100 bg-blue-50/60 px-3 py-1.5 text-xs text-blue-900'>
+        <div className='flex items-center gap-1.5 min-w-0 truncate'>
+          <MapPin className='size-3.5 text-blue-600 shrink-0' />
+          <span className='font-medium text-muted-foreground'>Lokasi:</span>
+          <span className='font-semibold text-blue-950 truncate'>{koordinatGps}</span>
         </div>
+        <Badge className='bg-emerald-600 text-white text-[10px] h-5 rounded-full px-2 shrink-0 font-medium'>
+          Dalam Radius (38m)
+        </Badge>
       </div>
 
-      <div className='grid grid-cols-2 gap-2.5'>
-        <div className='flex flex-col gap-1.5'>
-          <Label className='text-xs font-semibold'>
-            Tanggal Kunjungan <span className='text-rose-500'>*</span>
-          </Label>
-          <Input
-            type='date'
-            value={tanggalAktivitas}
-            onChange={(e) => onTanggalChange(e.target.value)}
-            className='h-9 rounded-xl text-xs'
-            required
-          />
-        </div>
-        <div className='flex flex-col gap-1.5'>
-          <Label className='text-xs font-semibold'>
-            Jam Kunjungan <span className='text-rose-500'>*</span>
-          </Label>
-          <Input
-            type='time'
-            value={jamAktivitas}
-            onChange={(e) => onJamChange(e.target.value)}
-            className='h-9 rounded-xl text-xs'
-            required
-          />
-        </div>
-      </div>
-
-      <div className='grid grid-cols-2 gap-2.5'>
-        <div className='flex flex-col gap-1.5'>
-          <Label className='text-xs font-semibold'>
-            PIC yang Ditemui <span className='text-rose-500'>*</span>
-          </Label>
-          <Input
-            value={picDitemui}
-            onChange={(e) => onPicChange(e.target.value)}
-            placeholder='e.g. dr. Hendra Sp.PD'
-            className='h-9 rounded-xl text-xs'
-            required
-          />
-        </div>
-        <div className='flex flex-col gap-1.5'>
-          <Label className='text-xs font-semibold'>Jabatan PIC</Label>
-          <Input
-            value={jabatanPic}
-            onChange={(e) => onJabatanChange(e.target.value)}
-            placeholder='e.g. Kepala Instalasi'
-            className='h-9 rounded-xl text-xs'
-          />
-        </div>
-      </div>
-
+      {/* Input Waktu (Satu input bertipe datetime) */}
       <div className='flex flex-col gap-1.5'>
-        <Label className='text-xs font-semibold'>
-          Hasil & Catatan Kunjungan Lapangan <span className='text-rose-500'>*</span>
+        <Label className='text-xs font-semibold text-foreground'>
+          Waktu Kunjungan <span className='text-rose-500'>*</span>
         </Label>
-        <Textarea
-          rows={2}
-          value={catatan}
-          onChange={(e) => onCatatanChange(e.target.value)}
-          placeholder='Tuliskan hasil diskusi kunjungan, respon dokter/PIC, dan pengamatan ruangan faskes...'
-          className='rounded-xl text-xs'
+        <Input
+          type='datetime-local'
+          value={waktuAktivitas}
+          onChange={(e) => onWaktuChange(e.target.value)}
+          className='h-9 rounded-xl text-xs'
           required
         />
+      </div>
+
+      {/* PIC Relasi Data Client & Jabatan Otomatis */}
+      <div className='grid grid-cols-2 gap-2.5'>
+        <div className='flex flex-col gap-1.5'>
+          <Label className='text-xs font-semibold text-foreground'>
+            PIC yang Ditemui <span className='text-rose-500'>*</span>
+          </Label>
+          <NativeSelect
+            value={picDitemui}
+            onChange={(e) => {
+              const val = e.target.value;
+              const selected = options.find((k) => k.nama === val);
+              onPicSelect(val, selected?.jabatan || '', selected?.no_telp || '');
+            }}
+            className='h-9 rounded-xl text-xs bg-card'
+            required
+          >
+            {options.length === 0 ? (
+              <option value=''>Tidak ada kontak client</option>
+            ) : (
+              options.map((k) => (
+                <option key={k.id_kontak} value={k.nama}>
+                  {k.nama} {k.kategori_peran ? `(${k.kategori_peran})` : ''}
+                </option>
+              ))
+            )}
+          </NativeSelect>
+        </div>
+
+        <div className='flex flex-col gap-1.5'>
+          <Label className='text-xs font-semibold text-foreground'>Jabatan PIC</Label>
+          <Input
+            value={jabatanPic}
+            readOnly
+            placeholder='Jabatan terisi otomatis'
+            className='h-9 rounded-xl text-xs bg-muted/40 text-muted-foreground cursor-default'
+          />
+        </div>
       </div>
     </div>
   );
