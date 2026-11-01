@@ -7,7 +7,7 @@ import {
   DrawerTitle,
 } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Input } from '@heroui/react';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { NativeSelect } from '@/components/ui/native-select';
@@ -114,6 +114,7 @@ export function KanbanFilterForm({ value, onApply, onClose }: KanbanFilterFormPr
               <div key={key} className='flex flex-col gap-1'>
                 <span className='text-[11px] text-muted-foreground'>{label}</span>
                 <Input
+                  aria-label={label}
                   value={draft[key]}
                   onChange={(e) => setField(key, e.target.value)}
                   placeholder='Default'

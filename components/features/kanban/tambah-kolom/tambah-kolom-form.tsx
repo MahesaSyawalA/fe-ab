@@ -1,13 +1,14 @@
 import * as React from 'react';
+import { Form } from '@heroui/react';
 import { FormField } from '@/components/ui/form-field';
 import { NativeSelect } from '@/components/ui/native-select';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { JenisTahap } from '@/types/kanban-stage.types';
 import { JENIS_TAHAP_OPTIONS } from '@/constants/kanban-constants';
 import { useKanbanStore } from '@/lib/kanban-store';
+import { TambahKolomTextFieldInput } from './inputs';
 
 const CHECKBOX_FIELDS = [
   {
@@ -46,19 +47,19 @@ export function TambahKolomForm({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className='flex flex-col gap-4 py-2'>
-      <FormField label='Nama Kolom / Tahap' required error={error}>
-        <Input
-          value={form.nama_tahap}
-          onChange={(e) => {
-            setForm((prev) => ({ ...prev, nama_tahap: e.target.value }));
-            setError('');
-          }}
-          placeholder='Contoh: Demo Unit, Review Teknis...'
-          className='h-10 rounded-xl text-xs'
-          autoFocus
-        />
-      </FormField>
+    <Form onSubmit={handleSubmit} className='flex flex-col gap-4 py-2' validationBehavior='aria'>
+      <TambahKolomTextFieldInput
+        label='Nama Kolom / Tahap'
+        isRequired
+        errorMessage={error}
+        value={form.nama_tahap}
+        onChange={(val) => {
+          setForm((prev) => ({ ...prev, nama_tahap: val }));
+          setError('');
+        }}
+        placeholder='Contoh: Demo Unit, Review Teknis...'
+        autoFocus
+      />
 
       <FormField label='Jenis Tahap' required>
         <NativeSelect
@@ -74,15 +75,13 @@ export function TambahKolomForm({ onClose }: { onClose: () => void }) {
         </NativeSelect>
       </FormField>
 
-      <FormField label='Urutan Posisi Kolom'>
-        <Input
-          type='number'
-          min={1}
-          value={form.urutan}
-          onChange={(e) => setForm((prev) => ({ ...prev, urutan: Number(e.target.value) }))}
-          className='h-10 rounded-xl text-xs'
-        />
-      </FormField>
+      <TambahKolomTextFieldInput
+        label='Urutan Posisi Kolom'
+        type='number'
+        min={1}
+        value={form.urutan}
+        onChange={(val) => setForm((prev) => ({ ...prev, urutan: Number(val) }))}
+      />
 
       <div className='flex flex-col gap-3 rounded-xl border border-border/70 bg-muted/20 p-3'>
         {CHECKBOX_FIELDS.map(({ key, label, hint }) => (
@@ -111,6 +110,6 @@ export function TambahKolomForm({ onClose }: { onClose: () => void }) {
           Tambah Kolom
         </Button>
       </div>
-    </form>
+    </Form>
   );
 }

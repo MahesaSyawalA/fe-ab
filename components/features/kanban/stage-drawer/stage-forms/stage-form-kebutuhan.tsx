@@ -2,8 +2,6 @@
 
 import * as React from 'react';
 import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { NativeSelect } from '@/components/ui/native-select';
 import {
   InputGroup,
@@ -11,6 +9,7 @@ import {
   InputGroupInput,
 } from '@/components/ui/input-group';
 import { formatNumberInput } from '@/lib/utils';
+import { StageTextFieldInput, StageTextAreaInput } from '../inputs';
 
 interface StageFormKebutuhanProps {
   jenisAlkes: string;
@@ -39,33 +38,23 @@ export function StageFormKebutuhan({
 }: StageFormKebutuhanProps) {
   return (
     <div className='flex flex-col gap-3'>
-      <div className='flex flex-col gap-1.5'>
-        <Label className='text-xs font-semibold'>
-          Produk / Alkes yang Dibutuhkan <span className='text-rose-500'>*</span>
-        </Label>
-        <Input
-          value={jenisAlkes}
-          onChange={(e) => onJenisAlkesChange(e.target.value)}
-          placeholder='e.g. Mesin Hemodialisa, USG 4D, Ventilator ICU'
-          className='h-9 rounded-xl text-xs'
-          required
-        />
-      </div>
+      <StageTextFieldInput
+        label='Produk / Alkes yang Dibutuhkan'
+        isRequired
+        value={jenisAlkes}
+        onChange={onJenisAlkesChange}
+        placeholder='e.g. Mesin Hemodialisa, USG 4D, Ventilator ICU'
+      />
 
       <div className='grid grid-cols-2 gap-2.5'>
-        <div className='flex flex-col gap-1.5'>
-          <Label className='text-xs font-semibold'>
-            Jumlah Unit <span className='text-rose-500'>*</span>
-          </Label>
-          <Input
-            type='number'
-            min={1}
-            value={jumlahUnit}
-            onChange={(e) => onJumlahUnitChange(e.target.value)}
-            className='h-9 rounded-xl text-xs'
-            required
-          />
-        </div>
+        <StageTextFieldInput
+          label='Jumlah Unit'
+          isRequired
+          type='number'
+          min={1}
+          value={jumlahUnit}
+          onChange={onJumlahUnitChange}
+        />
         <div className='flex flex-col gap-1.5'>
           <Label className='text-xs font-semibold'>
             Urgensi Pengadaan <span className='text-rose-500'>*</span>
@@ -97,19 +86,14 @@ export function StageFormKebutuhan({
         </InputGroup>
       </div>
 
-      <div className='flex flex-col gap-1.5'>
-        <Label className='text-xs font-semibold'>
-          Spesifikasi & Kebutuhan Teknis Ruangan <span className='text-rose-500'>*</span>
-        </Label>
-        <Textarea
-          rows={2}
-          value={spesifikasiKebutuhan}
-          onChange={(e) => onSpesifikasiChange(e.target.value)}
-          placeholder='Rincian kebutuhan ruangan, kelistrikan, sistem RO, sertifikat BPFK, aksesoris tambahan...'
-          className='rounded-xl text-xs'
-          required
-        />
-      </div>
+      <StageTextAreaInput
+        label='Spesifikasi & Kebutuhan Teknis Ruangan'
+        isRequired
+        rows={2}
+        value={spesifikasiKebutuhan}
+        onChange={onSpesifikasiChange}
+        placeholder='Rincian kebutuhan ruangan, kelistrikan, sistem RO, sertifikat BPFK, aksesoris tambahan...'
+      />
     </div>
   );
 }

@@ -9,6 +9,7 @@ import {
   InputGroupInput,
 } from '@/components/ui/input-group';
 import { formatNumberInput } from '@/lib/utils';
+import { StageTextFieldInput } from '../inputs';
 
 interface StageFormPoProps {
   noPo: string;
@@ -32,18 +33,14 @@ export function StageFormPo({
   return (
     <div className='flex flex-col gap-3'>
       {/* Nomor PO (1 Baris Penuh) */}
-      <div className='flex flex-col gap-1.5'>
-        <Label className='text-xs font-semibold text-foreground'>
-          Nomor PO <span className='text-rose-500'>*</span>
-        </Label>
-        <Input
-          value={noPo}
-          onChange={(e) => onNoPoChange(e.target.value)}
-          placeholder='PO-RS-2026-...'
-          className='h-9 rounded-xl text-xs font-semibold'
-          required
-        />
-      </div>
+      <StageTextFieldInput
+        label='Nomor PO'
+        isRequired
+        value={noPo}
+        onChange={onNoPoChange}
+        placeholder='PO-RS-2026-...'
+        inputClassName='font-semibold'
+      />
 
       {/* Nominal Total PO (1 Baris Penuh) */}
       <div className='flex flex-col gap-1.5'>

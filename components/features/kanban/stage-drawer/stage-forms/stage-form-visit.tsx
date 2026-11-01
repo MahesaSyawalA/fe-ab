@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { NativeSelect } from '@/components/ui/native-select';
 import { Kontak } from '@/types/contact.types';
+import { StageTextFieldInput } from '../inputs';
 
 interface StageFormVisitProps {
   koordinatGps: string;
@@ -102,15 +103,12 @@ export function StageFormVisit({
           </NativeSelect>
         </div>
 
-        <div className='flex flex-col gap-1.5'>
-          <Label className='text-xs font-semibold text-foreground'>Jabatan PIC</Label>
-          <Input
-            value={jabatanPic}
-            readOnly
-            placeholder='Jabatan terisi otomatis'
-            className='h-9 rounded-xl text-xs bg-muted/40 text-muted-foreground cursor-default'
-          />
-        </div>
+        <StageTextFieldInput
+          label='Jabatan PIC'
+          value={jabatanPic}
+          readOnly
+          placeholder='Jabatan terisi otomatis'
+        />
       </div>
     </div>
   );

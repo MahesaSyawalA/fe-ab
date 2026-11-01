@@ -1,9 +1,9 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { Form } from '@heroui/react';
 import { SubpageHeader } from '@/components/ui/subpage-header';
-import { FormField } from '@/components/ui/form-field';
-import { Input } from '@/components/ui/input';
+import { ProspekTextFieldInput } from './prospek/inputs';
 import {
   ProspekFieldClosing,
   ProspekFieldEstimasi,
@@ -30,23 +30,22 @@ export function ProspekFormView(props: ProspekFormViewProps) {
         onBack={() => router.push(form.backPath)}
       />
 
-      <form
+      <Form
         onSubmit={form.handleSubmit}
         className='flex flex-1 flex-col justify-between gap-5 px-5 py-4'
+        validationBehavior='aria'
       >
         <div className='flex flex-col gap-4'>
           <ProspekFormBanner errorCount={form.errorCount} mode={mode} />
 
           {/* ID Tiket (Only in Edit Prospek) */}
           {mode === 'edit' && (
-            <FormField label='ID Tiket' required>
-              <Input
-                type='text'
-                value={ticket?.kode_tiket ?? 'TKT-0142'}
-                disabled
-                className='h-10 rounded-xl border-border bg-muted px-3.5 text-xs font-medium text-muted-foreground'
-              />
-            </FormField>
+            <ProspekTextFieldInput
+              label='ID Tiket'
+              isRequired
+              value={ticket?.kode_tiket ?? 'TKT-0142'}
+              disabled
+            />
           )}
 
           <ProspekFieldJudul
@@ -82,7 +81,7 @@ export function ProspekFormView(props: ProspekFormViewProps) {
         </div>
 
         <ProspekFormActions onCancel={() => router.push(form.backPath)} />
-      </form>
+      </Form>
     </div>
   );
 }

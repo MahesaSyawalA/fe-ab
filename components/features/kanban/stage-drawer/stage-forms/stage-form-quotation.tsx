@@ -2,13 +2,13 @@
 
 import * as React from 'react';
 import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
 } from '@/components/ui/input-group';
 import { formatNumberInput } from '@/lib/utils';
+import { StageTextFieldInput } from '../inputs';
 
 interface StageFormQuotationProps {
   noQuotation: string;
@@ -32,18 +32,14 @@ export function StageFormQuotation({
   return (
     <div className='flex flex-col gap-3'>
       {/* Nomor Penawaran (1 Baris Penuh) */}
-      <div className='flex flex-col gap-1.5'>
-        <Label className='text-xs font-semibold text-foreground'>
-          Nomor Penawaran <span className='text-rose-500'>*</span>
-        </Label>
-        <Input
-          value={noQuotation}
-          onChange={(e) => onNoQuotationChange(e.target.value)}
-          placeholder='QUO/ABM/2026/...'
-          className='h-9 rounded-xl text-xs font-semibold'
-          required
-        />
-      </div>
+      <StageTextFieldInput
+        label='Nomor Penawaran'
+        isRequired
+        value={noQuotation}
+        onChange={onNoQuotationChange}
+        placeholder='QUO/ABM/2026/...'
+        inputClassName='font-semibold'
+      />
 
       {/* Total Nilai Penawaran (1 Baris Penuh) */}
       <div className='flex flex-col gap-1.5'>
@@ -65,16 +61,13 @@ export function StageFormQuotation({
       </div>
 
       {/* Penawaran Ke- (1 Baris Penuh) */}
-      <div className='flex flex-col gap-1.5'>
-        <Label className='text-xs font-semibold text-foreground'>Penawaran Ke-</Label>
-        <Input
-          type='number'
-          min={1}
-          value={revisiKe}
-          onChange={(e) => onRevisiKeChange(e.target.value)}
-          className='h-9 rounded-xl text-xs'
-        />
-      </div>
+      <StageTextFieldInput
+        label='Penawaran Ke-'
+        type='number'
+        min={1}
+        value={revisiKe}
+        onChange={onRevisiKeChange}
+      />
     </div>
   );
 }

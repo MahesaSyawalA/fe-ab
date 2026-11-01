@@ -3,9 +3,9 @@
 import * as React from 'react';
 import { Building2 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
 import { NativeSelect } from '@/components/ui/native-select';
 import { PelangganWithDetails } from '@/types/customer.types';
+import { StageTextFieldInput } from '../inputs';
 
 interface StageFormCreateHeaderProps {
   selectedPelangganId: string;
@@ -47,19 +47,14 @@ export function StageFormCreateHeader({
         </NativeSelect>
       </div>
 
-      <div className='flex flex-col gap-1.5'>
-        <Label className='text-xs font-semibold'>
-          Judul Prospek / Pengadaan <span className='text-rose-500'>*</span>
-        </Label>
-        <Input
-          value={judulProspek}
-          onChange={(e) => onJudulChange(e.target.value)}
-          placeholder='e.g. Pengadaan Mesin Hemodialisa 6 Unit'
-          className='h-9 rounded-xl text-xs bg-white'
-          required
-        >
-        </Input>
-      </div>
+      <StageTextFieldInput
+        label='Judul Prospek / Pengadaan'
+        isRequired
+        value={judulProspek}
+        onChange={onJudulChange}
+        placeholder='e.g. Pengadaan Mesin Hemodialisa 6 Unit'
+        inputClassName='bg-white'
+      />
     </div>
   );
 }

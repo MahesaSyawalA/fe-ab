@@ -1,8 +1,7 @@
 import { ShieldAlert } from 'lucide-react';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { JenisTahap } from '@/types/kanban-stage.types';
 import { StageDrawerMode } from '../types';
+import { StageTextAreaInput } from '../inputs';
 import { StageActivityForm } from '../form/use-stage-activity-form';
 import { StageFormCreateHeader } from '../form/stage-form-create-header';
 import { StageFormEvidence } from '../form/stage-form-evidence';
@@ -132,28 +131,24 @@ export function StageDrawerBody({ mode, stageType, form }: StageDrawerBodyProps)
       />
 
       {/* HASIL & CATATAN KUNJUNGAN / AKTIVITAS (Diletakkan di bawah posisi upload file) */}
-      <div className='flex flex-col gap-1.5'>
-        <Label className='text-xs font-semibold text-foreground'>
-          {stageType === 'visit'
+      <StageTextAreaInput
+        label={
+          stageType === 'visit'
             ? 'Hasil & Catatan Kunjungan Lapangan'
-            : 'Catatan Aktivitas'}{' '}
-          <span className='text-rose-500'>*</span>
-        </Label>
-        <Textarea
-          rows={2}
-          value={form.catatan}
-          onChange={(e) => form.setCatatan(e.target.value)}
-          placeholder={
-            stageType === 'visit'
-              ? 'Tuliskan hasil diskusi kunjungan, respon dokter/PIC, dan pengamatan ruangan faskes...'
-              : stageType === 'kebutuhan'
-                ? 'Tuliskan catatan aktivitas dan identifikasi kebutuhan klien...'
-                : 'Tuliskan catatan aktivitas...'
-          }
-          className='rounded-xl text-xs'
-          required
-        />
-      </div>
+            : 'Catatan Aktivitas'
+        }
+        isRequired
+        rows={2}
+        value={form.catatan}
+        onChange={form.setCatatan}
+        placeholder={
+          stageType === 'visit'
+            ? 'Tuliskan hasil diskusi kunjungan, respon dokter/PIC, dan pengamatan ruangan faskes...'
+            : stageType === 'kebutuhan'
+              ? 'Tuliskan catatan aktivitas dan identifikasi kebutuhan klien...'
+              : 'Tuliskan catatan aktivitas...'
+        }
+      />
 
       {/* Priority Picker: Only shown when creating a new ticket/card in any activity */}
       {mode === 'create' && (

@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { Form } from '@heroui/react';
 import { Drawer, DrawerContent } from '@/components/ui/drawer';
 import { INITIAL_KANBAN_STAGES } from '@/constants/kanban-constants';
 import { JenisTahap } from '@/types/kanban-stage.types';
@@ -95,7 +96,7 @@ export function StageActivityDrawer({
           onClose={handleClose}
         />
 
-        <form onSubmit={handleSubmit} className='flex flex-1 min-h-0 flex-col overflow-hidden'>
+        <Form onSubmit={handleSubmit} className='flex flex-1 min-h-0 flex-col overflow-hidden' validationBehavior='native'>
           <StageDrawerBody mode={mode} stageType={stageType} form={form} />
           <StageDrawerFooter
             mode={mode}
@@ -103,7 +104,7 @@ export function StageActivityDrawer({
             accentColor={targetStage.dotColor}
             onClose={handleClose}
           />
-        </form>
+        </Form>
       </DrawerContent>
     </Drawer>
   );

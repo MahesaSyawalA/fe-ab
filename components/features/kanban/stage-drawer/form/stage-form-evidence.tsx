@@ -3,7 +3,6 @@
 import * as React from 'react';
 import { Camera, File, FileText, Mic, Paperclip, X } from 'lucide-react';
 import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { detectFileType, EvidenceFileState } from '../types';
