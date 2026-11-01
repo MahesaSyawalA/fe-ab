@@ -1,9 +1,9 @@
 import { create } from 'zustand';
 import {
   INITIAL_KANBAN_STAGES,
-  INITIAL_TICKETS_BY_STAGE,
   KanbanStageColumn,
 } from '@/constants/kanban-constants';
+import { INITIAL_TICKETS_BY_STAGE } from '@/constants/kanban-mock';
 import { AktivitasWithDetails, TiketWithDetails } from '@/types/ticket.types';
 
 interface MoveTicketWithStageUpdateParams {
