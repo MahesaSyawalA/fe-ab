@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { detectFileType, EvidenceFileState } from './types';
+import { detectFileType, EvidenceFileState } from '../types';
 
 const EVIDENCE_ICON = { foto: Camera, audio: Mic, teks: FileText, dokumen: File } as const;
 
