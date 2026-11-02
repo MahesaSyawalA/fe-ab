@@ -2,19 +2,17 @@ import * as React from 'react';
 import { Check, CircleDot } from 'lucide-react';
 import { SurfaceCard } from '@/components/ui/surface-card';
 import { CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { JENIS_TAHAP_OPTIONS } from '@/constants/kanban-constants';
 import { cn } from '@/lib/utils';
 
 interface ProspekProgressCardProps {
   stageId: string;
-  stageLabel: string;
+  stageLabel?: string;
   className?: string;
 }
 
 export function ProspekProgressCard({
   stageId,
-  stageLabel,
   className,
 }: ProspekProgressCardProps) {
   const currentStepIdx = Math.max(
@@ -26,17 +24,9 @@ export function ProspekProgressCard({
     <SurfaceCard className={className}>
       <CardContent className='flex flex-col gap-3 p-3.5 sm:p-4 lg:p-5'>
         <div className='flex items-center justify-between'>
-          <div className='flex items-center gap-2'>
-            <span className='text-xs lg:text-sm font-bold text-foreground'>
-              Progres Tahap
-            </span>
-            <Badge
-              variant='outline'
-              className='hidden sm:inline-flex text-[11px] font-semibold text-primary border-primary/20 bg-primary/5'
-            >
-              {stageLabel}
-            </Badge>
-          </div>
+          <span className='text-xs lg:text-sm font-bold text-foreground'>
+            Progres Tahap
+          </span>
           <span className='text-[10px] lg:text-xs text-muted-foreground font-medium'>
             Tahap {Math.min(currentStepIdx + 1, JENIS_TAHAP_OPTIONS.length)} dari {JENIS_TAHAP_OPTIONS.length}
           </span>

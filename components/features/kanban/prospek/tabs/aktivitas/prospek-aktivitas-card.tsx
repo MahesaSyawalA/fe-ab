@@ -29,7 +29,7 @@ export function ProspekAktivitasCard({ akt }: { akt: AktivitasWithDetails }) {
           </span>
         </div>
 
-        <div className='grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs sm:text-sm bg-muted/30 p-2.5 sm:p-3 rounded-xl border border-border/40'>
+        <div className='grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs sm:text-sm bg-card p-2.5 sm:p-3 rounded-xl border border-border'>
           <div className='flex items-center gap-2'>
             <span className='text-muted-foreground'>Petugas:</span>
             <span className='font-semibold text-foreground'>{akt.nama_petugas}</span>

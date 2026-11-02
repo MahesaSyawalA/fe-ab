@@ -9,7 +9,7 @@ export function SurfaceCard({
   return (
     <Card
       className={cn(
-        'rounded-2xl border-border/70 bg-card py-0 shadow-xs ring-0',
+        'rounded-2xl border-border bg-card border py-0 shadow-xs ring-0',
         className,
       )}
       {...props}
