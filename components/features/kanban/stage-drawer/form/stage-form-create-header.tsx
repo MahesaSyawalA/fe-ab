@@ -2,10 +2,8 @@
 
 import * as React from 'react';
 import { Building2 } from 'lucide-react';
-import { Label } from '@/components/ui/label';
-import { NativeSelect } from '@/components/ui/native-select';
-import { PelangganWithDetails } from '@/types/customer.types';
-import { StageTextFieldInput } from '../inputs';
+import type { PelangganWithDetails } from '@/types/customer.types';
+import { StageTextFieldInput, StageSelectInput } from '../inputs';
 
 interface StageFormCreateHeaderProps {
   selectedPelangganId: string;
@@ -22,6 +20,15 @@ export function StageFormCreateHeader({
   judulProspek,
   onJudulChange,
 }: StageFormCreateHeaderProps) {
+  const faskesOptions = React.useMemo(
+    () =>
+      pelangganList.map((p) => ({
+        value: p.id_pelanggan,
+        label: `${p.nama_faskes} (${p.tipe_faskes})`,
+      })),
+    [pelangganList],
+  );
+
   return (
     <div className='flex flex-col gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-3.5'>
       <div className='flex items-center gap-2 text-xs font-bold text-primary'>
@@ -29,23 +36,16 @@ export function StageFormCreateHeader({
         Informasi Prospek & Klien
       </div>
 
-      <div className='flex flex-col gap-1.5'>
-        <Label className='text-xs font-semibold'>
-          Fasilitas Kesehatan (Faskes) <span className='text-rose-500'>*</span>
-        </Label>
-        <NativeSelect
-          value={selectedPelangganId}
-          onChange={(e) => onFaskesChange(e.target.value)}
-          className='h-9 rounded-xl text-xs bg-white'
-          required
-        >
-          {pelangganList.map((p) => (
-            <option key={p.id_pelanggan} value={p.id_pelanggan}>
-              {p.nama_faskes} ({p.tipe_faskes})
-            </option>
-          ))}
-        </NativeSelect>
-      </div>
+      <StageSelectInput
+        label='Fasilitas Kesehatan (Faskes)'
+        name='pelanggan'
+        isRequired
+        placeholder='Pilih fasilitas kesehatan...'
+        value={selectedPelangganId}
+        onChange={onFaskesChange}
+        options={faskesOptions}
+        triggerClassName='bg-white'
+      />
 
       <StageTextFieldInput
         label='Judul Prospek / Pengadaan'
