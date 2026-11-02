@@ -2,14 +2,17 @@
 
 import * as React from 'react';
 import { Label } from '@/components/ui/label';
-import { NativeSelect } from '@/components/ui/native-select';
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
 } from '@/components/ui/input-group';
 import { formatNumberInput } from '@/lib/utils';
-import { StageTextFieldInput, StageTextAreaInput } from '../inputs';
+import {
+  StageTextFieldInput,
+  StageTextAreaInput,
+  StageSelectInput,
+} from '../inputs';
 
 interface StageFormKebutuhanProps {
   jenisAlkes: string;
@@ -23,6 +26,12 @@ interface StageFormKebutuhanProps {
   spesifikasiKebutuhan: string;
   onSpesifikasiChange: (val: string) => void;
 }
+
+const URGENSI_OPTIONS = [
+  { value: 'Mendesak', label: 'Mendesak (Bulan Ini)' },
+  { value: 'Rutin', label: 'Rutin / Semester Berjalan' },
+  { value: 'Tahun Depan', label: 'Tahun Anggaran Depan' },
+];
 
 export function StageFormKebutuhan({
   jenisAlkes,
@@ -55,20 +64,14 @@ export function StageFormKebutuhan({
           value={jumlahUnit}
           onChange={onJumlahUnitChange}
         />
-        <div className='flex flex-col gap-1.5'>
-          <Label className='text-xs font-semibold'>
-            Urgensi Pengadaan <span className='text-rose-500'>*</span>
-          </Label>
-          <NativeSelect
-            value={urgensiPengadaan}
-            onChange={(e) => onUrgensiChange(e.target.value)}
-            className='h-9 rounded-xl text-xs'
-          >
-            <option value='Mendesak'>Mendesak (Bulan Ini)</option>
-            <option value='Rutin'>Rutin / Semester Berjalan</option>
-            <option value='Tahun Depan'>Tahun Anggaran Depan</option>
-          </NativeSelect>
-        </div>
+        <StageSelectInput
+          label='Urgensi Pengadaan'
+          name='urgensiPengadaan'
+          isRequired
+          value={urgensiPengadaan}
+          onChange={onUrgensiChange}
+          options={URGENSI_OPTIONS}
+        />
       </div>
 
       <div className='flex flex-col gap-1.5'>

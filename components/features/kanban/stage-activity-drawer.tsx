@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import type { DrawerRootChangeEventDetails } from '@base-ui/react/drawer';
 import { Form } from '@heroui/react';
 import { Drawer, DrawerContent } from '@/components/ui/drawer';
 import { INITIAL_KANBAN_STAGES } from '@/constants/kanban-constants';
@@ -32,6 +33,28 @@ export function StageActivityDrawer({
   onCreateTicket,
   onCancelMove,
 }: StageActivityDrawerProps) {
+  // Select HeroUI (react-aria) menelan klik-di-luar pertama dengan stopPropagation, sehingga
+  // listener outside-press Base UI tertinggal di <body> dan menutup drawer pada klik berikutnya.
+  // Maka outside-press hanya diterima kalau benar-benar mengenai backdrop.
+  const handleDrawerOpenChange = React.useCallback(
+    (nextOpen: boolean, eventDetails?: DrawerRootChangeEventDetails) => {
+      if (!nextOpen && eventDetails?.reason === 'outside-press') {
+        const target = eventDetails.event.target;
+        const isBackdropPress =
+          target instanceof Element &&
+          target.closest('[data-slot="drawer-overlay"], [data-slot="drawer-viewport"]') !== null &&
+          target.closest('[data-slot="drawer-popup"]') === null;
+
+        if (!isBackdropPress) {
+          eventDetails.cancel();
+          return;
+        }
+      }
+      onOpenChange(nextOpen);
+    },
+    [onOpenChange],
+  );
+
   const form = useStageActivityForm({ open, mode, ticket, targetStage });
   const stageType: JenisTahap = targetStage?.jenis_tahap ?? 'visit';
 
@@ -85,7 +108,11 @@ export function StageActivityDrawer({
     );
 
   return (
-    <Drawer open={open} onOpenChange={onOpenChange} showSwipeHandle>
+    <Drawer
+      open={open}
+      onOpenChange={handleDrawerOpenChange}
+      showSwipeHandle
+    >
       <DrawerContent className='fixed inset-x-0 bottom-0 mx-auto w-full sm:max-w-xl md:max-w-2xl max-h-[90dvh] flex flex-col p-0 rounded-t-2xl border-t border-border shadow-xl bg-card overflow-hidden'>
         <StageDrawerHeader
           mode={mode}
