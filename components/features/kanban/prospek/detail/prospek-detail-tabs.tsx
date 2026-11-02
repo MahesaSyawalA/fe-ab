@@ -1,4 +1,7 @@
-import { cn } from '@/lib/utils';
+'use client';
+
+import * as React from 'react';
+import { Tabs } from '@heroui/react';
 import { DetailTab } from '../types';
 
 interface ProspekDetailTabsProps {
@@ -21,28 +24,29 @@ export function ProspekDetailTabs({
   ];
 
   return (
-    <div className='grid grid-cols-3 border-b border-border/70 bg-muted/20'>
-      {tabs.map((tab) => {
-        const isActive = active === tab.id;
-        return (
-          <button
+    <Tabs
+      selectedKey={active}
+      onSelectionChange={(key) => onChange(key as DetailTab)}
+      variant='secondary'
+      className='w-full'
+    >
+      <Tabs.List
+        aria-label='Detail Prospek Tabs'
+        className='grid w-full grid-cols-3 border-b border-border/70 bg-muted/20 p-0 rounded-none h-12'
+      >
+        {tabs.map((tab) => (
+          <Tabs.Tab
             key={tab.id}
-            type='button'
-            onClick={() => onChange(tab.id)}
-            className={cn(
-              'relative py-3 text-center text-xs sm:text-sm font-semibold transition-colors cursor-pointer',
-              isActive
-                ? 'text-primary bg-card'
-                : 'text-muted-foreground hover:text-foreground hover:bg-muted/40',
-            )}
+            id={tab.id}
+            className='relative flex items-center justify-center h-full rounded-none px-1 sm:px-2 py-0 text-xs sm:text-sm font-semibold transition-colors text-muted-foreground hover:bg-muted/40 hover:text-foreground data-[selected=true]:text-primary cursor-pointer'
           >
             {tab.label}
-            {isActive && (
-              <span className='absolute inset-x-6 sm:inset-x-10 bottom-0 h-0.5 rounded-full bg-primary' />
-            )}
-          </button>
-        );
-      })}
-    </div>
+            <Tabs.Indicator className='absolute top-auto -bottom-[1px] w-full h-0.5 flex justify-center bg-transparent shadow-none pointer-events-none z-10'>
+              <span className='h-0.5 w-[calc(100%-2rem)] sm:w-[calc(100%-4rem)] rounded-full bg-primary' />
+            </Tabs.Indicator>
+          </Tabs.Tab>
+        ))}
+      </Tabs.List>
+    </Tabs>
   );
 }
