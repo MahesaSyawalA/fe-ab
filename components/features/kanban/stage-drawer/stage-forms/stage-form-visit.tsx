@@ -2,11 +2,13 @@
 
 import * as React from 'react';
 import { MapPin } from 'lucide-react';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Kontak } from '@/types/contact.types';
-import { StageTextFieldInput, StageSelectInput } from '../inputs';
+import {
+  StageTextFieldInput,
+  StageSelectInput,
+  StageDatePicker,
+} from '../inputs';
 
 interface StageFormVisitProps {
   koordinatGps: string;
@@ -73,19 +75,14 @@ export function StageFormVisit({
         </Badge>
       </div>
 
-      {/* Input Waktu (Satu input bertipe datetime) */}
-      <div className='flex flex-col gap-1.5'>
-        <Label className='text-xs font-semibold text-foreground'>
-          Waktu Kunjungan <span className='text-rose-500'>*</span>
-        </Label>
-        <Input
-          type='datetime-local'
-          value={waktuAktivitas}
-          onChange={(e) => onWaktuChange(e.target.value)}
-          className='h-9 rounded-xl text-xs'
-          required
-        />
-      </div>
+      {/* Input Tanggal Kunjungan */}
+      <StageDatePicker
+        label='Tanggal Kunjungan'
+        name='waktuAktivitas'
+        isRequired
+        value={waktuAktivitas}
+        onChange={onWaktuChange}
+      />
 
       {/* PIC Relasi Data Client & Jabatan Otomatis */}
       <div className='grid grid-cols-2 gap-2.5'>

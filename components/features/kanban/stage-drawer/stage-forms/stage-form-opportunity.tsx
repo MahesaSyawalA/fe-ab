@@ -2,10 +2,9 @@
 
 import * as React from 'react';
 import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { StageCurrencyInput } from '../inputs';
+import { StageCurrencyInput, StageDatePicker } from '../inputs';
 
 interface StageFormOpportunityProps {
   estimasiNilai: string;
@@ -40,18 +39,13 @@ export function StageFormOpportunity({
         inputClassName='font-semibold'
       />
 
-      <div className='flex flex-col gap-1.5'>
-        <Label className='text-xs font-semibold'>
-          Target Closing <span className='text-rose-500'>*</span>
-        </Label>
-        <Input
-          type='date'
-          value={targetClosing}
-          onChange={(e) => onTargetClosingChange(e.target.value)}
-          className='h-9 rounded-xl text-xs'
-          required
-        />
-      </div>
+      <StageDatePicker
+        label='Target Closing'
+        name='targetClosing'
+        isRequired
+        value={targetClosing}
+        onChange={onTargetClosingChange}
+      />
 
       <div className='flex flex-col gap-1.5'>
         <Label className='text-xs font-semibold'>

@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { Calendar } from 'lucide-react';
 import {
   DrawerDescription,
   DrawerFooter,
@@ -9,13 +8,11 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@heroui/react';
 import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
-import { FilterSelectInput, FilterSelectOption } from './inputs';
 import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from '@/components/ui/input-group';
+  FilterSelectInput,
+  FilterSelectOption,
+  FilterDatePicker,
+} from './inputs';
 import {
   JENIS_TAHAP_OPTIONS,
   PRIORITY_CONFIG,
@@ -95,18 +92,11 @@ export function KanbanFilterForm({ value, onApply, onClose }: KanbanFilterFormPr
             {DATE_FIELDS.map(({ key, label }) => (
               <div key={key} className='flex flex-col gap-1'>
                 <span className='text-[11px] text-muted-foreground'>{label}</span>
-                <InputGroup className='h-10 rounded-xl border-border bg-card shadow-none'>
-                  <InputGroupAddon align='inline-start' className='gap-2 pl-3 pr-1 text-muted-foreground'>
-                    <Calendar className='size-3.5' />
-                    <Separator orientation='vertical' className='h-4' />
-                  </InputGroupAddon>
-                  <InputGroupInput
-                    value={draft[key]}
-                    onChange={(e) => setField(key, e.target.value)}
-                    placeholder='Default'
-                    className='text-xs'
-                  />
-                </InputGroup>
+                <FilterDatePicker
+                  aria-label={label}
+                  value={draft[key]}
+                  onChange={(val) => setField(key, val)}
+                />
               </div>
             ))}
           </div>

@@ -1,9 +1,11 @@
 'use client';
 
 import * as React from 'react';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { StageTextFieldInput, StageCurrencyInput } from '../inputs';
+import {
+  StageTextFieldInput,
+  StageCurrencyInput,
+  StageDatePicker,
+} from '../inputs';
 
 interface StageFormPoProps {
   noPo: string;
@@ -50,18 +52,13 @@ export function StageFormPo({
       />
 
       {/* Target Tanggal Pengiriman (1 Baris Penuh) */}
-      <div className='flex flex-col gap-1.5'>
-        <Label className='text-xs font-semibold text-foreground'>
-          Target Tanggal Pengiriman <span className='text-rose-500'>*</span>
-        </Label>
-        <Input
-          type='date'
-          value={targetPengiriman}
-          onChange={(e) => onTargetPengirimanChange(e.target.value)}
-          className='h-9 rounded-xl text-xs'
-          required
-        />
-      </div>
+      <StageDatePicker
+        label='Target Tanggal Pengiriman'
+        name='targetPengiriman'
+        isRequired
+        value={targetPengiriman}
+        onChange={onTargetPengirimanChange}
+      />
     </div>
   );
 }
