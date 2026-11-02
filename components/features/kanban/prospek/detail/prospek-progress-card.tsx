@@ -1,7 +1,16 @@
 import * as React from 'react';
-import { Check, CircleDot } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { SurfaceCard } from '@/components/ui/surface-card';
 import { CardContent } from '@/components/ui/card';
+import {
+  Stepper,
+  StepperIndicator,
+  StepperItem,
+  StepperNav,
+  StepperSeparator,
+  StepperTitle,
+  StepperTrigger,
+} from '@/components/reui/stepper';
 import { JENIS_TAHAP_OPTIONS } from '@/constants/kanban-constants';
 import { cn } from '@/lib/utils';
 
@@ -34,57 +43,73 @@ export function ProspekProgressCard({
 
         {/* Stepper Track */}
         <div className='overflow-x-auto lg:overflow-x-visible no-scrollbar -mx-1 px-1 py-1.5'>
-          <div className='flex items-start min-w-[580px] lg:min-w-0 lg:w-full'>
-            {JENIS_TAHAP_OPTIONS.map((step, index) => {
-              const isCompleted = index <= currentStepIdx;
-              const isCurrent = index === currentStepIdx;
-              const isLast = index === JENIS_TAHAP_OPTIONS.length - 1;
+          <div className='min-w-[580px] lg:min-w-0 lg:w-full'>
+            <Stepper
+              value={currentStepIdx + 1}
+              orientation='horizontal'
+              className='w-full'
+            >
+              <StepperNav className='w-full items-start'>
+                {JENIS_TAHAP_OPTIONS.map((step, index) => {
+                  const isCompleted = index < currentStepIdx;
+                  const isCurrent = index === currentStepIdx;
+                  const isLast = index === JENIS_TAHAP_OPTIONS.length - 1;
 
-              return (
-                <React.Fragment key={step.id}>
-                  <div className='flex flex-col items-center shrink-0 lg:shrink-0 w-16 lg:w-20'>
-                    <div
-                      className={cn(
-                        'flex size-6 lg:size-7 items-center justify-center rounded-full text-xs font-semibold transition-all shrink-0',
-                        isCompleted
-                          ? 'bg-primary text-primary-foreground shadow-xs'
-                          : 'border border-muted-foreground/30 bg-muted/30 text-muted-foreground',
-                        isCurrent && 'ring-2 ring-primary/25 ring-offset-1',
-                      )}
+                  return (
+                    <StepperItem
+                      key={step.id}
+                      step={index + 1}
+                      completed={isCompleted}
+                      className='relative flex-1 flex-col items-center justify-start'
                     >
-                      {isCompleted ? (
-                        <Check className='size-3.5 lg:size-4 stroke-[2.5]' />
-                      ) : (
-                        <CircleDot className='size-3 lg:size-3.5' />
-                      )}
-                    </div>
-                    <span
-                      className={cn(
-                        'mt-1.5 text-[10px] lg:text-[11px] font-medium whitespace-nowrap text-center transition-colors',
-                        isCurrent
-                          ? 'text-primary font-bold'
-                          : isCompleted
-                            ? 'text-foreground font-medium'
-                            : 'text-muted-foreground',
-                      )}
-                    >
-                      {step.label}
-                    </span>
-                  </div>
+                      <StepperTrigger className='flex flex-col items-center gap-1.5 p-0 bg-transparent hover:bg-transparent shadow-none cursor-default pointer-events-none border-0 focus-visible:ring-0 w-full z-10'>
+                        <StepperIndicator
+                          className={cn(
+                            'size-6 lg:size-7 rounded-full transition-all text-xs font-semibold shrink-0 z-10',
+                            isCompleted &&
+                              'bg-primary text-primary-foreground border-transparent shadow-xs',
+                            isCurrent &&
+                              'bg-primary text-primary-foreground border-transparent ring-2 ring-primary/25 ring-offset-2 ring-offset-card shadow-xs font-bold',
+                            !isCompleted &&
+                              !isCurrent &&
+                              'border border-border bg-muted/40 text-muted-foreground',
+                          )}
+                        >
+                          {isCompleted ? (
+                            <Check className='size-3.5 lg:size-4 stroke-[2.5]' />
+                          ) : (
+                            index + 1
+                          )}
+                        </StepperIndicator>
+                        <StepperTitle
+                          className={cn(
+                            'text-[10px] lg:text-[11px] font-medium whitespace-nowrap text-center transition-colors',
+                            isCurrent
+                              ? 'text-primary font-bold'
+                              : isCompleted
+                                ? 'text-foreground font-medium'
+                                : 'text-muted-foreground',
+                          )}
+                        >
+                          {step.label}
+                        </StepperTitle>
+                      </StepperTrigger>
 
-                  {!isLast && (
-                    <div
-                      className={cn(
-                        'h-[2px] flex-1 min-w-8 lg:min-w-6 mt-3 lg:mt-3.5 rounded-full mx-1 transition-colors',
-                        index < currentStepIdx
-                          ? 'bg-primary'
-                          : 'bg-slate-200 dark:bg-slate-700',
+                      {!isLast && (
+                        <StepperSeparator
+                          className={cn(
+                            'absolute top-[11px] lg:top-[13px] left-1/2 w-full m-0 h-0.5 rounded-none z-0',
+                            'group-data-[orientation=horizontal]/stepper-nav:w-full group-data-[orientation=horizontal]/stepper-nav:flex-none',
+                            'bg-muted/70 transition-colors',
+                            'group-data-[state=completed]/step:bg-primary',
+                          )}
+                        />
                       )}
-                    />
-                  )}
-                </React.Fragment>
-              );
-            })}
+                    </StepperItem>
+                  );
+                })}
+              </StepperNav>
+            </Stepper>
           </div>
         </div>
       </CardContent>
