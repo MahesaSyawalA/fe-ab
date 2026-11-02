@@ -6,12 +6,12 @@ import {
   DrawerTitle,
 } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
-import { Input } from '@heroui/react';
 import { Label } from '@/components/ui/label';
 import {
   FilterSelectInput,
   FilterSelectOption,
   FilterDatePicker,
+  FilterCurrencyInput,
 } from './inputs';
 import {
   JENIS_TAHAP_OPTIONS,
@@ -108,12 +108,11 @@ export function KanbanFilterForm({ value, onApply, onClose }: KanbanFilterFormPr
             {ESTIMATE_FIELDS.map(({ key, label }) => (
               <div key={key} className='flex flex-col gap-1'>
                 <span className='text-[11px] text-muted-foreground'>{label}</span>
-                <Input
+                <FilterCurrencyInput
                   aria-label={label}
                   value={draft[key]}
-                  onChange={(e) => setField(key, e.target.value)}
+                  onChange={(val) => setField(key, val)}
                   placeholder='Default'
-                  className='h-10 rounded-xl border-border bg-card px-3 text-xs shadow-none'
                 />
               </div>
             ))}
