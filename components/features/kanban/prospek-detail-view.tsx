@@ -60,7 +60,7 @@ export function ProspekDetailView({
   };
 
   return (
-    <div className='mx-auto flex min-h-dvh md:min-h-0 w-full max-w-lg lg:max-w-7xl min-w-0 flex-col bg-muted/25 lg:bg-transparent pb-10'>
+    <div className='mx-auto flex min-h-dvh md:min-h-0 w-full max-w-lg lg:max-w-7xl min-w-0 flex-col bg-muted/25 lg:bg-transparent pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] lg:pb-10'>
       <SubpageHeader
         title='Detail Prospek'
         subtitle='Informasi lengkap prospek, progres tahapan pipa penjualan, dan log aktivitas kunjungan'
@@ -132,15 +132,17 @@ export function ProspekDetailView({
             </SurfaceCard>
           </div>
 
-          {/* 4. CTA mobile: Tentukan Hasil Negosiasi (disembunyikan di desktop) */}
-          <div className='order-4 lg:hidden pt-2 pb-2'>
-            <Button
-              type='button'
-              onClick={() => setNegotiationDrawerOpen(true)}
-              className='h-11 w-full rounded-xl bg-primary text-xs font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 cursor-pointer'
-            >
-              Tentukan Hasil Negosiasi
-            </Button>
+          {/* 4. CTA mobile: Tentukan Hasil Negosiasi (Sticky di mobile/PWA, disembunyikan di desktop) */}
+          <div className='fixed bottom-0 inset-x-0 z-30 border-t border-border bg-background/85 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] backdrop-blur-md lg:hidden shadow-lg'>
+            <div className='mx-auto w-full max-w-lg'>
+              <Button
+                type='button'
+                onClick={() => setNegotiationDrawerOpen(true)}
+                className='h-11 w-full rounded-xl bg-primary text-xs font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 cursor-pointer'
+              >
+                Tentukan Hasil Negosiasi
+              </Button>
+            </div>
           </div>
         </div>
       </div>
