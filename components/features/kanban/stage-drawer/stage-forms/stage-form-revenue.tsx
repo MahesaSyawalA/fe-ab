@@ -4,12 +4,8 @@ import * as React from 'react';
 import { CheckCircle2, X } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from '@/components/ui/input-group';
-import { cn, formatNumberInput } from '@/lib/utils';
+import { cn } from '@/lib/utils';
+import { StageCurrencyInput } from '../inputs';
 
 interface StageFormRevenueProps {
   statusClosing: 'won' | 'lost';
@@ -68,23 +64,17 @@ export function StageFormRevenue({
       </div>
 
       {/* Nilai Revenue (1 Baris Penuh) */}
-      <div className='flex flex-col gap-1.5'>
-        <Label className='text-xs font-semibold text-foreground'>
-          Nilai Revenue (Rp) <span className='text-rose-500'>*</span>
-        </Label>
-        <InputGroup className='h-9 rounded-xl border-border bg-card shadow-none'>
-          <InputGroupAddon align='inline-start' className='pl-3 text-xs font-bold text-emerald-600'>
-            Rp
-          </InputGroupAddon>
-          <InputGroupInput
-            value={realisasiRevenue}
-            onChange={(e) => onRealisasiRevenueChange(formatNumberInput(e.target.value))}
-            placeholder='0'
-            className='text-xs font-bold text-emerald-700'
-            required
-          />
-        </InputGroup>
-      </div>
+      <StageCurrencyInput
+        label='Nilai Revenue (Rp)'
+        name='realisasiRevenue'
+        isRequired
+        value={realisasiRevenue}
+        onChange={onRealisasiRevenueChange}
+        placeholder='0'
+        prefix='Rp'
+        prefixClassName='text-foreground'
+        inputClassName='font-bold'
+      />
     </div>
   );
 }

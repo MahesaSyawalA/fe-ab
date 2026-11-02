@@ -4,12 +4,8 @@ import * as React from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from '@/components/ui/input-group';
-import { cn, formatNumberInput } from '@/lib/utils';
+import { cn } from '@/lib/utils';
+import { StageCurrencyInput } from '../inputs';
 
 interface StageFormOpportunityProps {
   estimasiNilai: string;
@@ -32,23 +28,17 @@ export function StageFormOpportunity({
 }: StageFormOpportunityProps) {
   return (
     <div className='flex flex-col gap-3'>
-      <div className='flex flex-col gap-1.5'>
-        <Label className='text-xs font-semibold'>
-          Estimasi Nilai Closing (Rp) <span className='text-rose-500'>*</span>
-        </Label>
-        <InputGroup className='h-9 rounded-xl border-border bg-card shadow-none'>
-          <InputGroupAddon align='inline-start' className='pl-3 text-xs font-bold text-primary'>
-            Rp
-          </InputGroupAddon>
-          <InputGroupInput
-            value={estimasiNilai}
-            onChange={(e) => onEstimasiNilaiChange(formatNumberInput(e.target.value))}
-            placeholder='0'
-            className='text-xs font-semibold'
-            required
-          />
-        </InputGroup>
-      </div>
+      <StageCurrencyInput
+        label='Estimasi Nilai Closing (Rp)'
+        name='estimasiNilai'
+        isRequired
+        value={estimasiNilai}
+        onChange={onEstimasiNilaiChange}
+        placeholder='0'
+        prefix='Rp'
+        prefixClassName='text-foreground'
+        inputClassName='font-semibold'
+      />
 
       <div className='flex flex-col gap-1.5'>
         <Label className='text-xs font-semibold'>

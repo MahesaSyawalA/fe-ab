@@ -3,13 +3,7 @@
 import * as React from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from '@/components/ui/input-group';
-import { formatNumberInput } from '@/lib/utils';
-import { StageTextFieldInput } from '../inputs';
+import { StageTextFieldInput, StageCurrencyInput } from '../inputs';
 
 interface StageFormPoProps {
   noPo: string;
@@ -43,23 +37,17 @@ export function StageFormPo({
       />
 
       {/* Nominal Total PO (1 Baris Penuh) */}
-      <div className='flex flex-col gap-1.5'>
-        <Label className='text-xs font-semibold text-foreground'>
-          Nominal Total PO (Rp) <span className='text-rose-500'>*</span>
-        </Label>
-        <InputGroup className='h-9 rounded-xl border-border bg-card shadow-none'>
-          <InputGroupAddon align='inline-start' className='pl-3 text-xs font-bold text-sky-600'>
-            Rp
-          </InputGroupAddon>
-          <InputGroupInput
-            value={nominalPo}
-            onChange={(e) => onNominalPoChange(formatNumberInput(e.target.value))}
-            placeholder='0'
-            className='text-xs font-semibold'
-            required
-          />
-        </InputGroup>
-      </div>
+      <StageCurrencyInput
+        label='Nominal Total PO (Rp)'
+        name='nominalPo'
+        isRequired
+        value={nominalPo}
+        onChange={onNominalPoChange}
+        placeholder='0'
+        prefix='Rp'
+        prefixClassName='text-foreground'
+        inputClassName='font-semibold'
+      />
 
       {/* Target Tanggal Pengiriman (1 Baris Penuh) */}
       <div className='flex flex-col gap-1.5'>
