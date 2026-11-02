@@ -17,27 +17,9 @@ import {
   buildCreatedTicket,
   buildMoveParams,
   useStageActivityForm,
-  useDrawerOverlayGuard,
-  StageDrawerOverlayGuardProvider,
 } from './stage-drawer';
 
 export type { StageDrawerMode, StageActivityDrawerProps };
-
-const formatTarget = (target: EventTarget | null) => {
-  const el = target as HTMLElement | null;
-  if (!el || !el.tagName) return 'unknown';
-  const tagName = el.tagName.toLowerCase();
-  const rawClass =
-    typeof el.className === 'string'
-      ? el.className
-      : typeof el.className === 'object' && el.className && 'baseVal' in el.className
-        ? String((el.className as { baseVal: string }).baseVal)
-        : '';
-  const firstTwoClasses = rawClass
-    ? rawClass.trim().split(/\s+/).filter(Boolean).slice(0, 2).join('.')
-    : '';
-  return firstTwoClasses ? `${tagName}.${firstTwoClasses}` : tagName;
-};
 
 export function StageActivityDrawer({
   open,
@@ -51,99 +33,27 @@ export function StageActivityDrawer({
   onCreateTicket,
   onCancelMove,
 }: StageActivityDrawerProps) {
-  const { reportSelectOpenChange, isSelectOpenRef, lastClosedAtRef, cooldownMs } =
-    useDrawerOverlayGuard();
-
+  // Select HeroUI (react-aria) menelan klik-di-luar pertama dengan stopPropagation, sehingga
+  // listener outside-press Base UI tertinggal di <body> dan menutup drawer pada klik berikutnya.
+  // Maka outside-press hanya diterima kalau benar-benar mengenai backdrop.
   const handleDrawerOpenChange = React.useCallback(
     (nextOpen: boolean, eventDetails?: DrawerRootChangeEventDetails) => {
-      const now = Math.round(performance.now());
-      const msSinceSelectClosed =
-        lastClosedAtRef.current > 0 ? Date.now() - lastClosedAtRef.current : -1;
-      const isRecentlyClosed =
-        lastClosedAtRef.current > 0 && msSinceSelectClosed < cooldownMs;
-      const isGuarded = isSelectOpenRef.current || isRecentlyClosed;
+      if (!nextOpen && eventDetails?.reason === 'outside-press') {
+        const target = eventDetails.event.target;
+        const isBackdropPress =
+          target instanceof Element &&
+          target.closest('[data-slot="drawer-overlay"], [data-slot="drawer-viewport"]') !== null &&
+          target.closest('[data-slot="drawer-popup"]') === null;
 
-      const targetEl = eventDetails?.event?.target as HTMLElement | null;
-      const targetDesc = eventDetails?.event
-        ? formatTarget(eventDetails.event.target)
-        : 'none';
-      const isInsidePopup = Boolean(
-        targetEl &&
-          typeof targetEl.closest === 'function' &&
-          targetEl.closest('[data-slot="drawer-popup"]'),
-      );
-
-      let canceled = false;
-
-      if (!nextOpen && eventDetails) {
-        // Aturan 1: outside-press tetapi target klik sebenarnya berada DI DALAM popup drawer
-        const isClickInsidePopup =
-          eventDetails.reason === 'outside-press' && isInsidePopup;
-
-        // Aturan 2: Select sedang terbuka atau baru saja menutup (cooldown)
-        const isSelectGuarded =
-          isGuarded &&
-          (eventDetails.reason === 'outside-press' ||
-            eventDetails.reason === 'escape-key');
-
-        if (isClickInsidePopup || isSelectGuarded) {
+        if (!isBackdropPress) {
           eventDetails.cancel();
-          canceled = true;
+          return;
         }
       }
-
-      // TEMP-DIAGNOSTIC: hapus setelah debugging
-      console.log(
-        `[guard] ${now}ms handleDrawerOpenChange: nextOpen=${nextOpen}, reason=${eventDetails?.reason ?? 'none'}, selectOpen=${isSelectOpenRef.current}, msSinceClosed=${msSinceSelectClosed}, target=${targetDesc}, insidePopup=${isInsidePopup}, canceled=${canceled}`,
-      );
-
-      if (!canceled) {
-        onOpenChange(nextOpen);
-      }
+      onOpenChange(nextOpen);
     },
-    [onOpenChange, isSelectOpenRef, lastClosedAtRef, cooldownMs],
+    [onOpenChange],
   );
-
-  // TEMP-DIAGNOSTIC: hapus setelah debugging
-  React.useEffect(() => {
-    console.log('[guard] instrumentation v1 loaded');
-
-    const handlePointerOrClick = (e: Event) => {
-      const now = Math.round(performance.now());
-      const targetDesc = formatTarget(e.target);
-      const hasPopoverInDom = Boolean(document.querySelector('[role="listbox"]'));
-
-      // TEMP-DIAGNOSTIC: hapus setelah debugging
-      console.log(
-        `[guard] ${now}ms document.${e.type} (capture): target=${targetDesc}, hasPopoverInDom=${hasPopoverInDom}`,
-      );
-    };
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        const now = Math.round(performance.now());
-        const targetDesc = formatTarget(e.target);
-        const hasPopoverInDom = Boolean(document.querySelector('[role="listbox"]'));
-
-        // TEMP-DIAGNOSTIC: hapus setelah debugging
-        console.log(
-          `[guard] ${now}ms document.keydown(Escape) (capture): target=${targetDesc}, hasPopoverInDom=${hasPopoverInDom}`,
-        );
-      }
-    };
-
-    document.addEventListener('pointerdown', handlePointerOrClick, true);
-    document.addEventListener('pointerup', handlePointerOrClick, true);
-    document.addEventListener('click', handlePointerOrClick, true);
-    document.addEventListener('keydown', handleKeyDown, true);
-
-    return () => {
-      document.removeEventListener('pointerdown', handlePointerOrClick, true);
-      document.removeEventListener('pointerup', handlePointerOrClick, true);
-      document.removeEventListener('click', handlePointerOrClick, true);
-      document.removeEventListener('keydown', handleKeyDown, true);
-    };
-  }, []);
 
   const form = useStageActivityForm({ open, mode, ticket, targetStage });
   const stageType: JenisTahap = targetStage?.jenis_tahap ?? 'visit';
@@ -198,35 +108,31 @@ export function StageActivityDrawer({
     );
 
   return (
-    <StageDrawerOverlayGuardProvider
-      reportSelectOpenChange={reportSelectOpenChange}
+    <Drawer
+      open={open}
+      onOpenChange={handleDrawerOpenChange}
+      showSwipeHandle
     >
-      <Drawer
-        open={open}
-        onOpenChange={handleDrawerOpenChange}
-        showSwipeHandle
-      >
-        <DrawerContent className='fixed inset-x-0 bottom-0 mx-auto w-full sm:max-w-xl md:max-w-2xl max-h-[90dvh] flex flex-col p-0 rounded-t-2xl border-t border-border shadow-xl bg-card overflow-hidden'>
-          <StageDrawerHeader
+      <DrawerContent className='fixed inset-x-0 bottom-0 mx-auto w-full sm:max-w-xl md:max-w-2xl max-h-[90dvh] flex flex-col p-0 rounded-t-2xl border-t border-border shadow-xl bg-card overflow-hidden'>
+        <StageDrawerHeader
+          mode={mode}
+          ticket={ticket}
+          targetStage={targetStage}
+          fromStage={effectiveFromStage}
+          isSameStage={isSameStage}
+          onClose={handleClose}
+        />
+
+        <Form onSubmit={handleSubmit} className='flex flex-1 min-h-0 flex-col overflow-hidden' validationBehavior='native'>
+          <StageDrawerBody mode={mode} stageType={stageType} form={form} />
+          <StageDrawerFooter
             mode={mode}
-            ticket={ticket}
-            targetStage={targetStage}
-            fromStage={effectiveFromStage}
             isSameStage={isSameStage}
+            accentColor={targetStage.dotColor}
             onClose={handleClose}
           />
-
-          <Form onSubmit={handleSubmit} className='flex flex-1 min-h-0 flex-col overflow-hidden' validationBehavior='native'>
-            <StageDrawerBody mode={mode} stageType={stageType} form={form} />
-            <StageDrawerFooter
-              mode={mode}
-              isSameStage={isSameStage}
-              accentColor={targetStage.dotColor}
-              onClose={handleClose}
-            />
-          </Form>
-        </DrawerContent>
-      </Drawer>
-    </StageDrawerOverlayGuardProvider>
+        </Form>
+      </DrawerContent>
+    </Drawer>
   );
 }

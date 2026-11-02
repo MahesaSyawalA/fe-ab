@@ -9,7 +9,6 @@ import {
 } from '@heroui/react';
 import { TriangleExclamation } from '@gravity-ui/icons';
 import { cn } from '@/lib/utils';
-import { useStageDrawerOverlayGuard } from '../stage-drawer-overlay-guard';
 
 export interface StageSelectOption {
   value: string;
@@ -47,7 +46,6 @@ export function StageSelectInput({
   className,
   triggerClassName,
 }: StageSelectInputProps) {
-  const guard = useStageDrawerOverlayGuard();
   const invalid = isInvalid || Boolean(errorMessage);
   const hasEmptyOption = options.some((opt) => opt.value === '');
 
@@ -77,12 +75,6 @@ export function StageSelectInput({
       isDisabled={isDisabled}
       value={internalValue}
       onChange={handleSelectionChange}
-      onOpenChange={(isOpen) => {
-        // TEMP-DIAGNOSTIC: hapus setelah debugging
-        const now = Math.round(performance.now());
-        console.log(`[guard] ${now}ms Select.onOpenChange: isOpen=${isOpen}`);
-        guard?.reportSelectOpenChange(isOpen);
-      }}
       placeholder={placeholder}
       name={name}
       className={cn('flex w-full flex-col gap-1.5', className)}
