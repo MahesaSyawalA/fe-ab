@@ -5,9 +5,8 @@ import { MapPin } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { NativeSelect } from '@/components/ui/native-select';
 import { Kontak } from '@/types/contact.types';
-import { StageTextFieldInput } from '../inputs';
+import { StageTextFieldInput, StageSelectInput } from '../inputs';
 
 interface StageFormVisitProps {
   koordinatGps: string;
@@ -47,6 +46,19 @@ export function StageFormVisit({
     return list;
   }, [kontakList, picDitemui, jabatanPic]);
 
+  const selectOptions = React.useMemo(() => {
+    return options.map((k) => ({
+      value: k.id_kontak,
+      label: `${k.nama} ${k.kategori_peran ? `(${k.kategori_peran})` : ''}`.trim(),
+    }));
+  }, [options]);
+
+  const selectedContact =
+    options.find(
+      (k) => k.nama === picDitemui && (k.jabatan ?? '') === jabatanPic,
+    ) ?? options.find((k) => k.nama === picDitemui);
+  const selectedKey = selectedContact?.id_kontak ?? '';
+
   return (
     <div className='flex flex-col gap-3'>
       {/* Section Geo (Simple & Compact) */}
@@ -77,31 +89,26 @@ export function StageFormVisit({
 
       {/* PIC Relasi Data Client & Jabatan Otomatis */}
       <div className='grid grid-cols-2 gap-2.5'>
-        <div className='flex flex-col gap-1.5'>
-          <Label className='text-xs font-semibold text-foreground'>
-            PIC yang Ditemui <span className='text-rose-500'>*</span>
-          </Label>
-          <NativeSelect
-            value={picDitemui}
-            onChange={(e) => {
-              const val = e.target.value;
-              const selected = options.find((k) => k.nama === val);
-              onPicSelect(val, selected?.jabatan || '', selected?.no_telp || '');
-            }}
-            className='h-9 rounded-xl text-xs bg-card'
-            required
-          >
-            {options.length === 0 ? (
-              <option value=''>Tidak ada kontak client</option>
-            ) : (
-              options.map((k) => (
-                <option key={k.id_kontak} value={k.nama}>
-                  {k.nama} {k.kategori_peran ? `(${k.kategori_peran})` : ''}
-                </option>
-              ))
-            )}
-          </NativeSelect>
-        </div>
+        <StageSelectInput
+          label='PIC yang Ditemui'
+          name='picDitemui'
+          isRequired
+          placeholder={
+            options.length === 0 ? 'Tidak ada kontak client' : 'Pilih PIC...'
+          }
+          value={selectedKey}
+          onChange={(selectedId) => {
+            const selected = options.find((k) => k.id_kontak === selectedId);
+            if (selected) {
+              onPicSelect(
+                selected.nama,
+                selected.jabatan || '',
+                selected.no_telp || '',
+              );
+            }
+          }}
+          options={selectOptions}
+        />
 
         <StageTextFieldInput
           label='Jabatan PIC'

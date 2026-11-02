@@ -3,7 +3,14 @@
 import * as React from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { NativeSelect } from '@/components/ui/native-select';
+import { StageSelectInput, StageSelectOption } from '../inputs';
+
+const MEDIA_KOMUNIKASI_OPTIONS: StageSelectOption[] = [
+  { value: 'WhatsApp', label: 'WhatsApp Messenger' },
+  { value: 'Telepon', label: 'Panggilan Telepon' },
+  { value: 'Tatap Muka', label: 'Pertemuan Langsung' },
+  { value: 'Online', label: 'Zoom / Google Meet' },
+];
 
 interface StageFormFollowUpProps {
   mediaKomunikasi: string;
@@ -25,21 +32,14 @@ export function StageFormFollowUp({
   return (
     <div className='flex flex-col gap-3'>
       {/* Media Komunikasi (1 Baris Penuh) */}
-      <div className='flex flex-col gap-1.5'>
-        <Label className='text-xs font-semibold'>
-          Media Komunikasi <span className='text-rose-500'>*</span>
-        </Label>
-        <NativeSelect
-          value={mediaKomunikasi}
-          onChange={(e) => onMediaKomunikasiChange(e.target.value)}
-          className='h-9 rounded-xl text-xs bg-card'
-        >
-          <option value='WhatsApp'>WhatsApp Messenger</option>
-          <option value='Telepon'>Panggilan Telepon</option>
-          <option value='Tatap Muka'>Pertemuan Langsung</option>
-          <option value='Online'>Zoom / Google Meet</option>
-        </NativeSelect>
-      </div>
+      <StageSelectInput
+        label='Media Komunikasi'
+        name='mediaKomunikasi'
+        isRequired
+        value={mediaKomunikasi}
+        onChange={onMediaKomunikasiChange}
+        options={MEDIA_KOMUNIKASI_OPTIONS}
+      />
 
       {/* Jadwal Follow Up Berikutnya (1 Baris Penuh) */}
       <div className='flex flex-col gap-1.5'>

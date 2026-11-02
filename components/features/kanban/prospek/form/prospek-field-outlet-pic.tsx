@@ -1,7 +1,7 @@
-import { FormField } from '@/components/ui/form-field';
-import { NativeSelect } from '@/components/ui/native-select';
+import * as React from 'react';
 import { PelangganWithDetails } from '@/types/customer.types';
 import { Kontak } from '@/types/contact.types';
+import { ProspekSelectInput, ProspekSelectOption } from '../inputs';
 
 interface ProspekFieldOutletPicProps {
   outlets: PelangganWithDetails[];
@@ -23,51 +23,50 @@ export function ProspekFieldOutletPic({
   onKontakChange,
   error,
 }: ProspekFieldOutletPicProps) {
+  const outletOptions = React.useMemo<ProspekSelectOption[]>(() => {
+    return [
+      { value: '', label: 'Default' },
+      ...outlets.map((outlet) => ({
+        value: outlet.id_pelanggan,
+        label: outlet.nama_faskes,
+      })),
+    ];
+  }, [outlets]);
+
+  const kontakSelectOptions = React.useMemo<ProspekSelectOption[]>(() => {
+    if (!outletId) {
+      return [{ value: '', label: 'Disable' }];
+    }
+    if (kontakOptions.length === 0) {
+      return [{ value: '', label: 'Belum ada kontak terdaftar' }];
+    }
+    return kontakOptions.map((k) => ({
+      value: k.id_kontak,
+      label: `${k.nama} • ${k.jabatan}`,
+    }));
+  }, [outletId, kontakOptions]);
+
   return (
     <>
-      <FormField
+      <ProspekSelectInput
         label='Outlet'
-        required
-        error={error}
+        isRequired
+        errorMessage={error}
         hint='Sesuai data registrasi master pelanggan Jawa Barat'
-      >
-        <NativeSelect
-          value={outletId}
-          onChange={(e) => onOutletChange(e.target.value)}
-          className={error ? 'border-destructive text-muted-foreground' : undefined}
-        >
-          <option value=''>Default</option>
-          {outlets.map((outlet) => (
-            <option key={outlet.id_pelanggan} value={outlet.id_pelanggan}>
-              {outlet.nama_faskes}
-            </option>
-          ))}
-        </NativeSelect>
-      </FormField>
+        value={outletId}
+        onChange={onOutletChange}
+        options={outletOptions}
+      />
 
-      <FormField
+      <ProspekSelectInput
         label='PIC Outlet'
-        required
+        isRequired
         hint='Daftar kontak muncul setelah pelanggan dipilih'
-      >
-        <NativeSelect
-          value={kontakId}
-          disabled={!outletId}
-          onChange={(e) => onKontakChange(e.target.value)}
-        >
-          {!outletId ? (
-            <option value=''>Disable</option>
-          ) : kontakOptions.length === 0 ? (
-            <option value=''>Belum ada kontak terdaftar</option>
-          ) : (
-            kontakOptions.map((k) => (
-              <option key={k.id_kontak} value={k.id_kontak}>
-                {k.nama} • {k.jabatan}
-              </option>
-            ))
-          )}
-        </NativeSelect>
-      </FormField>
+        isDisabled={!outletId}
+        value={kontakId}
+        onChange={onKontakChange}
+        options={kontakSelectOptions}
+      />
     </>
   );
 }

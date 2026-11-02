@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@heroui/react';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { NativeSelect } from '@/components/ui/native-select';
+import { FilterSelectInput, FilterSelectOption } from './inputs';
 import {
   InputGroup,
   InputGroupAddon,
@@ -65,6 +65,11 @@ export function KanbanFilterForm({ value, onApply, onClose }: KanbanFilterFormPr
 
   const setField = (key: ScalarKey | 'salesId', val: string) =>
     setDraft((prev) => ({ ...prev, [key]: val }));
+
+  const salesOptions = React.useMemo<FilterSelectOption[]>(() => [
+    { value: '', label: 'Default' },
+    ...SALES_OPTIONS.map((s) => ({ value: s.id, label: s.name })),
+  ], []);
 
   const handleApply = () => {
     onApply(draft);
@@ -125,22 +130,13 @@ export function KanbanFilterForm({ value, onApply, onClose }: KanbanFilterFormPr
           </div>
         </div>
 
-        <div className='flex flex-col gap-1.5'>
-          <Label className='text-xs font-bold text-foreground'>Sales</Label>
-          <span className='text-[11px] text-muted-foreground'>Pilih sales</span>
-          <NativeSelect
-            value={draft.salesId}
-            onChange={(e) => setField('salesId', e.target.value)}
-            className='border-border'
-          >
-            <option value=''>Default</option>
-            {SALES_OPTIONS.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name}
-              </option>
-            ))}
-          </NativeSelect>
-        </div>
+        <FilterSelectInput
+          label='Sales'
+          hint='Pilih sales'
+          value={draft.salesId}
+          onChange={(val) => setField('salesId', val)}
+          options={salesOptions}
+        />
       </div>
 
       <DrawerFooter className='shrink-0 z-10 grid grid-cols-2 gap-3 px-5 py-3 border-t border-border/70 bg-card shadow-[0_-4px_16px_rgba(0,0,0,0.06)] pb-4 sm:pb-3'>

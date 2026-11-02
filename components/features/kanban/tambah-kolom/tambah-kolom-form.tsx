@@ -1,14 +1,16 @@
 import * as React from 'react';
 import { Form } from '@heroui/react';
-import { FormField } from '@/components/ui/form-field';
-import { NativeSelect } from '@/components/ui/native-select';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { JenisTahap } from '@/types/kanban-stage.types';
 import { JENIS_TAHAP_OPTIONS } from '@/constants/kanban-constants';
 import { useKanbanStore } from '@/lib/kanban-store';
-import { TambahKolomTextFieldInput } from './inputs';
+import {
+  TambahKolomTextFieldInput,
+  TambahKolomSelectInput,
+  TambahKolomSelectOption,
+} from './inputs';
 
 const CHECKBOX_FIELDS = [
   {
@@ -36,6 +38,11 @@ export function TambahKolomForm({ onClose }: { onClose: () => void }) {
   });
   const [error, setError] = React.useState('');
 
+  const jenisTahapOptions = React.useMemo<TambahKolomSelectOption[]>(
+    () => JENIS_TAHAP_OPTIONS.map((opt) => ({ value: opt.id, label: opt.label })),
+    [],
+  );
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.nama_tahap.trim()) {
@@ -61,19 +68,15 @@ export function TambahKolomForm({ onClose }: { onClose: () => void }) {
         autoFocus
       />
 
-      <FormField label='Jenis Tahap' required>
-        <NativeSelect
-          value={form.jenis_tahap}
-          onChange={(e) => setForm((prev) => ({ ...prev, jenis_tahap: e.target.value as JenisTahap }))}
-          className='border-border font-medium'
-        >
-          {JENIS_TAHAP_OPTIONS.map((opt) => (
-            <option key={opt.id} value={opt.id}>
-              {opt.label}
-            </option>
-          ))}
-        </NativeSelect>
-      </FormField>
+      <TambahKolomSelectInput
+        label='Jenis Tahap'
+        isRequired
+        value={form.jenis_tahap}
+        onChange={(val) =>
+          setForm((prev) => ({ ...prev, jenis_tahap: val as JenisTahap }))
+        }
+        options={jenisTahapOptions}
+      />
 
       <TambahKolomTextFieldInput
         label='Urutan Posisi Kolom'
