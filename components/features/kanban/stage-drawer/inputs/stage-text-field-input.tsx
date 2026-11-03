@@ -21,6 +21,7 @@ export interface StageTextFieldInputProps
   type?: string;
   min?: number;
   max?: number;
+  inputMode?: 'none' | 'text' | 'decimal' | 'numeric' | 'tel' | 'search' | 'email' | 'url';
   disabled?: boolean;
   readOnly?: boolean;
   inputClassName?: string;
@@ -37,6 +38,7 @@ export function StageTextFieldInput({
   type = 'text',
   min,
   max,
+  inputMode,
   disabled,
   readOnly,
   inputClassName,
@@ -64,11 +66,12 @@ export function StageTextFieldInput({
         type={type}
         min={min}
         max={max}
+        inputMode={inputMode}
         disabled={disabled}
         readOnly={readOnly}
         placeholder={placeholder}
         className={cn(
-          'h-9 w-full rounded-xl border border-border bg-card px-3 text-xs text-foreground transition-all placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary aria-invalid:border-destructive aria-invalid:focus:border-destructive aria-invalid:focus:ring-destructive read-only:bg-muted/40 read-only:text-muted-foreground read-only:cursor-default disabled:bg-muted/40 disabled:text-muted-foreground disabled:cursor-not-allowed',
+          'h-9 w-full rounded-xl border border-border bg-card px-3 text-xs text-foreground transition-all placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary aria-invalid:border-destructive aria-invalid:focus:border-destructive aria-invalid:focus:ring-destructive read-only:bg-muted/40 read-only:text-muted-foreground read-only:cursor-default disabled:bg-muted/40 disabled:text-muted-foreground disabled:cursor-not-allowed [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none',
           inputClassName,
         )}
       />

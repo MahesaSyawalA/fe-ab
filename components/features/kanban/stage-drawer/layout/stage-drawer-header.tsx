@@ -28,8 +28,8 @@ export function StageDrawerHeader({
   onClose,
 }: StageDrawerHeaderProps) {
   return (
-    <DrawerHeader className='shrink-0 px-4 sm:px-6 py-2.5 border-b border-border/70 bg-card text-left'>
-      <div className='flex items-center justify-between gap-2 mb-1'>
+    <DrawerHeader className='shrink-0 px-4 sm:px-6 py-2.5 border-b border-border/70 bg-card text-left items-start group-data-[swipe-axis=y]/drawer-popup:text-left group-data-[swipe-axis=y]/drawer-popup:items-start'>
+      <div className='flex items-center justify-between gap-2 mb-1 w-full'>
         {mode === 'move' ? (
           <div className='flex items-center gap-1.5 min-w-0 flex-wrap'>
             {!isSameStage && fromStage && (
@@ -76,21 +76,21 @@ export function StageDrawerHeader({
         </button>
       </div>
 
-      <DrawerTitle className='text-sm sm:text-base font-bold text-foreground truncate'>
+      <DrawerTitle className='text-sm sm:text-base font-bold text-foreground truncate text-left w-full'>
         {mode === 'move' && ticket ? (
-          <span className='flex items-center gap-1.5 truncate'>
+          <span className='flex items-center gap-1.5 truncate text-left'>
             <span className='text-foreground'>{ticket.kode_tiket}</span>
             <span className='text-muted-foreground font-normal'>—</span>
             <span className='truncate font-semibold'>{ticket.judul}</span>
           </span>
         ) : (
-          `Tambah Card Baru di Tahap ${targetStage.nama_tahap}`
+          'Tambah Card'
         )}
       </DrawerTitle>
 
-      <DrawerDescription className='text-xs text-muted-foreground flex items-center gap-1.5 mt-0.5'>
+      <DrawerDescription className='text-xs text-muted-foreground flex items-center gap-1.5 mt-0.5 text-left w-full'>
         {mode === 'move' && ticket ? (
-          <span className='flex flex-wrap items-center gap-1.5 text-[11px]'>
+          <span className='flex flex-wrap items-center gap-1.5 text-[11px] text-left'>
             <span className='text-primary font-medium'>{ticket.nama_faskes}</span>
             <span>·</span>
             <span
@@ -109,7 +109,9 @@ export function StageDrawerHeader({
             </span>
           </span>
         ) : (
-          <span>Lengkapi data prospek dan bukti aktivitas tahap {targetStage.nama_tahap}.</span>
+          <span className='text-left'>
+            Lengkapi data prospek dan bukti aktivitas tahap <strong className='font-semibold text-foreground'>{targetStage.nama_tahap}</strong>.
+          </span>
         )}
       </DrawerDescription>
     </DrawerHeader>

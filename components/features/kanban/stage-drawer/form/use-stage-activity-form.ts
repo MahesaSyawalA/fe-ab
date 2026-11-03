@@ -66,41 +66,31 @@ export function useStageActivityForm({
   };
 
   // Kebutuhan specifics
-  const [jenisAlkes, setJenisAlkes] = React.useState('');
-  const [jumlahUnit, setJumlahUnit] = React.useState('1');
-  const [spesifikasiKebutuhan, setSpesifikasiKebutuhan] = React.useState('');
-  const [estimasiBudget, setEstimasiBudget] = React.useState('');
-  const [urgensiPengadaan, setUrgensiPengadaan] = React.useState('Mendesak');
+  const [spesifikasiKebutuhan] = React.useState('');
 
   // Opportunity specifics
   const [estimasiNilai, setEstimasiNilai] = React.useState('');
   const [targetClosing, setTargetClosing] = React.useState('');
   const [probabilitas, setProbabilitas] = React.useState('75%');
   const [analisisKompetitor, setAnalisisKompetitor] = React.useState('');
-  const [actionPlan, setActionPlan] = React.useState('');
 
   // Follow Up specifics
   const [mediaKomunikasi, setMediaKomunikasi] = React.useState('WhatsApp');
-  const [responKlien, setResponKlien] = React.useState('Tertarik & Minta Simulasi');
   const [jadwalFollowUp, setJadwalFollowUp] = React.useState('');
 
   // Quotation specifics
   const [noQuotation, setNoQuotation] = React.useState('');
   const [nilaiQuotation, setNilaiQuotation] = React.useState('');
-  const [masaBerlaku, setMasaBerlaku] = React.useState('30 Hari Kalender');
   const [revisiKe, setRevisiKe] = React.useState('1');
 
   // PO specifics
   const [noPo, setNoPo] = React.useState('');
   const [nominalPo, setNominalPo] = React.useState('');
   const [targetPengiriman, setTargetPengiriman] = React.useState('');
-  const [terminPembayaran, setTerminPembayaran] = React.useState('DP 30% - Pelunasan 70%');
 
   // Revenue specifics
   const [statusClosing, setStatusClosing] = React.useState<'won' | 'lost'>('won');
   const [realisasiRevenue, setRealisasiRevenue] = React.useState('');
-  const [noInvoiceBast, setNoInvoiceBast] = React.useState('');
-  const [metodePembayaran, setMetodePembayaran] = React.useState('Transfer Bank Mandiri');
 
   // Handle Faskes change in Create mode
   const handleFaskesChange = (pelangganId: string) => {
@@ -120,6 +110,7 @@ export function useStageActivityForm({
   React.useEffect(() => {
     if (!open || !targetStage) return;
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setEvidenceError(false);
 
     // Initial Evidence setup per stage
@@ -183,45 +174,39 @@ export function useStageActivityForm({
 
       setJudulProspek('');
       setPrioritas('sedang');
-      setEstimasiNilai('350.000.000');
+      setEstimasiNilai('45.000.000');
       setTargetClosing(new Date(Date.now() + 21 * 86400000).toISOString().slice(0, 10));
       setJadwalFollowUp(new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10));
 
       switch (targetStage.jenis_tahap) {
         case 'visit':
-          setCatatan('Kunjungan perdana pengenalan unit alkes dan verifikasi ruangan faskes.');
+          setCatatan('Default');
           break;
         case 'kebutuhan':
-          setJenisAlkes('Mesin Hemodialisa & Sistem RO');
-          setJumlahUnit('2');
-          setSpesifikasiKebutuhan('Kebutuhan alkes ruang rawat intensif dengan sertifikasi kalibrasi BPFK.');
-          setEstimasiBudget('450.000.000');
-          setCatatan('Asesmen awal kebutuhan faskes untuk semester berjalan.');
+          setCatatan('Default');
           break;
         case 'opportunity':
-          setAnalisisKompetitor('Vendor lain mengajukan alat refurbished, kita tawarkan garansi resmi.');
-          setActionPlan('Jadwalkan audiensi bersama direksi dan tim perawat.');
-          setCatatan('Peluang alokasi belanja modal faskes disetujui.');
+          setCatatan('Default');
           break;
         case 'follow_up':
-          setCatatan('Follow up respon penawaran harga dan simulasi margin diskon.');
+          setCatatan('Default');
           break;
         case 'quotation':
-          setNoQuotation(`QUO/ABM/2026/10/${randNum}`);
-          setNilaiQuotation('350.000.000');
-          setCatatan('Surat penawaran resmi diterbitkan sesuai katalog harga alkes 2026.');
+          setNoQuotation('QTN-2024-0145-R2');
+          setNilaiQuotation('45.000.000');
+          setRevisiKe('1');
+          setCatatan('Default');
           break;
         case 'po':
           setNoPo(`PO-RS-2026-${randNum}`);
-          setNominalPo('350.000.000');
+          setNominalPo('45.000.000');
           setTargetPengiriman(new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10));
-          setCatatan('Purchase order resmi diterbitkan faskes.');
+          setCatatan('Default');
           break;
         case 'revenue':
           setStatusClosing('won');
-          setRealisasiRevenue('350.000.000');
-          setNoInvoiceBast(`INV/ABM/2026/11/${randNum} & BAST-${randNum}`);
-          setCatatan('Prospek berhasil closing dan pembayaran telah lunas.');
+          setRealisasiRevenue('45.000.000');
+          setCatatan('Default');
           break;
       }
       return;
@@ -230,11 +215,20 @@ export function useStageActivityForm({
     // Move Mode: Prefill from existing ticket
     if (!ticket) return;
 
+    setJudulProspek(ticket.judul || '');
+    const matchedPelanggan = pelangganList.find(
+      (p) =>
+        p.id_pelanggan === ticket.id_pelanggan ||
+        p.nama_faskes.toLowerCase() === ticket.nama_faskes.toLowerCase(),
+    );
+    if (matchedPelanggan) {
+      setSelectedPelangganId(matchedPelanggan.id_pelanggan);
+    }
     setPicDitemui(ticket.nama_pic || '');
     setJabatanPic(ticket.jabatan_pic || '');
     setNoTelpPic(ticket.no_telp_pic || '');
     setPrioritas(ticket.prioritas || 'sedang');
-    setEstimasiNilai(ticket.estimasi_nilai ? ticket.estimasi_nilai.toLocaleString('id-ID') : '');
+    setEstimasiNilai(ticket.estimasi_nilai ? ticket.estimasi_nilai.toLocaleString('id-ID') : '45.000.000');
     setTargetClosing(
       typeof ticket.estimasi_closing === 'string'
         ? ticket.estimasi_closing.slice(0, 10)
@@ -250,20 +244,12 @@ export function useStageActivityForm({
         );
         break;
       case 'kebutuhan':
-        setJenisAlkes(ticket.judul || 'Unit Alat Medis');
-        setJumlahUnit('2');
-        setSpesifikasiKebutuhan(
-          ticket.kebutuhan_pelanggan ||
-            'Membutuhkan spesifikasi terbaru dengan integrasi gas medis sentral dan garansi after-sales.',
-        );
-        setEstimasiBudget(ticket.estimasi_nilai ? ticket.estimasi_nilai.toLocaleString('id-ID') : '');
         setCatatan(
           `Melakukan asesmen mendalam kebutuhan ${ticket.nama_faskes}. Tim teknis RS memerlukan spesifikasi lengkap.`,
         );
         break;
       case 'opportunity':
         setAnalisisKompetitor('Vendor kompetitor mengajukan tipe lama, kita unggul di kecepatan kalibrasi.');
-        setActionPlan('Jadwalkan presentasi langsung dengan Direksi & Komite Pengadaan Alkes.');
         setCatatan(`Peluang closing sangat prospektif. Klien memiliki alokasi anggaran belanja semester berjalan.`);
         break;
       case 'follow_up':
@@ -274,8 +260,9 @@ export function useStageActivityForm({
       case 'quotation':
         setNoQuotation(`QUO/ABM/2026/10/${codeNum}`);
         setNilaiQuotation(
-          ticket.estimasi_nilai ? ticket.estimasi_nilai.toLocaleString('id-ID') : '500.000.000',
+          ticket.estimasi_nilai ? ticket.estimasi_nilai.toLocaleString('id-ID') : '45.000.000',
         );
+        setRevisiKe('1');
         setCatatan(
           `Surat penawaran resmi diterbitkan dan dikirimkan ke pihak manajemen ${ticket.nama_faskes}. Sudah termasuk PPN 11% & garansi 1 tahun.`,
         );
@@ -283,7 +270,7 @@ export function useStageActivityForm({
       case 'po':
         setNoPo(`PO-${ticket.nama_faskes.replace(/\s+/g, '').slice(0, 6).toUpperCase()}-2026-${codeNum}`);
         setNominalPo(
-          ticket.estimasi_nilai ? ticket.estimasi_nilai.toLocaleString('id-ID') : '500.000.000',
+          ticket.estimasi_nilai ? ticket.estimasi_nilai.toLocaleString('id-ID') : '45.000.000',
         );
         setTargetPengiriman(new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10));
         setCatatan(`Purchase Order resmi terbit dan telah divalidasi oleh Bagian Pengadaan RS.`);
@@ -291,9 +278,8 @@ export function useStageActivityForm({
       case 'revenue':
         setStatusClosing('won');
         setRealisasiRevenue(
-          ticket.estimasi_nilai ? ticket.estimasi_nilai.toLocaleString('id-ID') : '500.000.000',
+          ticket.estimasi_nilai ? ticket.estimasi_nilai.toLocaleString('id-ID') : '45.000.000',
         );
-        setNoInvoiceBast(`INV/ABM/2026/11/${codeNum} & BAST-${codeNum}`);
         setCatatan(`Unit telah diterima, uji fungsi berhasil, dan pembayaran lunas 100%. Tiket berhasil closing (Won).`);
         break;
     }

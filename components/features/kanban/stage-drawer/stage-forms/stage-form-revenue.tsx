@@ -1,21 +1,16 @@
 'use client';
 
 import * as React from 'react';
-import { CheckCircle2, X } from 'lucide-react';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
+import { CheckCircle2, XCircle } from 'lucide-react';
+import { Label } from '@heroui/react';
 import { cn } from '@/lib/utils';
 import { StageCurrencyInput } from '../inputs';
 
-interface StageFormRevenueProps {
+export interface StageFormRevenueProps {
   statusClosing: 'won' | 'lost';
   onStatusClosingChange: (val: 'won' | 'lost') => void;
   realisasiRevenue: string;
   onRealisasiRevenueChange: (val: string) => void;
-  noInvoiceBast?: string;
-  onNoInvoiceBastChange?: (val: string) => void;
-  metodePembayaran?: string;
-  onMetodePembayaranChange?: (val: string) => void;
 }
 
 export function StageFormRevenue({
@@ -26,54 +21,130 @@ export function StageFormRevenue({
 }: StageFormRevenueProps) {
   return (
     <div className='flex flex-col gap-3'>
-      {/* Hasil Akhir (WON / LOST) */}
+      {/* Selector Custom Hasil Penawaran (WON / LOST) */}
       <div className='flex flex-col gap-1.5'>
-        <Label className='text-sm font-medium text-foreground'>
-          Hasil Akhir <span className='text-rose-500'>*</span>
-        </Label>
-        <div className='grid grid-cols-2 gap-2.5'>
-          <Button
-            type='button'
-            variant='outline'
+        <Label isRequired className='text-sm font-medium text-foreground'>Hasil Penawaran</Label>
+        <div
+          role='radiogroup'
+          aria-label='Hasil Penawaran'
+          className='flex flex-col gap-2 w-full'
+        >
+          {/* Opsi WON */}
+          <div
+            role='radio'
+            aria-checked={statusClosing === 'won'}
+            tabIndex={0}
             onClick={() => onStatusClosingChange('won')}
+            onKeyDown={(e) => {
+              if (e.key === ' ' || e.key === 'Enter') {
+                e.preventDefault();
+                onStatusClosingChange('won');
+              }
+            }}
             className={cn(
-              'h-9 rounded-xl text-xs font-bold gap-2 cursor-pointer',
+              'flex items-center justify-between gap-2.5 sm:gap-3 py-2 px-3 sm:py-2.5 sm:px-3.5 min-h-[52px] rounded-xl cursor-pointer select-none border transition-colors duration-150 outline-none shadow-2xs',
               statusClosing === 'won'
-                ? 'border-emerald-500 bg-emerald-50 text-emerald-700 shadow-xs'
-                : 'border-border text-muted-foreground',
+                ? 'border-emerald-500 bg-emerald-50/25 ring-1 ring-emerald-500'
+                : 'border-border/80 hover:border-slate-300 bg-card',
             )}
           >
-            <CheckCircle2 className='size-4 text-emerald-600' />
-            WON
-          </Button>
-          <Button
-            type='button'
-            variant='outline'
+            <div className='flex items-center gap-2.5 sm:gap-3 min-w-0'>
+              <div className='size-8.5 sm:size-9 rounded-full bg-[#E8FAF0] dark:bg-emerald-950/40 flex items-center justify-center shrink-0 text-[#22C55E]'>
+                <CheckCircle2 className='size-4.5 sm:size-5 text-[#22C55E]' strokeWidth={2.2} />
+              </div>
+              <div className='flex flex-col gap-0.5 text-left min-w-0'>
+                <span className='text-xs sm:text-sm font-bold text-foreground leading-tight'>
+                  WON
+                </span>
+                <span className='text-[10px] sm:text-xs text-muted-foreground leading-snug'>
+                  Penawaran disetujui. Lanjut input Purchase Order.
+                </span>
+              </div>
+            </div>
+
+            <div
+              className={cn(
+                'size-4.5 sm:size-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors duration-150',
+                statusClosing === 'won'
+                  ? 'border-emerald-500 bg-white dark:bg-card'
+                  : 'border-slate-300 dark:border-slate-600 bg-white dark:bg-card',
+              )}
+            >
+              <div
+                className={cn(
+                  'size-2 sm:size-2.5 rounded-full transition-transform duration-150',
+                  statusClosing === 'won'
+                    ? 'scale-100 bg-emerald-500'
+                    : 'scale-0 bg-transparent',
+                )}
+              />
+            </div>
+          </div>
+
+          {/* Opsi LOST */}
+          <div
+            role='radio'
+            aria-checked={statusClosing === 'lost'}
+            tabIndex={0}
             onClick={() => onStatusClosingChange('lost')}
+            onKeyDown={(e) => {
+              if (e.key === ' ' || e.key === 'Enter') {
+                e.preventDefault();
+                onStatusClosingChange('lost');
+              }
+            }}
             className={cn(
-              'h-9 rounded-xl text-xs font-bold gap-2 cursor-pointer',
+              'flex items-center justify-between gap-2.5 sm:gap-3 py-2 px-3 sm:py-2.5 sm:px-3.5 min-h-[52px] rounded-xl cursor-pointer select-none border transition-colors duration-150 outline-none shadow-2xs',
               statusClosing === 'lost'
-                ? 'border-rose-500 bg-rose-50 text-rose-700 shadow-xs'
-                : 'border-border text-muted-foreground',
+                ? 'border-rose-500 bg-rose-50/25 ring-1 ring-rose-500'
+                : 'border-border/80 hover:border-slate-300 bg-card',
             )}
           >
-            <X className='size-4 text-rose-600' />
-            LOST
-          </Button>
+            <div className='flex items-center gap-2.5 sm:gap-3 min-w-0'>
+              <div className='size-8.5 sm:size-9 rounded-full bg-[#FEECEC] dark:bg-rose-950/40 flex items-center justify-center shrink-0 text-[#EF4444]'>
+                <XCircle className='size-4.5 sm:size-5 text-[#EF4444]' strokeWidth={2.2} />
+              </div>
+              <div className='flex flex-col gap-0.5 text-left min-w-0'>
+                <span className='text-xs sm:text-sm font-bold text-foreground leading-tight'>
+                  LOST
+                </span>
+                <span className='text-[10px] sm:text-xs text-muted-foreground leading-snug'>
+                  Deal batal. Wajib isi alasan kalah.
+                </span>
+              </div>
+            </div>
+
+            <div
+              className={cn(
+                'size-4.5 sm:size-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors duration-150',
+                statusClosing === 'lost'
+                  ? 'border-rose-500 bg-white dark:bg-card'
+                  : 'border-slate-300 dark:border-slate-600 bg-white dark:bg-card',
+              )}
+            >
+              <div
+                className={cn(
+                  'size-2 sm:size-2.5 rounded-full transition-transform duration-150',
+                  statusClosing === 'lost'
+                    ? 'scale-100 bg-rose-500'
+                    : 'scale-0 bg-transparent',
+                )}
+              />
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Nilai Revenue (1 Baris Penuh) */}
+      {/* Nilai Revenue */}
       <StageCurrencyInput
-        label='Nilai Revenue (Rp)'
+        label='Nilai Revenue'
         name='realisasiRevenue'
         isRequired
         value={realisasiRevenue}
         onChange={onRealisasiRevenueChange}
-        placeholder='0'
-        prefix='Rp'
-        prefixClassName='text-foreground'
-        inputClassName='font-bold'
+        placeholder='45.000.000'
+        prefix='RP'
+        prefixClassName='text-primary font-bold'
       />
     </div>
   );

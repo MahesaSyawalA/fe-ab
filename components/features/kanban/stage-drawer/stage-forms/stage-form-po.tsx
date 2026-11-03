@@ -7,20 +7,17 @@ import {
   StageDatePicker,
 } from '../inputs';
 
-interface StageFormPoProps {
+export interface StageFormPoProps {
   noPo: string;
   onNoPoChange: (val: string) => void;
   nominalPo: string;
   onNominalPoChange: (val: string) => void;
   targetPengiriman: string;
   onTargetPengirimanChange: (val: string) => void;
-  terminPembayaran?: string;
-  onTerminPembayaranChange?: (val: string) => void;
 }
 
 export function StageFormPo({
   noPo,
-  onNoPoChange,
   nominalPo,
   onNominalPoChange,
   targetPengiriman,
@@ -28,30 +25,29 @@ export function StageFormPo({
 }: StageFormPoProps) {
   return (
     <div className='flex flex-col gap-3'>
-      {/* Nomor PO (1 Baris Penuh) */}
+      {/* Nomor PO (Auto-Generated) dengan background grey/disabled style */}
       <StageTextFieldInput
-        label='Nomor PO'
+        label='Nomor PO (Auto-Generated)'
         isRequired
-        value={noPo}
-        onChange={onNoPoChange}
-        placeholder='PO-RS-2026-...'
-        inputClassName='font-semibold'
+        readOnly
+        value={noPo || 'PO-RS-2026-892'}
+        placeholder='PO-RS-2026-892'
+        inputClassName='bg-muted/60 text-muted-foreground cursor-default'
       />
 
-      {/* Nominal Total PO (1 Baris Penuh) */}
+      {/* Total Nilai Purchase Order * */}
       <StageCurrencyInput
-        label='Nominal Total PO (Rp)'
+        label='Total Nilai Purchase Order'
         name='nominalPo'
         isRequired
         value={nominalPo}
         onChange={onNominalPoChange}
-        placeholder='0'
-        prefix='Rp'
-        prefixClassName='text-foreground'
-        inputClassName='font-semibold'
+        placeholder='45.000.000'
+        prefix='RP'
+        prefixClassName='text-primary font-bold'
       />
 
-      {/* Target Tanggal Pengiriman (1 Baris Penuh) */}
+      {/* Target Tanggal Pengiriman * */}
       <StageDatePicker
         label='Target Tanggal Pengiriman'
         name='targetPengiriman'

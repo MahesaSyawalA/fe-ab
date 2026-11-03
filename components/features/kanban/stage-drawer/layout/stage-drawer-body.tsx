@@ -3,9 +3,8 @@ import { JenisTahap } from '@/types/kanban-stage.types';
 import { StageDrawerMode } from '../types';
 import { StageTextAreaInput } from '../inputs';
 import { StageActivityForm } from '../form/use-stage-activity-form';
-import { StageFormCreateHeader } from '../form/stage-form-create-header';
+import { StageFormInformasiDasar } from '../form/stage-form-informasi-dasar';
 import { StageFormEvidence } from '../form/stage-form-evidence';
-import { StageFormPriority } from '../form/stage-form-priority';
 import {
   StageFormFollowUp,
   StageFormOpportunity,
@@ -30,31 +29,40 @@ export function StageDrawerBody({ mode, stageType, form }: StageDrawerBodyProps)
           <ShieldAlert className='size-4 shrink-0 mt-0.5 text-rose-600' />
           <div className='flex flex-col gap-0.5 text-xs'>
             <span className='font-bold text-rose-900'>
-              {stageType === 'kebutuhan'
-                ? 'File Aktivitas Wajib Dilampirkan'
-                : 'File Bukti Aktivitas Wajib Dilampirkan'}
+              File Bukti Aktivitas Wajib Dilampirkan
             </span>
             <span className='text-[11px]'>
-              Unggah file {stageType === 'kebutuhan' ? 'aktivitas' : 'bukti aktivitas'} sebelum menyimpan.
+              Unggah file bukti aktivitas sebelum menyimpan.
             </span>
           </div>
         </div>
       )}
 
-      {/* CREATE MODE: Basic Prospek Info Header */}
+      {/* 1. INFORMASI DASAR: HANYA DIRENDER JIKA MODE === 'create' */}
       {mode === 'create' && (
-        <StageFormCreateHeader
+        <StageFormInformasiDasar
+          judulProspek={form.judulProspek}
+          onJudulChange={form.setJudulProspek}
           selectedPelangganId={form.selectedPelangganId}
           onFaskesChange={form.handleFaskesChange}
           pelangganList={form.pelangganList}
-          judulProspek={form.judulProspek}
-          onJudulChange={form.setJudulProspek}
+          picDitemui={form.picDitemui}
+          onPicSelect={form.handlePicSelect}
+          kontakList={form.kontakList}
+          jabatanPic={form.jabatanPic}
+          estimasiNilai={form.estimasiNilai}
+          onEstimasiNilaiChange={form.setEstimasiNilai}
+          targetClosing={form.targetClosing}
+          onTargetClosingChange={form.setTargetClosing}
+          prioritas={form.prioritas}
+          onPrioritasChange={form.setPrioritas}
         />
       )}
 
-      {/* STAGE SPECIFIC FORMS */}
+      {/* 2. FIELD TAMBAHAN SPESIFIK STAGE (DI LUAR / DI BAWAH INFORMASI DASAR) */}
       {stageType === 'visit' && (
         <StageFormVisit
+          mode={mode}
           koordinatGps={form.koordinatGps}
           statusRadius={form.statusRadius}
           waktuAktivitas={form.waktuAktivitas}
@@ -66,23 +74,21 @@ export function StageDrawerBody({ mode, stageType, form }: StageDrawerBodyProps)
         />
       )}
 
-      {/* Tahap Kebutuhan: input di atasnya dihilangkan sesuai permintaan, hanya upload file aktivitas dan catatan aktivitas */}
+      {/* Tahap Kebutuhan: Tidak ada input tambahan spesifik */}
 
       {stageType === 'opportunity' && (
         <StageFormOpportunity
+          mode={mode}
           estimasiNilai={form.estimasiNilai}
           onEstimasiNilaiChange={form.setEstimasiNilai}
           targetClosing={form.targetClosing}
           onTargetClosingChange={form.setTargetClosing}
-          probabilitas={form.probabilitas}
-          onProbabilitasChange={form.setProbabilitas}
-          analisisKompetitor={form.analisisKompetitor}
-          onAnalisisKompetitorChange={form.setAnalisisKompetitor}
         />
       )}
 
       {stageType === 'follow_up' && (
         <StageFormFollowUp
+          mode={mode}
           mediaKomunikasi={form.mediaKomunikasi}
           onMediaKomunikasiChange={form.setMediaKomunikasi}
           jadwalFollowUp={form.jadwalFollowUp}
@@ -121,42 +127,30 @@ export function StageDrawerBody({ mode, stageType, form }: StageDrawerBodyProps)
         />
       )}
 
-      {/* MANDATORY EVIDENCE SECTION (APPLIES TO ALL ACTIVITIES) */}
+      {/* 3. UNIVERSAL: UPLOAD BUKTI */}
       <StageFormEvidence
         evidenceFile={form.evidenceFile}
         onEvidenceFileChange={form.setEvidenceFile}
         evidenceError={form.evidenceError}
         onEvidenceErrorChange={form.setEvidenceError}
         stageType={stageType}
+        label='Upload Bukti'
       />
 
-      {/* HASIL & CATATAN KUNJUNGAN / AKTIVITAS (Diletakkan di bawah posisi upload file) */}
-      <StageTextAreaInput
-        label={
-          stageType === 'visit'
-            ? 'Hasil & Catatan Kunjungan Lapangan'
-            : 'Catatan Aktivitas'
-        }
-        isRequired
-        rows={2}
-        value={form.catatan}
-        onChange={form.setCatatan}
-        placeholder={
-          stageType === 'visit'
-            ? 'Tuliskan hasil diskusi kunjungan, respon dokter/PIC, dan pengamatan ruangan faskes...'
-            : stageType === 'kebutuhan'
-              ? 'Tuliskan catatan aktivitas dan identifikasi kebutuhan klien...'
-              : 'Tuliskan catatan aktivitas...'
-        }
-      />
-
-      {/* Priority Picker: Only shown when creating a new ticket/card in any activity */}
-      {mode === 'create' && (
-        <StageFormPriority
-          prioritas={form.prioritas}
-          onPrioritasChange={form.setPrioritas}
+      {/* 4. UNIVERSAL: CATATAN AKTIVITAS (MOVE) / CATATAN PELANGGAN (CREATE) */}
+      <div className='flex flex-col gap-1'>
+        <StageTextAreaInput
+          label={mode === 'move' ? 'Catatan Aktivitas' : 'Catatan Pelanggan (opsional)'}
+          isRequired={mode === 'move'}
+          rows={3}
+          value={form.catatan}
+          onChange={form.setCatatan}
+          placeholder='Default'
         />
-      )}
+        <div className='flex justify-end text-[10px] text-muted-foreground pr-1'>
+          {form.catatan.length}/1000 Characters
+        </div>
+      </div>
     </div>
   );
 }
