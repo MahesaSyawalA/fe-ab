@@ -22,10 +22,12 @@ export interface StageDatePickerProps {
   onChange?: (value: string) => void;
   name?: string;
   className?: string;
+  inputClassName?: string;
   classNames?: {
     segment?: string;
     selectorButton?: string;
     calendarContent?: string;
+    dateInputGroup?: string;
   };
 }
 
@@ -39,6 +41,7 @@ export function StageDatePicker({
   onChange,
   name,
   className,
+  inputClassName,
   classNames,
 }: StageDatePickerProps) {
   const invalid = isInvalid || Boolean(errorMessage);
@@ -69,15 +72,19 @@ export function StageDatePicker({
       isRequired={isRequired}
       isInvalid={invalid}
       isDisabled={isDisabled}
-      className={cn('flex w-full min-w-0 flex-col gap-1.5', className)}
+      className={cn('flex w-full min-w-0 flex-col gap-1.5 bg-transparent', className)}
     >
       {label && (
-        <Label className='text-sm font-medium text-foreground'>{label}</Label>
+        <Label className='text-sm font-medium text-foreground bg-transparent'>{label}</Label>
       )}
 
       <DateField.Group
         fullWidth
-        className='h-9 w-full rounded-xl border border-border bg-card px-3 text-xs text-foreground transition-all focus-within:border-primary focus-within:ring-1 focus-within:ring-primary aria-invalid:border-destructive disabled:bg-muted/40 disabled:text-muted-foreground disabled:cursor-not-allowed'
+        className={cn(
+          'h-9 w-full rounded-xl border border-border bg-card px-3 text-xs text-foreground transition-all focus-within:border-primary focus-within:ring-1 focus-within:ring-primary aria-invalid:border-destructive disabled:bg-muted/40 disabled:text-muted-foreground disabled:cursor-not-allowed',
+          inputClassName,
+          classNames?.dateInputGroup,
+        )}
       >
         <DateField.Input className='text-xs'>
           {(segment) => (

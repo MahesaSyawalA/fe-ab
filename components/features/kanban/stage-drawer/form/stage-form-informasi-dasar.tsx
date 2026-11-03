@@ -169,7 +169,7 @@ export function StageFormInformasiDasar({
         isRequired
         value={targetClosing}
         onChange={onTargetClosingChange}
-        className='bg-white'
+        inputClassName='bg-white'
       />
 
       {/* 7. Tingkat Prioritas */}
