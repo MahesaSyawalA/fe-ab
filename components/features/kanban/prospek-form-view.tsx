@@ -25,7 +25,7 @@ export function ProspekFormView(props: ProspekFormViewProps) {
   const { errors } = form;
 
   return (
-    <div className='mx-auto flex min-h-dvh md:min-h-0 w-full max-w-lg md:max-w-4xl lg:max-w-5xl min-w-0 flex-col bg-card md:bg-transparent md:gap-6 pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] md:pb-0'>
+    <div className='mx-auto flex min-h-dvh md:min-h-0 w-full max-w-lg md:max-w-4xl lg:max-w-5xl min-w-0 flex-col bg-card md:bg-transparent md:gap-6'>
       <SubpageHeader
         title={mode === 'create' ? 'Buat Prospek' : 'Edit Prospek'}
         subtitle={
@@ -41,7 +41,7 @@ export function ProspekFormView(props: ProspekFormViewProps) {
         className='flex flex-1 flex-col justify-between gap-5 px-5 py-4 bg-card md:rounded-2xl md:border md:border-border md:p-6 lg:p-8 md:shadow-xs'
         validationBehavior='aria'
       >
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-5'>
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-5 pb-4 sm:pb-0'>
           {/* Banner error validasi atau info pembuatan prospek */}
           {(form.errorCount > 0 || mode === 'create') && (
             <div className='col-span-1 md:col-span-2'>

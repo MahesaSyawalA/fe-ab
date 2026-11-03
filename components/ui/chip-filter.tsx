@@ -36,7 +36,7 @@ export function ChipFilter({ items, selectedId, onSelect, className }: ChipFilte
             size='sm'
             onClick={() => onSelect(item.id)}
             className={cn(
-              'h-8 shrink-0 gap-2 rounded-xl px-3 text-xs shadow-none cursor-pointer',
+              'h-8 shrink-0 gap-2 rounded-full px-3 text-xs shadow-none cursor-pointer',
               isSelected
                 ? 'border-kanban-purple/50 bg-kanban-purple/8 text-kanban-purple font-semibold hover:bg-kanban-purple/12 hover:text-kanban-purple'
                 : 'border-border bg-card text-foreground font-medium hover:bg-secondary/60'
@@ -44,7 +44,15 @@ export function ChipFilter({ items, selectedId, onSelect, className }: ChipFilte
           >
             {item.dotColor ? (
               <span
-                className={cn('size-2 shrink-0 rounded-full', item.dotColor)}
+                className={cn(
+                  'size-2 shrink-0 rounded-full',
+                  !item.dotColor.startsWith('#') && item.dotColor
+                )}
+                style={
+                  item.dotColor.startsWith('#')
+                    ? { backgroundColor: item.dotColor }
+                    : undefined
+                }
                 aria-hidden='true'
               />
             ) : (
@@ -55,7 +63,7 @@ export function ChipFilter({ items, selectedId, onSelect, className }: ChipFilte
               <Badge
                 variant='secondary'
                 className={cn(
-                  'h-4 min-w-5 rounded-md px-1.5 py-0 text-[11px] font-semibold',
+                  'h-4 min-w-5 rounded-full px-1.5 py-0 text-[11px] font-semibold',
                   isSelected
                     ? 'bg-kanban-purple/15 text-kanban-purple'
                     : 'bg-secondary text-secondary-foreground'

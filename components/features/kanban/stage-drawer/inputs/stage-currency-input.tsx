@@ -63,7 +63,7 @@ export function StageCurrencyInput({
       {...props}
     >
       {label && (
-        <Label className='text-xs font-semibold text-foreground'>{label}</Label>
+        <Label className='text-sm font-medium text-foreground'>{label}</Label>
       )}
 
       <InputGroup

@@ -48,7 +48,7 @@ export function StageFormEvidence({
 
   return (
     <div className='flex flex-col gap-1.5'>
-      <Label className='text-xs font-semibold text-foreground'>
+      <Label className='text-sm font-medium text-foreground'>
         {displayLabel} <span className='text-rose-500'>*</span>
       </Label>
 

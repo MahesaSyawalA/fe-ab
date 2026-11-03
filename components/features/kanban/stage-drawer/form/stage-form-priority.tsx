@@ -18,7 +18,7 @@ export function StageFormPriority({
 }: StageFormPriorityProps) {
   return (
     <div className='flex flex-col gap-2 pt-1 border-t border-border/60'>
-      <Label className='text-xs font-semibold'>
+      <Label className='text-sm font-medium text-foreground'>
         Prioritas Tiket <span className='text-rose-500'>*</span>
       </Label>
       <div className='grid grid-cols-3 gap-2'>

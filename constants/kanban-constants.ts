@@ -13,7 +13,7 @@ export const INITIAL_KANBAN_STAGES: KanbanStageColumn[] = [
     jenis_tahap: 'visit',
     is_tahap_akhir: false,
     is_aktif: true,
-    dotColor: '#3B82F6',
+    dotColor: '#7C5CFC',
   },
   {
     id_tahap: 'kebutuhan',
@@ -22,7 +22,7 @@ export const INITIAL_KANBAN_STAGES: KanbanStageColumn[] = [
     jenis_tahap: 'kebutuhan',
     is_tahap_akhir: false,
     is_aktif: true,
-    dotColor: '#8B5CF6',
+    dotColor: '#F46F91',
   },
   {
     id_tahap: 'opportunity',
@@ -31,7 +31,7 @@ export const INITIAL_KANBAN_STAGES: KanbanStageColumn[] = [
     jenis_tahap: 'opportunity',
     is_tahap_akhir: false,
     is_aktif: true,
-    dotColor: '#6366F1',
+    dotColor: '#F5A64A',
   },
   {
     id_tahap: 'follow_up',
@@ -40,7 +40,7 @@ export const INITIAL_KANBAN_STAGES: KanbanStageColumn[] = [
     jenis_tahap: 'follow_up',
     is_tahap_akhir: false,
     is_aktif: true,
-    dotColor: '#F59E0B',
+    dotColor: '#42C7A5',
   },
   {
     id_tahap: 'quotation',
@@ -49,7 +49,7 @@ export const INITIAL_KANBAN_STAGES: KanbanStageColumn[] = [
     jenis_tahap: 'quotation',
     is_tahap_akhir: false,
     is_aktif: true,
-    dotColor: '#EC4899',
+    dotColor: '#5B9DEF',
   },
   {
     id_tahap: 'po',
@@ -58,7 +58,7 @@ export const INITIAL_KANBAN_STAGES: KanbanStageColumn[] = [
     jenis_tahap: 'po',
     is_tahap_akhir: false,
     is_aktif: true,
-    dotColor: '#0EA5E9',
+    dotColor: '#7C5CFC',
   },
   {
     id_tahap: 'revenue',
@@ -67,7 +67,7 @@ export const INITIAL_KANBAN_STAGES: KanbanStageColumn[] = [
     jenis_tahap: 'revenue',
     is_tahap_akhir: true,
     is_aktif: true,
-    dotColor: '#10B981',
+    dotColor: '#42C7A5',
   },
 ];
 
@@ -84,57 +84,67 @@ export const JENIS_TAHAP_OPTIONS: { id: JenisTahap; label: string }[] = [
 
 export const AKTIVITAS_STAGE_CONFIG: Record<
   string,
-  { label: string; badgeClass: string; dotColor: string }
+  { label: string; badgeClass: string; solidClass: string; dotColor: string }
 > = {
   visit: {
     label: 'Visit',
-    badgeClass: 'bg-blue-50 text-blue-700 border-blue-200',
-    dotColor: '#2563EB',
+    badgeClass: 'bg-kanban-purple/10 text-kanban-purple border-kanban-purple/20',
+    solidClass: 'bg-kanban-purple text-white',
+    dotColor: '#7C5CFC',
   },
   kebutuhan: {
     label: 'Kebutuhan',
-    badgeClass: 'bg-purple-50 text-purple-700 border-purple-200',
-    dotColor: '#7C3AED',
+    badgeClass: 'bg-kanban-pink/10 text-kanban-pink border-kanban-pink/20',
+    solidClass: 'bg-kanban-pink text-white',
+    dotColor: '#F46F91',
   },
   opportunity: {
     label: 'Opportunity',
-    badgeClass: 'bg-indigo-50 text-indigo-700 border-indigo-200',
-    dotColor: '#4F46E5',
+    badgeClass: 'bg-kanban-orange/10 text-kanban-orange border-kanban-orange/20',
+    solidClass: 'bg-kanban-orange text-white',
+    dotColor: '#F5A64A',
   },
   follow_up: {
     label: 'Follow Up',
-    badgeClass: 'bg-amber-50 text-amber-700 border-amber-200',
-    dotColor: '#F59E0B',
+    badgeClass: 'bg-kanban-green/10 text-kanban-green border-kanban-green/20',
+    solidClass: 'bg-kanban-green text-white',
+    dotColor: '#42C7A5',
   },
   quotation: {
     label: 'Quotation',
-    badgeClass: 'bg-pink-50 text-pink-700 border-pink-200',
-    dotColor: '#EC4899',
+    badgeClass: 'bg-kanban-lightblue/10 text-kanban-lightblue border-kanban-lightblue/20',
+    solidClass: 'bg-kanban-lightblue text-white',
+    dotColor: '#5B9DEF',
   },
   po: {
     label: 'PO',
-    badgeClass: 'bg-sky-50 text-sky-700 border-sky-200',
-    dotColor: '#0EA5E9',
+    badgeClass: 'bg-kanban-purple/10 text-kanban-purple border-kanban-purple/20',
+    solidClass: 'bg-kanban-purple text-white',
+    dotColor: '#7C5CFC',
   },
   revenue: {
     label: 'Revenue',
-    badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-    dotColor: '#10B981',
+    badgeClass: 'bg-kanban-green/10 text-kanban-green border-kanban-green/20',
+    solidClass: 'bg-kanban-green text-white',
+    dotColor: '#42C7A5',
   },
   kunjungan: {
     label: 'Visit',
-    badgeClass: 'bg-blue-50 text-blue-700 border-blue-200',
-    dotColor: '#2563EB',
+    badgeClass: 'bg-kanban-purple/10 text-kanban-purple border-kanban-purple/20',
+    solidClass: 'bg-kanban-purple text-white',
+    dotColor: '#7C5CFC',
   },
   penawaran: {
     label: 'Quotation',
-    badgeClass: 'bg-pink-50 text-pink-700 border-pink-200',
-    dotColor: '#EC4899',
+    badgeClass: 'bg-kanban-lightblue/10 text-kanban-lightblue border-kanban-lightblue/20',
+    solidClass: 'bg-kanban-lightblue text-white',
+    dotColor: '#5B9DEF',
   },
   closing: {
     label: 'Revenue',
-    badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-    dotColor: '#10B981',
+    badgeClass: 'bg-kanban-green/10 text-kanban-green border-kanban-green/20',
+    solidClass: 'bg-kanban-green text-white',
+    dotColor: '#42C7A5',
   },
 };
 
@@ -176,22 +186,22 @@ export const PRIORITY_CONFIG: Record<
   rendah: {
     label: 'Low',
     formLabel: 'Rendah',
-    dotClass: 'bg-emerald-500',
-    badgeClass: 'bg-emerald-500/12 text-emerald-600 border-0',
-    activeClass: 'border-emerald-400 bg-emerald-500/10 text-emerald-700 font-semibold',
+    dotClass: 'bg-success',
+    badgeClass: 'bg-success/12 text-success border-0',
+    activeClass: 'border-success/40 bg-success/10 text-success font-semibold',
   },
   sedang: {
     label: 'Medium',
     formLabel: 'Sedang',
-    dotClass: 'bg-amber-500',
-    badgeClass: 'bg-amber-500/15 text-amber-600 border-0',
-    activeClass: 'border-amber-400 bg-amber-500/10 text-amber-700 font-semibold',
+    dotClass: 'bg-warning',
+    badgeClass: 'bg-warning/15 text-warning border-0',
+    activeClass: 'border-warning/40 bg-warning/10 text-warning font-semibold',
   },
   tinggi: {
     label: 'High',
     formLabel: 'Tinggi',
-    dotClass: 'bg-rose-500',
-    badgeClass: 'bg-rose-500/12 text-rose-600 border-0',
-    activeClass: 'border-rose-400 bg-rose-500/10 text-rose-600 font-semibold',
+    dotClass: 'bg-destructive',
+    badgeClass: 'bg-destructive/12 text-destructive border-0',
+    activeClass: 'border-destructive/40 bg-destructive/10 text-destructive font-semibold',
   },
 };

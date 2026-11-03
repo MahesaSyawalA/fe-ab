@@ -75,7 +75,7 @@ export function StageFormKebutuhan({
       </div>
 
       <div className='flex flex-col gap-1.5'>
-        <Label className='text-xs font-semibold'>Perkiraan Anggaran Klien (Budget Rp)</Label>
+        <Label className='text-sm font-medium text-foreground'>Perkiraan Anggaran Klien (Budget Rp)</Label>
         <InputGroup className='h-9 rounded-xl border-border bg-card shadow-none'>
           <InputGroupAddon align='inline-start' className='pl-3 text-xs font-bold text-muted-foreground'>
             Rp
@@ -90,7 +90,7 @@ export function StageFormKebutuhan({
       </div>
 
       <StageTextAreaInput
-        label='Spesifikasi & Kebutuhan Teknis Ruangan'
+        label='Catatan Aktivitas'
         isRequired
         rows={2}
         value={spesifikasiKebutuhan}

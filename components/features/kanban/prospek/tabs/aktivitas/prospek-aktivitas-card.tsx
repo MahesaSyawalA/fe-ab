@@ -9,6 +9,7 @@ export function ProspekAktivitasCard({ akt }: { akt: AktivitasWithDetails }) {
   const config = AKTIVITAS_STAGE_CONFIG[akt.jenis_kegiatan] || {
     label: akt.jenis_kegiatan,
     badgeClass: 'bg-primary/10 text-primary border-primary/20',
+    dotColor: '#2563EB',
   };
 
   return (
@@ -18,7 +19,7 @@ export function ProspekAktivitasCard({ akt }: { akt: AktivitasWithDetails }) {
           <Badge
             variant='outline'
             className={cn(
-              'h-5 px-2 text-[10px] font-bold uppercase tracking-wider rounded-md border',
+              'h-5 px-2.5 text-[10px] font-bold uppercase tracking-wider rounded-full border',
               config.badgeClass,
             )}
           >

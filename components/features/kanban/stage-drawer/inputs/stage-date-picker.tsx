@@ -72,7 +72,7 @@ export function StageDatePicker({
       className={cn('flex w-full min-w-0 flex-col gap-1.5', className)}
     >
       {label && (
-        <Label className='text-xs font-semibold text-foreground'>{label}</Label>
+        <Label className='text-sm font-medium text-foreground'>{label}</Label>
       )}
 
       <DateField.Group

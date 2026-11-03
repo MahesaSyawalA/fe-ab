@@ -28,7 +28,7 @@ export function StageFormRevenue({
     <div className='flex flex-col gap-3'>
       {/* Hasil Akhir (WON / LOST) */}
       <div className='flex flex-col gap-1.5'>
-        <Label className='text-xs font-semibold text-foreground'>
+        <Label className='text-sm font-medium text-foreground'>
           Hasil Akhir <span className='text-rose-500'>*</span>
         </Label>
         <div className='grid grid-cols-2 gap-2.5'>

@@ -48,7 +48,7 @@ export function StageFormOpportunity({
       />
 
       <div className='flex flex-col gap-1.5'>
-        <Label className='text-xs font-semibold'>
+        <Label className='text-sm font-medium text-foreground'>
           Tingkat Probabilitas (Win Rate) <span className='text-rose-500'>*</span>
         </Label>
         <div className='grid grid-cols-4 gap-2'>

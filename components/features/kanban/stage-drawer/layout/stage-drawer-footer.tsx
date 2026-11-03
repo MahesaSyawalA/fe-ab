@@ -1,4 +1,3 @@
-import { CheckCircle2 } from 'lucide-react';
 import { DrawerFooter } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
 import { StageDrawerMode } from '../types';
@@ -6,14 +5,13 @@ import { StageDrawerMode } from '../types';
 interface StageDrawerFooterProps {
   mode: StageDrawerMode;
   isSameStage: boolean;
-  accentColor: string;
+  accentColor?: string;
   onClose: () => void;
 }
 
 export function StageDrawerFooter({
   mode,
   isSameStage,
-  accentColor,
   onClose,
 }: StageDrawerFooterProps) {
   return (
@@ -22,21 +20,19 @@ export function StageDrawerFooter({
         type='button'
         variant='outline'
         onClick={onClose}
-        className='h-8.5 shrink-0 rounded-xl px-3.5 text-xs font-semibold cursor-pointer'
+        className='h-8.5 shrink-0 rounded-[8px] px-4 text-xs font-semibold cursor-pointer'
       >
         Batal
       </Button>
       <Button
         type='submit'
-        className='h-8.5 flex-1 sm:flex-none gap-2 rounded-xl px-4 sm:px-5 text-xs font-semibold text-white shadow-sm cursor-pointer'
-        style={{ backgroundColor: accentColor }}
+        className='h-8.5 flex-1 sm:flex-none rounded-[8px] px-5 text-xs font-semibold text-white shadow-sm bg-primary-default hover:bg-primary-hover active:bg-primary data-[pressed=true]:bg-primary transition-all cursor-pointer'
       >
-        <CheckCircle2 className='size-3.5 shrink-0' />
         <span className='truncate'>
           {mode === 'create'
-            ? 'Tambah Card'
+            ? 'Simpan'
             : isSameStage
-              ? 'Simpan Aktivitas'
+              ? 'Simpan'
               : 'Simpan & Pindahkan'}
         </span>
       </Button>

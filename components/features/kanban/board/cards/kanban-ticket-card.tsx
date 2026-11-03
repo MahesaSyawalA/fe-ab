@@ -67,7 +67,7 @@ export function KanbanTicketCard({
 
         {/* Bottom Row: Price, Date, Avatar */}
         <div className='flex items-center justify-between gap-2 pt-0.5'>
-          <span className='text-sm font-bold text-primary'>
+          <span className='text-sm font-bold text-accent'>
             {formatCompactRupiah(ticket.estimasi_nilai)}
           </span>
 

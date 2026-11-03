@@ -3,7 +3,7 @@ import { SurfaceCard } from '@/components/ui/surface-card';
 import { CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { PRIORITY_CONFIG } from '@/constants/kanban-constants';
+import { PRIORITY_CONFIG, AKTIVITAS_STAGE_CONFIG } from '@/constants/kanban-constants';
 import { TiketWithDetails } from '@/types/ticket.types';
 import { cn, formatFullRupiah } from '@/lib/utils';
 
@@ -17,6 +17,13 @@ export function ProspekSummaryCard({
   stageLabel,
 }: ProspekSummaryCardProps) {
   const priority = PRIORITY_CONFIG[ticket.prioritas];
+  const stageConfig =
+    AKTIVITAS_STAGE_CONFIG[ticket.id_tahap] ||
+    AKTIVITAS_STAGE_CONFIG[stageLabel.toLowerCase()] || {
+      badgeClass: 'bg-kanban-purple/10 text-kanban-purple border-kanban-purple/20',
+      solidClass: 'bg-kanban-purple text-white',
+      dotColor: '#7C5CFC',
+    };
 
   return (
     <SurfaceCard>
@@ -44,7 +51,7 @@ export function ProspekSummaryCard({
             <span className='text-[11px] text-secondary-foreground tracking-wider font-normal'>
               Estimasi Revenue
             </span>
-            <span className='text-sm sm:text-base font-bold text-primary truncate'>
+            <span className='text-sm sm:text-base font-bold text-accent truncate'>
               {formatFullRupiah(ticket.estimasi_nilai)}
             </span>
           </div>
@@ -63,7 +70,12 @@ export function ProspekSummaryCard({
         </div>
 
         <div className='flex items-center gap-1.5 pt-0.5'>
-          <Badge className='h-5 rounded-md border-0 bg-violet-600 px-2 text-[10px] font-medium text-white'>
+          <Badge
+            className={cn(
+              'h-5 rounded-full border-0 px-2.5 text-[10px] font-medium text-white',
+              stageConfig.solidClass || 'bg-kanban-purple text-white',
+            )}
+          >
             {stageLabel}
           </Badge>
           <Badge
