@@ -1,15 +1,10 @@
 import * as React from 'react';
-import { Search, Filter, X } from 'lucide-react';
+import { Search, Filter } from 'lucide-react';
+import { SearchField } from '@heroui/react';
 import { ChipFilter, ChipFilterItem } from '@/components/ui/chip-filter';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupButton,
-  InputGroupInput,
-} from '@/components/ui/input-group';
 
 export interface SearchFilterBarProps {
   searchQuery: string;
@@ -52,33 +47,24 @@ export function SearchFilterBar({
             hasChips && 'lg:max-w-md',
           )}
         >
-          <InputGroup className='h-10 flex-1 rounded-xl border-border bg-card shadow-2xs'>
-            <InputGroupAddon
-              align='inline-start'
-              className='gap-2.5 pl-3 pr-1 text-secondary-foreground'
-            >
-              <Search className='size-4' />
-              <Separator orientation='vertical' className='h-4' />
-            </InputGroupAddon>
-            <InputGroupInput
-              type='text'
-              value={searchQuery}
-              onChange={(e) => onSearchChange(e.target.value)}
-              placeholder={placeholder}
-              className='text-xs text-foreground placeholder:text-muted-foreground'
-            />
-            {searchQuery && (
-              <InputGroupAddon align='inline-end' className='pr-2'>
-                <InputGroupButton
-                  size='icon-xs'
-                  onClick={() => onSearchChange('')}
-                  className='text-muted-foreground hover:text-foreground cursor-pointer'
-                >
-                  <X className='size-3.5' />
-                </InputGroupButton>
-              </InputGroupAddon>
-            )}
-          </InputGroup>
+          <SearchField
+            aria-label={placeholder}
+            value={searchQuery}
+            onChange={onSearchChange}
+            className='flex-1 min-w-0'
+          >
+            <SearchField.Group className='h-10 w-full rounded-xl border border-border bg-card px-3 shadow-2xs transition-all focus-within:border-primary focus-within:ring-1 focus-within:ring-primary flex items-center'>
+              <div className='flex items-center gap-2.5 pr-1 text-muted-foreground pointer-events-none shrink-0'>
+                <Search className='size-4 text-muted-foreground shrink-0' />
+                <Separator orientation='vertical' className='h-4 w-px bg-border/80' />
+              </div>
+              <SearchField.Input
+                placeholder={placeholder}
+                className='w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none border-0 shadow-none px-2'
+              />
+              <SearchField.ClearButton className='text-muted-foreground hover:text-foreground cursor-pointer shrink-0' />
+            </SearchField.Group>
+          </SearchField>
 
           <Button
             type='button'
