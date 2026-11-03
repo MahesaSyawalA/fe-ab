@@ -52,7 +52,7 @@ export function ProspekTextFieldInput({
       className={cn('flex w-full flex-col gap-1.5', className)}
       {...props}
     >
-      <Label className='text-xs font-semibold text-foreground'>{label}</Label>
+      <Label className='text-sm font-semibold text-foreground'>{label}</Label>
 
       <Input
         type={type}
@@ -60,7 +60,7 @@ export function ProspekTextFieldInput({
         readOnly={readOnly}
         placeholder={placeholder}
         className={cn(
-          'h-10 w-full rounded-xl border border-primary/40 bg-card px-3.5 text-xs text-foreground shadow-none transition-all placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary aria-invalid:border-destructive aria-invalid:focus:border-destructive aria-invalid:focus:ring-destructive disabled:border-border disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed',
+          'h-10 w-full rounded-xl border border-primary/40 bg-card px-3.5 text-sm text-foreground shadow-none transition-all placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary aria-invalid:border-destructive aria-invalid:focus:border-destructive aria-invalid:focus:ring-destructive disabled:border-border disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed',
           inputClassName,
         )}
       />

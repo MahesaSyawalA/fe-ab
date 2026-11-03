@@ -52,7 +52,7 @@ export function ProspekFieldOutletPic({
         label='Outlet'
         isRequired
         errorMessage={error}
-        hint='Sesuai data registrasi master pelanggan Jawa Barat'
+        hint='Pilih Outlet yang Sesuai'
         value={outletId}
         onChange={onOutletChange}
         options={outletOptions}

@@ -82,15 +82,15 @@ export function ProspekSelectInput({
       name={name}
       className={cn('flex w-full min-w-0 flex-col gap-1.5', className)}
     >
-      <Label className='text-xs font-semibold text-foreground'>{label}</Label>
+      <Label className='text-sm font-semibold text-foreground'>{label}</Label>
 
       <Select.Trigger
         className={cn(
-          'h-10 w-full min-w-0 items-center gap-2 overflow-hidden rounded-xl border border-primary/40 bg-card px-3.5 text-xs text-foreground shadow-none transition-all focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary aria-invalid:border-destructive aria-invalid:focus:border-destructive aria-invalid:focus:ring-destructive disabled:border-border disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed',
+          'h-10 w-full min-w-0 items-center gap-2 overflow-hidden rounded-xl border border-primary/40 bg-card px-3.5 text-sm text-foreground shadow-none transition-all focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary aria-invalid:border-destructive aria-invalid:focus:border-destructive aria-invalid:focus:ring-destructive disabled:border-border disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed',
           triggerClassName,
         )}
       >
-        <Select.Value className='text-xs min-w-0 flex-1 truncate text-left overflow-hidden pr-3'>
+        <Select.Value className='text-sm min-w-0 flex-1 truncate text-left overflow-hidden pr-3'>
           {({ isPlaceholder, state, selectedText }) => {
             if (isPlaceholder || !state.selectedItems.length) {
               return (
@@ -135,7 +135,7 @@ export function ProspekSelectInput({
                 key={itemId}
                 id={itemId}
                 textValue={opt.label}
-                className='flex cursor-pointer items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 text-xs text-foreground outline-none data-[focused=true]:bg-accent data-[focused=true]:text-accent-foreground data-[selected=true]:font-semibold'
+                className='flex cursor-pointer items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 text-sm text-foreground outline-none data-[focused=true]:bg-accent data-[focused=true]:text-accent-foreground data-[selected=true]:font-semibold'
               >
                 <span className='min-w-0 flex-1 whitespace-normal wrap-break-word'>{opt.label}</span>
               </ListBox.Item>

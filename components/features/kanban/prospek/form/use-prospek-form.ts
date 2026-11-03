@@ -31,13 +31,32 @@ export function useProspekForm({
   const [estimasiDisplay, setEstimasiDisplay] = React.useState(
     ticket?.estimasi_nilai ? formatNumberInput(ticket.estimasi_nilai) : '',
   );
-  const [targetClosing, setTargetClosing] = React.useState(
-    ticket?.closing_full_label
-      ? ticket.closing_full_label
-      : ticket?.estimasi_closing
-        ? String(ticket.estimasi_closing)
-        : '',
-  );
+  const [targetClosing, setTargetClosing] = React.useState(() => {
+    if (ticket?.estimasi_closing) {
+      const raw = ticket.estimasi_closing;
+      const str = typeof raw === 'string' ? raw : raw.toISOString();
+      return str.slice(0, 10);
+    }
+    if (ticket?.closing_full_label) {
+      if (/^\d{4}-\d{2}-\d{2}$/.test(ticket.closing_full_label)) {
+        return ticket.closing_full_label;
+      }
+      const match = ticket.closing_full_label.match(/^(\d{1,2})\s+([A-Za-z]+)(?:\s+(\d{4}))?$/);
+      if (match) {
+        const [, day, monStr, yr] = match;
+        const year = yr || new Date().getFullYear().toString();
+        const monthMap: Record<string, string> = {
+          jan: '01', feb: '02', mar: '03', apr: '04', mei: '05', jun: '06',
+          jul: '07', agu: '08', sep: '09', okt: '10', nov: '11', des: '12',
+        };
+        const mon = monthMap[monStr.toLowerCase().slice(0, 3)];
+        if (mon) {
+          return `${year}-${mon}-${day.padStart(2, '0')}`;
+        }
+      }
+    }
+    return '';
+  });
   const [prioritas, setPrioritas] = React.useState<TiketPrioritas>(
     ticket?.prioritas ?? 'tinggi',
   );

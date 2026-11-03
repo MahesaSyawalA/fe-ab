@@ -21,12 +21,34 @@ interface BuildArgs {
 const parseEstimasi = (display: string) =>
   Number(display.replace(/\D/g, '')) || 50_000_000;
 
+function formatClosingLabel(dateStr: string) {
+  if (!dateStr) return { full: '05 Des 2026', short: '05 Des' };
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return { full: dateStr, short: dateStr.slice(0, 6) };
+    const months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+      'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des',
+    ];
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = months[d.getMonth()];
+    const year = d.getFullYear();
+    return {
+      full: `${day} ${month} ${year}`,
+      short: `${day} ${month}`,
+    };
+  } catch {
+    return { full: dateStr, short: dateStr.slice(0, 6) };
+  }
+}
+
 export function buildTicketUpdates({
   values: v,
   outlet,
   kontak,
   ticket,
 }: BuildArgs & { ticket: TiketWithDetails }): Partial<TiketWithDetails> {
+  const closingLabels = formatClosingLabel(v.targetClosing);
   return {
     judul: v.judul.trim(),
     id_pelanggan: v.outletId,
@@ -37,8 +59,8 @@ export function buildTicketUpdates({
     no_telp_pic: kontak?.no_telp ?? ticket.no_telp_pic,
     estimasi_nilai: parseEstimasi(v.estimasiDisplay),
     estimasi_closing: v.targetClosing || '2026-12-05',
-    closing_full_label: v.targetClosing || '05 Des 2026',
-    closing_short_label: (v.targetClosing || '05 Des').slice(0, 6),
+    closing_full_label: closingLabels.full,
+    closing_short_label: closingLabels.short,
     prioritas: v.prioritas,
     file_penawaran: v.filePenawaran,
   };
@@ -51,6 +73,7 @@ export function buildNewTicket({
   stageId,
 }: BuildArgs & { stageId: string }): TiketWithDetails {
   const randomNum = Math.floor(130 + Math.random() * 70);
+  const closingLabels = formatClosingLabel(v.targetClosing);
   return {
     id_tiket: `tkt-0${randomNum}-${Date.now().toString().slice(-3)}`,
     kode_tiket: `TKT-0${randomNum}`,
@@ -67,8 +90,8 @@ export function buildNewTicket({
     inisial_sales: 'MT',
     estimasi_nilai: parseEstimasi(v.estimasiDisplay),
     estimasi_closing: v.targetClosing || '2026-11-12',
-    closing_short_label: '12 Nov',
-    closing_full_label: v.targetClosing || '12 Nov 2026',
+    closing_short_label: closingLabels.short,
+    closing_full_label: closingLabels.full,
     status: 'open',
     kebutuhan_pelanggan: v.judul.trim(),
     prioritas: v.prioritas,

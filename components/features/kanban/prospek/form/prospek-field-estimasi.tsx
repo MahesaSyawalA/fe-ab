@@ -20,7 +20,7 @@ export function ProspekFieldEstimasi({
       onChange={onChange}
       placeholder='Default'
       prefix='RP'
-      prefixClassName='text-muted-foreground'
+      prefixClassName='text-secondary-foreground'
       inputClassName='font-medium text-foreground'
     />
   );

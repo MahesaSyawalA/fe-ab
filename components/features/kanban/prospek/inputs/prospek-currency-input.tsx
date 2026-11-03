@@ -62,7 +62,7 @@ export function ProspekCurrencyInput({
       className={cn('flex w-full flex-col gap-1.5', className)}
       {...props}
     >
-      <Label className='text-xs font-semibold text-foreground'>{label}</Label>
+      <Label className='text-sm font-semibold text-foreground'>{label}</Label>
 
       <InputGroup
         className={cn(
@@ -72,7 +72,7 @@ export function ProspekCurrencyInput({
       >
         <InputGroup.Prefix
           className={cn(
-            'flex items-center gap-2.5 pl-3.5 pr-1 text-xs font-semibold text-muted-foreground',
+            'flex items-center gap-2.5 pl-3.5 pr-1 text-sm font-semibold text-muted-foreground',
             prefixClassName,
           )}
         >
@@ -86,7 +86,7 @@ export function ProspekCurrencyInput({
           readOnly={readOnly}
           placeholder={placeholder}
           className={cn(
-            'text-xs font-medium text-foreground placeholder:text-muted-foreground',
+            'text-sm font-medium text-foreground placeholder:text-muted-foreground',
             inputClassName,
           )}
         />
