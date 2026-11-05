@@ -60,7 +60,7 @@ export function ProspekTextFieldInput({
         readOnly={readOnly}
         placeholder={placeholder}
         className={cn(
-          'h-10 w-full rounded-xl border border-primary/40 bg-card px-3.5 text-sm text-foreground shadow-none transition-all placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary aria-invalid:border-destructive aria-invalid:focus:border-destructive aria-invalid:focus:ring-destructive disabled:border-border disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed',
+          'h-10 w-full rounded-md border border-primary/40 bg-card px-3.5 text-xs sm:text-sm text-foreground shadow-none transition-all placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary aria-invalid:border-destructive aria-invalid:focus:border-destructive aria-invalid:focus:ring-destructive disabled:border-border disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed',
           inputClassName,
         )}
       />

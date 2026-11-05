@@ -83,18 +83,18 @@ export function FilterSelectInput({
       className={cn('flex w-full min-w-0 flex-col gap-1.5', className)}
     >
       {label && (
-        <Label className='text-xs font-bold text-foreground'>{label}</Label>
+        <Label className='text-sm font-bold text-foreground'>{label}</Label>
       )}
 
       {hint && !invalid && (
-        <Description className='text-[11px] text-muted-foreground'>
+        <Description className='text-xs text-muted-foreground'>
           {hint}
         </Description>
       )}
 
       <Select.Trigger
         className={cn(
-          'h-10 w-full min-w-0 items-center gap-2 overflow-hidden rounded-xl border border-border bg-card px-3 text-xs text-foreground shadow-none transition-all focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary aria-invalid:border-destructive disabled:bg-muted/40 disabled:text-muted-foreground disabled:cursor-not-allowed',
+          'h-10 w-full min-w-0 items-center gap-2 overflow-hidden rounded-md border border-border bg-card px-3 text-xs text-foreground shadow-none transition-all focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary aria-invalid:border-destructive disabled:bg-muted/40 disabled:text-muted-foreground disabled:cursor-not-allowed',
           triggerClassName,
         )}
       >
@@ -137,7 +137,7 @@ export function FilterSelectInput({
                 key={itemId}
                 id={itemId}
                 textValue={opt.label}
-                className='flex cursor-pointer items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 text-xs text-foreground outline-none data-[focused=true]:bg-accent data-[focused=true]:text-accent-foreground data-[selected=true]:font-semibold'
+                className='flex cursor-pointer items-center justify-between gap-2 rounded-md px-2.5 py-1.5 text-xs text-foreground outline-none data-[focused=true]:bg-accent data-[focused=true]:text-accent-foreground data-[selected=true]:font-semibold'
               >
                 <span className='min-w-0 flex-1 whitespace-normal wrap-break-word'>{opt.label}</span>
               </ListBox.Item>

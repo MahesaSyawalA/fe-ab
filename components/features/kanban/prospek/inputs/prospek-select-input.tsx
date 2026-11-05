@@ -86,11 +86,11 @@ export function ProspekSelectInput({
 
       <Select.Trigger
         className={cn(
-          'h-10 w-full min-w-0 items-center gap-2 overflow-hidden rounded-xl border border-primary/40 bg-card px-3.5 text-sm text-foreground shadow-none transition-all focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary aria-invalid:border-destructive aria-invalid:focus:border-destructive aria-invalid:focus:ring-destructive disabled:border-border disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed',
+          'h-10 w-full min-w-0 items-center gap-2 overflow-hidden rounded-md border border-primary/40 bg-card px-3.5 text-sm text-foreground shadow-none transition-all focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary aria-invalid:border-destructive aria-invalid:focus:border-destructive aria-invalid:focus:ring-destructive disabled:border-border disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed',
           triggerClassName,
         )}
       >
-        <Select.Value className='text-sm min-w-0 flex-1 truncate text-left overflow-hidden pr-3'>
+        <Select.Value className='text-xs sm:text-sm min-w-0 flex-1 truncate text-left overflow-hidden pr-3'>
           {({ isPlaceholder, state, selectedText }) => {
             if (isPlaceholder || !state.selectedItems.length) {
               return (
@@ -126,7 +126,7 @@ export function ProspekSelectInput({
         </Description>
       )}
 
-      <Select.Popover className='z-60 min-w-(--trigger-width) max-h-60 overflow-y-auto rounded-xl border border-border bg-popover shadow-md'>
+      <Select.Popover className='z-60 min-w-(--trigger-width) max-h-60 overflow-y-auto rounded-md border border-border bg-popover shadow-md'>
         <ListBox className='p-1'>
           {options.map((opt) => {
             const itemId = opt.value === '' ? EMPTY_OPTION_KEY : opt.value;

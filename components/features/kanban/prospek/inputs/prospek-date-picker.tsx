@@ -80,9 +80,9 @@ export function ProspekDatePicker({
 
       <DateField.Group
         fullWidth
-        className='h-10 w-full rounded-xl border border-primary/40 bg-card px-3 text-sm text-foreground transition-all focus-within:border-primary focus-within:ring-1 focus-within:ring-primary aria-invalid:border-destructive disabled:border-border disabled:bg-muted/40 disabled:text-muted-foreground disabled:cursor-not-allowed'
+        className='h-10 w-full rounded-md border border-primary/40 bg-card px-3 text-xs sm:text-sm text-foreground transition-all focus-within:border-primary focus-within:ring-1 focus-within:ring-primary aria-invalid:border-destructive disabled:border-border disabled:bg-muted/40 disabled:text-muted-foreground disabled:cursor-not-allowed'
       >
-        <DateField.Input className='text-sm'>
+        <DateField.Input className='text-xs sm:text-sm'>
           {(segment) => (
             <DateField.Segment
               segment={segment}

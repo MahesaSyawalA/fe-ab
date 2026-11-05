@@ -66,7 +66,7 @@ export function ProspekCurrencyInput({
 
       <InputGroup
         className={cn(
-          'h-10 w-full rounded-xl border border-primary/40 bg-card shadow-none transition-all focus-within:border-primary focus-within:ring-1 focus-within:ring-primary aria-invalid:border-destructive disabled:border-border disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed',
+          'h-10 w-full rounded-md border border-primary/40 bg-card shadow-none transition-all focus-within:border-primary focus-within:ring-1 focus-within:ring-primary aria-invalid:border-destructive disabled:border-border disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed',
           inputGroupClassName,
         )}
       >

@@ -85,11 +85,11 @@ export function StageSelectInput({
 
       <Select.Trigger
         className={cn(
-          'h-9 w-full min-w-0 items-center gap-2 overflow-hidden rounded-xl border border-border bg-card px-3 text-xs text-foreground transition-all focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary aria-invalid:border-destructive disabled:bg-muted/40 disabled:text-muted-foreground disabled:cursor-not-allowed',
+          'h-10 w-full min-w-0 items-center gap-2 overflow-hidden rounded-md border border-border bg-card px-3 text-xs text-foreground transition-all focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary aria-invalid:border-destructive disabled:bg-muted/40 disabled:text-muted-foreground disabled:cursor-not-allowed',
           triggerClassName,
         )}
       >
-        <Select.Value className='text-xs min-w-0 flex-1 truncate text-left overflow-hidden pr-3'>
+        <Select.Value className='text-xs sm:text-sm min-w-0 flex-1 truncate text-left overflow-hidden pr-3'>
           {({ isPlaceholder, state, selectedText }) => {
             if (isPlaceholder || !state.selectedItems.length) {
               return (
@@ -128,7 +128,7 @@ export function StageSelectInput({
                 key={itemId}
                 id={itemId}
                 textValue={opt.label}
-                className='flex cursor-pointer items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 text-xs text-foreground outline-none data-[focused=true]:bg-accent data-[focused=true]:text-accent-foreground data-[selected=true]:font-semibold'
+                className='flex cursor-pointer items-center justify-between gap-2 rounded-md px-2.5 py-1.5 text-xs text-foreground outline-none data-[focused=true]:bg-accent data-[focused=true]:text-accent-foreground data-[selected=true]:font-semibold'
               >
                 <span className='min-w-0 flex-1 whitespace-normal wrap-break-word'>{opt.label}</span>
               </ListBox.Item>

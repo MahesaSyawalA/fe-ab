@@ -68,7 +68,7 @@ export function FilterCurrencyInput({
 
       <InputGroup
         className={cn(
-          'h-9 w-full rounded-xl border border-border bg-card shadow-none transition-all focus-within:border-primary focus-within:ring-1 focus-within:ring-primary aria-invalid:border-destructive disabled:bg-muted/40 disabled:text-muted-foreground disabled:cursor-not-allowed',
+          'h-9 w-full rounded-md border border-border bg-card shadow-none transition-all focus-within:border-primary focus-within:ring-1 focus-within:ring-primary aria-invalid:border-destructive disabled:bg-muted/40 disabled:text-muted-foreground disabled:cursor-not-allowed',
           inputGroupClassName,
         )}
       >

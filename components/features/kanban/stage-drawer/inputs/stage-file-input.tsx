@@ -175,7 +175,7 @@ export function StageFileInput({
 
       {value ? (
         /* State File Terunggah (Card Preview Sesuai Figma) */
-        <div className='flex items-center justify-between gap-3 rounded-xl border border-border/80 bg-card px-3.5 py-2.5 shadow-2xs transition-colors'>
+        <div className='flex items-center justify-between gap-3 rounded-md border border-border/80 bg-card px-3.5 py-2.5 shadow-2xs transition-colors'>
           <div className='flex items-center gap-2.5 min-w-0 flex-1'>
             <FileIcon className='size-4 shrink-0 text-primary' />
             <div className='flex flex-col min-w-0 flex-1 text-left'>
