@@ -24,6 +24,16 @@ export const OUTLET_TYPES: OptionCardItem[] = [
   },
 ];
 
+export const DEFAULT_OUTLET_IMAGE =
+  'https://images.unsplash.com/photo-1587351021759-3e566b6af7cc?auto=format&fit=crop&w=800&q=80';
+
+/** Chip kategori di daftar pelanggan; `id` dipakai juga sebagai kata kunci pencocokan `tipe_faskes`. */
+export const PELANGGAN_CATEGORY_CHIPS = [
+  { id: 'Rumah Sakit', label: 'Rumah Sakit', dotColor: 'bg-kanban-pink' },
+  { id: 'Klinik', label: 'Klinik', dotColor: 'bg-kanban-orange' },
+  { id: 'Apotek', label: 'Apotek', dotColor: 'bg-kanban-green' },
+];
+
 export const INITIAL_PELANGGAN_LIST: PelangganWithDetails[] = [
   {
     id_pelanggan: 'plg-1',
