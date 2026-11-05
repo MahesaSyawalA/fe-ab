@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { IconInputField } from '@/components/ui/icon-input-field';
+import { PelangganTextInput } from '../../inputs';
 import { PelangganResponsiveMap } from '../../map';
 import { FormStepLokasiData } from '../types';
 import { WizardStepCard } from '../wizard-step-card';
@@ -40,7 +40,7 @@ export function FormStepLokasi({ data, onChange, onNext }: FormStepLokasiProps) 
             desktop={{ interactive: true, height: '320px' }}
             badgeClassName='right-2.5 bottom-2.5 h-5 px-2.5 text-[10px]'
           />
-          <p className='text-[11px] text-muted-foreground'>
+          <p className='text-xs text-muted-foreground'>
             Klik atau geser marker pada peta untuk menentukan posisi faskes secara presisi.
           </p>
         </div>
@@ -49,39 +49,39 @@ export function FormStepLokasi({ data, onChange, onNext }: FormStepLokasiProps) 
         <div className='md:col-span-5 flex flex-col gap-4'>
           {/* Latitude & Longitude */}
           <div className='grid grid-cols-2 gap-3'>
-            <IconInputField
+            <PelangganTextInput
               label='Latitude'
               required
               type='number'
               step='any'
               value={data.latitude}
-              onChange={(e) =>
-                onChange({ latitude: parseFloat(e.target.value) || 0 })
+              onChange={(val) =>
+                onChange({ latitude: parseFloat(val) || 0 })
               }
               placeholder='-6.208812'
             />
 
-            <IconInputField
+            <PelangganTextInput
               label='Longitude'
               required
               type='number'
               step='any'
               value={data.longitude}
-              onChange={(e) =>
-                onChange({ longitude: parseFloat(e.target.value) || 0 })
+              onChange={(val) =>
+                onChange({ longitude: parseFloat(val) || 0 })
               }
               placeholder='106.845648'
             />
           </div>
 
           {/* Radius Kunjungan */}
-          <IconInputField
+          <PelangganTextInput
             label='Radius Kunjungan'
-            optionalText='(optional)'
+            optionalText='(Opsional)'
             type='text'
             value={data.radius_kunjungan ? `${data.radius_kunjungan} m` : ''}
-            onChange={(e) => {
-              const numeric = parseInt(e.target.value.replace(/[^0-9]/g, ''), 10);
+            onChange={(val) => {
+              const numeric = parseInt(val.replace(/[^0-9]/g, ''), 10);
               onChange({ radius_kunjungan: isNaN(numeric) ? 0 : numeric });
             }}
             placeholder='200 m'
@@ -94,7 +94,7 @@ export function FormStepLokasi({ data, onChange, onNext }: FormStepLokasiProps) 
               variant='outline'
               onClick={locate}
               disabled={isLocating}
-              className='h-10 w-full rounded-xl border-primary bg-primary/4 hover:bg-primary/10 text-xs font-medium text-primary cursor-pointer'
+              className='h-10 w-full rounded-md border-primary bg-primary/4 hover:bg-primary/10 text-xs font-medium text-primary cursor-pointer'
             >
               {isLocating
                 ? 'Mendeteksi Lokasi...'
@@ -104,7 +104,7 @@ export function FormStepLokasi({ data, onChange, onNext }: FormStepLokasiProps) 
             <Button
               type='button'
               onClick={onNext}
-              className='h-10 w-full rounded-xl bg-primary hover:bg-primary/90 text-xs font-medium text-primary-foreground shadow-xs cursor-pointer'
+              className='h-10 w-full rounded-md bg-primary-default hover:bg-primary-hover active:bg-primary data-[pressed=true]:bg-primary text-xs font-semibold text-white shadow-sm disabled:opacity-50 transition-all cursor-pointer'
             >
               Lanjut ke Kontak PIC
             </Button>

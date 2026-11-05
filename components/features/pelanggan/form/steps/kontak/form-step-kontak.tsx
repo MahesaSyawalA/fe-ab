@@ -44,7 +44,7 @@ export function FormStepKontak({
           type='button'
           onClick={kontak.handleFinalSubmit}
           disabled={!kontak.canSubmit || isSubmitting}
-          className='h-10 w-full md:w-auto md:min-w-56 rounded-xl bg-primary hover:bg-primary/90 text-xs font-medium text-primary-foreground shadow-xs disabled:opacity-50 cursor-pointer'
+          className='h-10 w-full md:w-auto md:min-w-56 rounded-md bg-primary-default hover:bg-primary-hover active:bg-primary data-[pressed=true]:bg-primary text-xs font-semibold text-white shadow-sm disabled:opacity-50 transition-all cursor-pointer'
         >
           {isSubmitting ? 'Menyimpan Pelanggan...' : 'Simpan Semua & Selesaikan'}
         </Button>

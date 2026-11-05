@@ -1,11 +1,9 @@
 import * as React from 'react';
 import { Hospital } from 'lucide-react';
+import { Label } from '@heroui/react';
 import { OptionCardGroup } from '@/components/ui/option-card';
-import { FileUpload } from '@/components/ui/file-upload';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { IconInputField } from '@/components/ui/icon-input-field';
-import { Textarea } from '@/components/ui/textarea';
+import { PelangganTextInput, PelangganTextArea, PelangganFileInput } from '../../inputs';
 import { OUTLET_TYPES } from '@/constants/pelanggan-constants';
 import { FormStepProfilData } from '../types';
 import { WizardStepCard } from '../wizard-step-card';
@@ -18,7 +16,10 @@ interface FormStepProfilProps {
 
 export function FormStepProfil({ data, onChange, onNext }: FormStepProfilProps) {
   const isValid = Boolean(
-    data.nama_faskes.trim() && data.tipe_faskes && data.alamat.trim()
+    data.nama_faskes.trim() &&
+    data.tipe_faskes &&
+    data.alamat.trim() &&
+    data.img_url.trim()
   );
 
   return (
@@ -28,20 +29,19 @@ export function FormStepProfil({ data, onChange, onNext }: FormStepProfilProps) 
       badgeText='Wajib'
     >
       {/* Nama Outlet */}
-      <IconInputField
+      <PelangganTextInput
         label='Nama Outlet'
         required
         icon={<Hospital className='size-4' />}
         value={data.nama_faskes}
-        onChange={(e) => onChange({ nama_faskes: e.target.value })}
+        onChange={(val) => onChange({ nama_faskes: val })}
         placeholder='Contoh: RS Ibu & Anak Kasih Bunda'
       />
 
       {/* Tipe Outlet */}
       <div className='flex flex-col gap-1.5'>
-        <Label className='gap-0.5 text-xs font-medium text-foreground'>
-          <span>Tipe Outlet</span>
-          <span className='text-destructive'>*</span>
+        <Label isRequired className='text-sm font-medium text-foreground'>
+          Tipe Outlet
         </Label>
         <OptionCardGroup
           options={OUTLET_TYPES}
@@ -52,24 +52,19 @@ export function FormStepProfil({ data, onChange, onNext }: FormStepProfilProps) 
       </div>
 
       {/* Alamat Lengkap Outlet (Full Width) */}
-      <div className='flex flex-col gap-1.5'>
-        <Label className='gap-0.5 text-xs font-medium text-foreground'>
-          <span>Alamat Lengkap Outlet</span>
-          <span className='text-destructive'>*</span>
-        </Label>
-        <Textarea
-          rows={4}
-          value={data.alamat}
-          onChange={(e) => onChange({ alamat: e.target.value })}
-          placeholder='Contoh: Jl. Salemba Raya No. 42A, RT 03 / RW 05, Kenari, Senen, Jakarta Pusat 10430'
-          className='min-h-24 resize-none rounded-xl border-border bg-card p-3 text-xs text-foreground placeholder:text-muted-foreground shadow-2xs'
-          required
-        />
-      </div>
+      <PelangganTextArea
+        label='Alamat Lengkap Outlet'
+        required
+        rows={4}
+        value={data.alamat}
+        onChange={(val) => onChange({ alamat: val })}
+        placeholder='Contoh: Jl. Salemba Raya No. 42A, RT 03 / RW 05, Kenari, Senen, Jakarta Pusat 10430'
+      />
 
       {/* Foto Outlet (Full Width below Alamat) */}
-      <FileUpload
+      <PelangganFileInput
         label='Foto Outlet'
+        isRequired
         helperText='Unggah 1 foto beresolusi jelas yang memperlihatkan identitas outlet resmi'
         value={data.img_url}
         onChange={(url) => onChange({ img_url: url })}
@@ -82,7 +77,8 @@ export function FormStepProfil({ data, onChange, onNext }: FormStepProfilProps) 
           type='button'
           onClick={onNext}
           disabled={!isValid}
-          className='h-10 w-full md:w-auto md:min-w-48 rounded-xl bg-primary hover:bg-primary/90 text-xs font-medium text-primary-foreground shadow-xs disabled:opacity-50 cursor-pointer'
+          suppressHydrationWarning
+          className='h-10 w-full md:w-auto md:min-w-48 rounded-md bg-primary-default hover:bg-primary-hover active:bg-primary data-[pressed=true]:bg-primary text-xs font-semibold text-white shadow-sm disabled:opacity-50 transition-all cursor-pointer'
         >
           Lanjut ke Lokasi
         </Button>

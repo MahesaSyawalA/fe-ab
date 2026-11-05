@@ -24,7 +24,7 @@ export function PelangganListHeader({
 
       <Button
         onClick={onAddClick}
-        className='h-9.5 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-xs px-4 gap-1.5 shadow-xs cursor-pointer self-start sm:self-auto'
+        className='h-9.5 rounded-md bg-primary-default hover:bg-primary-hover active:bg-primary data-[pressed=true]:bg-primary font-semibold text-xs px-4 gap-1.5 text-white shadow-sm disabled:opacity-50 transition-all cursor-pointer self-start sm:self-auto'
       >
         <Plus className='size-3.5 stroke-[2.5]' />
         Tambah Pelanggan
