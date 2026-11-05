@@ -112,15 +112,26 @@ function Stepper({
   const currentStep = value ?? activeStep
 
   // Keyboard navigation logic
-  const focusTrigger = (idx: number) => {
-    if (triggerNodes[idx]) triggerNodes[idx].focus()
-  }
-  const focusNext = (currentIdx: number) =>
-    focusTrigger((currentIdx + 1) % triggerNodes.length)
-  const focusPrev = (currentIdx: number) =>
-    focusTrigger((currentIdx - 1 + triggerNodes.length) % triggerNodes.length)
-  const focusFirst = () => focusTrigger(0)
-  const focusLast = () => focusTrigger(triggerNodes.length - 1)
+  const focusTrigger = useCallback(
+    (idx: number) => {
+      if (triggerNodes[idx]) triggerNodes[idx].focus()
+    },
+    [triggerNodes]
+  )
+  const focusNext = useCallback(
+    (currentIdx: number) => focusTrigger((currentIdx + 1) % triggerNodes.length),
+    [focusTrigger, triggerNodes.length]
+  )
+  const focusPrev = useCallback(
+    (currentIdx: number) =>
+      focusTrigger((currentIdx - 1 + triggerNodes.length) % triggerNodes.length),
+    [focusTrigger, triggerNodes.length]
+  )
+  const focusFirst = useCallback(() => focusTrigger(0), [focusTrigger])
+  const focusLast = useCallback(
+    () => focusTrigger(triggerNodes.length - 1),
+    [focusTrigger, triggerNodes.length]
+  )
 
   // Context value
   const contextValue = useMemo<StepperContextValue>(
@@ -147,7 +158,12 @@ function Stepper({
       children,
       orientation,
       registerTrigger,
+      focusNext,
+      focusPrev,
+      focusFirst,
+      focusLast,
       triggerNodes,
+      indicators,
     ]
   )
 
@@ -246,16 +262,11 @@ function StepperTrigger({
     if (btnRef.current) {
       registerTrigger(btnRef.current)
     }
-  }, [btnRef.current])
-
-  // Find our index among triggers for navigation
-  const myIdx = useMemo(
-    () =>
-      triggerNodes.findIndex((n: HTMLButtonElement) => n === btnRef.current),
-    [triggerNodes, btnRef.current]
-  )
+  }, [registerTrigger])
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+    const myIdx = triggerNodes.findIndex((n: HTMLButtonElement) => n === e.currentTarget)
+
     switch (e.key) {
       case "ArrowRight":
       case "ArrowDown":
@@ -283,6 +294,8 @@ function StepperTrigger({
     }
   }
 
+  const effectiveDisabled = Boolean(props.disabled ?? isDisabled) || undefined
+
   const defaultProps = {
     role: "tab",
     id,
@@ -299,7 +312,8 @@ function StepperTrigger({
     ),
     onClick: () => setActiveStep(step),
     onKeyDown: handleKeyDown,
-    disabled: isDisabled,
+    disabled: effectiveDisabled,
+    suppressHydrationWarning: true,
     children,
   }
 
@@ -307,7 +321,11 @@ function StepperTrigger({
     defaultTagName: "button",
     render,
     ref: btnRef,
-    props: mergeProps<"button">(defaultProps, props),
+    props: mergeProps<"button">(defaultProps, {
+      ...props,
+      disabled: effectiveDisabled,
+      suppressHydrationWarning: true,
+    }),
   })
 }
 

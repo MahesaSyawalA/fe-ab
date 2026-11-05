@@ -44,7 +44,8 @@ export function Stepper({ steps, currentStep, onStepClick, className }: StepperP
                 className='flex flex-col items-center flex-none!'
               >
                 <StepperTrigger
-                  disabled={stepNumber > currentStep}
+                  disabled={Boolean(stepNumber > currentStep) || undefined}
+                  suppressHydrationWarning
                   className='flex flex-col items-center gap-1.5 rounded-lg disabled:opacity-100'
                 >
                   <StepperIndicator
