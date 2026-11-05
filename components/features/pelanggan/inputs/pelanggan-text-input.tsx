@@ -86,7 +86,7 @@ export function PelangganTextInput({
       {icon || endAddon ? (
         <InputGroup
           className={cn(
-            'h-9 w-full rounded-md border border-border bg-card shadow-2xs transition-all focus-within:border-primary focus-within:ring-1 focus-within:ring-primary flex items-center',
+            'h-10 w-full rounded-md border border-border bg-card shadow-2xs transition-all focus-within:border-primary focus-within:ring-1 focus-within:ring-primary flex items-center',
             invalid && 'border-destructive focus-within:border-destructive focus-within:ring-destructive',
             (disabled || readOnly) && 'bg-muted/40 text-muted-foreground cursor-not-allowed',
             inputClassName,
