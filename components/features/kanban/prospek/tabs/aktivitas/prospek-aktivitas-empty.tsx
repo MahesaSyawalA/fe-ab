@@ -18,7 +18,7 @@ export function ProspekAktivitasEmpty({ onAdd }: { onAdd: () => void }) {
       <Button
         type='button'
         onClick={onAdd}
-        className='mt-2 h-9 rounded-xl bg-primary px-5 text-xs font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 cursor-pointer'
+        className='mt-2 h-9 rounded-md bg-primary px-5 text-xs font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 cursor-pointer'
       >
         <Plus className='size-3.5 mr-1.5' />
         Tambah Aktivitas

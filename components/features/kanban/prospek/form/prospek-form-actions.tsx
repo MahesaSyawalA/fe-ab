@@ -23,13 +23,13 @@ export function ProspekFormActions({
           type='button'
           variant='outline'
           onClick={onCancel}
-          className='h-11 sm:h-10 sm:w-32 rounded-xl border-border bg-card text-xs font-semibold text-foreground shadow-none hover:bg-muted/50 cursor-pointer'
+          className='h-11 sm:h-10 sm:w-32 rounded-md border-border bg-card text-xs font-semibold text-foreground shadow-none hover:bg-muted/50 cursor-pointer'
         >
           Batal
         </Button>
         <Button
           type='submit'
-          className='h-11 sm:h-10 sm:w-36 rounded-xl bg-primary text-xs font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 cursor-pointer'
+          className='h-11 sm:h-10 sm:w-36 rounded-md bg-primary-default hover:bg-primary-hover active:bg-primary data-[pressed=true]:bg-primary text-xs font-semibold text-white shadow-sm disabled:opacity-50 transition-all cursor-pointer'
         >
           Simpan
         </Button>

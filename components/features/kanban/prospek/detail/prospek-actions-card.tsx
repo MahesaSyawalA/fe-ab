@@ -28,7 +28,7 @@ export function ProspekActionsCard({
         <Button
           type='button'
           onClick={onNegotiate}
-          className='h-10 w-full rounded-xl bg-primary text-xs font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 cursor-pointer'
+          className='h-10 w-full rounded-md bg-primary-default hover:bg-primary-hover active:bg-primary data-[pressed=true]:bg-primary text-xs font-semibold text-white shadow-sm disabled:opacity-50 transition-all cursor-pointer'
         >
           Tentukan Hasil Negosiasi
         </Button>
@@ -37,7 +37,7 @@ export function ProspekActionsCard({
           type='button'
           variant='outline'
           onClick={onAddActivity}
-          className='h-9 w-full gap-1.5 rounded-xl border-dashed border-primary/40 bg-primary/5 text-xs font-semibold text-primary shadow-none hover:bg-primary/10 cursor-pointer'
+          className='h-9 w-full gap-1.5 rounded-md border-dashed border-primary/40 bg-primary/5 text-xs font-semibold text-primary shadow-none hover:bg-primary/10 cursor-pointer'
         >
           <Plus className='size-3.5' />
           Tambah Aktivitas Baru

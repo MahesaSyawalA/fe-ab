@@ -138,7 +138,7 @@ export function ProspekDetailView({
               <Button
                 type='button'
                 onClick={() => setNegotiationDrawerOpen(true)}
-                className='h-11 w-full rounded-xl bg-primary text-xs font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 cursor-pointer'
+                className='h-11 w-full rounded-md bg-primary-default hover:bg-primary-hover active:bg-primary data-[pressed=true]:bg-primary text-xs font-semibold text-white shadow-sm disabled:opacity-50 transition-all cursor-pointer'
               >
                 Tentukan Hasil Negosiasi
               </Button>
