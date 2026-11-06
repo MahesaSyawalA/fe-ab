@@ -16,8 +16,8 @@ api.interceptors.request.use(
         const session = await getSession();
 
         // safety check: if session and token are available, insert into header
-        if (session && (session as any).accessToken) {
-            config.headers.Authorization = `Bearer ${(session as any).accessToken}`;
+        if (session?.accessToken) {
+            config.headers.Authorization = `Bearer ${session.accessToken}`;
         }
 
         return config;

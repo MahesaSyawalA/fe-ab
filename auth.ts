@@ -1,43 +1,83 @@
-import NextAuth from 'next-auth'
-import CredentialsProvider from 'next-auth/providers/credentials';
+import NextAuth from 'next-auth';
+import Credentials from 'next-auth/providers/credentials';
+import { type UserRole } from '@/types/user.types';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-    providers: [
-        CredentialsProvider({
-            name: 'Credentials',
-            credentials: {
-                email: { label: 'Email', type: 'email' },
-                password: { label: 'Password', type: 'password' },
-            },
-            async authorize(credentials) {
-                // TODO: replace this with axios to hit the login API later
-                console.log('Credentials masuk:', credentials);
+  providers: [
+    Credentials({
+      name: 'Credentials',
+      credentials: {
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          return null;
+        }
 
-                // mocking temporary so the form doesn't error when submitted
-                // this will be deleted when integrated with BE
-                if (credentials?.email && credentials?.password) {
-                    return { id: '1', name: 'User Test', email: credentials.email as string, accessToken: 'token-sementara-123' };
-                }
+        const email = String(credentials.email).toLowerCase();
 
-                return null;
-            },
-        }),
-    ],
-    callbacks: {
-        async jwt({ token, user }) {
-            // if user is newly logged in, insert the token from the backend into the JWT NextAuth
-            if (user) {
-                token.accessToken = (user as any).accessToken;
-            }
-            return token;
-        },
-        async session({ session, token }) {
-            // pass the token to the session object so that it can be accessed in the client
-            (session as any).accessToken = token.accessToken;
-            return session;
-        },
+        // Mock kredensial adaptif per-role berdasarkan email untuk testing/development
+        let role: UserRole = 'sales';
+        let nama = 'Sales Representative';
+        let id_squad: string | null = 'sq-1';
+
+        if (email.includes('manager')) {
+          role = 'sales_manager';
+          nama = 'Sales Manager';
+          id_squad = 'sq-1';
+        } else if (email.includes('director') || email.includes('direktur')) {
+          role = 'director';
+          nama = 'Direktur Utama';
+          id_squad = null;
+        }
+
+        return {
+          id: 'usr-1',
+          id_user: 'usr-1',
+          name: nama,
+          nama,
+          email,
+          role,
+          id_squad,
+          accessToken: `mock-access-token-${Date.now()}`,
+          refreshToken: `mock-refresh-token-${Date.now()}`,
+        };
+      },
+    }),
+  ],
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id_user = user.id_user;
+        token.nama = user.nama;
+        token.role = user.role;
+        token.id_squad = user.id_squad;
+        token.accessToken = user.accessToken;
+        token.refreshToken = user.refreshToken;
+      }
+      return token;
     },
-    pages: {
-        signIn: '/login',
+    async session({ session, token }) {
+      if (token) {
+        session.user = {
+          ...session.user,
+          id: token.id_user,
+          id_user: token.id_user,
+          nama: token.nama || session.user?.name || '',
+          email: token.email || session.user?.email || '',
+          role: token.role,
+          id_squad: token.id_squad,
+        };
+        session.accessToken = token.accessToken;
+      }
+      return session;
     },
+  },
+  pages: {
+    signIn: '/login',
+  },
+  session: {
+    strategy: 'jwt',
+  },
 });

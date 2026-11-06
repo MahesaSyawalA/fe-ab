@@ -4,6 +4,7 @@ import './globals.css';
 import { cn } from '@/lib/utils';
 
 import { QueryProvider } from '@/components/providers/query-provider';
+import { SessionProvider } from '@/components/providers/session-provider';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -23,9 +24,11 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
       className={cn('h-full', 'antialiased', poppins.variable, 'font-sans')}
     >
       <body className='min-h-full flex flex-col'>
-        <QueryProvider>
-          {children}
-        </QueryProvider>
+        <SessionProvider>
+          <QueryProvider>
+            {children}
+          </QueryProvider>
+        </SessionProvider>
       </body>
     </html>
   );
