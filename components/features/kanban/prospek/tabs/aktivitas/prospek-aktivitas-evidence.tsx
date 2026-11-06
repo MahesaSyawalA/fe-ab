@@ -66,6 +66,7 @@ export function ProspekAktivitasEvidence({
 
       {ev.preview && (
         <div className='mt-1 overflow-hidden rounded-xl border border-border/60 max-w-xs sm:max-w-sm'>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={ev.preview}
             alt='Evidence'

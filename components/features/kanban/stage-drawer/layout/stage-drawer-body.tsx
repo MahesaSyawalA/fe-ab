@@ -44,7 +44,7 @@ export function StageDrawerBody({ mode, stageType, form }: StageDrawerBodyProps)
           judulProspek={form.judulProspek}
           onJudulChange={form.setJudulProspek}
           selectedPelangganId={form.selectedPelangganId}
-          onFaskesChange={form.handleFaskesChange}
+          onOutletChange={form.handleOutletChange}
           pelangganList={form.pelangganList}
           picDitemui={form.picDitemui}
           onPicSelect={form.handlePicSelect}

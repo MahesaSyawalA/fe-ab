@@ -11,7 +11,7 @@ Sistem CRM AB+ Medical dibangun dengan pendekatan modul berbasis fitur untuk mem
 
 ### B. Modul Klien (Pelanggan)
 
-- **Manajemen Faskes & PIC:** Pencatatan data Fasilitas Kesehatan beserta titik koordinat peta (Latitude/Longitude), radius toleransi kunjungan, dan daftar Kontak (Person in Charge).
+- **Manajemen Outlet & PIC:** Pencatatan data Outlet beserta titik koordinat peta (Latitude/Longitude), radius toleransi kunjungan, dan daftar Kontak (Person in Charge).
 - **Peta Frekuensi Kunjungan:** Rekap otomatis frekuensi kunjungan per pelanggan untuk mengidentifikasi klien yang paling sering dikunjungi.
 
 ### C. Modul Kanban & Tiket Penjualan
@@ -23,7 +23,7 @@ Sistem CRM AB+ Medical dibangun dengan pendekatan modul berbasis fitur untuk mem
 ### D. Modul Aktivitas & Validasi Kunjungan
 
 - **Log Aktivitas Terpadu:** Pencatatan setiap kegiatan _sales_ (kunjungan, _follow-up_, penawaran) langsung ke dalam tiket terkait.
-- **Validasi Kunjungan (Geo-tagging):** Perekaman lokasi GPS _sales_ beserta foto bukti saat melakukan kunjungan. Sistem memvalidasi jarak _sales_ dengan titik faskes menggunakan rumus Haversine (Dalam/Luar Radius).
+- **Validasi Kunjungan (Geo-tagging):** Perekaman lokasi GPS _sales_ beserta foto bukti saat melakukan kunjungan. Sistem memvalidasi jarak _sales_ dengan titik outlet menggunakan rumus Haversine (Dalam/Luar Radius).
 
 ### E. Modul Dokumen Transaksi
 
@@ -44,13 +44,13 @@ Berikut adalah siklus hidup operasional dari CRM AB+ Medical, dirancang untuk me
 ### Tahap 1: Inisiasi Peluang Penjualan
 
 1. **Login:** _Sales_ masuk ke dalam sistem. Sistem memvalidasi kredensial dan menampilkan antarmuka _Kanban Board_.
-2. **Buat Tiket:** _Sales_ membuat tiket baru untuk peluang penjualan. _Sales_ memilih Klien (Faskes) dan PIC, serta mengisi detail kebutuhan dan estimasi nilai.
+2. **Buat Tiket:** _Sales_ membuat tiket baru untuk peluang penjualan. _Sales_ memilih Klien (Outlet) dan PIC, serta mengisi detail kebutuhan dan estimasi nilai.
 3. **Status Awal:** Tiket secara otomatis masuk ke kolom tahap pertama dengan status **OPEN**.
 
 ### Tahap 2: Kunjungan Lapangan & Pencatatan Aktivitas
 
-1. **Kunjungan:** _Sales_ mendatangi Faskes dan menekan tombol tambah aktivitas pada tiket tersebut.
-2. **Geo-Validation:** _Sales_ mengunggah foto kunjungan. Sistem secara _background_ menangkap koordinat GPS perangkat _sales_ dan menghitung jaraknya terhadap koordinat Faskes terdaftar.
+1. **Kunjungan:** _Sales_ mendatangi Outlet dan menekan tombol tambah aktivitas pada tiket tersebut.
+2. **Geo-Validation:** _Sales_ mengunggah foto kunjungan. Sistem secara _background_ menangkap koordinat GPS perangkat _sales_ dan menghitung jaraknya terhadap koordinat Outlet terdaftar.
 3. **Penyimpanan Bukti:** Jika masuk radius, status dicatat valid. Jika di luar radius, sistem menyimpannya dengan flag peringatan/catatan tambahan. Aktivitas ini menggantikan _logbook_ Excel manual.
 
 ### Tahap 3: Progres Pipeline & Follow-Up

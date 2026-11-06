@@ -48,9 +48,9 @@ Fondasi utama untuk interaksi tiket penjualan yang mengandalkan pemindahan statu
 
 ## 7. Pemetaan & Geo-tagging
 
-Fitur pelacakan lokasi _sales_ lapangan untuk memvalidasi radius kunjungan ke Fasilitas Kesehatan.
+Fitur pelacakan lokasi _sales_ lapangan untuk memvalidasi radius kunjungan ke Outlet.
 
-- **Map Rendering:** `react-leaflet` v5 dan `leaflet` v1.9.4. Menampilkan _basemap_ gratis (OpenStreetMap), merender _marker_ lokasi _sales_, dan membuat area radius titik Faskes tanpa membutuhkan API Key berbayar.
+- **Map Rendering:** `react-leaflet` v5 dan `leaflet` v1.9.4. Menampilkan _basemap_ gratis (OpenStreetMap), merender _marker_ lokasi _sales_, dan membuat area radius titik Outlet tanpa membutuhkan API Key berbayar.
 
 ## 8. Real-time & Utilitas Tanggal
 

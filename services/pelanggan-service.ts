@@ -8,7 +8,7 @@ import type {
 
 export interface PelangganListParams {
   search?: string;
-  tipe_faskes?: string;
+  tipe_outlet?: string;
   page?: number;
   limit?: number;
 }

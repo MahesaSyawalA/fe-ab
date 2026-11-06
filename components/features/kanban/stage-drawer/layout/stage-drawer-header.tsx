@@ -91,7 +91,7 @@ export function StageDrawerHeader({
       <DrawerDescription className='text-xs text-muted-foreground flex items-center gap-1.5 mt-0.5 text-left w-full'>
         {mode === 'move' && ticket ? (
           <span className='flex flex-wrap items-center gap-1.5 text-[11px] text-left'>
-            <span className='text-primary font-medium'>{ticket.nama_faskes}</span>
+            <span className='text-primary font-medium'>{ticket.nama_outlet}</span>
             <span>·</span>
             <span
               className={cn(

@@ -10,7 +10,7 @@ export function PelangganHero({ pelanggan }: { pelanggan: PelangganWithDetails }
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={pelanggan.img_url || DEFAULT_OUTLET_IMAGE}
-        alt={pelanggan.nama_faskes}
+        alt={pelanggan.nama_outlet}
         className='size-full object-cover'
       />
       <div className='absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/10' />
@@ -18,10 +18,10 @@ export function PelangganHero({ pelanggan }: { pelanggan: PelangganWithDetails }
       <div className='absolute inset-x-4 md:inset-x-8 bottom-4 md:bottom-6 flex flex-col gap-2 text-white'>
         <div className='flex flex-wrap items-center gap-2 md:gap-2.5'>
           <h2 className='text-lg sm:text-xl md:text-2xl lg:text-3xl font-extrabold tracking-tight text-white drop-shadow-sm'>
-            {pelanggan.nama_faskes}
+            {pelanggan.nama_outlet}
           </h2>
           <Badge className='h-5 md:h-6 rounded-md bg-primary-default px-2 md:px-2.5 text-[11px] md:text-xs font-semibold text-white'>
-            {pelanggan.tipe_faskes}
+            {pelanggan.tipe_outlet}
           </Badge>
           <Badge className='h-5 md:h-6 gap-1 rounded-md bg-success px-2 md:px-2.5 text-[11px] md:text-xs font-semibold text-white'>
             <Check className='size-3 stroke-[2.5]' />

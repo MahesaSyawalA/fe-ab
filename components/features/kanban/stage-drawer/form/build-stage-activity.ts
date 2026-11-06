@@ -91,7 +91,7 @@ export function buildCreatedTicket({
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     nama_petugas: 'Rina Putri',
-    pic_ditemui: f.picDitemui || 'PIC Faskes',
+    pic_ditemui: f.picDitemui || 'PIC Outlet',
     waktu_label: 'Baru saja',
     evidence: buildEvidence(f),
   };
@@ -104,7 +104,7 @@ export function buildCreatedTicket({
     id_kontak: null,
     judul:
       f.judulProspek.trim() ||
-      `Pengadaan Alkes - ${selectedPelanggan?.nama_faskes || 'RS'}`,
+      `Pengadaan Alkes - ${selectedPelanggan?.nama_outlet || 'RS'}`,
     estimasi_nilai: parseNilai(f, stageType),
     estimasi_closing:
       f.targetClosing ||
@@ -119,9 +119,8 @@ export function buildCreatedTicket({
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     kode_tiket: kodeTiket,
-    nama_outlet: selectedPelanggan?.nama_outlet || selectedPelanggan?.nama_faskes || 'Rumah Sakit',
-    nama_faskes: selectedPelanggan?.nama_faskes || selectedPelanggan?.nama_outlet || 'Rumah Sakit',
-    nama_pic: f.picDitemui || 'PIC Faskes',
+    nama_outlet: selectedPelanggan?.nama_outlet || 'Rumah Sakit',
+    nama_pic: f.picDitemui || 'PIC Outlet',
     jabatan_pic: f.jabatanPic || 'Kepala Pengadaan',
     no_telp_pic: f.noTelpPic || '0812-0000-0000',
     nama_sales: 'Rina Putri',
@@ -211,7 +210,7 @@ export function buildMoveParams({
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     nama_petugas: ticket.nama_sales || 'Sales Representative',
-    pic_ditemui: f.picDitemui || ticket.nama_pic || 'PIC Faskes',
+    pic_ditemui: f.picDitemui || ticket.nama_pic || 'PIC Outlet',
     waktu_label: 'Baru saja',
     evidence: buildEvidence(f),
   };

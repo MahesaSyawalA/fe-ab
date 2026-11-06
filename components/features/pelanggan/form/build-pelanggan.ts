@@ -16,10 +16,8 @@ export function buildPelanggan(
 
   return {
     id_pelanggan: newId,
-    nama_outlet: profil.nama_faskes || 'RS Harapan Baru',
-    tipe_outlet: profil.tipe_faskes,
-    nama_faskes: profil.nama_faskes || 'RS Harapan Baru',
-    tipe_faskes: profil.tipe_faskes,
+    nama_outlet: profil.nama_outlet || 'RS Harapan Baru',
+    tipe_outlet: profil.tipe_outlet,
     alamat:
       profil.alamat ||
       'Jl. Salemba Raya No. 42A, Kenari, Senen, Jakarta Pusat 10430',

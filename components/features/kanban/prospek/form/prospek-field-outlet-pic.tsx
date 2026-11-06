@@ -28,7 +28,7 @@ export function ProspekFieldOutletPic({
       { value: '', label: 'Default' },
       ...outlets.map((outlet) => ({
         value: outlet.id_pelanggan,
-        label: outlet.nama_faskes || outlet.nama_outlet,
+        label: outlet.nama_outlet,
       })),
     ];
   }, [outlets]);

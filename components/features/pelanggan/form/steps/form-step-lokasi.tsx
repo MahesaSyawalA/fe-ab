@@ -41,7 +41,7 @@ export function FormStepLokasi({ data, onChange, onNext }: FormStepLokasiProps) 
             badgeClassName='right-2.5 bottom-2.5 h-5 px-2.5 text-[10px]'
           />
           <p className='text-xs text-muted-foreground'>
-            Klik atau geser marker pada peta untuk menentukan posisi faskes secara presisi.
+            Klik atau geser marker pada peta untuk menentukan posisi outlet secara presisi.
           </p>
         </div>
 

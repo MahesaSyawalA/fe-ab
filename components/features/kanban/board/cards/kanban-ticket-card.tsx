@@ -59,7 +59,7 @@ export function KanbanTicketCard({
           </h4>
           <div className='flex items-center gap-1.5 text-xs text-muted-foreground'>
             <Building2 className='size-3.5 shrink-0 text-muted-foreground' />
-            <span className='truncate'>{ticket.nama_faskes}</span>
+            <span className='truncate'>{ticket.nama_outlet}</span>
           </div>
         </div>
 

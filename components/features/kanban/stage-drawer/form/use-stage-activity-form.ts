@@ -50,8 +50,7 @@ export function useStageActivityForm({
       pelangganList.find(
         (p) =>
           p.id_pelanggan === ticket?.id_pelanggan ||
-          (p.nama_faskes || p.nama_outlet).toLowerCase() ===
-            (ticket?.nama_faskes || ticket?.nama_outlet || '').toLowerCase(),
+          p.nama_outlet.toLowerCase() === (ticket?.nama_outlet || '').toLowerCase(),
       ) || null
     );
   }, [mode, selectedPelangganId, ticket, pelangganList]);
@@ -93,8 +92,8 @@ export function useStageActivityForm({
   const [statusClosing, setStatusClosing] = React.useState<'won' | 'lost'>('won');
   const [realisasiRevenue, setRealisasiRevenue] = React.useState('');
 
-  // Handle Faskes change in Create mode
-  const handleFaskesChange = (pelangganId: string) => {
+  // Handle Outlet change in Create mode
+  const handleOutletChange = (pelangganId: string) => {
     setSelectedPelangganId(pelangganId);
     const chosen = pelangganList.find((p) => p.id_pelanggan === pelangganId);
     if (chosen) {
@@ -115,13 +114,13 @@ export function useStageActivityForm({
     setEvidenceError(false);
 
     // Initial Evidence setup per stage
-    const faskesName = ticket?.nama_faskes || 'RS Harapan Sehat';
+    const outletName = ticket?.nama_outlet || 'RS Harapan Sehat';
     const randNum = Math.floor(100 + Math.random() * 900);
 
     switch (targetStage.jenis_tahap) {
       case 'visit':
         setEvidenceFile({
-          name: `foto_kunjungan_${faskesName.toLowerCase().replace(/\s+/g, '_')}.jpg`,
+          name: `foto_kunjungan_${outletName.toLowerCase().replace(/\s+/g, '_')}.jpg`,
           size: '1.4 MB',
         });
         break;
@@ -151,7 +150,7 @@ export function useStageActivityForm({
         break;
       case 'po':
         setEvidenceFile({
-          name: `scan_purchase_order_faskes_${randNum}.pdf`,
+          name: `scan_purchase_order_outlet_${randNum}.pdf`,
           size: '1.2 MB',
         });
         break;
@@ -220,8 +219,7 @@ export function useStageActivityForm({
     const matchedPelanggan = pelangganList.find(
       (p) =>
         p.id_pelanggan === ticket.id_pelanggan ||
-        (p.nama_faskes || p.nama_outlet).toLowerCase() ===
-          (ticket.nama_faskes || ticket.nama_outlet).toLowerCase(),
+        p.nama_outlet.toLowerCase() === ticket.nama_outlet.toLowerCase(),
     );
     if (matchedPelanggan) {
       setSelectedPelangganId(matchedPelanggan.id_pelanggan);
@@ -242,12 +240,12 @@ export function useStageActivityForm({
     switch (targetStage.jenis_tahap) {
       case 'visit':
         setCatatan(
-          `Kunjungan lapangan ke ${ticket.nama_faskes}. Observasi ruangan dan diskusi dengan ${ticket.nama_pic || 'PIC'}.`,
+          `Kunjungan lapangan ke ${ticket.nama_outlet}. Observasi ruangan dan diskusi dengan ${ticket.nama_pic || 'PIC'}.`,
         );
         break;
       case 'kebutuhan':
         setCatatan(
-          `Melakukan asesmen mendalam kebutuhan ${ticket.nama_faskes}. Tim teknis RS memerlukan spesifikasi lengkap.`,
+          `Melakukan asesmen mendalam kebutuhan ${ticket.nama_outlet}. Tim teknis RS memerlukan spesifikasi lengkap.`,
         );
         break;
       case 'opportunity':
@@ -266,11 +264,11 @@ export function useStageActivityForm({
         );
         setRevisiKe('1');
         setCatatan(
-          `Surat penawaran resmi diterbitkan dan dikirimkan ke pihak manajemen ${ticket.nama_faskes}. Sudah termasuk PPN 11% & garansi 1 tahun.`,
+          `Surat penawaran resmi diterbitkan dan dikirimkan ke pihak manajemen ${ticket.nama_outlet}. Sudah termasuk PPN 11% & garansi 1 tahun.`,
         );
         break;
       case 'po':
-        setNoPo(`PO-${ticket.nama_faskes.replace(/\s+/g, '').slice(0, 6).toUpperCase()}-2026-${codeNum}`);
+        setNoPo(`PO-${ticket.nama_outlet.replace(/\s+/g, '').slice(0, 6).toUpperCase()}-2026-${codeNum}`);
         setNominalPo(
           ticket.estimasi_nilai ? ticket.estimasi_nilai.toLocaleString('id-ID') : '45.000.000',
         );
@@ -291,7 +289,7 @@ export function useStageActivityForm({
     pelangganList,
     kontakList,
     handlePicSelect,
-    handleFaskesChange,
+    handleOutletChange,
     selectedPelangganId,
     judulProspek,
     setJudulProspek,

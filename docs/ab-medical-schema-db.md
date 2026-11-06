@@ -15,9 +15,9 @@ Struktur database dirancang secara modular dan berelasi erat untuk mendukung 12 
 - **`squad`**: Mengelompokkan tim sales berdasarkan wilayah operasional dan kode tim. Memiliki satu `supervisor` (berelasi ke `user`).
 - **`user`**: Menyimpan kredensial pengguna dan dibagi menjadi 3 peran (role): `sales`, `sales_manager`, dan `director`. Tabel ini memiliki relasi One-to-Many dengan tiket, aktivitas, dan riwayat tahap yang dilakukan pengguna tersebut.
 
-### B. Manajemen Klien (Faskes)
+### B. Manajemen Klien (Outlet)
 
-- **`pelanggan`**: Menyimpan data Fasilitas Kesehatan (Faskes) yang menjadi target kunjungan, mencakup titik koordinat (`latitude`, `longitude`) dan `radius_kunjungan` untuk validasi otomatis.
+- **`pelanggan`**: Menyimpan data Outlet Pelanggan (Outlet) yang menjadi target kunjungan, mencakup titik koordinat (`latitude`, `longitude`) dan `radius_kunjungan` untuk validasi otomatis.
 - **`kontak`**: Menyimpan informasi Person in Charge (PIC) dari setiap pelanggan (relasi Many-to-One ke `pelanggan`).
 
 ### C. Pipeline Penjualan (Kanban Core)

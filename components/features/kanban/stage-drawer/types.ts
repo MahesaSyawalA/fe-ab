@@ -1,8 +1,6 @@
-import { JenisTahap } from '@/types/kanban-stage.types';
 import {
   AktivitasWithDetails,
   JenisEvidence,
-  TiketPrioritas,
   TiketWithDetails,
 } from '@/types/ticket.types';
 import { KanbanStageColumn } from '@/constants/kanban-constants';

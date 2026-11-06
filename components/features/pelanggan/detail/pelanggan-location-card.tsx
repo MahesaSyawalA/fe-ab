@@ -40,7 +40,7 @@ export function PelangganLocationCard({ pelanggan }: { pelanggan: PelangganWithD
         <PelangganResponsiveMap
           latitude={pelanggan.latitude}
           longitude={pelanggan.longitude}
-          title={pelanggan.nama_faskes}
+          title={pelanggan.nama_outlet}
           mobile={{ interactive: false, height: '175px' }}
           desktop={{ interactive: true, height: '280px' }}
           badgeClassName='right-3 bottom-3 h-6 px-2.5 text-[11px]'

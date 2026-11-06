@@ -27,7 +27,7 @@ export const OUTLET_TYPES: OptionCardItem[] = [
 export const DEFAULT_OUTLET_IMAGE =
   'https://images.unsplash.com/photo-1587351021759-3e566b6af7cc?auto=format&fit=crop&w=800&q=80';
 
-/** Chip kategori di daftar pelanggan; `id` dipakai juga sebagai kata kunci pencocokan `tipe_faskes`. */
+/** Chip kategori di daftar pelanggan; `id` dipakai juga sebagai kata kunci pencocokan `tipe_outlet`. */
 export const PELANGGAN_CATEGORY_CHIPS = [
   { id: 'Rumah Sakit', label: 'Rumah Sakit', dotColor: 'bg-kanban-pink' },
   { id: 'Klinik', label: 'Klinik', dotColor: 'bg-kanban-orange' },
@@ -39,8 +39,6 @@ export const INITIAL_PELANGGAN_LIST: PelangganWithDetails[] = [
     id_pelanggan: 'plg-1',
     nama_outlet: 'RS Harapan Sehat',
     tipe_outlet: 'Rumah Sakit',
-    nama_faskes: 'RS Harapan Sehat',
-    tipe_faskes: 'Rumah Sakit',
     alamat: 'Jl. Salemba Raya No. 42A, Kenari, Senen, Jakarta Pusat 10430',
     latitude: -6.20881,
     longitude: 106.75812,
@@ -97,8 +95,6 @@ export const INITIAL_PELANGGAN_LIST: PelangganWithDetails[] = [
     id_pelanggan: 'plg-2',
     nama_outlet: 'Klinik Medika Prima',
     tipe_outlet: 'Klinik',
-    nama_faskes: 'Klinik Medika Prima',
-    tipe_faskes: 'Klinik',
     alamat:
       'Jl. Kesehatan Raya No. 42, Kel. Kebon Jeruk, Kec. Kebon Jeruk, Kota Jakarta Barat, DKI Jakarta 11530',
     latitude: -6.19255,
@@ -132,8 +128,6 @@ export const INITIAL_PELANGGAN_LIST: PelangganWithDetails[] = [
     id_pelanggan: 'plg-3',
     nama_outlet: 'RS Harapan Sehat',
     tipe_outlet: 'Apotek',
-    nama_faskes: 'RS Harapan Sehat',
-    tipe_faskes: 'Apotek',
     alamat: 'Jl. Kramat Raya No. 88, Kwitang, Senen, Jakarta Pusat 10420',
     latitude: -6.18432,
     longitude: 106.84129,
@@ -153,8 +147,6 @@ export const INITIAL_PELANGGAN_LIST: PelangganWithDetails[] = [
     id_pelanggan: 'plg-4',
     nama_outlet: 'RS Pelni Jakarta',
     tipe_outlet: 'Rumah Sakit',
-    nama_faskes: 'RS Pelni Jakarta',
-    tipe_faskes: 'Rumah Sakit',
     alamat: 'Jl. Ks. Tubun No. 92-94, Slipi, Palmerah, Jakarta Barat 11410',
     latitude: -6.19312,
     longitude: 106.80321,
@@ -199,8 +191,6 @@ export const INITIAL_PELANGGAN_LIST: PelangganWithDetails[] = [
     id_pelanggan: 'plg-5',
     nama_outlet: 'RSUD Soreang',
     tipe_outlet: 'Rumah Sakit',
-    nama_faskes: 'RSUD Soreang',
-    tipe_faskes: 'Rumah Sakit',
     alamat: 'Jl. Al-Fathu No. 9, Soreang, Kab. Bandung, Jawa Barat 40911',
     latitude: -7.02521,
     longitude: 107.51982,
@@ -233,8 +223,6 @@ export const INITIAL_PELANGGAN_LIST: PelangganWithDetails[] = [
     id_pelanggan: 'plg-6',
     nama_outlet: 'RS Hasan Sadikin',
     tipe_outlet: 'Rumah Sakit',
-    nama_faskes: 'RS Hasan Sadikin',
-    tipe_faskes: 'Rumah Sakit',
     alamat: 'Jl. Pasteur No. 38, Pasteur, Kec. Sukajadi, Kota Bandung 40161',
     latitude: -6.89612,
     longitude: 107.59881,

@@ -4,8 +4,6 @@ export interface Pelanggan {
   id_pelanggan: string;
   nama_outlet: string;
   tipe_outlet: string;
-  nama_faskes?: string;
-  tipe_faskes?: string;
   alamat: string;
   latitude: number;
   longitude: number;
@@ -16,10 +14,6 @@ export interface Pelanggan {
 }
 
 export interface PelangganWithDetails extends Pelanggan {
-  nama_outlet: string;
-  tipe_outlet: string;
-  nama_faskes?: string;
-  tipe_faskes?: string;
   jarak_km?: number | string;
   tiket_aktif?: number;
   total_kunjungan?: number;
@@ -29,10 +23,8 @@ export interface PelangganWithDetails extends Pelanggan {
 }
 
 export interface CreatePelangganInput {
-  nama_outlet?: string;
-  tipe_outlet?: string;
-  nama_faskes?: string;
-  tipe_faskes?: string;
+  nama_outlet: string;
+  tipe_outlet: string;
   alamat: string;
   latitude: number;
   longitude: number;
@@ -49,8 +41,6 @@ export interface CreatePelangganInput {
 export interface UpdatePelangganInput {
   nama_outlet?: string;
   tipe_outlet?: string;
-  nama_faskes?: string;
-  tipe_faskes?: string;
   alamat?: string;
   latitude?: number;
   longitude?: number;

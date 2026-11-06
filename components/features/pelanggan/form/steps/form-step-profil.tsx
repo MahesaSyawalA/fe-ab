@@ -16,8 +16,8 @@ interface FormStepProfilProps {
 
 export function FormStepProfil({ data, onChange, onNext }: FormStepProfilProps) {
   const isValid = Boolean(
-    data.nama_faskes.trim() &&
-    data.tipe_faskes &&
+    data.nama_outlet.trim() &&
+    data.tipe_outlet &&
     data.alamat.trim() &&
     data.img_url.trim()
   );
@@ -33,8 +33,8 @@ export function FormStepProfil({ data, onChange, onNext }: FormStepProfilProps) 
         label='Nama Outlet'
         required
         icon={<Hospital className='size-4' />}
-        value={data.nama_faskes}
-        onChange={(val) => onChange({ nama_faskes: val })}
+        value={data.nama_outlet}
+        onChange={(val) => onChange({ nama_outlet: val })}
         placeholder='Contoh: RS Ibu & Anak Kasih Bunda'
       />
 
@@ -45,8 +45,8 @@ export function FormStepProfil({ data, onChange, onNext }: FormStepProfilProps) 
         </Label>
         <OptionCardGroup
           options={OUTLET_TYPES}
-          value={data.tipe_faskes}
-          onChange={(val) => onChange({ tipe_faskes: val })}
+          value={data.tipe_outlet}
+          onChange={(val) => onChange({ tipe_outlet: val })}
           className='grid grid-cols-1 sm:grid-cols-2 gap-3'
         />
       </div>

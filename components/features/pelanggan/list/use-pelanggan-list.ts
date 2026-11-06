@@ -3,8 +3,8 @@ import { ChipFilterItem } from '@/components/ui/chip-filter';
 import { PELANGGAN_CATEGORY_CHIPS } from '@/constants/pelanggan-constants';
 import { usePelangganStore } from '@/lib/pelanggan-store';
 
-const matchesCategory = (tipeFaskes: string, category: string) =>
-  tipeFaskes.toLowerCase().includes(category.toLowerCase());
+const matchesCategory = (tipeOutlet: string, category: string) =>
+  tipeOutlet.toLowerCase().includes(category.toLowerCase());
 
 export function usePelangganList() {
   const pelangganList = usePelangganStore((state) => state.pelangganList);
@@ -23,7 +23,7 @@ export function usePelangganList() {
       ...PELANGGAN_CATEGORY_CHIPS.map((chip) => ({
         ...chip,
         count: pelangganList.filter((p) =>
-          matchesCategory(p.tipe_faskes || p.tipe_outlet, chip.id),
+          matchesCategory(p.tipe_outlet, chip.id),
         ).length,
       })),
     ],
@@ -37,7 +37,7 @@ export function usePelangganList() {
     return pelangganList.filter((item) => {
       if (
         selectedCategory !== 'semua' &&
-        !matchesCategory(item.tipe_faskes || item.tipe_outlet, selectedCategory)
+        !matchesCategory(item.tipe_outlet, selectedCategory)
       ) {
         return false;
       }
@@ -45,7 +45,7 @@ export function usePelangganList() {
       if (!query) return true;
 
       return (
-        (item.nama_faskes || item.nama_outlet).toLowerCase().includes(query) ||
+        item.nama_outlet.toLowerCase().includes(query) ||
         item.alamat.toLowerCase().includes(query) ||
         Boolean(item.kontak_list?.some((k) => k.nama.toLowerCase().includes(query)))
       );

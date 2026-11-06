@@ -90,7 +90,7 @@ export function useKanbanBoard() {
         if (
           q &&
           !ticket.judul.toLowerCase().includes(q) &&
-          !ticket.nama_faskes.toLowerCase().includes(q) &&
+          !ticket.nama_outlet.toLowerCase().includes(q) &&
           !ticket.kode_tiket.toLowerCase().includes(q)
         ) {
           return false;

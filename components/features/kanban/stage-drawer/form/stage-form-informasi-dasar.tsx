@@ -22,7 +22,7 @@ export interface StageFormInformasiDasarProps {
   onJudulChange: (judul: string) => void;
   // Outlet
   selectedPelangganId: string;
-  onFaskesChange: (pelangganId: string) => void;
+  onOutletChange: (pelangganId: string) => void;
   pelangganList: PelangganWithDetails[];
   // PIC Outlet
   picDitemui: string;
@@ -45,7 +45,7 @@ export function StageFormInformasiDasar({
   judulProspek,
   onJudulChange,
   selectedPelangganId,
-  onFaskesChange,
+  onOutletChange,
   pelangganList,
   picDitemui,
   onPicSelect,
@@ -58,12 +58,12 @@ export function StageFormInformasiDasar({
   prioritas,
   onPrioritasChange,
 }: StageFormInformasiDasarProps) {
-  // Opsi dropdown Outlet (Faskes)
+  // Opsi dropdown Outlet
   const outletOptions = React.useMemo(
     () =>
       pelangganList.map((p) => ({
         value: p.id_pelanggan,
-        label: `${p.nama_faskes} (${p.tipe_faskes})`,
+        label: `${p.nama_outlet} (${p.tipe_outlet})`,
       })),
     [pelangganList],
   );
@@ -120,7 +120,7 @@ export function StageFormInformasiDasar({
         isRequired
         placeholder='Pilih Outlet...'
         value={selectedPelangganId}
-        onChange={onFaskesChange}
+        onChange={onOutletChange}
         options={outletOptions}
         triggerClassName='bg-white'
       />

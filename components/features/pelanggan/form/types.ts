@@ -1,6 +1,6 @@
 export interface FormStepProfilData {
-  nama_faskes: string;
-  tipe_faskes: string;
+  nama_outlet: string;
+  tipe_outlet: string;
   alamat: string;
   img_url: string;
 }

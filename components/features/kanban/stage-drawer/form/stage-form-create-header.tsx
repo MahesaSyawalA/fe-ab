@@ -7,7 +7,7 @@ import { StageTextFieldInput, StageSelectInput } from '../inputs';
 
 interface StageFormCreateHeaderProps {
   selectedPelangganId: string;
-  onFaskesChange: (pelangganId: string) => void;
+  onOutletChange: (pelangganId: string) => void;
   pelangganList: PelangganWithDetails[];
   judulProspek: string;
   onJudulChange: (judul: string) => void;
@@ -15,16 +15,16 @@ interface StageFormCreateHeaderProps {
 
 export function StageFormCreateHeader({
   selectedPelangganId,
-  onFaskesChange,
+  onOutletChange,
   pelangganList,
   judulProspek,
   onJudulChange,
 }: StageFormCreateHeaderProps) {
-  const faskesOptions = React.useMemo(
+  const outletOptions = React.useMemo(
     () =>
       pelangganList.map((p) => ({
         value: p.id_pelanggan,
-        label: `${p.nama_faskes} (${p.tipe_faskes})`,
+        label: `${p.nama_outlet} (${p.tipe_outlet})`,
       })),
     [pelangganList],
   );
@@ -37,13 +37,13 @@ export function StageFormCreateHeader({
       </div>
 
       <StageSelectInput
-        label='Fasilitas Kesehatan (Faskes)'
+        label='Outlet Pelanggan'
         name='pelanggan'
         isRequired
-        placeholder='Pilih fasilitas kesehatan...'
+        placeholder='Pilih outlet pelanggan...'
         value={selectedPelangganId}
-        onChange={onFaskesChange}
-        options={faskesOptions}
+        onChange={onOutletChange}
+        options={outletOptions}
         triggerClassName='bg-white'
       />
 

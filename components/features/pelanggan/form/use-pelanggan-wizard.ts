@@ -24,8 +24,8 @@ export function usePelangganWizard({
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const [profilData, setProfilData] = React.useState<FormStepProfilData>({
-    nama_faskes: '',
-    tipe_faskes: 'Rumah Sakit',
+    nama_outlet: '',
+    tipe_outlet: 'Rumah Sakit',
     alamat: '',
     img_url: '',
   });

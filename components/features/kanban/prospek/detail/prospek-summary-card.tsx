@@ -40,7 +40,7 @@ export function ProspekSummaryCard({
           </h2>
           <div className='flex items-center gap-1.5 text-xs text-secondary-foreground'>
             <Building2 className='size-3.5 shrink-0 text-secondary-foreground' />
-            <span className='truncate'>{ticket.nama_faskes}</span>
+            <span className='truncate'>{ticket.nama_outlet}</span>
           </div>
         </div>
 

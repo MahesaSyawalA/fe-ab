@@ -44,7 +44,6 @@ export type {
 export interface TiketWithDetails extends Tiket {
   kode_tiket: string;
   nama_outlet: string;
-  nama_faskes: string;
   nama_pic?: string;
   jabatan_pic?: string;
   no_telp_pic?: string;

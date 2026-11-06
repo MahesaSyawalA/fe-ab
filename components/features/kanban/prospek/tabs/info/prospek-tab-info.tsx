@@ -7,7 +7,7 @@ export function ProspekTabInfo({ ticket }: { ticket: TiketWithDetails }) {
 
   return (
     <CardContent className='flex flex-col divide-y divide-border/60 p-0'>
-      <ProspekInfoRow label='Pelanggan' value={ticket.nama_faskes} />
+      <ProspekInfoRow label='Pelanggan' value={ticket.nama_outlet} />
       <ProspekInfoRow
         label='Kontak PIC'
         value={ticket.nama_pic || 'Bpk. Hendra Wijaya'}
