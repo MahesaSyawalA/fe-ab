@@ -1,5 +1,7 @@
+import { Suspense } from 'react';
 import Image from 'next/image';
 import { LoginForm } from '@/components/features/auth/forms/login-form';
+import { Spinner } from '@heroui/react';
 
 export default function LoginPage() {
     return (
@@ -28,7 +30,9 @@ export default function LoginPage() {
                 </div>
             </div>
 
-            <LoginForm />
+            <Suspense fallback={<div className='mt-8 flex justify-center py-8'><Spinner size='md' /></div>}>
+                <LoginForm />
+            </Suspense>
         </div>
     );
 }

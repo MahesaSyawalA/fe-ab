@@ -2,11 +2,15 @@ import axios, { isAxiosError } from 'axios';
 import { getSession, signOut } from 'next-auth/react';
 import type { ApiErrorResponse } from '@/types/api.types';
 
+const rawBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+const baseURL = rawBaseUrl.endsWith('/') ? rawBaseUrl.slice(0, -1) : rawBaseUrl;
+
 export const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api',
+  baseURL,
   headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json',
+    'ngrok-skip-browser-warning': 'true',
   },
   timeout: 30000,
 });

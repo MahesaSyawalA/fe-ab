@@ -1,5 +1,7 @@
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
+import { isAxiosError } from 'axios';
+import { api, getErrorMessage } from '@/lib/axios';
 import { type UserRole } from '@/types/user.types';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -15,34 +17,80 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return null;
         }
 
-        const email = String(credentials.email).toLowerCase();
+        const targetUrl = `${api.defaults.baseURL}/auth/login`;
+        console.log('[DEBUG AUTH] Target URL:', targetUrl);
+        console.log('[DEBUG AUTH] Request Payload:', { email: credentials.email });
 
-        // Mock kredensial adaptif per-role berdasarkan email untuk testing/development
-        let role: UserRole = 'sales';
-        let nama = 'Sales Representative';
-        let id_squad: string | null = 'sq-1';
+        try {
+          const response = await api.post('/auth/login', {
+            email: credentials.email,
+            password: credentials.password,
+          });
 
-        if (email.includes('manager')) {
-          role = 'sales_manager';
-          nama = 'Sales Manager';
-          id_squad = 'sq-1';
-        } else if (email.includes('director') || email.includes('direktur')) {
-          role = 'director';
-          nama = 'Direktur Utama';
-          id_squad = null;
+          const resJson = response.data;
+          const userObj = resJson?.data;
+
+          if (!userObj || !userObj.id_user) {
+            console.error('[Auth Login] Data user tidak ditemukan dalam respons:', resJson);
+            return null;
+          }
+
+          // Tangkap cookies dari header backend
+          const rawHeader = response.headers['set-cookie'];
+          const rawCookies: string[] = Array.isArray(rawHeader)
+            ? rawHeader
+            : typeof rawHeader === 'string'
+              ? [rawHeader]
+              : [];
+
+          let extractedAccessToken = '';
+          let extractedRefreshToken = '';
+
+          for (const cookieStr of rawCookies) {
+            if (cookieStr.includes('access_token=') || cookieStr.includes('accessToken=')) {
+              const match = cookieStr.match(/(?:access_token|accessToken)=([^;]+)/);
+              if (match) extractedAccessToken = match[1];
+            }
+            if (cookieStr.includes('refresh_token=') || cookieStr.includes('refreshToken=')) {
+              const match = cookieStr.match(/(?:refresh_token|refreshToken)=([^;]+)/);
+              if (match) extractedRefreshToken = match[1];
+            }
+          }
+
+          // Fallback aman jika backend menggunakan custom cookie key atau body token
+          const accessToken =
+            extractedAccessToken ||
+            resJson?.accessToken ||
+            resJson?.token ||
+            userObj.accessToken ||
+            `cookie-session-${userObj.id_user}-${Date.now()}`;
+
+          const refreshToken =
+            extractedRefreshToken ||
+            resJson?.refreshToken ||
+            userObj.refreshToken ||
+            undefined;
+
+          return {
+            id: String(userObj.id_user),
+            id_user: String(userObj.id_user),
+            name: String(userObj.nama),
+            nama: String(userObj.nama),
+            email: String(userObj.email),
+            role: userObj.role as UserRole,
+            id_squad: userObj.id_squad ?? null,
+            accessToken,
+            refreshToken,
+          };
+        } catch (error) {
+          if (isAxiosError(error)) {
+            console.error('[DEBUG AUTH ERROR] Status:', error.response?.status);
+            console.error('[DEBUG AUTH ERROR] Config URL:', error.config?.baseURL, error.config?.url);
+            console.error('[DEBUG AUTH ERROR] Response Data:', error.response?.data);
+          }
+          console.error('[Auth Login Error]:', getErrorMessage(error));
+          return null;
         }
-
-        return {
-          id: 'usr-1',
-          id_user: 'usr-1',
-          name: nama,
-          nama,
-          email,
-          role,
-          id_squad,
-          accessToken: `mock-access-token-${Date.now()}`,
-          refreshToken: `mock-refresh-token-${Date.now()}`,
-        };
       },
     }),
   ],
