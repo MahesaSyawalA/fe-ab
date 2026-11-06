@@ -1,5 +1,5 @@
+import { SquadView } from '@/components/features/squad/squad-view';
+
 export default function DirectorSquadPage() {
-    return (
-        <div>DirectorSquadPage</div>
-    )
+  return <SquadView basePath='/director/squad' />;
 }
