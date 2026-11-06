@@ -1,5 +1,6 @@
-import axios, { isAxiosError } from 'axios';
+import axios, { isAxiosError, type InternalAxiosRequestConfig } from 'axios';
 import { getSession, signOut } from 'next-auth/react';
+import { logoutUser } from '@/lib/auth-helpers';
 import type { ApiErrorResponse } from '@/types/api.types';
 
 const rawBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
@@ -7,6 +8,7 @@ const baseURL = rawBaseUrl.endsWith('/') ? rawBaseUrl.slice(0, -1) : rawBaseUrl;
 
 export const api = axios.create({
   baseURL,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json',
@@ -15,10 +17,29 @@ export const api = axios.create({
   timeout: 30000,
 });
 
-// Request Interceptor: Menyematkan Bearer token dari Session Auth.js secara otomatis
+// Mutex & antrean (queue) untuk menahan request paralel saat proses refresh token berlangsung
+interface QueueItem {
+  resolve: (value?: unknown) => void;
+  reject: (reason?: unknown) => void;
+}
+
+let isRefreshing = false;
+let failedQueue: QueueItem[] = [];
+
+const processQueue = (error: unknown = null) => {
+  failedQueue.forEach((item) => {
+    if (error) {
+      item.reject(error);
+    } else {
+      item.resolve();
+    }
+  });
+  failedQueue = [];
+};
+
+// Request Interceptor: Menyematkan Bearer token dari Session Auth.js secara otomatis jika tersedia
 api.interceptors.request.use(
   async (config) => {
-    // Jalankan penyematan token hanya jika di lingkungan browser dan header belum diisi secara manual
     if (typeof window !== 'undefined' && !config.headers.Authorization) {
       try {
         const session = await getSession();
@@ -35,18 +56,94 @@ api.interceptors.request.use(
   (error) => Promise.reject(error),
 );
 
-// Response Interceptor: Penanganan terpusat untuk 401 Unauthorized dan 403 Forbidden
+// Response Interceptor: Silent Token Refresh & Penanganan Error Terpusat
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    if (error.response?.status === 401) {
-      console.error('[HTTP 401] Token expired atau tidak valid. Mengarahkan ke halaman login...');
+    const originalRequest = error.config as (InternalAxiosRequestConfig & { _retry?: boolean }) | undefined;
 
-      if (typeof window !== 'undefined') {
-        // Hindari loop redirect jika user sudah berada di halaman login
-        if (!window.location.pathname.startsWith('/login')) {
-          await signOut({ callbackUrl: '/login', redirect: true });
+    // Jika tidak ada config request atau respons bukan error, teruskan reject
+    if (!originalRequest) {
+      return Promise.reject(error);
+    }
+
+    const requestUrl = originalRequest.url || '';
+    const isAuthEndpoint =
+      requestUrl.includes('/auth/login') ||
+      requestUrl.includes('/auth/refresh') ||
+      requestUrl.includes('/auth/logout');
+
+    // Tangani HTTP 401 Unauthorized (kecuali pada endpoint auth itu sendiri untuk cegah infinite loop)
+    if (error.response?.status === 401 && !isAuthEndpoint) {
+      // 1. Jika request sudah pernah di-retry dan tetap 401, jangan ulangi lagi
+      if (originalRequest._retry) {
+        if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
+          await logoutUser();
         }
+        return Promise.reject(error);
+      }
+
+      // 2. Jika proses refresh sedang berjalan oleh request lain, antrekan request ini
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then(() => api(originalRequest))
+          .catch((err) => Promise.reject(err));
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        // 3. Panggil endpoint silent refresh backend (dengan withCredentials agar cookie dikirim)
+        const refreshResponse = await axios.post(
+          `${baseURL}/auth/refresh`,
+          {},
+          {
+            withCredentials: true,
+            headers: {
+              'Content-Type': 'application/json',
+              Accept: 'application/json',
+              'ngrok-skip-browser-warning': 'true',
+            },
+          },
+        );
+
+        // Ekstrak token baru jika backend mengembalikan token pada body respons
+        const resData = refreshResponse.data?.data || refreshResponse.data;
+        const newAccessToken =
+          resData?.accessToken ||
+          resData?.tokens?.accessToken ||
+          resData?.token;
+
+        if (newAccessToken && originalRequest.headers) {
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        }
+
+        // Selesaikan semua antrean request yang menunggu
+        processQueue(null);
+
+        // Replay (ulangi) request awal yang sempat gagal
+        return api(originalRequest);
+      } catch (refreshError) {
+        // Refresh token kedaluwarsa atau server menolak refresh -> bersihkan antrean & logout
+        processQueue(refreshError);
+
+        console.error('[Silent Refresh Failed] Sesi kedaluwarsa. Mengarahkan ke login...');
+        if (typeof window !== 'undefined') {
+          if (!window.location.pathname.startsWith('/login')) {
+            try {
+              await logoutUser();
+            } catch {
+              await signOut({ callbackUrl: '/login', redirect: true });
+            }
+          }
+        }
+
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
       }
     } else if (error.response?.status === 403) {
       console.warn('[HTTP 403] Akses ditolak. Pengguna tidak memiliki izin untuk tindakan ini.');
