@@ -37,6 +37,8 @@ export const PELANGGAN_CATEGORY_CHIPS = [
 export const INITIAL_PELANGGAN_LIST: PelangganWithDetails[] = [
   {
     id_pelanggan: 'plg-1',
+    nama_outlet: 'RS Harapan Sehat',
+    tipe_outlet: 'Rumah Sakit',
     nama_faskes: 'RS Harapan Sehat',
     tipe_faskes: 'Rumah Sakit',
     alamat: 'Jl. Salemba Raya No. 42A, Kenari, Senen, Jakarta Pusat 10430',
@@ -93,6 +95,8 @@ export const INITIAL_PELANGGAN_LIST: PelangganWithDetails[] = [
   },
   {
     id_pelanggan: 'plg-2',
+    nama_outlet: 'Klinik Medika Prima',
+    tipe_outlet: 'Klinik',
     nama_faskes: 'Klinik Medika Prima',
     tipe_faskes: 'Klinik',
     alamat:
@@ -126,6 +130,8 @@ export const INITIAL_PELANGGAN_LIST: PelangganWithDetails[] = [
   },
   {
     id_pelanggan: 'plg-3',
+    nama_outlet: 'RS Harapan Sehat',
+    tipe_outlet: 'Apotek',
     nama_faskes: 'RS Harapan Sehat',
     tipe_faskes: 'Apotek',
     alamat: 'Jl. Kramat Raya No. 88, Kwitang, Senen, Jakarta Pusat 10420',
@@ -145,6 +151,8 @@ export const INITIAL_PELANGGAN_LIST: PelangganWithDetails[] = [
   },
   {
     id_pelanggan: 'plg-4',
+    nama_outlet: 'RS Pelni Jakarta',
+    tipe_outlet: 'Rumah Sakit',
     nama_faskes: 'RS Pelni Jakarta',
     tipe_faskes: 'Rumah Sakit',
     alamat: 'Jl. Ks. Tubun No. 92-94, Slipi, Palmerah, Jakarta Barat 11410',
@@ -189,6 +197,8 @@ export const INITIAL_PELANGGAN_LIST: PelangganWithDetails[] = [
   },
   {
     id_pelanggan: 'plg-5',
+    nama_outlet: 'RSUD Soreang',
+    tipe_outlet: 'Rumah Sakit',
     nama_faskes: 'RSUD Soreang',
     tipe_faskes: 'Rumah Sakit',
     alamat: 'Jl. Al-Fathu No. 9, Soreang, Kab. Bandung, Jawa Barat 40911',
@@ -221,6 +231,8 @@ export const INITIAL_PELANGGAN_LIST: PelangganWithDetails[] = [
   },
   {
     id_pelanggan: 'plg-6',
+    nama_outlet: 'RS Hasan Sadikin',
+    tipe_outlet: 'Rumah Sakit',
     nama_faskes: 'RS Hasan Sadikin',
     tipe_faskes: 'Rumah Sakit',
     alamat: 'Jl. Pasteur No. 38, Pasteur, Kec. Sukajadi, Kota Bandung 40161',

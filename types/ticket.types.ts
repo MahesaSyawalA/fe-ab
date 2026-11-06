@@ -1,5 +1,13 @@
-import { Aktivitas } from './activity.types';
-import { RiwayatTahap } from './stage-history.types';
+import type {
+  Aktivitas,
+  AktivitasWithDetails,
+  EvidenceItem,
+  JenisEvidence,
+} from './activity.types';
+import type {
+  RiwayatTahap,
+  RiwayatTahapWithDetails,
+} from './stage-history.types';
 
 export type TiketStatus = 'open' | 'won' | 'lost';
 export type TiketPrioritas = 'rendah' | 'sedang' | 'tinggi';
@@ -24,40 +32,18 @@ export interface Tiket {
   updated_at: Date | string;
 }
 
-export type JenisEvidence = 'foto' | 'audio' | 'dokumen' | 'teks';
-
-export interface EvidenceItem {
-  id?: string;
-  tipe: JenisEvidence;
-  nama_file?: string;
-  ukuran_file?: string;
-  durasi_audio?: string;
-  deskripsi: string;
-  url_preview?: string;
-  jenis?: JenisEvidence;
-  waktu_upload?: string;
-  file_size?: string;
-  durasi_detik?: number;
-  catatan?: string;
-  url_file?: string;
-}
-
-export interface AktivitasWithDetails extends Aktivitas {
-  nama_petugas: string;
-  pic_ditemui: string;
-  waktu_label: string;
-  evidence?: EvidenceItem | null;
-}
-
-export interface RiwayatTahapWithDetails extends RiwayatTahap {
-  nama_tahap_asal: string | null;
-  nama_tahap_tujuan: string;
-  nama_user: string;
-  waktu_label: string;
-}
+export type {
+  Aktivitas,
+  JenisEvidence,
+  EvidenceItem,
+  AktivitasWithDetails,
+  RiwayatTahap,
+  RiwayatTahapWithDetails,
+};
 
 export interface TiketWithDetails extends Tiket {
   kode_tiket: string;
+  nama_outlet: string;
   nama_faskes: string;
   nama_pic?: string;
   jabatan_pic?: string;

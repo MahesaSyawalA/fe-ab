@@ -22,8 +22,9 @@ export function usePelangganList() {
       },
       ...PELANGGAN_CATEGORY_CHIPS.map((chip) => ({
         ...chip,
-        count: pelangganList.filter((p) => matchesCategory(p.tipe_faskes, chip.id))
-          .length,
+        count: pelangganList.filter((p) =>
+          matchesCategory(p.tipe_faskes || p.tipe_outlet, chip.id),
+        ).length,
       })),
     ],
     [pelangganList],
@@ -36,7 +37,7 @@ export function usePelangganList() {
     return pelangganList.filter((item) => {
       if (
         selectedCategory !== 'semua' &&
-        !matchesCategory(item.tipe_faskes, selectedCategory)
+        !matchesCategory(item.tipe_faskes || item.tipe_outlet, selectedCategory)
       ) {
         return false;
       }
@@ -44,7 +45,7 @@ export function usePelangganList() {
       if (!query) return true;
 
       return (
-        item.nama_faskes.toLowerCase().includes(query) ||
+        (item.nama_faskes || item.nama_outlet).toLowerCase().includes(query) ||
         item.alamat.toLowerCase().includes(query) ||
         Boolean(item.kontak_list?.some((k) => k.nama.toLowerCase().includes(query)))
       );

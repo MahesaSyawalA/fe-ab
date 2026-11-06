@@ -50,7 +50,8 @@ export function useStageActivityForm({
       pelangganList.find(
         (p) =>
           p.id_pelanggan === ticket?.id_pelanggan ||
-          p.nama_faskes.toLowerCase() === ticket?.nama_faskes.toLowerCase(),
+          (p.nama_faskes || p.nama_outlet).toLowerCase() ===
+            (ticket?.nama_faskes || ticket?.nama_outlet || '').toLowerCase(),
       ) || null
     );
   }, [mode, selectedPelangganId, ticket, pelangganList]);
@@ -219,7 +220,8 @@ export function useStageActivityForm({
     const matchedPelanggan = pelangganList.find(
       (p) =>
         p.id_pelanggan === ticket.id_pelanggan ||
-        p.nama_faskes.toLowerCase() === ticket.nama_faskes.toLowerCase(),
+        (p.nama_faskes || p.nama_outlet).toLowerCase() ===
+          (ticket.nama_faskes || ticket.nama_outlet).toLowerCase(),
     );
     if (matchedPelanggan) {
       setSelectedPelangganId(matchedPelanggan.id_pelanggan);

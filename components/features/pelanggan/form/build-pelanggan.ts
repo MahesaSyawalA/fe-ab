@@ -16,6 +16,8 @@ export function buildPelanggan(
 
   return {
     id_pelanggan: newId,
+    nama_outlet: profil.nama_faskes || 'RS Harapan Baru',
+    tipe_outlet: profil.tipe_faskes,
     nama_faskes: profil.nama_faskes || 'RS Harapan Baru',
     tipe_faskes: profil.tipe_faskes,
     alamat:
@@ -39,6 +41,8 @@ export function buildPelanggan(
       jabatan: c.jabatan,
       no_telp: c.no_telp,
       email: c.email,
+      kategori_peran: null,
+      inisial: null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     })),

@@ -48,6 +48,8 @@ export function StageFormVisit({
         jabatan: jabatanPic || 'PIC Outlet',
         no_telp: '',
         email: '',
+        kategori_peran: null,
+        inisial: null,
         created_at: '',
         updated_at: '',
       });

@@ -11,12 +11,12 @@ export interface PicCardProps {
   jabatan: string;
   noTelp: string;
   email?: string;
-  kategoriPeran?: string;
-  inisial?: string;
+  kategoriPeran?: string | null;
+  inisial?: string | null;
   className?: string;
 }
 
-function getInitials(name: string, customInitials?: string): string {
+function getInitials(name: string, customInitials?: string | null): string {
   if (customInitials) return customInitials;
   const cleaned = name
     .replace(/^(dr\.|drs\.|prof\.|ir\.|h\.|hj\.)\s*/i, '')
