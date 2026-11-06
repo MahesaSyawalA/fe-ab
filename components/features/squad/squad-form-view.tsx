@@ -29,41 +29,43 @@ export function SquadFormView({ basePath, squad }: SquadFormViewProps) {
   const { errors } = formState;
 
   return (
-    <div className='mx-auto flex w-full max-w-xl min-w-0 flex-col gap-4 pb-12 md:max-w-3xl'>
+    <div className='mx-auto flex w-full min-w-0 flex-1 flex-col gap-4 md:max-w-3xl md:pb-12'>
       <SubpageHeader
         title={s.isEdit ? 'Edit Squad' : 'Tambah Squad Baru'}
         onBack={s.requestCancel}
       />
 
-      <form onSubmit={s.onSubmit} noValidate className='flex flex-col gap-4 px-4 md:px-0'>
-        <FormField label='Nama Squad' required error={errors.nama_squad?.message}>
-          <Input {...register('nama_squad')} placeholder='Team Eca' className={inputClass} />
-        </FormField>
+      <form onSubmit={s.onSubmit} noValidate className='flex flex-1 flex-col gap-4 px-4 pt-2 md:px-0 md:pt-0'>
+        <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+          <FormField label='Nama Squad' required error={errors.nama_squad?.message}>
+            <Input {...register('nama_squad')} placeholder='Team Eca' className={inputClass} />
+          </FormField>
 
-        <FormField label='Supervisor' required error={errors.id_supervisor?.message}>
-          <Controller
-            control={control}
-            name='id_supervisor'
-            render={({ field }) => (
-              <NativeSelect {...field}>
-                <option value=''>Pilih Supervisor</option>
-                {s.supervisors.map((u) => (
-                  <option key={u.id_user} value={u.id_user}>
-                    {u.nama}
-                  </option>
-                ))}
-              </NativeSelect>
-            )}
-          />
-        </FormField>
+          <FormField label='Supervisor' required error={errors.id_supervisor?.message}>
+            <Controller
+              control={control}
+              name='id_supervisor'
+              render={({ field }) => (
+                <NativeSelect {...field}>
+                  <option value=''>Pilih Supervisor</option>
+                  {s.supervisors.map((u) => (
+                    <option key={u.id_user} value={u.id_user}>
+                      {u.nama}
+                    </option>
+                  ))}
+                </NativeSelect>
+              )}
+            />
+          </FormField>
 
-        <FormField label='Kode Squad' required error={errors.kode_squad?.message}>
-          <Input {...register('kode_squad')} placeholder='S0123' className={inputClass} />
-        </FormField>
+          <FormField label='Kode Squad' required error={errors.kode_squad?.message}>
+            <Input {...register('kode_squad')} placeholder='S0123' className={inputClass} />
+          </FormField>
 
-        <FormField label='Wilayah' required error={errors.wilayah?.message}>
-          <Input {...register('wilayah')} placeholder='Bandung' className={inputClass} />
-        </FormField>
+          <FormField label='Wilayah' required error={errors.wilayah?.message}>
+            <Input {...register('wilayah')} placeholder='Bandung' className={inputClass} />
+          </FormField>
+        </div>
 
         <div className='flex items-center justify-between'>
           <span className='text-sm font-semibold text-foreground'>
@@ -111,7 +113,11 @@ export function SquadFormView({ basePath, squad }: SquadFormViewProps) {
           <p className='text-xs font-medium text-destructive'>{errors.root.server.message}</p>
         )}
 
-        <FormActions onCancel={s.requestCancel} isSubmitting={s.isSubmitting} />
+        <FormActions
+          onCancel={s.requestCancel}
+          isSubmitting={s.isSubmitting}
+          className='-mx-4 mt-auto px-4 sm:mx-0 sm:mt-2 sm:px-0'
+        />
       </form>
 
       <SquadMemberPicker

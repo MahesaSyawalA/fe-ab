@@ -14,9 +14,9 @@ interface RoleLayoutShellProps {
 export function RoleLayoutShell({ role, children }: RoleLayoutShellProps) {
   const pathname = usePathname();
 
-  // Standalone full-screen pages (e.g. /pelanggan/tambah, /pelanggan/[id], /kanban/tambah, /kanban/[id])
+  // Standalone full-screen pages (e.g. /pelanggan/tambah, /kanban/[id], /squad/tambah, /squad/[id]/edit)
   // render without Sidebar and without AppHeader
-  const isStandaloneSubpage = /\/(pelanggan|kanban)\/.+/.test(pathname);
+  const isStandaloneSubpage = /\/(pelanggan|kanban|squad)\/.+/.test(pathname);
 
   if (isStandaloneSubpage) {
     return (
