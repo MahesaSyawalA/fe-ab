@@ -60,11 +60,11 @@ export function useCreatePelangganMutation(
     ...options,
     mutationFn: (payload: CreatePelangganInput) => pelangganService.create(payload),
     onSuccess: async (...args) => {
-      await queryClient.invalidateQueries({ queryKey: pelangganKeys.lists() });
+      await queryClient.invalidateQueries({ queryKey: pelangganKeys.all });
       await options?.onSuccess?.(...args);
     },
     onError: (...args) => {
-      console.error('[Create Pelanggan Error]:', getErrorMessage(args[0]));
+      console.warn('[Create Pelanggan Error]:', getErrorMessage(args[0]));
       options?.onError?.(...args);
     },
   });
@@ -80,12 +80,30 @@ export function useUpdatePelangganMutation(
     ...options,
     mutationFn: (payload: UpdatePelangganInput) => pelangganService.update(id, payload),
     onSuccess: async (...args) => {
-      await queryClient.invalidateQueries({ queryKey: pelangganKeys.detail(id) });
-      await queryClient.invalidateQueries({ queryKey: pelangganKeys.lists() });
+      await queryClient.invalidateQueries({ queryKey: pelangganKeys.all });
       await options?.onSuccess?.(...args);
     },
     onError: (...args) => {
-      console.error('[Update Pelanggan Error]:', getErrorMessage(args[0]));
+      console.warn('[Update Pelanggan Error]:', getErrorMessage(args[0]));
+      options?.onError?.(...args);
+    },
+  });
+}
+
+export function useDeletePelangganMutation(
+  options?: UseMutationOptions<ApiResponse<null>, Error, string>,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...options,
+    mutationFn: (id: string) => pelangganService.delete(id),
+    onSuccess: async (...args) => {
+      await queryClient.invalidateQueries({ queryKey: pelangganKeys.all });
+      await options?.onSuccess?.(...args);
+    },
+    onError: (...args) => {
+      console.warn('[Delete Pelanggan Error]:', getErrorMessage(args[0]));
       options?.onError?.(...args);
     },
   });

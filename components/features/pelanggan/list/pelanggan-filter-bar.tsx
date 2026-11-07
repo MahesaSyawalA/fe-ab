@@ -9,6 +9,7 @@ interface PelangganFilterBarProps {
   filterChips: ChipFilterItem[];
   onOpenFilterModal?: () => void;
   activeFilterCount?: number;
+  placeholder?: string;
 }
 
 export function PelangganFilterBar({
@@ -19,11 +20,13 @@ export function PelangganFilterBar({
   filterChips,
   onOpenFilterModal,
   activeFilterCount,
+  placeholder = 'Cari nama outlet, alamat...',
 }: PelangganFilterBarProps) {
   return (
     <SearchFilterBar
       searchQuery={searchQuery}
       onSearchChange={onSearchChange}
+      placeholder={placeholder}
       selectedCategory={selectedCategory}
       onCategoryChange={onCategoryChange}
       filterChips={filterChips}

@@ -6,7 +6,7 @@ interface ListPageHeaderProps {
   title: string;
   subtitle: string;
   addLabel: string;
-  onAddClick: () => void;
+  onAddClick?: () => void;
 }
 
 export function ListPageHeader({ title, subtitle, addLabel, onAddClick }: ListPageHeaderProps) {
@@ -19,13 +19,15 @@ export function ListPageHeader({ title, subtitle, addLabel, onAddClick }: ListPa
         <p className='text-xs sm:text-sm text-secondary-foreground'>{subtitle}</p>
       </div>
 
-      <Button
-        onClick={onAddClick}
-        className='h-9.5 rounded-md bg-primary-default hover:bg-primary-hover active:bg-primary data-[pressed=true]:bg-primary font-semibold text-xs px-4 gap-1.5 text-white shadow-sm disabled:opacity-50 transition-all cursor-pointer self-start sm:self-auto'
-      >
-        <Plus className='size-3.5 stroke-[2.5]' />
-        {addLabel}
-      </Button>
+      {onAddClick && (
+        <Button
+          onClick={onAddClick}
+          className='h-9.5 rounded-md bg-primary-default hover:bg-primary-hover active:bg-primary data-[pressed=true]:bg-primary font-semibold text-xs px-4 gap-1.5 text-white shadow-sm disabled:opacity-50 transition-all cursor-pointer self-start sm:self-auto'
+        >
+          <Plus className='size-3.5 stroke-[2.5]' />
+          {addLabel}
+        </Button>
+      )}
     </div>
   );
 }

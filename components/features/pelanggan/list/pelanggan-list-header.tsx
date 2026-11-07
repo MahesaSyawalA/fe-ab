@@ -3,7 +3,7 @@ import { ListPageHeader } from '@/components/ui/list-page-header';
 interface PelangganListHeaderProps {
   title?: string;
   subtitle?: string;
-  onAddClick: () => void;
+  onAddClick?: () => void;
 }
 
 export function PelangganListHeader({

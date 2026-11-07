@@ -1,18 +1,31 @@
 import * as React from 'react';
 import { ChipFilterItem } from '@/components/ui/chip-filter';
 import { PELANGGAN_CATEGORY_CHIPS } from '@/constants/pelanggan-constants';
-import { usePelangganStore } from '@/lib/pelanggan-store';
+import { usePelangganListQuery } from '@/hooks/queries';
 import {
   usePelangganFilterStore,
   countActivePelangganFilters,
 } from '@/store/pelanggan-filter-store';
+import type { PelangganWithDetails } from '@/types/customer.types';
 
-const matchesCategory = (tipeOutlet: string, category: string) =>
-  tipeOutlet.toLowerCase().includes(category.toLowerCase());
+const normalizeStr = (str: string) =>
+  str
+    .toLowerCase()
+    .replace(/[_\s-]+/g, ' ')
+    .trim();
+
+export const matchesCategory = (
+  tipeOutlet?: string | null,
+  category?: string | null,
+) => {
+  if (!category || category === 'semua') return true;
+  if (!tipeOutlet) return false;
+  const t = normalizeStr(tipeOutlet);
+  const c = normalizeStr(category);
+  return t === c || t.includes(c) || c.includes(t);
+};
 
 export function usePelangganList() {
-  const pelangganList = usePelangganStore((state) => state.pelangganList);
-
   const {
     searchQuery,
     tipeOutlet: selectedCategory,
@@ -25,6 +38,58 @@ export function usePelangganList() {
 
   const activeFilterCount = countActivePelangganFilters(selectedCategory);
 
+  const queryParams = React.useMemo(
+    () => ({
+      search: searchQuery.trim() || undefined,
+      tipe_outlet: selectedCategory === 'semua' ? undefined : selectedCategory,
+    }),
+    [searchQuery, selectedCategory],
+  );
+
+  const query = usePelangganListQuery(queryParams);
+
+  const rawList = query.data?.data;
+  const pelangganList: PelangganWithDetails[] = React.useMemo(() => {
+    if (Array.isArray(rawList)) return rawList;
+    if (Array.isArray(query.data)) return query.data as unknown as PelangganWithDetails[];
+    return [];
+  }, [rawList, query.data]);
+
+  // Client-side filtering fallback: memastikan hasil filter & search selalu akurat di UI
+  // meskipun backend endpoint mengembalikan seluruh dataset tanpa filter DB.
+  const filteredList = React.useMemo(() => {
+    const queryStr = searchQuery.trim().toLowerCase();
+
+    return pelangganList.filter((item) => {
+      // 1. Filter Tipe Outlet
+      if (
+        selectedCategory &&
+        selectedCategory !== 'semua' &&
+        !matchesCategory(item.tipe_outlet, selectedCategory)
+      ) {
+        return false;
+      }
+
+      // 2. Filter Search Query (nama outlet, alamat, nama kontak)
+      if (queryStr) {
+        const matchNama = item.nama_outlet?.toLowerCase().includes(queryStr);
+        const matchAlamat = item.alamat?.toLowerCase().includes(queryStr);
+        const matchKontak = Boolean(
+          item.kontak_list?.some((k) =>
+            k.nama?.toLowerCase().includes(queryStr),
+          ),
+        );
+
+        if (!matchNama && !matchAlamat && !matchKontak) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }, [pelangganList, selectedCategory, searchQuery]);
+
+  // Hitung ulang badge counter pada filter chips secara dinamis berdasarkan seluruh data riil
   const filterChips: ChipFilterItem[] = React.useMemo(
     () => [
       {
@@ -43,28 +108,6 @@ export function usePelangganList() {
     [pelangganList],
   );
 
-  const filteredList = React.useMemo(() => {
-    // Hanya cek kosong yang di-trim; pencocokan memakai teks apa adanya (perilaku asli).
-    const query = searchQuery.trim() ? searchQuery.toLowerCase() : '';
-
-    return pelangganList.filter((item) => {
-      if (
-        selectedCategory !== 'semua' &&
-        !matchesCategory(item.tipe_outlet, selectedCategory)
-      ) {
-        return false;
-      }
-
-      if (!query) return true;
-
-      return (
-        item.nama_outlet.toLowerCase().includes(query) ||
-        item.alamat.toLowerCase().includes(query) ||
-        Boolean(item.kontak_list?.some((k) => k.nama.toLowerCase().includes(query)))
-      );
-    });
-  }, [pelangganList, selectedCategory, searchQuery]);
-
   return {
     searchQuery,
     setSearchQuery,
@@ -72,6 +115,12 @@ export function usePelangganList() {
     setSelectedCategory,
     filterChips,
     filteredList,
+    pelangganList,
+    isLoading: query.isLoading,
+    isFetching: query.isFetching,
+    isError: query.isError,
+    error: query.error,
+    refetch: query.refetch,
     isFilterDrawerOpen,
     setFilterDrawerOpen,
     activeFilterCount,

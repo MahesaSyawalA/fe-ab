@@ -32,6 +32,7 @@ export const PELANGGAN_CATEGORY_CHIPS = [
   { id: 'Rumah Sakit', label: 'Rumah Sakit', dotColor: 'bg-kanban-pink' },
   { id: 'Klinik', label: 'Klinik', dotColor: 'bg-kanban-orange' },
   { id: 'Apotek', label: 'Apotek', dotColor: 'bg-kanban-green' },
+  { id: 'Individu', label: 'Individu', dotColor: 'bg-kanban-lightblue' },
 ];
 
 export const INITIAL_PELANGGAN_LIST: PelangganWithDetails[] = [

@@ -1,5 +1,5 @@
+import { PelangganView } from '@/components/features/pelanggan/pelanggan-view';
+
 export default function DirectorPelangganPage() {
-    return (
-        <div>DirectorPelangganPage</div>
-    )
+  return <PelangganView basePath='/director/pelanggan' />;
 }
