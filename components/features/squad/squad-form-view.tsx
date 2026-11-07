@@ -5,12 +5,10 @@ import { UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ConfirmModal } from '@/components/ui/confirm-modal';
 import { FormActions } from '@/components/ui/form-actions';
-import { FormField } from '@/components/ui/form-field';
-import { Input } from '@/components/ui/input';
-import { NativeSelect } from '@/components/ui/native-select';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { Switch } from '@/components/ui/switch';
 import type { SquadWithDetails } from '@/types/squad.types';
+import { SquadTextFieldInput, SquadSelectInput } from './inputs';
 import { SquadMemberCard } from './form/squad-member-card';
 import { SquadMemberPicker } from './form/squad-member-picker';
 import { useSquadForm } from './form/use-squad-form';
@@ -21,11 +19,9 @@ interface SquadFormViewProps {
   squad?: SquadWithDetails;
 }
 
-const inputClass = 'h-10 rounded-xl border-border bg-card text-xs shadow-2xs';
-
 export function SquadFormView({ basePath, squad }: SquadFormViewProps) {
   const s = useSquadForm({ basePath, squad });
-  const { register, control, formState } = s.form;
+  const { control, formState } = s.form;
   const { errors } = formState;
 
   return (
@@ -37,34 +33,80 @@ export function SquadFormView({ basePath, squad }: SquadFormViewProps) {
 
       <form onSubmit={s.onSubmit} noValidate className='flex flex-1 flex-col gap-4 px-4 pt-2 md:px-0 md:pt-0'>
         <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-          <FormField label='Nama Squad' required error={errors.nama_squad?.message}>
-            <Input {...register('nama_squad')} placeholder='Team Eca' className={inputClass} />
-          </FormField>
+          <Controller
+            control={control}
+            name='nama_squad'
+            render={({ field, fieldState: { error } }) => (
+              <SquadTextFieldInput
+                label='Nama Squad'
+                isRequired
+                placeholder='Team Eca'
+                value={field.value}
+                onChange={field.onChange}
+                isInvalid={Boolean(error)}
+                errorMessage={error?.message}
+                disabled={s.isSubmitting}
+              />
+            )}
+          />
 
-          <FormField label='Supervisor' required error={errors.id_supervisor?.message}>
-            <Controller
-              control={control}
-              name='id_supervisor'
-              render={({ field }) => (
-                <NativeSelect {...field}>
-                  <option value=''>Pilih Supervisor</option>
-                  {s.supervisors.map((u) => (
-                    <option key={u.id_user} value={u.id_user}>
-                      {u.nama}
-                    </option>
-                  ))}
-                </NativeSelect>
-              )}
-            />
-          </FormField>
+          <Controller
+            control={control}
+            name='id_supervisor'
+            render={({ field, fieldState: { error } }) => (
+              <SquadSelectInput
+                label='Supervisor'
+                isRequired
+                placeholder='Pilih Supervisor'
+                value={field.value}
+                onChange={field.onChange}
+                options={[
+                  { value: '', label: 'Pilih Supervisor' },
+                  ...s.supervisors.map((u) => ({
+                    value: u.id_user,
+                    label: u.nama,
+                  })),
+                ]}
+                isInvalid={Boolean(error)}
+                errorMessage={error?.message}
+                isDisabled={s.isSubmitting}
+              />
+            )}
+          />
 
-          <FormField label='Kode Squad' required error={errors.kode_squad?.message}>
-            <Input {...register('kode_squad')} placeholder='S0123' className={inputClass} />
-          </FormField>
+          <Controller
+            control={control}
+            name='kode_squad'
+            render={({ field, fieldState: { error } }) => (
+              <SquadTextFieldInput
+                label='Kode Squad'
+                isRequired
+                placeholder='S0123'
+                value={field.value}
+                onChange={field.onChange}
+                isInvalid={Boolean(error)}
+                errorMessage={error?.message}
+                disabled={s.isSubmitting}
+              />
+            )}
+          />
 
-          <FormField label='Wilayah' required error={errors.wilayah?.message}>
-            <Input {...register('wilayah')} placeholder='Bandung' className={inputClass} />
-          </FormField>
+          <Controller
+            control={control}
+            name='wilayah'
+            render={({ field, fieldState: { error } }) => (
+              <SquadTextFieldInput
+                label='Wilayah'
+                isRequired
+                placeholder='Bandung'
+                value={field.value}
+                onChange={field.onChange}
+                isInvalid={Boolean(error)}
+                errorMessage={error?.message}
+                disabled={s.isSubmitting}
+              />
+            )}
+          />
         </div>
 
         <div className='flex items-center justify-between'>
@@ -92,7 +134,7 @@ export function SquadFormView({ basePath, squad }: SquadFormViewProps) {
             type='button'
             variant='outline'
             onClick={() => s.setDialog('picker')}
-            className='h-10 gap-2 rounded-xl border-primary/40 bg-primary/5 text-xs font-medium text-primary hover:bg-primary/10 cursor-pointer'
+            className='h-10 gap-2 rounded-md border-primary/40 bg-primary/5 text-xs font-medium text-primary hover:bg-primary/10 cursor-pointer'
           >
             <UserPlus className='size-4' />
             Tambahkan Member Lainnya
