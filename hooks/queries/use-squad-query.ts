@@ -36,7 +36,7 @@ function useSquadMutation<TInput>(
   return useMutation({
     mutationFn,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: squadKeys.all }),
-    onError: (error) => console.error(`[${label} Squad Error]:`, getErrorMessage(error)),
+    onError: (error) => console.warn(`[${label} Squad Error]:`, getErrorMessage(error)),
   });
 }
 

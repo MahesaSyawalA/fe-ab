@@ -17,6 +17,10 @@ export const squadService = {
     return response.data;
   },
 
+  async getAllSquads(params?: SquadListParams): Promise<ApiResponse<SquadWithDetails[]>> {
+    return squadService.getList(params);
+  },
+
   async getById(id: string): Promise<ApiResponse<SquadWithDetails>> {
     const response = await api.get<ApiResponse<SquadWithDetails>>(`/squads/${id}`);
     return response.data;

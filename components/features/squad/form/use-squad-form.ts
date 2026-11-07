@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { useForm, useWatch } from 'react-hook-form';
+import { useForm, useWatch, type FieldErrors } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { isAxiosError } from 'axios';
 import {
   useCreateSquadMutation,
   useDeleteSquadMutation,
@@ -12,7 +13,7 @@ import {
 import { getErrorMessage } from '@/lib/axios';
 import { SQUAD_FORM_DEFAULTS } from '@/constants/squad-constants';
 import { squadFormSchema, type SquadFormValues } from '@/schemas/squad.schema';
-import type { SquadMember, SquadWithDetails } from '@/types/squad.types';
+import type { CreateSquadInput, SquadMember, SquadWithDetails } from '@/types/squad.types';
 
 interface UseSquadFormOptions {
   basePath: string;
@@ -82,14 +83,44 @@ export function useSquadForm({ basePath, squad }: UseSquadFormOptions) {
   const goBack = () => router.push(basePath);
   const requestCancel = () => (form.formState.isDirty ? setDialog('cancel') : goBack());
 
-  const onSubmit = form.handleSubmit(async (values) => {
+  const onValid = async (values: SquadFormValues) => {
+    console.log('[SQUAD SUBMIT PAYLOAD]', values);
     try {
-      await (isEdit ? updateMutation : createMutation).mutateAsync(values);
+      const payload: CreateSquadInput = {
+        nama_squad: values.nama_squad,
+        kode_squad: values.kode_squad,
+        wilayah: values.wilayah,
+        is_active: values.is_active,
+        id_supervisor: values.id_supervisor || null,
+        member_ids: Array.isArray(values.member_ids) ? values.member_ids : [],
+      };
+
+      await (isEdit ? updateMutation : createMutation).mutateAsync(payload);
       goBack();
-    } catch (error) {
-      form.setError('root.server', { message: getErrorMessage(error) });
+    } catch (error: unknown) {
+      console.warn('[SQUAD SUBMIT WARN]', error);
+      const message = getErrorMessage(error);
+
+      // Tangani error backend spesifik HTTP 409 ("Kode squad sudah digunakan")
+      if (
+        (isAxiosError(error) && error.response?.status === 409) ||
+        message.toLowerCase().includes('kode squad')
+      ) {
+        form.setError('kode_squad', {
+          type: 'server',
+          message: message || 'Kode squad sudah digunakan.',
+        });
+      } else {
+        form.setError('root.server', { message });
+      }
     }
-  });
+  };
+
+  const onInvalid = (errors: FieldErrors<SquadFormValues>) => {
+    console.warn('[SQUAD FORM ERRORS]', errors);
+  };
+
+  const onSubmit = form.handleSubmit(onValid, onInvalid);
 
   const confirmDelete = async () => {
     if (!squad) return;
@@ -97,6 +128,7 @@ export function useSquadForm({ basePath, squad }: UseSquadFormOptions) {
       await deleteMutation.mutateAsync(squad.id_squad);
       goBack();
     } catch (error) {
+      console.warn('[SQUAD DELETE WARN]', error);
       setDialog(null);
       form.setError('root.server', { message: getErrorMessage(error) });
     }
