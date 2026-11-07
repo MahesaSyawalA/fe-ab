@@ -8,6 +8,7 @@ import {
   PelangganListHeader,
   usePelangganList,
 } from './list';
+import { PelangganFilterDrawer } from './filter';
 
 interface PelangganViewProps {
   basePath?: string;
@@ -31,6 +32,16 @@ export function PelangganView({ basePath = '/sales/pelanggan' }: PelangganViewPr
         selectedCategory={list.selectedCategory}
         onCategoryChange={list.setSelectedCategory}
         filterChips={list.filterChips}
+        onOpenFilterModal={() => list.setFilterDrawerOpen(true)}
+        activeFilterCount={list.activeFilterCount}
+      />
+
+      <PelangganFilterDrawer
+        open={list.isFilterDrawerOpen}
+        onOpenChange={list.setFilterDrawerOpen}
+        tipeOutlet={list.selectedCategory}
+        onApply={list.setSelectedCategory}
+        onReset={list.resetFilters}
       />
 
       <div className='grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4 w-full min-w-0'>

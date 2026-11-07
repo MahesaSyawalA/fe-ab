@@ -8,6 +8,7 @@ interface PelangganFilterBarProps {
   onCategoryChange: (category: string) => void;
   filterChips: ChipFilterItem[];
   onOpenFilterModal?: () => void;
+  activeFilterCount?: number;
 }
 
 export function PelangganFilterBar({
@@ -17,6 +18,7 @@ export function PelangganFilterBar({
   onCategoryChange,
   filterChips,
   onOpenFilterModal,
+  activeFilterCount,
 }: PelangganFilterBarProps) {
   return (
     <SearchFilterBar
@@ -26,6 +28,7 @@ export function PelangganFilterBar({
       onCategoryChange={onCategoryChange}
       filterChips={filterChips}
       onOpenFilterModal={onOpenFilterModal}
+      activeFilterCount={activeFilterCount}
     />
   );
 }

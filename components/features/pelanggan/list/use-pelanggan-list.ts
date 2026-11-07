@@ -2,6 +2,10 @@ import * as React from 'react';
 import { ChipFilterItem } from '@/components/ui/chip-filter';
 import { PELANGGAN_CATEGORY_CHIPS } from '@/constants/pelanggan-constants';
 import { usePelangganStore } from '@/lib/pelanggan-store';
+import {
+  usePelangganFilterStore,
+  countActivePelangganFilters,
+} from '@/store/pelanggan-filter-store';
 
 const matchesCategory = (tipeOutlet: string, category: string) =>
   tipeOutlet.toLowerCase().includes(category.toLowerCase());
@@ -9,8 +13,17 @@ const matchesCategory = (tipeOutlet: string, category: string) =>
 export function usePelangganList() {
   const pelangganList = usePelangganStore((state) => state.pelangganList);
 
-  const [searchQuery, setSearchQuery] = React.useState('');
-  const [selectedCategory, setSelectedCategory] = React.useState('semua');
+  const {
+    searchQuery,
+    tipeOutlet: selectedCategory,
+    setSearchQuery,
+    setTipeOutlet: setSelectedCategory,
+    isFilterDrawerOpen,
+    setFilterDrawerOpen,
+    resetFilters,
+  } = usePelangganFilterStore();
+
+  const activeFilterCount = countActivePelangganFilters(selectedCategory);
 
   const filterChips: ChipFilterItem[] = React.useMemo(
     () => [
@@ -59,5 +72,9 @@ export function usePelangganList() {
     setSelectedCategory,
     filterChips,
     filteredList,
+    isFilterDrawerOpen,
+    setFilterDrawerOpen,
+    activeFilterCount,
+    resetFilters,
   };
 }
