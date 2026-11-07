@@ -8,6 +8,8 @@ const EMPTY_DRAFT: KontakInputItem = {
   email: '',
 };
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 interface UseKontakDraftArgs {
   contacts: KontakInputItem[];
   onChangeContacts: (contacts: KontakInputItem[]) => void;
@@ -22,9 +24,16 @@ export function useKontakDraft({
 }: UseKontakDraftArgs) {
   const [draft, setDraft] = React.useState<KontakInputItem>(EMPTY_DRAFT);
 
-  const isDraftValid = Boolean(
-    draft.nama.trim() && draft.no_telp.trim() && draft.email.trim()
-  );
+  const isDraftValid = React.useMemo(() => {
+    const isNameValid = draft.nama.trim().length >= 1;
+    // Nomor telepon minimal 9 digit angka sesuai skema Zod kontak
+    const digitsCount = draft.no_telp.replace(/\D/g, '').length;
+    const isPhoneValid = digitsCount >= 9;
+    const isEmailValid = EMAIL_REGEX.test(draft.email.trim());
+
+    return isNameValid && isPhoneValid && isEmailValid;
+  }, [draft.nama, draft.no_telp, draft.email]);
+
   const canSubmit = contacts.length > 0 || isDraftValid;
 
   const updateDraft = (fields: Partial<KontakInputItem>) =>

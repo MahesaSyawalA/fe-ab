@@ -20,6 +20,7 @@ export interface PelangganWithDetails extends Pelanggan {
   estimasi_nilai?: string;
   status?: 'Aktif' | 'Nonaktif' | 'Prospek';
   kontak_list?: Kontak[];
+  kontak?: Kontak[];
 }
 
 export interface CreatePelangganInput {

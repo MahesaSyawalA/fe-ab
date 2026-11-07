@@ -74,7 +74,7 @@ export function SubpageHeader({
               {title}
             </h1>
             {subtitle && (
-              <p className='text-xs text-secondary-foreground mt-0.5 leading-snug'>
+              <p className='text-xs sm:text-sm text-secondary-foreground mt-0.5 leading-snug'>
                 {subtitle}
               </p>
             )}

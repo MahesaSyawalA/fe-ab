@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { useForm, useWatch, type FieldErrors } from 'react-hook-form';
+import { useForm, useWatch, type FieldErrors, type Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useCreatePelangganMutation } from '@/hooks/queries';
 import { getErrorMessage } from '@/lib/axios';
@@ -46,7 +46,7 @@ export function usePelangganWizard({
   const [serverError, setServerError] = React.useState<string | null>(null);
 
   const form = useForm<CreateCustomerInput>({
-    resolver: zodResolver(createCustomerSchema),
+    resolver: zodResolver(createCustomerSchema) as Resolver<CreateCustomerInput>,
     defaultValues: DEFAULT_WIZARD_VALUES,
     mode: 'onTouched',
   });

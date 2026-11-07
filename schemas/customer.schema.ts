@@ -4,9 +4,9 @@ export const createCustomerSchema = z.object({
   nama_outlet: z.string().min(1, { message: 'Nama outlet wajib diisi' }),
   tipe_outlet: z.string().min(1, { message: 'Tipe outlet wajib diisi/dipilih' }),
   alamat: z.string().min(5, { message: 'Alamat terlalu pendek, minimal 5 karakter' }),
-  latitude: z.number({ message: 'Latitude harus berupa angka' }),
-  longitude: z.number({ message: 'Longitude harus berupa angka' }),
-  radius_kunjungan: z.number({ message: 'Radius kunjungan harus berupa angka' }),
+  latitude: z.coerce.number({ message: 'Latitude harus berupa angka' }),
+  longitude: z.coerce.number({ message: 'Longitude harus berupa angka' }),
+  radius_kunjungan: z.coerce.number({ message: 'Radius kunjungan harus berupa angka' }),
   img_url: z.string().min(1, { message: 'URL gambar outlet wajib diupload' }),
   kontak: z.array(z.object({
     nama: z.string().min(1, { message: 'Nama kontak wajib diisi' }),
@@ -16,7 +16,15 @@ export const createCustomerSchema = z.object({
   })).optional(),
 });
 
-export const updateCustomerSchema = createCustomerSchema.partial();
+export const updateCustomerSchema = z.object({
+  nama_outlet: z.string().min(1, { message: 'Nama outlet wajib diisi' }),
+  tipe_outlet: z.string().min(1, { message: 'Tipe outlet wajib diisi/dipilih' }),
+  alamat: z.string().min(5, { message: 'Alamat terlalu pendek, minimal 5 karakter' }),
+  latitude: z.coerce.number({ message: 'Latitude harus berupa angka' }),
+  longitude: z.coerce.number({ message: 'Longitude harus berupa angka' }),
+  radius_kunjungan: z.coerce.number({ message: 'Radius kunjungan harus berupa angka' }),
+  img_url: z.string().min(1, { message: 'URL gambar outlet wajib diupload' }),
+});
 
 export type CreateCustomerInput = z.infer<typeof createCustomerSchema>;
 export type UpdateCustomerInput = z.infer<typeof updateCustomerSchema>;

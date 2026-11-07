@@ -110,6 +110,7 @@ export function PelangganFileInput({
   const handleRemove = (e: React.MouseEvent) => {
     e.stopPropagation();
     setError(null);
+    onChange?.('', undefined);
     onRemove?.();
     if (inputRef.current) {
       inputRef.current.value = '';

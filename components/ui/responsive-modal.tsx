@@ -20,6 +20,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 interface ResponsiveModalProps {
   open: boolean;
@@ -27,6 +28,7 @@ interface ResponsiveModalProps {
   title: string;
   description?: string;
   children: React.ReactNode;
+  className?: string;
 }
 
 /** Drawer (bottom sheet) di mobile, Dialog (modal) di desktop. */
@@ -36,6 +38,7 @@ export function ResponsiveModal({
   title,
   description,
   children,
+  className,
 }: ResponsiveModalProps) {
   const isMobile = useIsMobile();
 
@@ -84,7 +87,7 @@ export function ResponsiveModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='max-w-md'>
+      <DialogContent className={cn('max-w-md', className)}>
         <DialogHeader className='flex-row items-start justify-between'>
           {heading}
           <DialogClose render={closeButton}>

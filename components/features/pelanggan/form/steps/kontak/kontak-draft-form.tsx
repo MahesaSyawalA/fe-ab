@@ -44,7 +44,14 @@ export function KontakDraftForm({
           type='tel'
           icon={<Phone className='size-4' />}
           value={draft.no_telp}
-          onChange={(val) => onChange({ no_telp: val })}
+          onChange={(val) => {
+            // Hanya memperbolehkan angka, spasi, tanda strip, atau awalan '+'
+            let sanitized = val.replace(/[^\d\s\-+]/g, '');
+            if (sanitized.includes('+')) {
+              sanitized = (sanitized.startsWith('+') ? '+' : '') + sanitized.replace(/\+/g, '');
+            }
+            onChange({ no_telp: sanitized });
+          }}
           placeholder='+62 812-3456-7890'
         />
 

@@ -81,7 +81,7 @@ export function PicCard({
         </div>
 
         {/* Middle Contact Details Box */}
-        <div className='flex flex-col gap-2 rounded-xl bg-[#F6F8FC] p-3'>
+        <div className='flex flex-col gap-2 rounded-xl bg-secondary/60 p-3'>
           {noTelp && (
             <div className='flex items-center gap-2.5 text-xs font-medium text-foreground/85'>
               <Phone className='size-3.5 shrink-0 text-secondary-foreground' />

@@ -2,9 +2,13 @@ import { Check, MapPin } from 'lucide-react';
 import { PelangganWithDetails } from '@/types/customer.types';
 import { DEFAULT_OUTLET_IMAGE } from '@/constants/pelanggan-constants';
 import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
 /** Banner foto outlet dengan nama, tipe, status, dan alamat di atas gradien. */
 export function PelangganHero({ pelanggan }: { pelanggan: PelangganWithDetails }) {
+  const isNonaktif = pelanggan.status === 'Nonaktif';
+  const isProspek = pelanggan.status === 'Prospek';
+
   return (
     <div className='relative h-52 md:h-64 lg:h-72 w-full overflow-hidden bg-slate-900 md:rounded-3xl md:border md:border-border/60 md:shadow-sm'>
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -23,8 +27,8 @@ export function PelangganHero({ pelanggan }: { pelanggan: PelangganWithDetails }
           <Badge className='h-5 md:h-6 rounded-md bg-primary-default px-2 md:px-2.5 text-[11px] md:text-xs font-semibold text-white'>
             {pelanggan.tipe_outlet}
           </Badge>
-          <Badge className='h-5 md:h-6 gap-1 rounded-md bg-success px-2 md:px-2.5 text-[11px] md:text-xs font-semibold text-white'>
-            <Check className='size-3 stroke-[2.5]' />
+          <Badge className={cn('h-5 md:h-6 gap-1 rounded-md bg-success px-2 md:px-2.5 text-[11px] md:text-xs font-semibold text-white')}>
+            {!isNonaktif && <Check className='size-3 stroke-[2.5]' />}
             {pelanggan.status || 'Aktif'}
           </Badge>
         </div>
