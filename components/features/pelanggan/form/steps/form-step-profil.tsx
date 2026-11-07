@@ -1,27 +1,25 @@
 import * as React from 'react';
 import { Hospital } from 'lucide-react';
 import { Label } from '@heroui/react';
+import { TriangleExclamation } from '@gravity-ui/icons';
+import { Control, Controller } from 'react-hook-form';
 import { OptionCardGroup } from '@/components/ui/option-card';
 import { Button } from '@/components/ui/button';
-import { PelangganTextInput, PelangganTextArea, PelangganFileInput } from '../../inputs';
+import {
+  PelangganTextInput,
+  PelangganTextArea,
+  PelangganFileInput,
+} from '../../inputs';
 import { OUTLET_TYPES } from '@/constants/pelanggan-constants';
-import { FormStepProfilData } from '../types';
+import type { CreateCustomerInput } from '@/schemas/customer.schema';
 import { WizardStepCard } from '../wizard-step-card';
 
 interface FormStepProfilProps {
-  data: FormStepProfilData;
-  onChange: (fields: Partial<FormStepProfilData>) => void;
+  control: Control<CreateCustomerInput>;
   onNext: () => void;
 }
 
-export function FormStepProfil({ data, onChange, onNext }: FormStepProfilProps) {
-  const isValid = Boolean(
-    data.nama_outlet.trim() &&
-    data.tipe_outlet &&
-    data.alamat.trim() &&
-    data.img_url.trim()
-  );
-
+export function FormStepProfil({ control, onNext }: FormStepProfilProps) {
   return (
     <WizardStepCard
       icon={<Hospital className='size-4' />}
@@ -29,46 +27,82 @@ export function FormStepProfil({ data, onChange, onNext }: FormStepProfilProps) 
       badgeText='Wajib'
     >
       {/* Nama Outlet */}
-      <PelangganTextInput
-        label='Nama Outlet'
-        required
-        icon={<Hospital className='size-4' />}
-        value={data.nama_outlet}
-        onChange={(val) => onChange({ nama_outlet: val })}
-        placeholder='Contoh: RS Ibu & Anak Kasih Bunda'
+      <Controller
+        control={control}
+        name='nama_outlet'
+        render={({ field, fieldState: { error } }) => (
+          <PelangganTextInput
+            label='Nama Outlet'
+            required
+            icon={<Hospital className='size-4' />}
+            value={field.value}
+            onChange={field.onChange}
+            isInvalid={Boolean(error)}
+            errorMessage={error?.message}
+            placeholder='Contoh: RS Ibu & Anak Kasih Bunda'
+          />
+        )}
       />
 
       {/* Tipe Outlet */}
-      <div className='flex flex-col gap-1.5'>
-        <Label isRequired className='text-sm font-medium text-foreground'>
-          Tipe Outlet
-        </Label>
-        <OptionCardGroup
-          options={OUTLET_TYPES}
-          value={data.tipe_outlet}
-          onChange={(val) => onChange({ tipe_outlet: val })}
-          className='grid grid-cols-1 sm:grid-cols-2 gap-3'
-        />
-      </div>
+      <Controller
+        control={control}
+        name='tipe_outlet'
+        render={({ field, fieldState: { error } }) => (
+          <div className='flex flex-col gap-1.5'>
+            <Label isRequired className='text-sm font-medium text-foreground'>
+              Tipe Outlet
+            </Label>
+            <OptionCardGroup
+              options={OUTLET_TYPES}
+              value={field.value}
+              onChange={field.onChange}
+              className='grid grid-cols-1 sm:grid-cols-2 gap-3'
+            />
+            {error && (
+              <span className='mt-1 text-xs text-destructive flex items-center gap-1.5'>
+                <TriangleExclamation width={14} height={14} className='shrink-0' />
+                <span>{error.message}</span>
+              </span>
+            )}
+          </div>
+        )}
+      />
 
       {/* Alamat Lengkap Outlet (Full Width) */}
-      <PelangganTextArea
-        label='Alamat Lengkap Outlet'
-        required
-        rows={4}
-        value={data.alamat}
-        onChange={(val) => onChange({ alamat: val })}
-        placeholder='Contoh: Jl. Salemba Raya No. 42A, RT 03 / RW 05, Kenari, Senen, Jakarta Pusat 10430'
+      <Controller
+        control={control}
+        name='alamat'
+        render={({ field, fieldState: { error } }) => (
+          <PelangganTextArea
+            label='Alamat Lengkap Outlet'
+            required
+            rows={4}
+            value={field.value}
+            onChange={field.onChange}
+            isInvalid={Boolean(error)}
+            errorMessage={error?.message}
+            placeholder='Contoh: Jl. Salemba Raya No. 42A, RT 03 / RW 05, Kenari, Senen, Jakarta Pusat 10430'
+          />
+        )}
       />
 
       {/* Foto Outlet (Full Width below Alamat) */}
-      <PelangganFileInput
-        label='Foto Outlet'
-        isRequired
-        helperText='Unggah 1 foto beresolusi jelas yang memperlihatkan identitas outlet resmi'
-        value={data.img_url}
-        onChange={(url) => onChange({ img_url: url })}
-        onRemove={() => onChange({ img_url: '' })}
+      <Controller
+        control={control}
+        name='img_url'
+        render={({ field, fieldState: { error } }) => (
+          <PelangganFileInput
+            label='Foto Outlet'
+            isRequired
+            helperText='Unggah 1 foto beresolusi jelas yang memperlihatkan identitas outlet resmi'
+            value={field.value}
+            onChange={(url) => field.onChange(url)}
+            onRemove={() => field.onChange('')}
+            isInvalid={Boolean(error)}
+            errorMessage={error?.message}
+          />
+        )}
       />
 
       {/* Submit Step 1 */}
@@ -76,7 +110,6 @@ export function FormStepProfil({ data, onChange, onNext }: FormStepProfilProps) 
         <Button
           type='button'
           onClick={onNext}
-          disabled={!isValid}
           suppressHydrationWarning
           className='h-10 w-full md:w-auto md:min-w-48 rounded-md bg-primary-default hover:bg-primary-hover active:bg-primary data-[pressed=true]:bg-primary text-xs font-semibold text-white shadow-sm disabled:opacity-50 transition-all cursor-pointer'
         >

@@ -1,93 +1,198 @@
 import * as React from 'react';
-import { PelangganWithDetails } from '@/types/customer.types';
-import { buildPelanggan } from './build-pelanggan';
+import { useRouter } from 'next/navigation';
+import { useForm, useWatch, type FieldErrors } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useCreatePelangganMutation } from '@/hooks/queries';
+import { getErrorMessage } from '@/lib/axios';
+import { DEFAULT_OUTLET_IMAGE } from '@/constants/pelanggan-constants';
 import {
-  FormStepLokasiData,
-  FormStepProfilData,
-  KontakInputItem,
-} from './types';
-
-const TOTAL_STEPS = 3;
+  createCustomerSchema,
+  type CreateCustomerInput,
+} from '@/schemas/customer.schema';
+import type {
+  CreatePelangganInput,
+  PelangganWithDetails,
+} from '@/types/customer.types';
+import type { KontakInputItem } from './types';
 
 interface UsePelangganWizardArgs {
-  onBack: () => void;
-  onSave: (newPelanggan: PelangganWithDetails) => void;
+  basePath?: string;
+  onBack?: () => void;
+  onSave?: (newPelanggan: PelangganWithDetails) => void;
   initialStep?: number;
 }
 
+const DEFAULT_WIZARD_VALUES: CreateCustomerInput = {
+  nama_outlet: '',
+  tipe_outlet: 'Rumah Sakit',
+  alamat: '',
+  img_url: '',
+  latitude: -6.208812,
+  longitude: 106.845648,
+  radius_kunjungan: 200,
+  kontak: [],
+};
+
 export function usePelangganWizard({
+  basePath = '/sales/pelanggan',
   onBack,
   onSave,
   initialStep = 1,
 }: UsePelangganWizardArgs) {
+  const router = useRouter();
+  const createMutation = useCreatePelangganMutation();
+
   const [currentStep, setCurrentStep] = React.useState(initialStep);
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [serverError, setServerError] = React.useState<string | null>(null);
 
-  const [profilData, setProfilData] = React.useState<FormStepProfilData>({
-    nama_outlet: '',
-    tipe_outlet: 'Rumah Sakit',
-    alamat: '',
-    img_url: '',
+  const form = useForm<CreateCustomerInput>({
+    resolver: zodResolver(createCustomerSchema),
+    defaultValues: DEFAULT_WIZARD_VALUES,
+    mode: 'onTouched',
   });
 
-  const [lokasiData, setLokasiData] = React.useState<FormStepLokasiData>({
-    latitude: -6.208812,
-    longitude: 106.845648,
-    radius_kunjungan: 200,
-  });
+  const rawContacts = useWatch({ control: form.control, name: 'kontak' });
+  const contacts: KontakInputItem[] = (rawContacts || []) as KontakInputItem[];
 
-  const [contacts, setContacts] = React.useState<KontakInputItem[]>([
-    {
-      nama: 'Mahesa',
-      jabatan: 'Kepala Cabang',
-      no_telp: '081233323413',
-      email: 'mahesa@gmail.com',
-    },
-  ]);
+  const setContacts = (newContacts: KontakInputItem[]) => {
+    form.setValue('kontak', newContacts, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  };
 
-  const updateProfil = (fields: Partial<FormStepProfilData>) =>
-    setProfilData((prev) => ({ ...prev, ...fields }));
+  const handleNextStep1 = async () => {
+    const isStep1Valid = await form.trigger([
+      'nama_outlet',
+      'tipe_outlet',
+      'alamat',
+      'img_url',
+    ]);
+    if (isStep1Valid) {
+      setCurrentStep(2);
+    }
+  };
 
-  const updateLokasi = (fields: Partial<FormStepLokasiData>) =>
-    setLokasiData((prev) => ({ ...prev, ...fields }));
-
-  const handleNextStep = () => {
-    setCurrentStep((prev) => Math.min(prev + 1, TOTAL_STEPS));
+  const handleNextStep2 = async () => {
+    const isStep2Valid = await form.trigger([
+      'latitude',
+      'longitude',
+      'radius_kunjungan',
+    ]);
+    if (isStep2Valid) {
+      setCurrentStep(3);
+    }
   };
 
   const handlePrevStep = () => {
     if (currentStep > 1) {
       setCurrentStep((prev) => prev - 1);
-    } else {
+    } else if (onBack) {
       onBack();
+    } else {
+      router.push(basePath);
     }
   };
 
-  // Hanya boleh kembali ke step yang sudah dilewati.
-  const handleStepClick = (step: number) => {
-    if (step <= currentStep) setCurrentStep(step);
+  // Navigasi lewat stepper indicator di header
+  const handleStepClick = async (targetStep: number) => {
+    if (targetStep === currentStep) return;
+    if (targetStep < currentStep) {
+      setCurrentStep(targetStep);
+      return;
+    }
+    if (targetStep === 2) {
+      const isStep1Valid = await form.trigger([
+        'nama_outlet',
+        'tipe_outlet',
+        'alamat',
+        'img_url',
+      ]);
+      if (isStep1Valid) setCurrentStep(2);
+    } else if (targetStep === 3) {
+      const isStep1Valid = await form.trigger([
+        'nama_outlet',
+        'tipe_outlet',
+        'alamat',
+        'img_url',
+      ]);
+      const isStep2Valid = await form.trigger([
+        'latitude',
+        'longitude',
+        'radius_kunjungan',
+      ]);
+      if (isStep1Valid && isStep2Valid) setCurrentStep(3);
+    }
+  };
+
+  const onValid = async (values: CreateCustomerInput) => {
+    setServerError(null);
+    console.log('[PELANGGAN SUBMIT PAYLOAD]', values);
+
+    const payload: CreatePelangganInput = {
+      nama_outlet: values.nama_outlet.trim(),
+      tipe_outlet: values.tipe_outlet,
+      alamat: values.alamat.trim(),
+      img_url: values.img_url || DEFAULT_OUTLET_IMAGE,
+      latitude: Number(values.latitude),
+      longitude: Number(values.longitude),
+      radius_kunjungan: Number(values.radius_kunjungan),
+      kontak: (values.kontak || []).map((c) => ({
+        nama: c.nama.trim(),
+        jabatan: c.jabatan.trim(),
+        no_telp: c.no_telp.trim(),
+        email: c.email.trim(),
+      })),
+    };
+
+    try {
+      const response = await createMutation.mutateAsync(payload);
+      const createdPelanggan = response.data;
+
+      if (onSave) {
+        onSave(createdPelanggan);
+      } else {
+        const targetId = createdPelanggan?.id_pelanggan;
+        if (targetId) {
+          router.push(`${basePath}/${targetId}`);
+        } else {
+          router.push(basePath);
+        }
+      }
+    } catch (error: unknown) {
+      console.warn('[CREATE PELANGGAN SUBMIT ERROR]', error);
+      const msg = getErrorMessage(error);
+      setServerError(msg);
+      form.setError('root.server', { message: msg });
+    }
+  };
+
+  const onInvalid = (errors: FieldErrors<CreateCustomerInput>) => {
+    console.warn('[PELANGGAN FORM ERRORS]', errors);
+    if (errors.nama_outlet || errors.tipe_outlet || errors.alamat || errors.img_url) {
+      setCurrentStep(1);
+    } else if (errors.latitude || errors.longitude || errors.radius_kunjungan) {
+      setCurrentStep(2);
+    }
   };
 
   const handleFinalSubmit = (finalContacts: KontakInputItem[]) => {
-    setIsSubmitting(true);
-    const newPelanggan = buildPelanggan(profilData, lokasiData, finalContacts);
-
-    setTimeout(() => {
-      setIsSubmitting(false);
-      onSave(newPelanggan);
-    }, 300);
+    form.setValue('kontak', finalContacts, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+    form.handleSubmit(onValid, onInvalid)();
   };
 
   return {
+    form,
     currentStep,
-    isSubmitting,
-    profilData,
-    lokasiData,
+    isSubmitting: createMutation.isPending,
+    serverError,
     contacts,
     setContacts,
-    updateProfil,
-    updateLokasi,
-    handleNextStep,
+    handleNextStep1,
+    handleNextStep2,
     handlePrevStep,
     handleStepClick,
     handleFinalSubmit,

@@ -1,6 +1,9 @@
+'use client';
+
+import { useWatch } from 'react-hook-form';
 import { Stepper, StepItem } from '@/components/ui/stepper';
 import { SubpageHeader } from '@/components/ui/subpage-header';
-import { PelangganWithDetails } from '@/types/customer.types';
+import type { PelangganWithDetails } from '@/types/customer.types';
 import {
   FormStepKontak,
   FormStepLokasi,
@@ -9,8 +12,9 @@ import {
 } from './form';
 
 interface PelangganFormWizardProps {
-  onBack: () => void;
-  onSave: (newPelanggan: PelangganWithDetails) => void;
+  basePath?: string;
+  onBack?: () => void;
+  onSave?: (newPelanggan: PelangganWithDetails) => void;
   initialStep?: number;
 }
 
@@ -22,6 +26,9 @@ const WIZARD_STEPS: StepItem[] = [
 
 export function PelangganFormWizard(props: PelangganFormWizardProps) {
   const wizard = usePelangganWizard(props);
+
+  const latitude = useWatch({ control: wizard.form.control, name: 'latitude' }) ?? -6.208812;
+  const longitude = useWatch({ control: wizard.form.control, name: 'longitude' }) ?? 106.845648;
 
   return (
     <div className='mx-auto flex w-full max-w-xl md:max-w-4xl lg:max-w-5xl min-w-0 flex-col gap-4 md:gap-6 pb-12'>
@@ -46,17 +53,18 @@ export function PelangganFormWizard(props: PelangganFormWizardProps) {
         {/* Step Contents */}
         {wizard.currentStep === 1 && (
           <FormStepProfil
-            data={wizard.profilData}
-            onChange={wizard.updateProfil}
-            onNext={wizard.handleNextStep}
+            control={wizard.form.control}
+            onNext={wizard.handleNextStep1}
           />
         )}
 
         {wizard.currentStep === 2 && (
           <FormStepLokasi
-            data={wizard.lokasiData}
-            onChange={wizard.updateLokasi}
-            onNext={wizard.handleNextStep}
+            control={wizard.form.control}
+            setValue={wizard.form.setValue}
+            latitude={latitude}
+            longitude={longitude}
+            onNext={wizard.handleNextStep2}
           />
         )}
 
@@ -66,6 +74,10 @@ export function PelangganFormWizard(props: PelangganFormWizardProps) {
             onChangeContacts={wizard.setContacts}
             onSubmit={wizard.handleFinalSubmit}
             isSubmitting={wizard.isSubmitting}
+            serverError={
+              wizard.serverError ||
+              wizard.form.formState.errors.root?.server?.message
+            }
           />
         )}
       </div>

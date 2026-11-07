@@ -12,6 +12,7 @@ interface FormStepKontakProps {
   onChangeContacts: (contacts: KontakInputItem[]) => void;
   onSubmit: (finalContacts: KontakInputItem[]) => void;
   isSubmitting?: boolean;
+  serverError?: string | null;
 }
 
 export function FormStepKontak({
@@ -19,6 +20,7 @@ export function FormStepKontak({
   onChangeContacts,
   onSubmit,
   isSubmitting = false,
+  serverError,
 }: FormStepKontakProps) {
   const kontak = useKontakDraft({ contacts, onChangeContacts, onSubmit });
 
@@ -37,6 +39,12 @@ export function FormStepKontak({
         />
         <KontakList contacts={contacts} onRemove={kontak.handleRemove} />
       </div>
+
+      {serverError && (
+        <div className='rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3'>
+          <p className='text-xs font-semibold text-destructive'>{serverError}</p>
+        </div>
+      )}
 
       {/* Final Submit Button */}
       <div className='flex justify-end pt-3 border-t border-border/60'>

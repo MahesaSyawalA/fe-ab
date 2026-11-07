@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { UploadCloud, X } from 'lucide-react';
 import { Label } from '@heroui/react';
+import { TriangleExclamation } from '@gravity-ui/icons';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -18,6 +19,8 @@ export interface PelangganFileInputProps {
   accept?: string;
   maxSizeInMb?: number;
   disabled?: boolean;
+  isInvalid?: boolean;
+  errorMessage?: string;
 }
 
 export function PelangganFileInput({
@@ -32,11 +35,15 @@ export function PelangganFileInput({
   accept = 'image/*',
   maxSizeInMb = 10,
   disabled,
+  isInvalid,
+  errorMessage,
 }: PelangganFileInputProps) {
   const isReq = isRequired ?? required;
   const inputRef = React.useRef<HTMLInputElement | null>(null);
   const [isDragging, setIsDragging] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const displayError = error || errorMessage;
+  const invalid = isInvalid || Boolean(displayError);
 
   const handleProcessFile = (file: File) => {
     if (disabled) return;
@@ -183,7 +190,7 @@ export function PelangganFileInput({
           <UploadCloud
             className={cn(
               'size-8 mb-2 transition-colors',
-              isDragging ? 'text-primary' : error ? 'text-rose-500' : 'text-muted-foreground/80',
+              isDragging ? 'text-primary' : invalid ? 'text-rose-500' : 'text-muted-foreground/80',
             )}
             strokeWidth={1.5}
           />
@@ -212,8 +219,11 @@ export function PelangganFileInput({
         </div>
       )}
 
-      {error && (
-        <span className='text-xs text-destructive mt-1 font-medium'>{error}</span>
+      {displayError && (
+        <span className='text-xs text-destructive mt-1 font-medium flex items-center gap-1.5'>
+          <TriangleExclamation width={14} height={14} className='shrink-0' />
+          <span>{displayError}</span>
+        </span>
       )}
     </div>
   );
