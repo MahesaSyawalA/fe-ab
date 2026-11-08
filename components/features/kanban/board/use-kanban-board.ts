@@ -17,12 +17,17 @@ import {
   AKTIVITAS_STAGE_CONFIG,
   KanbanStageColumn,
 } from '@/constants/kanban-constants';
-import { TiketWithDetails, TeamContributionItem } from '@/types/ticket.types';
+import {
+  TiketWithDetails,
+  TeamContributionItem,
+  CreateTiketInput,
+} from '@/types/ticket.types';
 import { formatCompactRupiah } from '@/lib/utils';
 import {
   useKanbanStagesQuery,
   useKanbanBoardQuery,
   useMoveTicketMutation,
+  useCreateTicketMutation,
   useCreateAktivitasMutation,
   useCreateBuktiKunjunganMutation,
   useCreateEvidenceMutation,
@@ -44,7 +49,6 @@ export function useKanbanBoard() {
   const {
     ticketsByStage,
     setTicketsByStage,
-    addTicket: addStoreTicket,
     moveTicketWithStageUpdate,
   } = useKanbanStore();
 
@@ -68,11 +72,14 @@ export function useKanbanBoard() {
   const { data: session } = useSession();
   const stagesQuery = useKanbanStagesQuery();
   const moveTicketMutation = useMoveTicketMutation();
+  const createTicketMutation = useCreateTicketMutation();
   const createAktivitasMutation = useCreateAktivitasMutation();
   const createBuktiKunjunganMutation = useCreateBuktiKunjunganMutation();
   const createEvidenceMutation = useCreateEvidenceMutation();
 
   const [isSubmittingMove, setIsSubmittingMove] = React.useState(false);
+  const [isCreatingTicket, setIsCreatingTicket] = React.useState(false);
+  const isSubmitting = isSubmittingMove || isCreatingTicket;
 
   const stages: KanbanStageColumn[] = React.useMemo(() => {
     const raw = stagesQuery.data?.data;
@@ -634,12 +641,98 @@ export function useKanbanBoard() {
   };
 
   // Confirm new ticket creation in that stage
-  const handleConfirmCreateTicket = (newTicket: TiketWithDetails) => {
-    addStoreTicket(newTicket);
-    const stageId = newTicket.id_tahap || 'visit';
-    setSelectedStageId(stageId);
-    scrollToStage(stageId);
-    setPendingStageMove(null);
+  const handleConfirmCreateTicket: NonNullable<
+    StageActivityDrawerProps['onCreateTicket']
+  > = async (params) => {
+    setIsCreatingTicket(true);
+    try {
+      const userId = session?.user?.id_user || 'usr-1';
+      const createPayload: CreateTiketInput = {
+        ...params.createPayload,
+        id_user: userId,
+      };
+
+      // 1. Step 1: Create Ticket (POST /tiket)
+      const res = await createTicketMutation.mutateAsync(createPayload);
+      const createdTicket = res?.data;
+      const createdTicketId = createdTicket?.id_tiket;
+
+      // 2. Step 2: Chaining Activity (POST /aktivitas)
+      if (createdTicketId && params.activityPayload) {
+        try {
+          const createdAktivitasRes = await createAktivitasMutation.mutateAsync({
+            id_user: userId,
+            id_tiket: createdTicketId,
+            tanggal: params.activityPayload.tanggal || new Date().toISOString(),
+            catatan: params.activityPayload.catatan,
+            jenis_kegiatan: params.activityPayload.jenis_kegiatan,
+            jadwal_follow_up: params.activityPayload.jadwal_follow_up,
+          });
+
+          const newAktivitasId = createdAktivitasRes?.data?.id_aktivitas;
+
+          // 3. Step 3: Chaining Bukti Berkas
+          if (newAktivitasId && params.evidenceFile?.rawFile) {
+            const targetStageObj = stages.find(
+              (s) => s.id_tahap === params.createPayload.id_tahap,
+            );
+            const stageType = targetStageObj?.jenis_tahap;
+
+            if (stageType === 'visit') {
+              const formData = new FormData();
+              formData.append('id_aktivitas', newAktivitasId);
+              formData.append('img_url', params.evidenceFile.rawFile);
+              if (params.gpsData) {
+                formData.append('latitude', String(params.gpsData.latitude));
+                formData.append('longitude', String(params.gpsData.longitude));
+                formData.append('jarak_klien', String(params.gpsData.jarak_klien));
+                formData.append(
+                  'dalam_radius',
+                  params.gpsData.dalam_radius ? 'true' : 'false',
+                );
+              }
+              await createBuktiKunjunganMutation.mutateAsync(formData);
+            } else {
+              const formData = new FormData();
+              formData.append('id_aktivitas', newAktivitasId);
+              formData.append('file', params.evidenceFile.rawFile);
+              formData.append('tipe', detectFileType(params.evidenceFile.name));
+              formData.append('deskripsi', params.evidenceFile.name);
+              if (params.activityPayload.catatan) {
+                formData.append('catatan', params.activityPayload.catatan);
+              }
+              await createEvidenceMutation.mutateAsync(formData);
+            }
+          }
+        } catch (actErr) {
+          console.warn('[Create Activity Chaining Warning]:', actErr);
+        }
+      }
+
+      toast.add({
+        title: 'Berhasil Membuat Prospek',
+        description: `Prospek "${createPayload.judul}" berhasil ditambahkan.`,
+        type: 'success',
+      });
+
+      const targetStageId = params.createPayload.id_tahap || 'visit';
+      setSelectedStageId(targetStageId);
+      scrollToStage(targetStageId);
+      setIsStageDrawerOpen(false);
+      setPendingStageMove(null);
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : 'Terjadi kesalahan saat membuat tiket prospek.';
+      toast.add({
+        title: 'Gagal Membuat Prospek',
+        description: message,
+        type: 'error',
+      });
+    } finally {
+      setIsCreatingTicket(false);
+    }
   };
 
   const handleCancelMove = () => {
@@ -680,7 +773,9 @@ export function useKanbanBoard() {
     nextStage,
     quickMoveTicket,
     isMovingTicket: moveTicketMutation.isPending,
+    isCreatingTicket,
     isSubmittingMove,
+    isSubmitting,
     isLoading: stagesQuery.isLoading || boardQuery.isLoading,
     isFetching: stagesQuery.isFetching || boardQuery.isFetching,
     isError: stagesQuery.isError || boardQuery.isError,

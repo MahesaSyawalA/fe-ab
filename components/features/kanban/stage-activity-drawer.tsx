@@ -4,12 +4,13 @@ import * as React from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import {
   StageActivityDrawerProps,
+  CreateTicketDrawerParams,
   StageDrawerMode,
   StageActivityDialog,
   StageActivitySheet,
 } from './stage-drawer';
 
-export type { StageDrawerMode, StageActivityDrawerProps };
+export type { StageDrawerMode, StageActivityDrawerProps, CreateTicketDrawerParams };
 
 /**
  * Komponen orkestrator Stage Activity:

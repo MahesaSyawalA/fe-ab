@@ -2,7 +2,8 @@
 
 import * as React from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
-import { useKanbanStore } from '@/lib/kanban-store';
+import { useKanbanTicketDetailQuery } from '@/hooks/queries/use-kanban-query';
+import { Skeleton } from '@/components/ui/skeleton';
 import { ProspekFormView } from './prospek-form-view';
 import { ProspekDetailView } from './prospek-detail-view';
 
@@ -27,16 +28,19 @@ export function ProspekDetailPageContainer({ basePath }: { basePath: string }) {
 
 export function ProspekEditPageContainer({ basePath }: { basePath: string }) {
   const params = useParams<{ id: string }>();
-  const { getTicketById, ticketsByStage } = useKanbanStore();
+  const { data: ticketResponse, isLoading } = useKanbanTicketDetailQuery(
+    params.id,
+  );
+  const ticket = ticketResponse?.data;
 
-  const ticket = React.useMemo(() => {
-    const found = getTicketById(params.id);
-    if (found) return found;
+  if (isLoading && !ticket) {
     return (
-      getTicketById('tkt-0142') ??
-      Object.values(ticketsByStage).flat()[0]
+      <div className='mx-auto flex min-h-dvh md:min-h-0 w-full max-w-lg md:max-w-4xl min-w-0 flex-col p-6 gap-6'>
+        <Skeleton className='h-12 w-64 rounded-xl' />
+        <Skeleton className='h-96 w-full rounded-2xl' />
+      </div>
     );
-  }, [params.id, getTicketById, ticketsByStage]);
+  }
 
   return (
     <ProspekFormView mode='edit' basePath={basePath} ticket={ticket} />

@@ -1,158 +1,218 @@
+'use client';
+
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { usePelangganStore } from '@/lib/pelanggan-store';
-import { useKanbanStore } from '@/lib/kanban-store';
-import { TiketPrioritas } from '@/types/ticket.types';
-import { formatNumberInput } from '@/lib/utils';
-import { FilePenawaran, ProspekFormViewProps } from '../types';
+import { useSession } from 'next-auth/react';
+import { useForm, useWatch, type Resolver } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
-  ProspekFormValues,
-  buildNewTicket,
-  buildTicketUpdates,
-} from './build-prospek-ticket';
+  createTicketSchema,
+  updateTicketSchema,
+  type CreateTicketFormValues,
+} from '@/schemas/ticket.schema';
+import { usePelangganListQuery } from '@/hooks/queries/use-pelanggan-query';
+import {
+  useCreateTicketMutation,
+  useUpdateTicketMutation,
+} from '@/hooks/queries/use-kanban-query';
+import { toast } from '@/components/ui/toast';
+import { getErrorMessage } from '@/lib/axios';
+import { TiketWithDetails } from '@/types/ticket.types';
+
+export interface UseProspekFormProps {
+  mode: 'create' | 'edit';
+  basePath: string;
+  initialStageId?: string;
+  ticket?: TiketWithDetails;
+  onSuccess?: () => void;
+}
 
 export function useProspekForm({
   mode,
   basePath,
   initialStageId = 'visit',
   ticket,
-}: ProspekFormViewProps) {
+  onSuccess,
+}: UseProspekFormProps) {
   const router = useRouter();
-  const { pelangganList } = usePelangganStore();
-  const { addTicket, updateTicket } = useKanbanStore();
+  const { data: session } = useSession();
+  const [serverError, setServerError] = React.useState<string | null>(null);
 
-  const [judul, setJudul] = React.useState(ticket?.judul ?? '');
-  const [selectedOutletId, setSelectedOutletId] = React.useState(
-    ticket?.id_pelanggan ?? '',
-  );
-  const [pickedKontakId, setSelectedKontakId] = React.useState(
-    ticket?.id_kontak ?? '',
-  );
-  const [estimasiDisplay, setEstimasiDisplay] = React.useState(
-    ticket?.estimasi_nilai ? formatNumberInput(ticket.estimasi_nilai) : '',
-  );
-  const [targetClosing, setTargetClosing] = React.useState(() => {
-    if (ticket?.estimasi_closing) {
-      const raw = ticket.estimasi_closing;
-      const str = typeof raw === 'string' ? raw : raw.toISOString();
-      return str.slice(0, 10);
-    }
-    if (ticket?.closing_full_label) {
-      if (/^\d{4}-\d{2}-\d{2}$/.test(ticket.closing_full_label)) {
-        return ticket.closing_full_label;
-      }
-      const match = ticket.closing_full_label.match(/^(\d{1,2})\s+([A-Za-z]+)(?:\s+(\d{4}))?$/);
-      if (match) {
-        const [, day, monStr, yr] = match;
-        const year = yr || new Date().getFullYear().toString();
-        const monthMap: Record<string, string> = {
-          jan: '01', feb: '02', mar: '03', apr: '04', mei: '05', jun: '06',
-          jul: '07', agu: '08', sep: '09', okt: '10', nov: '11', des: '12',
-        };
-        const mon = monthMap[monStr.toLowerCase().slice(0, 3)];
-        if (mon) {
-          return `${year}-${mon}-${day.padStart(2, '0')}`;
-        }
-      }
-    }
-    return '';
+  // 1. Fetch real customer list via TanStack Query
+  const { data: pelangganResponse, isLoading: isLoadingPelanggan } =
+    usePelangganListQuery({
+      limit: 100,
+    });
+
+  const pelangganList = React.useMemo(() => {
+    return pelangganResponse?.data ?? [];
+  }, [pelangganResponse]);
+
+  // 2. TanStack Query Mutations
+  const createMutation = useCreateTicketMutation();
+  const updateMutation = useUpdateTicketMutation();
+  const isPending = createMutation.isPending || updateMutation.isPending;
+
+  const [defaultClosingDate] = React.useState(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 30);
+    return d.toISOString().slice(0, 10);
   });
-  const [prioritas, setPrioritas] = React.useState<TiketPrioritas>(
-    ticket?.prioritas ?? 'tinggi',
-  );
-  const [filePenawaran, setFilePenawaran] =
-    React.useState<FilePenawaran | null>(
-      ticket?.file_penawaran ??
-        (mode === 'edit' ? { name: 'penawaran.pdf', size: '731 KB' } : null),
-    );
-  const [submitted, setSubmitted] = React.useState(false);
+
+  // 3. Setup React Hook Form with Zod Resolver
+  const form = useForm<CreateTicketFormValues>({
+    resolver: zodResolver(
+      mode === 'create' ? createTicketSchema : updateTicketSchema,
+    ) as Resolver<CreateTicketFormValues>,
+    defaultValues: {
+      judul: ticket?.judul ?? '',
+      id_pelanggan: ticket?.id_pelanggan ?? '',
+      id_kontak: ticket?.id_kontak ?? null,
+      id_tahap: ticket?.id_tahap ?? initialStageId,
+      id_user: ticket?.id_user ?? session?.user?.id_user ?? '',
+      estimasi_nilai: ticket?.estimasi_nilai ?? 50_000_000,
+      estimasi_closing: ticket?.estimasi_closing
+        ? typeof ticket.estimasi_closing === 'string'
+          ? ticket.estimasi_closing.slice(0, 10)
+          : new Date(ticket.estimasi_closing).toISOString().slice(0, 10)
+        : defaultClosingDate,
+      status: ticket?.status ?? 'open',
+      prioritas: ticket?.prioritas ?? 'sedang',
+      kebutuhan_pelanggan: ticket?.kebutuhan_pelanggan ?? '',
+      posisi: ticket?.posisi ?? 1,
+    },
+    mode: 'onTouched',
+  });
+
+  // Re-sync default values when ticket changes (e.g. after fetch)
+  React.useEffect(() => {
+    if (ticket) {
+      form.reset({
+        judul: ticket.judul,
+        id_pelanggan: ticket.id_pelanggan,
+        id_kontak: ticket.id_kontak ?? null,
+        id_tahap: ticket.id_tahap,
+        id_user: ticket.id_user,
+        estimasi_nilai: ticket.estimasi_nilai,
+        estimasi_closing:
+          typeof ticket.estimasi_closing === 'string'
+            ? ticket.estimasi_closing.slice(0, 10)
+            : new Date(ticket.estimasi_closing).toISOString().slice(0, 10),
+        status: ticket.status,
+        prioritas: ticket.prioritas,
+        kebutuhan_pelanggan: ticket.kebutuhan_pelanggan ?? '',
+        posisi: ticket.posisi ?? 1,
+      });
+    }
+  }, [ticket, form]);
+
+  // Derived options for dropdowns
+  const selectedPelangganId = useWatch({
+    control: form.control,
+    name: 'id_pelanggan',
+  });
 
   const selectedOutlet = React.useMemo(
-    () => pelangganList.find((p) => p.id_pelanggan === selectedOutletId),
-    [pelangganList, selectedOutletId],
+    () => pelangganList.find((p) => p.id_pelanggan === selectedPelangganId),
+    [pelangganList, selectedPelangganId],
   );
 
-  const kontakOptions = React.useMemo(
-    () => selectedOutlet?.kontak_list ?? [],
-    [selectedOutlet],
-  );
-  // Default ke kontak pertama saat belum ada yang dipilih
-  const selectedKontakId = pickedKontakId || (kontakOptions[0]?.id_kontak ?? '');
+  const outletOptions = React.useMemo(() => {
+    return pelangganList.map((p) => ({
+      value: p.id_pelanggan,
+      label: p.nama_outlet,
+    }));
+  }, [pelangganList]);
 
-  const errors = {
-    judul: submitted && !judul.trim() ? 'Judul tiket wajib diisi' : '',
-    outlet:
-      submitted && !selectedOutletId ? 'Pilih pelanggan terlebih dahulu' : '',
-  };
-
-  const errorCount = (errors.judul ? 1 : 0) + (errors.outlet ? 1 : 0);
+  const kontakOptions = React.useMemo(() => {
+    return (selectedOutlet?.kontak_list ?? []).map((k) => ({
+      value: k.id_kontak,
+      label: `${k.nama}${k.jabatan ? ` (${k.jabatan})` : ''}`,
+    }));
+  }, [selectedOutlet]);
 
   const backPath =
     mode === 'edit' && ticket ? `${basePath}/${ticket.id_tiket}` : basePath;
 
-  const selectOutlet = (id: string) => {
-    setSelectedOutletId(id);
-    setSelectedKontakId('');
-  };
+  // Submit Handler
+  const onSubmit = async (values: CreateTicketFormValues) => {
+    try {
+      setServerError(null);
+      const userId = session?.user?.id_user || values.id_user || 'usr-1';
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitted(true);
+      if (mode === 'edit' && ticket) {
+        await updateMutation.mutateAsync({
+          id: ticket.id_tiket,
+          payload: {
+            ...values,
+            id_user: userId,
+            judul: values.judul.trim(),
+            estimasi_nilai: Number(values.estimasi_nilai),
+            kebutuhan_pelanggan: values.kebutuhan_pelanggan?.trim() || '',
+          },
+        });
 
-    if (!judul.trim() || !selectedOutletId) {
-      return;
-    }
+        toast.add({
+          title: 'Prospek Berhasil Diperbarui',
+          description: `Perubahan data prospek ${values.judul} berhasil disimpan.`,
+          type: 'success',
+        });
+        onSuccess?.();
+      } else {
+        const createdRes = await createMutation.mutateAsync({
+          id_pelanggan: values.id_pelanggan,
+          id_user: userId,
+          id_tahap: values.id_tahap || initialStageId,
+          id_kontak: values.id_kontak || null,
+          judul: values.judul.trim(),
+          estimasi_nilai: Number(values.estimasi_nilai),
+          estimasi_closing: values.estimasi_closing,
+          status: values.status || 'open',
+          kebutuhan_pelanggan:
+            values.kebutuhan_pelanggan?.trim() || values.judul.trim(),
+          prioritas: values.prioritas || 'sedang',
+          posisi: 1,
+        });
 
-    const values: ProspekFormValues = {
-      judul,
-      outletId: selectedOutletId,
-      estimasiDisplay,
-      targetClosing,
-      prioritas,
-      filePenawaran,
-    };
-    const kontak = kontakOptions.find((k) => k.id_kontak === selectedKontakId);
-
-    if (mode === 'edit' && ticket) {
-      updateTicket(
-        ticket.id_tiket,
-        buildTicketUpdates({ values, outlet: selectedOutlet, kontak, ticket }),
+        toast.add({
+          title: 'Prospek Berhasil Dibuat',
+          description: `Prospek ${values.judul} berhasil didaftarkan ke pipa penjualan.`,
+          type: 'success',
+        });
+        onSuccess?.();
+        const newTicketId = createdRes.data?.id_tiket;
+        if (newTicketId) {
+          router.push(`${basePath}/${newTicketId}`);
+        } else {
+          router.push(basePath);
+        }
+      }
+    } catch (err) {
+      const msg = getErrorMessage(err);
+      setServerError(
+        msg || 'Gagal menyimpan prospek. Silakan periksa kembali formulir.',
       );
-      router.push(backPath);
-      return;
+      toast.add({
+        title: 'Gagal Menyimpan Prospek',
+        description: msg || 'Terjadi kesalahan pada server.',
+        type: 'error',
+      });
     }
-
-    addTicket(
-      buildNewTicket({
-        values,
-        outlet: selectedOutlet,
-        kontak,
-        stageId: initialStageId,
-      }),
-    );
-    router.push(basePath);
   };
 
   return {
+    form,
     pelangganList,
+    outletOptions,
     kontakOptions,
-    errors,
-    errorCount,
+    isLoadingPelanggan,
+    isPending,
+    serverError,
+    setServerError,
     backPath,
-    judul,
-    setJudul,
-    selectedOutletId,
-    selectOutlet,
-    selectedKontakId,
-    setSelectedKontakId,
-    estimasiDisplay,
-    setEstimasiDisplay,
-    targetClosing,
-    setTargetClosing,
-    prioritas,
-    setPrioritas,
-    filePenawaran,
-    setFilePenawaran,
-    handleSubmit,
+    ticket,
+    onSubmit: form.handleSubmit(onSubmit),
   };
 }
+
+export type ProspekFormState = ReturnType<typeof useProspekForm>;

@@ -167,7 +167,7 @@ export function KanbanBoardView({ role, basePath }: KanbanBoardViewProps) {
             : pendingStageMove?.targetStage ?? targetStageForAction
         }
         targetIndex={pendingStageMove?.targetIndex}
-        isSubmitting={board.isSubmittingMove}
+        isSubmitting={board.isSubmitting}
         onConfirmMove={board.handleConfirmStageMove}
         onCreateTicket={board.handleConfirmCreateTicket}
         onCancelMove={board.handleCancelMove}

@@ -1,6 +1,10 @@
 import { api } from '@/lib/axios';
 import type { ApiResponse } from '@/types/api.types';
-import type { TiketWithDetails } from '@/types/ticket.types';
+import type {
+  TiketWithDetails,
+  CreateTiketInput,
+  UpdateTiketInput,
+} from '@/types/ticket.types';
 import type {
   TahapKanban,
   KanbanStageColumn,
@@ -75,6 +79,24 @@ export const kanbanService = {
    */
   async getTicketById(id: string): Promise<ApiResponse<TiketWithDetails>> {
     const response = await api.get<ApiResponse<TiketWithDetails>>(`/tiket/${id}`);
+    return response.data;
+  },
+
+  /**
+   * Create a new ticket
+   * POST /tiket
+   */
+  async createTicket(payload: CreateTiketInput): Promise<ApiResponse<TiketWithDetails>> {
+    const response = await api.post<ApiResponse<TiketWithDetails>>('/tiket', payload);
+    return response.data;
+  },
+
+  /**
+   * Update an existing ticket
+   * PUT /tiket/:id
+   */
+  async updateTicket(id: string, payload: UpdateTiketInput): Promise<ApiResponse<TiketWithDetails>> {
+    const response = await api.put<ApiResponse<TiketWithDetails>>(`/tiket/${id}`, payload);
     return response.data;
   },
 

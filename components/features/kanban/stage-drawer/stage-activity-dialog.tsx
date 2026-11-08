@@ -11,7 +11,7 @@ import {
   StageActivityDrawerProps,
   StageDrawerBody,
   StageDrawerFooterActions,
-  buildCreatedTicket,
+  buildCreatedTicketParams,
   buildMoveParams,
   useStageActivityForm,
 } from './index';
@@ -43,7 +43,7 @@ export function StageActivityDialog({
     onOpenChange(false);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!form.evidenceFile) {
@@ -53,8 +53,8 @@ export function StageActivityDialog({
     form.setEvidenceError(false);
 
     if (mode === 'create') {
-      onCreateTicket?.(
-        buildCreatedTicket({
+      await onCreateTicket?.(
+        buildCreatedTicketParams({
           form,
           targetStage,
           pelangganList: form.pelangganList,
@@ -65,7 +65,7 @@ export function StageActivityDialog({
 
     if (!ticket) return;
 
-    onConfirmMove?.(
+    await onConfirmMove?.(
       buildMoveParams({ form, ticket, fromStage, targetStage, targetIndex }),
     );
   };

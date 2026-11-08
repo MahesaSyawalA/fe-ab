@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { usePelangganStore } from '@/lib/pelanggan-store';
+import { usePelangganListQuery } from '@/hooks/queries/use-pelanggan-query';
 import { TiketPrioritas } from '@/types/ticket.types';
 import { StageActivityDrawerProps, EvidenceFileState } from '../types';
 
@@ -34,7 +35,15 @@ export function useStageActivityForm({
   ticket,
   targetStage,
 }: FormArgs) {
-  const { pelangganList } = usePelangganStore();
+  const pelangganQuery = usePelangganListQuery({ limit: 100 });
+  const storePelangganList = usePelangganStore((s) => s.pelangganList);
+
+  const pelangganList = React.useMemo(() => {
+    if (pelangganQuery.data?.data && pelangganQuery.data.data.length > 0) {
+      return pelangganQuery.data.data;
+    }
+    return storePelangganList;
+  }, [pelangganQuery.data?.data, storePelangganList]);
 
   // Create Mode state
   const [selectedPelangganId, setSelectedPelangganId] = React.useState('');
@@ -202,54 +211,10 @@ export function useStageActivityForm({
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setEvidenceError(false);
 
-    // Initial Evidence setup per stage
-    const outletName = ticket?.nama_outlet || 'RS Harapan Sehat';
-    const randNum = Math.floor(100 + Math.random() * 900);
+    // Pastikan berkas bukti selalu kosong secara default pada setiap pembukaan form
+    setEvidenceFile(null);
 
-    switch (targetStage.jenis_tahap) {
-      case 'visit':
-        setEvidenceFile({
-          name: `foto_kunjungan_${outletName.toLowerCase().replace(/\s+/g, '_')}.jpg`,
-          size: '1.4 MB',
-        });
-        break;
-      case 'kebutuhan':
-        setEvidenceFile({
-          name: `form_survei_kebutuhan_alkes_${randNum}.pdf`,
-          size: '860 KB',
-        });
-        break;
-      case 'opportunity':
-        setEvidenceFile({
-          name: `voice_note_kesepakatan_komite_${randNum}.m4a`,
-          size: '1.1 MB',
-        });
-        break;
-      case 'follow_up':
-        setEvidenceFile({
-          name: `rekaman_panggilan_negosiasi_${randNum}.m4a`,
-          size: '680 KB',
-        });
-        break;
-      case 'quotation':
-        setEvidenceFile({
-          name: `surat_penawaran_resmi_signed_${randNum}.pdf`,
-          size: '780 KB',
-        });
-        break;
-      case 'po':
-        setEvidenceFile({
-          name: `scan_purchase_order_outlet_${randNum}.pdf`,
-          size: '1.2 MB',
-        });
-        break;
-      case 'revenue':
-        setEvidenceFile({
-          name: `bukti_transfer_lunas_mandiri_${randNum}.pdf`,
-          size: '640 KB',
-        });
-        break;
-    }
+    const randNum = Math.floor(100 + Math.random() * 900);
 
     if (mode === 'create') {
       const defaultPelanggan = pelangganList[0];
@@ -269,33 +234,33 @@ export function useStageActivityForm({
 
       switch (targetStage.jenis_tahap) {
         case 'visit':
-          setCatatan('Default');
+          setCatatan('');
           break;
         case 'kebutuhan':
-          setCatatan('Default');
+          setCatatan('');
           break;
         case 'opportunity':
-          setCatatan('Default');
+          setCatatan('');
           break;
         case 'follow_up':
-          setCatatan('Default');
+          setCatatan('');
           break;
         case 'quotation':
           setNoQuotation('QTN-2024-0145-R2');
           setNilaiQuotation('45.000.000');
           setRevisiKe('1');
-          setCatatan('Default');
+          setCatatan('');
           break;
         case 'po':
           setNoPo(`PO-RS-2026-${randNum}`);
           setNominalPo('45.000.000');
           setTargetPengiriman(new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10));
-          setCatatan('Default');
+          setCatatan('');
           break;
         case 'revenue':
           setStatusClosing('won');
           setRealisasiRevenue('45.000.000');
-          setCatatan('Default');
+          setCatatan('');
           break;
       }
       return;

@@ -10,7 +10,7 @@ import {
   StageDrawerBody,
   StageDrawerFooter,
   StageDrawerHeader,
-  buildCreatedTicket,
+  buildCreatedTicketParams,
   buildMoveParams,
   useStageActivityForm,
 } from './index';
@@ -62,7 +62,7 @@ export function StageActivitySheet({
     onOpenChange(false);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Bukti aktivitas wajib
@@ -73,8 +73,8 @@ export function StageActivitySheet({
     form.setEvidenceError(false);
 
     if (mode === 'create') {
-      onCreateTicket?.(
-        buildCreatedTicket({
+      await onCreateTicket?.(
+        buildCreatedTicketParams({
           form,
           targetStage,
           pelangganList: form.pelangganList,
@@ -85,7 +85,7 @@ export function StageActivitySheet({
 
     if (!ticket) return;
 
-    onConfirmMove?.(
+    await onConfirmMove?.(
       buildMoveParams({ form, ticket, fromStage, targetStage, targetIndex }),
     );
   };

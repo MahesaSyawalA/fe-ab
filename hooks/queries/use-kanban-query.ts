@@ -14,7 +14,11 @@ import {
 import { getErrorMessage } from '@/lib/axios';
 import { toast } from '@/components/ui/toast';
 import type { ApiResponse } from '@/types/api.types';
-import type { TiketWithDetails } from '@/types/ticket.types';
+import type {
+  TiketWithDetails,
+  CreateTiketInput,
+  UpdateTiketInput,
+} from '@/types/ticket.types';
 import type {
   TahapKanban,
   CreateTahapKanbanInput,
@@ -361,6 +365,58 @@ export function useCreateEvidenceMutation(
     },
     onError: (...args) => {
       console.warn('[Create Evidence Error]:', getErrorMessage(args[0]));
+      options?.onError?.(...args);
+    },
+  });
+}
+
+export function useCreateTicketMutation(
+  options?: UseMutationOptions<
+    ApiResponse<TiketWithDetails>,
+    Error,
+    CreateTiketInput
+  >,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...options,
+    mutationFn: (payload: CreateTiketInput) => kanbanService.createTicket(payload),
+    onSuccess: async (...args) => {
+      await queryClient.invalidateQueries({ queryKey: kanbanKeys.all });
+      await queryClient.invalidateQueries({ queryKey: kanbanKeys.board() });
+      await options?.onSuccess?.(...args);
+    },
+    onError: (...args) => {
+      console.warn('[Create Ticket Error]:', getErrorMessage(args[0]));
+      options?.onError?.(...args);
+    },
+  });
+}
+
+export function useUpdateTicketMutation(
+  options?: UseMutationOptions<
+    ApiResponse<TiketWithDetails>,
+    Error,
+    { id: string; payload: UpdateTiketInput }
+  >,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...options,
+    mutationFn: ({ id, payload }: { id: string; payload: UpdateTiketInput }) =>
+      kanbanService.updateTicket(id, payload),
+    onSuccess: async (...args) => {
+      await queryClient.invalidateQueries({ queryKey: kanbanKeys.all });
+      await queryClient.invalidateQueries({ queryKey: kanbanKeys.board() });
+      await queryClient.invalidateQueries({
+        queryKey: kanbanKeys.ticket(args[1].id),
+      });
+      await options?.onSuccess?.(...args);
+    },
+    onError: (...args) => {
+      console.warn('[Update Ticket Error]:', getErrorMessage(args[0]));
       options?.onError?.(...args);
     },
   });

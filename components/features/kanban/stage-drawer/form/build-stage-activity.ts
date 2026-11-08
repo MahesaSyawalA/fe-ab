@@ -1,9 +1,17 @@
 import { JenisTahap } from '@/types/kanban-stage.types';
 import { PelangganWithDetails } from '@/types/customer.types';
-import { AktivitasWithDetails, TiketWithDetails } from '@/types/ticket.types';
+import {
+  AktivitasWithDetails,
+  CreateTiketInput,
+  TiketWithDetails,
+} from '@/types/ticket.types';
 import { KanbanStageColumn } from '@/constants/kanban-constants';
 import { StageActivityForm } from './use-stage-activity-form';
-import { StageActivityDrawerProps, detectFileType } from '../types';
+import {
+  CreateTicketDrawerParams,
+  StageActivityDrawerProps,
+  detectFileType,
+} from '../types';
 
 type StageForm = Pick<
   StageActivityForm,
@@ -42,13 +50,14 @@ function parseNilai(f: StageForm, stageType: JenisTahap): number {
 
 function buildEvidence(f: StageForm): AktivitasWithDetails['evidence'] {
   const file = f.evidenceFile;
+  if (!file) return undefined;
   return {
-    tipe: file ? detectFileType(file.name) : 'dokumen',
-    nama_file: file?.name || 'bukti_aktivitas.pdf',
-    file_size: file?.size || '500 KB',
-    deskripsi: file?.name || 'Bukti aktivitas',
+    tipe: detectFileType(file.name),
+    nama_file: file.name,
+    file_size: file.size,
+    deskripsi: file.name,
     waktu_upload: 'Baru saja',
-    url_preview: file?.url,
+    url_preview: file.url,
   };
 }
 
@@ -66,29 +75,70 @@ interface CreateArgs {
   pelangganList: PelangganWithDetails[];
 }
 
-export function buildCreatedTicket({
+export function buildCreatedTicketParams({
   form: f,
   targetStage,
   pelangganList,
-}: CreateArgs): TiketWithDetails {
+}: CreateArgs): CreateTicketDrawerParams {
   const stageType = targetStage.jenis_tahap ?? 'visit';
   const selectedPelanggan =
     pelangganList.find((p) => p.id_pelanggan === f.selectedPelangganId) ||
     pelangganList[0];
 
+  const matchedContact =
+    selectedPelanggan?.kontak_list?.find(
+      (k) => k.nama.toLowerCase() === (f.picDitemui || '').toLowerCase(),
+    ) || selectedPelanggan?.kontak_list?.[0];
+
+  const id_kontak = matchedContact?.id_kontak || null;
+
   const newId = `tkt-${Date.now()}`;
   const kodeTiket = `TK-${Math.floor(1000 + Math.random() * 9000)}`;
+
+  const activityPayload = {
+    catatan:
+      f.catatan.trim() ||
+      `Tiket baru dibuat pada tahap ${targetStage.nama_tahap} oleh Sales.`,
+    tanggal: f.tanggalAktivitas || new Date().toISOString(),
+    jenis_kegiatan: toKegiatan(targetStage),
+    jadwal_follow_up: f.jadwalFollowUp || null,
+  };
+
+  const note = (f.catatan || f.spesifikasiKebutuhan || '').trim();
+  const namaPelanggan = selectedPelanggan?.nama_outlet || '';
+  const kebutuhanPelangganFinal =
+    note ||
+    `Kebutuhan awal prospek ${f.judulProspek.trim() || namaPelanggan || 'pelanggan'}`;
+
+  const createPayload: CreateTiketInput = {
+    id_pelanggan: selectedPelanggan?.id_pelanggan || '',
+    id_user: 'usr-1',
+    id_tahap: targetStage.id_tahap,
+    id_kontak,
+    judul:
+      f.judulProspek.trim() ||
+      `Pengadaan Alkes - ${selectedPelanggan?.nama_outlet || 'Outlet'}`,
+    estimasi_nilai: parseNilai(f, stageType),
+    estimasi_closing:
+      f.targetClosing ||
+      new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10),
+    status: stageType === 'revenue' ? f.statusClosing : 'open',
+    kebutuhan_pelanggan: kebutuhanPelangganFinal,
+    prioritas: f.prioritas,
+    posisi: 1,
+    tanggal_penawaran_awal: null,
+    tanggal_closing: stageType === 'revenue' ? f.tanggalAktivitas : null,
+    alasan_lost: null,
+  };
 
   const newActivity: AktivitasWithDetails = {
     id_aktivitas: `akt-${Date.now()}`,
     id_user: 'usr-1',
     id_tiket: newId,
     tanggal: f.tanggalAktivitas,
-    catatan:
-      f.catatan.trim() ||
-      `Tiket baru dibuat pada tahap ${targetStage.nama_tahap} oleh Sales.`,
-    jenis_kegiatan: toKegiatan(targetStage),
-    jadwal_follow_up: f.jadwalFollowUp || null,
+    catatan: activityPayload.catatan,
+    jenis_kegiatan: activityPayload.jenis_kegiatan,
+    jadwal_follow_up: activityPayload.jadwal_follow_up,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     nama_petugas: 'Rina Putri',
@@ -97,25 +147,21 @@ export function buildCreatedTicket({
     evidence: buildEvidence(f),
   };
 
-  return {
+  const newTicket: TiketWithDetails = {
     id_tiket: newId,
     id_pelanggan: selectedPelanggan?.id_pelanggan || 'plg-1',
     id_user: 'usr-1',
     id_tahap: targetStage.id_tahap,
-    id_kontak: null,
-    judul:
-      f.judulProspek.trim() ||
-      `Pengadaan Alkes - ${selectedPelanggan?.nama_outlet || 'RS'}`,
-    estimasi_nilai: parseNilai(f, stageType),
-    estimasi_closing:
-      f.targetClosing ||
-      new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10),
-    status: stageType === 'revenue' ? f.statusClosing : 'open',
-    kebutuhan_pelanggan: f.spesifikasiKebutuhan || '',
-    prioritas: f.prioritas,
-    posisi: 0,
+    id_kontak,
+    judul: createPayload.judul,
+    estimasi_nilai: createPayload.estimasi_nilai,
+    estimasi_closing: createPayload.estimasi_closing,
+    status: createPayload.status,
+    kebutuhan_pelanggan: createPayload.kebutuhan_pelanggan,
+    prioritas: createPayload.prioritas,
+    posisi: 1,
     tanggal_penawaran_awal: null,
-    tanggal_closing: stageType === 'revenue' ? f.tanggalAktivitas : null,
+    tanggal_closing: createPayload.tanggal_closing ?? null,
     alasan_lost: null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -142,6 +188,18 @@ export function buildCreatedTicket({
       },
     ],
   };
+
+  return {
+    newTicket,
+    createPayload,
+    activityPayload,
+    evidenceFile: f.evidenceFile,
+    gpsData: f.gpsData,
+  };
+}
+
+export function buildCreatedTicket(args: CreateArgs): TiketWithDetails {
+  return buildCreatedTicketParams(args).newTicket;
 }
 
 type ConfirmMoveParams = Parameters<

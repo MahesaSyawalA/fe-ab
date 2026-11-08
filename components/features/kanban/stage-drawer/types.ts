@@ -1,5 +1,6 @@
 import {
   AktivitasWithDetails,
+  CreateTiketInput,
   JenisEvidence,
   TiketWithDetails,
 } from '@/types/ticket.types';
@@ -13,6 +14,24 @@ export interface EvidenceFileState {
   type?: string;
   url?: string;
   rawFile?: File;
+}
+
+export interface CreateTicketDrawerParams {
+  newTicket: TiketWithDetails;
+  createPayload: CreateTiketInput;
+  activityPayload?: {
+    catatan: string;
+    tanggal: string;
+    jenis_kegiatan: AktivitasWithDetails['jenis_kegiatan'];
+    jadwal_follow_up?: string | null;
+  };
+  evidenceFile?: EvidenceFileState | null;
+  gpsData?: {
+    latitude: number;
+    longitude: number;
+    jarak_klien: number;
+    dalam_radius: boolean;
+  };
 }
 
 export interface StageActivityDrawerProps {
@@ -39,7 +58,7 @@ export interface StageActivityDrawerProps {
       dalam_radius: boolean;
     };
   }) => void | Promise<void>;
-  onCreateTicket?: (newTicket: TiketWithDetails) => void;
+  onCreateTicket?: (params: CreateTicketDrawerParams) => void | Promise<void>;
   onCancelMove?: () => void;
 }
 

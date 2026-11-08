@@ -7,4 +7,5 @@ export * from './prospek-field-penawaran';
 export * from './prospek-field-prioritas';
 export * from './prospek-form-actions';
 export * from './prospek-form-banner';
+export * from './prospek-edit-form-fields';
 export * from './use-prospek-form';

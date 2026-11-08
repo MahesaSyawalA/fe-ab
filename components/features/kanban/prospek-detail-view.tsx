@@ -32,6 +32,7 @@ import {
   ProspekProgressCard,
   ProspekSummaryCard,
 } from './prospek/detail';
+import { ProspekEditModal } from './prospek/prospek-edit-modal';
 import {
   ProspekTabAktivitas,
   ProspekTabInfo,
@@ -96,6 +97,7 @@ export function ProspekDetailView({
   const [activeTab, setActiveTab] = React.useState<DetailTab>('info');
   const [activityDrawerOpen, setActivityDrawerOpen] = React.useState(false);
   const [negotiationDrawerOpen, setNegotiationDrawerOpen] = React.useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
   const [isSubmittingActivity, setIsSubmittingActivity] = React.useState(false);
 
   const currentStage = React.useMemo(() => {
@@ -192,7 +194,7 @@ export function ProspekDetailView({
               type='button'
               variant='ghost'
               size='icon-sm'
-              onClick={() => router.push(`${basePath}/${ticket.id_tiket}/edit`)}
+              onClick={() => setIsEditModalOpen(true)}
               className='size-8 rounded-full text-foreground hover:bg-muted cursor-pointer md:hidden'
               aria-label='Edit Prospek'
             >
@@ -204,7 +206,7 @@ export function ProspekDetailView({
               type='button'
               variant='outline'
               size='sm'
-              onClick={() => router.push(`${basePath}/${ticket.id_tiket}/edit`)}
+              onClick={() => setIsEditModalOpen(true)}
               className='hidden md:flex h-9 rounded-xl border-border bg-card text-foreground shadow-2xs hover:bg-secondary gap-1.5 px-3.5 cursor-pointer text-xs font-medium'
             >
               <Pencil className='size-3.5' />
@@ -368,6 +370,14 @@ export function ProspekDetailView({
         open={negotiationDrawerOpen}
         onOpenChange={setNegotiationDrawerOpen}
         onSelect={handleNegotiationResult}
+      />
+
+      <ProspekEditModal
+        ticket={ticket}
+        open={isEditModalOpen}
+        onOpenChange={setIsEditModalOpen}
+        basePath={basePath}
+        onSuccess={() => refetch()}
       />
     </div>
   );

@@ -1,4 +1,3 @@
-import { ShieldAlert } from 'lucide-react';
 import { JenisTahap } from '@/types/kanban-stage.types';
 import { StageDrawerMode } from '../types';
 import { StageTextAreaInput } from '../inputs';
@@ -23,21 +22,6 @@ interface StageDrawerBodyProps {
 export function StageDrawerBody({ mode, stageType, form }: StageDrawerBodyProps) {
   return (
     <div className='no-scrollbar flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 py-3 flex flex-col gap-3'>
-      {/* EVIDENCE ERROR BANNER */}
-      {form.evidenceError && (
-        <div className='flex items-start gap-2 rounded-xl border border-rose-300 bg-rose-50 px-3 py-2 text-rose-800 animate-in fade-in slide-in-from-top-2'>
-          <ShieldAlert className='size-4 shrink-0 mt-0.5 text-rose-600' />
-          <div className='flex flex-col gap-0.5 text-xs'>
-            <span className='font-bold text-rose-900'>
-              File Bukti Aktivitas Wajib Dilampirkan
-            </span>
-            <span className='text-[11px]'>
-              Unggah file bukti aktivitas sebelum menyimpan.
-            </span>
-          </div>
-        </div>
-      )}
-
       {/* 1. INFORMASI DASAR: HANYA DIRENDER JIKA MODE === 'create' */}
       {mode === 'create' && (
         <StageFormInformasiDasar
@@ -148,7 +132,11 @@ export function StageDrawerBody({ mode, stageType, form }: StageDrawerBodyProps)
           rows={3}
           value={form.catatan}
           onChange={form.setCatatan}
-          placeholder='Default'
+          placeholder={
+            mode === 'move'
+              ? 'Tuliskan catatan aktivitas...'
+              : 'Tuliskan kebutuhan atau catatan prospek...'
+          }
         />
         <div className='flex justify-end text-[10px] text-muted-foreground pr-1'>
           {form.catatan.length}/1000 Characters
