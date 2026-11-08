@@ -34,11 +34,11 @@ export function KanbanBoardView({ role, basePath }: KanbanBoardViewProps) {
   return (
     <div className='relative flex w-full max-w-full min-w-0 flex-col gap-3.5 pb-20'>
       {/* Page Title */}
-      <div className='flex flex-col gap-0.5 w-full max-w-full'>
-        <h1 className='text-lg font-bold tracking-tight text-foreground'>
+      <div className='flex flex-col gap-0.5 sm:gap-1 w-full max-w-full'>
+        <h1 className='text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug'>
           Papan Kanban
         </h1>
-        <p className='text-xs text-muted-foreground'>
+        <p className='text-xs sm:text-sm text-secondary-foreground leading-snug'>
           Pipeline 7 Tahap Aktivitas Penjualan · Squad Jakarta 1
         </p>
       </div>

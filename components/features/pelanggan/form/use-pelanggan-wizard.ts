@@ -127,7 +127,6 @@ export function usePelangganWizard({
 
   const onValid = async (values: CreateCustomerInput) => {
     setServerError(null);
-    console.log('[PELANGGAN SUBMIT PAYLOAD]', values);
 
     const payload: CreatePelangganInput = {
       nama_outlet: values.nama_outlet.trim(),
@@ -160,7 +159,6 @@ export function usePelangganWizard({
         }
       }
     } catch (error: unknown) {
-      console.warn('[CREATE PELANGGAN SUBMIT ERROR]', error);
       const msg = getErrorMessage(error);
       setServerError(msg);
       form.setError('root.server', { message: msg });
@@ -168,7 +166,6 @@ export function usePelangganWizard({
   };
 
   const onInvalid = (errors: FieldErrors<CreateCustomerInput>) => {
-    console.warn('[PELANGGAN FORM ERRORS]', errors);
     if (errors.nama_outlet || errors.tipe_outlet || errors.alamat || errors.img_url) {
       setCurrentStep(1);
     } else if (errors.latitude || errors.longitude || errors.radius_kunjungan) {

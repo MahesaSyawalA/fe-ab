@@ -1,7 +1,6 @@
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
-import { isAxiosError } from 'axios';
-import { api, getErrorMessage } from '@/lib/axios';
+import { api } from '@/lib/axios';
 import { type UserRole } from '@/types/user.types';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -17,10 +16,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return null;
         }
 
-        const targetUrl = `${api.defaults.baseURL}/auth/login`;
-        console.log('[DEBUG AUTH] Target URL:', targetUrl);
-        console.log('[DEBUG AUTH] Request Payload:', { email: credentials.email });
-
         try {
           const response = await api.post('/auth/login', {
             email: credentials.email,
@@ -31,7 +26,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           const userObj = resJson?.data;
 
           if (!userObj || !userObj.id_user) {
-            console.error('[Auth Login] Data user tidak ditemukan dalam respons:', resJson);
             return null;
           }
 
@@ -82,13 +76,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             accessToken,
             refreshToken,
           };
-        } catch (error) {
-          if (isAxiosError(error)) {
-            console.error('[DEBUG AUTH ERROR] Status:', error.response?.status);
-            console.error('[DEBUG AUTH ERROR] Config URL:', error.config?.baseURL, error.config?.url);
-            console.error('[DEBUG AUTH ERROR] Response Data:', error.response?.data);
-          }
-          console.error('[Auth Login Error]:', getErrorMessage(error));
+        } catch {
           return null;
         }
       },

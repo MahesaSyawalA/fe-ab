@@ -62,8 +62,7 @@ export function LoginForm() {
         router.push(callbackUrl);
         router.refresh();
       }
-    } catch (err) {
-      console.error('[Login Form Error]:', err);
+    } catch {
       setAuthError('Terjadi gangguan koneksi ke server autentikasi. Silakan coba beberapa saat lagi.');
     }
   };

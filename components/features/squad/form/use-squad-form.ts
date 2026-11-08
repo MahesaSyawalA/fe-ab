@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { useForm, useWatch, type FieldErrors } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { isAxiosError } from 'axios';
 import {
@@ -84,7 +84,6 @@ export function useSquadForm({ basePath, squad }: UseSquadFormOptions) {
   const requestCancel = () => (form.formState.isDirty ? setDialog('cancel') : goBack());
 
   const onValid = async (values: SquadFormValues) => {
-    console.log('[SQUAD SUBMIT PAYLOAD]', values);
     try {
       const payload: CreateSquadInput = {
         nama_squad: values.nama_squad,
@@ -98,7 +97,6 @@ export function useSquadForm({ basePath, squad }: UseSquadFormOptions) {
       await (isEdit ? updateMutation : createMutation).mutateAsync(payload);
       goBack();
     } catch (error: unknown) {
-      console.warn('[SQUAD SUBMIT WARN]', error);
       const message = getErrorMessage(error);
 
       // Tangani error backend spesifik HTTP 409 ("Kode squad sudah digunakan")
@@ -116,9 +114,7 @@ export function useSquadForm({ basePath, squad }: UseSquadFormOptions) {
     }
   };
 
-  const onInvalid = (errors: FieldErrors<SquadFormValues>) => {
-    console.warn('[SQUAD FORM ERRORS]', errors);
-  };
+  const onInvalid = () => {};
 
   const onSubmit = form.handleSubmit(onValid, onInvalid);
 
@@ -128,7 +124,6 @@ export function useSquadForm({ basePath, squad }: UseSquadFormOptions) {
       await deleteMutation.mutateAsync(squad.id_squad);
       goBack();
     } catch (error) {
-      console.warn('[SQUAD DELETE WARN]', error);
       setDialog(null);
       form.setError('root.server', { message: getErrorMessage(error) });
     }

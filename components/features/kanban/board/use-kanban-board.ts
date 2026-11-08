@@ -704,8 +704,8 @@ export function useKanbanBoard() {
               await createEvidenceMutation.mutateAsync(formData);
             }
           }
-        } catch (actErr) {
-          console.warn('[Create Activity Chaining Warning]:', actErr);
+        } catch {
+          // Abaikan error chaining jika pembuatan aktivitas/bukti gagal setelah tiket terbuat
         }
       }
 

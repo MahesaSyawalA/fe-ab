@@ -7,7 +7,6 @@ import { cn } from '@/lib/utils';
 /** Banner foto outlet dengan nama, tipe, status, dan alamat di atas gradien. */
 export function PelangganHero({ pelanggan }: { pelanggan: PelangganWithDetails }) {
   const isNonaktif = pelanggan.status === 'Nonaktif';
-  const isProspek = pelanggan.status === 'Prospek';
 
   return (
     <div className='relative h-52 md:h-64 lg:h-72 w-full overflow-hidden bg-slate-900 md:rounded-3xl md:border md:border-border/60 md:shadow-sm'>

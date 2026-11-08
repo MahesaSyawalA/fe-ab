@@ -33,7 +33,7 @@ export function PelangganView({
     <div className='mx-auto flex w-full max-w-7xl min-w-0 flex-col gap-5 pb-12'>
       <PelangganListHeader
         title='Pelanggan'
-        subtitle='Daftar Pelanggan'
+        subtitle='Daftar Pelanggan terdaftar dalam sistem pelacakan penjualan'
         onAddClick={isAllowedToAdd ? () => router.push(`${basePath}/tambah`) : undefined}
       />
 

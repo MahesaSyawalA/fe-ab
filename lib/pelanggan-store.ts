@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import { PelangganWithDetails } from '@/types/customer.types';
-import { INITIAL_PELANGGAN_LIST } from '@/constants/pelanggan-constants';
 
 interface PelangganStoreState {
   pelangganList: PelangganWithDetails[];
@@ -9,7 +8,7 @@ interface PelangganStoreState {
 }
 
 export const usePelangganStore = create<PelangganStoreState>((set, get) => ({
-  pelangganList: INITIAL_PELANGGAN_LIST,
+  pelangganList: [],
   addPelanggan: (newPelanggan) =>
     set((state) => ({
       pelangganList: [newPelanggan, ...state.pelangganList],
@@ -17,4 +16,3 @@ export const usePelangganStore = create<PelangganStoreState>((set, get) => ({
   getPelangganById: (id) =>
     get().pelangganList.find((item) => item.id_pelanggan === id),
 }));
-
