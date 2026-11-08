@@ -1,13 +1,16 @@
 import * as React from 'react';
+import { useSession } from 'next-auth/react';
 import { arrayMove } from '@dnd-kit/sortable';
 import type {
   KanbanMoveEvent,
   KanbanRootProps,
 } from '@/components/reui/kanban';
 import type { ChipFilterItem } from '@/components/ui/chip-filter';
+import { toast } from '@/components/ui/toast';
 import { countActiveFilters } from '../filter';
 import { useKanbanFilterStore } from '@/store/kanban-filter-store';
 import { StageDrawerMode, StageActivityDrawerProps } from '../stage-activity-drawer';
+import { detectFileType } from '../stage-drawer/types';
 import { useKanbanStore } from '@/lib/kanban-store';
 import {
   INITIAL_KANBAN_STAGES,
@@ -20,6 +23,9 @@ import {
   useKanbanStagesQuery,
   useKanbanBoardQuery,
   useMoveTicketMutation,
+  useCreateAktivitasMutation,
+  useCreateBuktiKunjunganMutation,
+  useCreateEvidenceMutation,
 } from '@/hooks/queries/use-kanban-query';
 import type { KanbanBoardFilterParams } from '@/services/kanban-service';
 
@@ -59,8 +65,14 @@ export function useKanbanBoard() {
   // -------------------------------------------------------------------
   // 1. TanStack Query: Fetch Stages & Mutations
   // -------------------------------------------------------------------
+  const { data: session } = useSession();
   const stagesQuery = useKanbanStagesQuery();
   const moveTicketMutation = useMoveTicketMutation();
+  const createAktivitasMutation = useCreateAktivitasMutation();
+  const createBuktiKunjunganMutation = useCreateBuktiKunjunganMutation();
+  const createEvidenceMutation = useCreateEvidenceMutation();
+
+  const [isSubmittingMove, setIsSubmittingMove] = React.useState(false);
 
   const stages: KanbanStageColumn[] = React.useMemo(() => {
     const raw = stagesQuery.data?.data;
@@ -524,11 +536,13 @@ export function useKanbanBoard() {
   const handleConfirmStageMove: NonNullable<
     StageActivityDrawerProps['onConfirmMove']
   > = async (params) => {
+    setIsSubmittingMove(true);
+
     // 1. Local optimistic update in store for immediate rendering
     moveTicketWithStageUpdate(params);
 
-    // 2. Perform optimistic TanStack Query mutation to PATCH /tiket/:id
     try {
+      // 2. Step 1: Move ticket (PATCH /tiket/:id)
       await moveTicketMutation.mutateAsync({
         id_tiket: params.id_tiket,
         id_tahap: params.toStageId,
@@ -542,13 +556,81 @@ export function useKanbanBoard() {
             ? params.targetIndex + 1
             : undefined,
       });
-    } catch {
-      // Handled by mutation onError rollback
-    }
 
-    setSelectedStageId(params.toStageId);
-    scrollToStage(params.toStageId);
-    setPendingStageMove(null);
+      // 3. Step 2: Create activity (POST /aktivitas)
+      const userId =
+        session?.user?.id_user || params.activity.id_user || 'usr-1';
+      const createdAktivitasRes = await createAktivitasMutation.mutateAsync({
+        id_user: userId,
+        id_tiket: params.id_tiket,
+        tanggal: params.activity.tanggal || new Date().toISOString(),
+        catatan:
+          params.activity.catatan || `Aktivitas tahap ${params.toStageId}`,
+        jenis_kegiatan: params.activity.jenis_kegiatan,
+        jadwal_follow_up: params.activity.jadwal_follow_up,
+      });
+
+      const newAktivitasId = createdAktivitasRes?.data?.id_aktivitas;
+
+      // 4. Step 3: Bukti Berkas Chaining
+      if (newAktivitasId && params.evidenceFile?.rawFile) {
+        const targetStageObj = stages.find(
+          (s) => s.id_tahap === params.toStageId,
+        );
+        const stageType = targetStageObj?.jenis_tahap;
+
+        if (stageType === 'visit') {
+          // POST /bukti-kunjungan (multipart/form-data)
+          const formData = new FormData();
+          formData.append('id_aktivitas', newAktivitasId);
+          formData.append('img_url', params.evidenceFile.rawFile);
+          if (params.gpsData) {
+            formData.append('latitude', String(params.gpsData.latitude));
+            formData.append('longitude', String(params.gpsData.longitude));
+            formData.append('jarak_klien', String(params.gpsData.jarak_klien));
+            formData.append(
+              'dalam_radius',
+              params.gpsData.dalam_radius ? 'true' : 'false',
+            );
+          }
+          await createBuktiKunjunganMutation.mutateAsync(formData);
+        } else {
+          // POST /evidence (multipart/form-data)
+          const formData = new FormData();
+          formData.append('id_aktivitas', newAktivitasId);
+          formData.append('file', params.evidenceFile.rawFile);
+          formData.append('tipe', detectFileType(params.evidenceFile.name));
+          formData.append('deskripsi', params.evidenceFile.name);
+          if (params.activity.catatan) {
+            formData.append('catatan', params.activity.catatan);
+          }
+          await createEvidenceMutation.mutateAsync(formData);
+        }
+      }
+
+      toast.add({
+        title: 'Berhasil Memindahkan Tiket',
+        description: 'Tiket berhasil dipindahkan dan berkas bukti tercatat.',
+        type: 'success',
+      });
+
+      setSelectedStageId(params.toStageId);
+      scrollToStage(params.toStageId);
+      setIsStageDrawerOpen(false);
+      setPendingStageMove(null);
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : 'Terjadi kesalahan saat memproses aktivitas tiket.';
+      toast.add({
+        title: 'Gagal Memproses Perpindahan',
+        description: message,
+        type: 'error',
+      });
+    } finally {
+      setIsSubmittingMove(false);
+    }
   };
 
   // Confirm new ticket creation in that stage
@@ -598,6 +680,7 @@ export function useKanbanBoard() {
     nextStage,
     quickMoveTicket,
     isMovingTicket: moveTicketMutation.isPending,
+    isSubmittingMove,
     isLoading: stagesQuery.isLoading || boardQuery.isLoading,
     isFetching: stagesQuery.isFetching || boardQuery.isFetching,
     isError: stagesQuery.isError || boardQuery.isError,

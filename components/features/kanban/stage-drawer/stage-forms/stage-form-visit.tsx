@@ -1,9 +1,10 @@
 'use client';
 
 import * as React from 'react';
-import { MapPin } from 'lucide-react';
+import { MapPin, RefreshCw } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import { StageDrawerMode } from '../types';
 import type { Kontak } from '@/types/contact.types';
 import {
@@ -16,6 +17,8 @@ export interface StageFormVisitProps {
   mode?: StageDrawerMode;
   koordinatGps?: string;
   statusRadius?: string;
+  isLocating?: boolean;
+  isWithinRadius?: boolean;
   onRefreshLocation?: () => void;
   waktuAktivitas?: string;
   onWaktuChange?: (val: string) => void;
@@ -27,8 +30,10 @@ export interface StageFormVisitProps {
 
 export function StageFormVisit({
   mode = 'create',
-  koordinatGps = '-6.2008, 106.8765',
+  koordinatGps = '-6.2088, 106.8456',
   statusRadius = 'Dalam Radius (38m)',
+  isLocating = false,
+  isWithinRadius = true,
   onRefreshLocation,
   waktuAktivitas = '',
   onWaktuChange,
@@ -72,8 +77,28 @@ export function StageFormVisit({
           <MapPin className='size-4 text-blue-600 shrink-0' />
           <span className='font-medium text-muted-foreground'>Lokasi:</span>
           <span className='font-semibold text-blue-950 truncate'>{koordinatGps}</span>
+          <Button
+            type='button'
+            variant='ghost'
+            size='icon-xs'
+            onClick={onRefreshLocation}
+            disabled={isLocating}
+            className='size-5 p-0 text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded cursor-pointer shrink-0'
+            title='Perbarui Lokasi GPS'
+          >
+            <RefreshCw className={cn('size-3', isLocating && 'animate-spin')} />
+          </Button>
         </div>
-        <Badge className='bg-emerald-500 hover:bg-emerald-500 text-white text-[10px] h-5 rounded-full px-2.5 shrink-0 font-medium border-0'>
+        <Badge
+          className={cn(
+            'text-white text-[10px] h-5 rounded-full px-2.5 shrink-0 font-medium border-0 transition-colors',
+            isLocating
+              ? 'bg-amber-500 hover:bg-amber-500'
+              : isWithinRadius
+                ? 'bg-emerald-500 hover:bg-emerald-500'
+                : 'bg-rose-500 hover:bg-rose-500',
+          )}
+        >
           {statusRadius}
         </Badge>
       </div>
@@ -121,9 +146,11 @@ export function StageFormVisit({
           type='button'
           variant='outline'
           onClick={onRefreshLocation}
+          disabled={isLocating}
           className='h-9 w-full rounded-[8px] border border-blue-300 bg-blue-50/40 text-blue-600 hover:bg-blue-50 hover:text-blue-700 text-xs font-semibold cursor-pointer shadow-none'
         >
-          Ambil Titik Koordinat Saat Ini
+          <RefreshCw className={cn('size-3.5 mr-1.5', isLocating && 'animate-spin')} />
+          {isLocating ? 'Mendeteksi Lokasi...' : 'Ambil Titik Koordinat Saat Ini'}
         </Button>
       )}
     </div>

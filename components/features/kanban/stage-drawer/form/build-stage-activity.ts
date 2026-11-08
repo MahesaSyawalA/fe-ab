@@ -19,6 +19,7 @@ type StageForm = Pick<
   | 'targetClosing'
   | 'statusClosing'
   | 'spesifikasiKebutuhan'
+  | 'gpsData'
 >;
 
 type JenisKegiatan = AktivitasWithDetails['jenis_kegiatan'];
@@ -222,5 +223,7 @@ export function buildMoveParams({
     targetIndex,
     ticketUpdates,
     activity,
+    evidenceFile: f.evidenceFile,
+    gpsData: f.gpsData,
   };
 }

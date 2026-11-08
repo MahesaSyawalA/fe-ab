@@ -7,6 +7,12 @@ import type {
   CreateTahapKanbanInput,
   UpdateTahapKanbanInput,
 } from '@/types/kanban-stage.types';
+import type {
+  CreateAktivitasInput,
+  AktivitasWithDetails,
+  EvidenceItem,
+} from '@/types/activity.types';
+import type { BuktiKunjungan } from '@/types/visit-proof.types';
 
 export interface KanbanBoardData {
   stages: (KanbanStageColumn | TahapKanban)[];
@@ -107,6 +113,51 @@ export const kanbanService = {
       });
     }
     const response = await api.patch<ApiResponse<TiketWithDetails>>(`/tiket/${payload.id_tiket}`, payload);
+    return response.data;
+  },
+
+  /**
+   * Create an activity record
+   * POST /aktivitas
+   */
+  async createAktivitas(
+    payload: CreateAktivitasInput
+  ): Promise<ApiResponse<AktivitasWithDetails>> {
+    const response = await api.post<ApiResponse<AktivitasWithDetails>>('/aktivitas', payload);
+    return response.data;
+  },
+
+  /**
+   * Upload visit proof (selfie & GPS metadata)
+   * POST /bukti-kunjungan
+   */
+  async createBuktiKunjungan(
+    formData: FormData
+  ): Promise<ApiResponse<BuktiKunjungan>> {
+    const response = await api.post<ApiResponse<BuktiKunjungan>>(
+      '/bukti-kunjungan',
+      formData,
+      {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      }
+    );
+    return response.data;
+  },
+
+  /**
+   * Upload stage evidence (document, photo, audio)
+   * POST /evidence
+   */
+  async createEvidence(
+    formData: FormData
+  ): Promise<ApiResponse<EvidenceItem>> {
+    const response = await api.post<ApiResponse<EvidenceItem>>(
+      '/evidence',
+      formData,
+      {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      }
+    );
     return response.data;
   },
 

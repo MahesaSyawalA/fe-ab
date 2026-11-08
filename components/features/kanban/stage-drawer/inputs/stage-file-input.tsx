@@ -91,6 +91,7 @@ export function StageFileInput({
       size: formatFileSize(file.size),
       type: file.type,
       url: file.type.startsWith('image/') ? URL.createObjectURL(file) : undefined,
+      rawFile: file,
     });
   };
 

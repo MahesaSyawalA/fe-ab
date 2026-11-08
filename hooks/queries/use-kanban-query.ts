@@ -20,6 +20,12 @@ import type {
   CreateTahapKanbanInput,
   UpdateTahapKanbanInput,
 } from '@/types/kanban-stage.types';
+import type {
+  CreateAktivitasInput,
+  AktivitasWithDetails,
+  EvidenceItem,
+} from '@/types/activity.types';
+import type { BuktiKunjungan } from '@/types/visit-proof.types';
 
 export const kanbanKeys = {
   all: ['kanban'] as const,
@@ -299,3 +305,64 @@ export function useDeleteTahapMutation(
     },
   });
 }
+
+export function useCreateAktivitasMutation(
+  options?: UseMutationOptions<ApiResponse<AktivitasWithDetails>, Error, CreateAktivitasInput>,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...options,
+    mutationFn: (payload: CreateAktivitasInput) => kanbanService.createAktivitas(payload),
+    onSuccess: async (...args) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: kanbanKeys.all }),
+        queryClient.invalidateQueries({ queryKey: kanbanKeys.ticket(args[1].id_tiket) }),
+      ]);
+      await options?.onSuccess?.(...args);
+    },
+    onError: (...args) => {
+      console.warn('[Create Aktivitas Error]:', getErrorMessage(args[0]));
+      options?.onError?.(...args);
+    },
+  });
+}
+
+export function useCreateBuktiKunjunganMutation(
+  options?: UseMutationOptions<ApiResponse<BuktiKunjungan>, Error, FormData>,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...options,
+    mutationFn: (formData: FormData) => kanbanService.createBuktiKunjungan(formData),
+    onSuccess: async (...args) => {
+      await queryClient.invalidateQueries({ queryKey: kanbanKeys.all });
+      await options?.onSuccess?.(...args);
+    },
+    onError: (...args) => {
+      console.warn('[Create Bukti Kunjungan Error]:', getErrorMessage(args[0]));
+      options?.onError?.(...args);
+    },
+  });
+}
+
+export function useCreateEvidenceMutation(
+  options?: UseMutationOptions<ApiResponse<EvidenceItem>, Error, FormData>,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...options,
+    mutationFn: (formData: FormData) => kanbanService.createEvidence(formData),
+    onSuccess: async (...args) => {
+      await queryClient.invalidateQueries({ queryKey: kanbanKeys.all });
+      await options?.onSuccess?.(...args);
+    },
+    onError: (...args) => {
+      console.warn('[Create Evidence Error]:', getErrorMessage(args[0]));
+      options?.onError?.(...args);
+    },
+  });
+}
+

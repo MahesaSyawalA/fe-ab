@@ -12,6 +12,7 @@ export interface EvidenceFileState {
   size: string;
   type?: string;
   url?: string;
+  rawFile?: File;
 }
 
 export interface StageActivityDrawerProps {
@@ -22,6 +23,7 @@ export interface StageActivityDrawerProps {
   fromStage?: KanbanStageColumn | null;
   targetStage: KanbanStageColumn | null;
   targetIndex?: number;
+  isSubmitting?: boolean;
   onConfirmMove?: (params: {
     id_tiket: string;
     fromStageId: string;
@@ -29,7 +31,14 @@ export interface StageActivityDrawerProps {
     targetIndex?: number;
     ticketUpdates: Partial<TiketWithDetails>;
     activity: AktivitasWithDetails;
-  }) => void;
+    evidenceFile?: EvidenceFileState | null;
+    gpsData?: {
+      latitude: number;
+      longitude: number;
+      jarak_klien: number;
+      dalam_radius: boolean;
+    };
+  }) => void | Promise<void>;
   onCreateTicket?: (newTicket: TiketWithDetails) => void;
   onCancelMove?: () => void;
 }

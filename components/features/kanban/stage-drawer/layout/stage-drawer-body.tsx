@@ -65,6 +65,9 @@ export function StageDrawerBody({ mode, stageType, form }: StageDrawerBodyProps)
           mode={mode}
           koordinatGps={form.koordinatGps}
           statusRadius={form.statusRadius}
+          isLocating={form.isLocating}
+          isWithinRadius={form.isWithinRadius}
+          onRefreshLocation={form.refreshLocation}
           waktuAktivitas={form.waktuAktivitas}
           onWaktuChange={form.setWaktuAktivitas}
           picDitemui={form.picDitemui}
