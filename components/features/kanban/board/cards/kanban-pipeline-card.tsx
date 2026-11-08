@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { TeamContributionItem } from '@/types/ticket.types';
 
 interface KanbanPipelineCardProps {
@@ -10,6 +11,7 @@ interface KanbanPipelineCardProps {
   showTeamContributions?: boolean;
   teamContributions?: TeamContributionItem[];
   onViewDetails?: () => void;
+  isLoading?: boolean;
 }
 
 export function KanbanPipelineCard({
@@ -19,6 +21,7 @@ export function KanbanPipelineCard({
   showTeamContributions = false,
   teamContributions = [],
   onViewDetails,
+  isLoading = false,
 }: KanbanPipelineCardProps) {
   return (
     <Card className='rounded-2xl border-0 bg-linear-to-r from-[#1D4ED8] via-[#2563EB] to-[#3B82F6] py-0 text-white shadow-sm ring-0'>
@@ -29,15 +32,23 @@ export function KanbanPipelineCard({
             <span className='text-[11px] font-normal text-white/85'>
               Estimasi pipeline aktif
             </span>
-            <span className='text-xl font-bold tracking-tight text-white'>
-              {totalPipelineLabel}
-            </span>
+            {isLoading ? (
+              <Skeleton className='h-7 w-36 rounded-lg bg-white/20' />
+            ) : (
+              <span className='text-xl font-bold tracking-tight text-white'>
+                {totalPipelineLabel}
+              </span>
+            )}
           </div>
 
           <div className='flex flex-col items-end gap-1.5'>
-            <Badge className='h-6 rounded-full border-0 bg-white/20 px-3 text-[11px] font-medium text-white hover:bg-white/25'>
-              {activeTicketsCount} tiket aktif
-            </Badge>
+            {isLoading ? (
+              <Skeleton className='h-6 w-24 rounded-full bg-white/20' />
+            ) : (
+              <Badge className='h-6 rounded-full border-0 bg-white/20 px-3 text-[11px] font-medium text-white hover:bg-white/25'>
+                {activeTicketsCount} tiket aktif
+              </Badge>
+            )}
             <span className='text-[11px] font-normal text-white/90'>
               Target bulan ini {targetPercentage}%
             </span>
@@ -84,4 +95,3 @@ export function KanbanPipelineCard({
     </Card>
   );
 }
-

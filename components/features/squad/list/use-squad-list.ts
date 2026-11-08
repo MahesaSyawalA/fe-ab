@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useSession } from 'next-auth/react';
 import { useSquadListQuery } from '@/hooks/queries';
+import { useDebounce } from '@/hooks/use-debounce';
 
 /** Daftar squad + pencarian & filter status. Manager hanya melihat squad yang ia supervisi. */
 export function useSquadList() {
@@ -14,10 +15,11 @@ export function useSquadList() {
   );
 
   const [searchQuery, setSearchQuery] = React.useState('');
+  const debouncedSearchQuery = useDebounce(searchQuery, 400);
   const [status, setStatus] = React.useState('semua');
 
   const filteredList = React.useMemo(() => {
-    const keyword = searchQuery.trim().toLowerCase();
+    const keyword = debouncedSearchQuery.trim().toLowerCase();
 
     return (query.data?.data ?? []).filter((squad) => {
       if (status !== 'semua' && squad.is_active !== (status === 'aktif')) return false;
@@ -28,7 +30,7 @@ export function useSquadList() {
         squad.wilayah.toLowerCase().includes(keyword)
       );
     });
-  }, [query.data, searchQuery, status]);
+  }, [query.data, debouncedSearchQuery, status]);
 
   return {
     searchQuery,

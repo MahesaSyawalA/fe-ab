@@ -23,6 +23,7 @@ import {
   CreateTiketInput,
 } from '@/types/ticket.types';
 import { formatCompactRupiah } from '@/lib/utils';
+import { useDebounce } from '@/hooks/use-debounce';
 import {
   useKanbanStagesQuery,
   useKanbanBoardQuery,
@@ -114,8 +115,10 @@ export function useKanbanBoard() {
   }, [stages, storeSelectedStageId, setSelectedStageId]);
 
   // -------------------------------------------------------------------
-  // 2. TanStack Query: Fetch Board Tickets
+  // 2. TanStack Query: Fetch Board Tickets (Debounced Search)
   // -------------------------------------------------------------------
+  const debouncedSearchQuery = useDebounce(searchQuery, 400);
+
   const queryParams: KanbanBoardFilterParams = React.useMemo(() => {
     const minVal = filterState.minEstimate
       ? Number(filterState.minEstimate.replace(/\D/g, ''))
@@ -125,7 +128,7 @@ export function useKanbanBoard() {
       : undefined;
 
     return {
-      search: searchQuery.trim() || undefined,
+      search: debouncedSearchQuery.trim() || undefined,
       salesId:
         filterState.salesId && filterState.salesId !== 'all'
           ? filterState.salesId
@@ -139,7 +142,7 @@ export function useKanbanBoard() {
       closingFrom: filterState.closingFrom || undefined,
       closingTo: filterState.closingTo || undefined,
     };
-  }, [searchQuery, filterState]);
+  }, [debouncedSearchQuery, filterState]);
 
   const boardQuery = useKanbanBoardQuery(queryParams);
 
@@ -223,7 +226,7 @@ export function useKanbanBoard() {
   // -------------------------------------------------------------------
   const filteredTicketsByStage = React.useMemo(() => {
     const result: Record<string, TiketWithDetails[]> = {};
-    const q = searchQuery.trim().toLowerCase();
+    const q = debouncedSearchQuery.trim().toLowerCase();
     const minVal = filterState.minEstimate
       ? Number(filterState.minEstimate.replace(/\D/g, ''))
       : null;
@@ -289,7 +292,7 @@ export function useKanbanBoard() {
     });
 
     return result;
-  }, [stages, normalizedTicketsByStage, searchQuery, filterState]);
+  }, [stages, normalizedTicketsByStage, debouncedSearchQuery, filterState]);
 
   // -------------------------------------------------------------------
   // 5. Dynamic Pipeline Summary Calculation

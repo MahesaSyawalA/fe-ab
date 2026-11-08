@@ -5,7 +5,12 @@ import { useRouter } from 'next/navigation';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ListPageHeader } from '@/components/ui/list-page-header';
 import { SearchFilterBar } from '@/components/ui/search-filter-bar';
-import { SquadCard, SquadFilterModal, useSquadList } from './list';
+import {
+  SquadCard,
+  SquadCardSkeleton,
+  SquadFilterModal,
+  useSquadList,
+} from './list';
 
 export function SquadView({ basePath }: { basePath: string }) {
   const router = useRouter();
@@ -29,7 +34,11 @@ export function SquadView({ basePath }: { basePath: string }) {
       />
 
       <div className='grid w-full min-w-0 grid-cols-1 gap-3.5 sm:gap-4 md:grid-cols-2 lg:grid-cols-3'>
-        {list.filteredList.length > 0 ? (
+        {list.isLoading ? (
+          Array.from({ length: 6 }).map((_, idx) => (
+            <SquadCardSkeleton key={idx} />
+          ))
+        ) : list.filteredList.length > 0 ? (
           list.filteredList.map((squad) => (
             <SquadCard
               key={squad.id_squad}
@@ -39,7 +48,7 @@ export function SquadView({ basePath }: { basePath: string }) {
           ))
         ) : (
           <EmptyState
-            title={list.isLoading ? 'Memuat squad...' : 'Tidak ada squad ditemukan'}
+            title='Tidak ada squad ditemukan'
             description={
               list.isError
                 ? 'Gagal memuat data squad. Coba muat ulang halaman.'

@@ -81,6 +81,7 @@ export function KanbanBoardView({ role, basePath }: KanbanBoardViewProps) {
           targetPercentage={board.targetPercentage}
           showTeamContributions={canCreateColumn}
           teamContributions={board.teamContributions}
+          isLoading={board.isLoading}
         />
       </div>
 
