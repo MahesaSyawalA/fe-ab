@@ -4,6 +4,7 @@ import { useForm, useWatch, type FieldErrors, type Resolver } from 'react-hook-f
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useCreatePelangganMutation } from '@/hooks/queries';
 import { getErrorMessage } from '@/lib/axios';
+import { toast } from '@heroui/react';
 import { DEFAULT_OUTLET_IMAGE } from '@/constants/pelanggan-constants';
 import {
   createCustomerSchema,
@@ -147,6 +148,10 @@ export function usePelangganWizard({
     try {
       const response = await createMutation.mutateAsync(payload);
       const createdPelanggan = response.data;
+
+      toast.success('Data pelanggan berhasil disimpan', {
+        description: `Pelanggan "${createdPelanggan?.nama_outlet || ''}" berhasil didaftarkan.`,
+      });
 
       if (onSave) {
         onSave(createdPelanggan);

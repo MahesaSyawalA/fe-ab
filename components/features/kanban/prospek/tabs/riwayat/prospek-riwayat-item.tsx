@@ -1,25 +1,17 @@
 import * as React from 'react';
 import { ArrowRight, Clock, UserRound } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { format } from 'date-fns';
-import { id } from 'date-fns/locale';
+import { formatRelativeTime } from '@/lib/date-utils';
 import { TiketWithDetails } from '@/types/ticket.types';
 
 type RiwayatItem = NonNullable<TiketWithDetails['riwayat_list']>[number];
 
 export function ProspekRiwayatItem({ item }: { item: RiwayatItem }) {
   const formattedWaktu = React.useMemo(() => {
-    if (item.waktu_label) return item.waktu_label;
     if (item.waktu_pindah) {
-      try {
-        return format(new Date(item.waktu_pindah), 'd MMM yyyy, HH:mm', {
-          locale: id,
-        });
-      } catch {
-        return String(item.waktu_pindah);
-      }
+      return formatRelativeTime(item.waktu_pindah);
     }
-    return '-';
+    return item.waktu_label || '-';
   }, [item.waktu_label, item.waktu_pindah]);
 
   return (

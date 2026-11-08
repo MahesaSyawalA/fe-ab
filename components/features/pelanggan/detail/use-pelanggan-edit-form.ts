@@ -7,6 +7,7 @@ import { useCurrentLocation } from '../form/steps/use-current-location';
 import { useUpdatePelangganMutation } from '@/hooks/queries/use-pelanggan-query';
 import { updateCustomerSchema, type UpdateCustomerInput } from '@/schemas/customer.schema';
 import { getErrorMessage } from '@/lib/axios';
+import { toast } from '@heroui/react';
 import type { PelangganWithDetails } from '@/types/customer.types';
 
 export interface UsePelangganEditFormProps {
@@ -80,10 +81,16 @@ export function usePelangganEditForm({
     try {
       setServerError(null);
       await updateMutation.mutateAsync(values);
+      toast.success('Data pelanggan berhasil disimpan', {
+        description: 'Perubahan data pelanggan berhasil diperbarui.',
+      });
       onOpenChange(false);
     } catch (err) {
       const msg = getErrorMessage(err);
       setServerError(msg || 'Gagal memperbarui data pelanggan. Silakan coba lagi.');
+      toast.danger('Gagal Memperbarui Pelanggan', {
+        description: msg || 'Terjadi kesalahan sistem.',
+      });
     }
   };
 

@@ -1,10 +1,11 @@
 'use client';
 
 import * as React from 'react';
-import { Camera, File, FileText, Mic, UploadCloud, X } from 'lucide-react';
+import { Camera, File, FileText, Mic, Trash2, UploadCloud, X } from 'lucide-react';
 import { Label } from '@heroui/react';
 import { TriangleExclamation } from '@gravity-ui/icons';
 import { Button } from '@/components/ui/button';
+import { ConfirmModal } from '@/components/ui/confirm-modal';
 import { cn } from '@/lib/utils';
 import { detectFileType, EvidenceFileState } from '../types';
 
@@ -43,6 +44,7 @@ export function StageFileInput({
   const inputRef = React.useRef<HTMLInputElement | null>(null);
   const [isDragging, setIsDragging] = React.useState(false);
   const [internalError, setInternalError] = React.useState<string | null>(null);
+  const [showConfirmRemove, setShowConfirmRemove] = React.useState(false);
 
   const formatFileSize = (bytes: number): string => {
     const sizeInKb = bytes / 1024;
@@ -102,13 +104,18 @@ export function StageFileInput({
     }
   };
 
-  const handleRemoveFile = (e: React.MouseEvent) => {
+  const handleRemoveClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    setShowConfirmRemove(true);
+  };
+
+  const handleConfirmRemove = () => {
     onChange(null);
     setInternalError(null);
     if (inputRef.current) {
       inputRef.current.value = '';
     }
+    setShowConfirmRemove(false);
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -191,7 +198,7 @@ export function StageFileInput({
 
           <button
             type='button'
-            onClick={handleRemoveFile}
+            onClick={handleRemoveClick}
             disabled={disabled}
             className='shrink-0 rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-destructive transition-colors cursor-pointer disabled:cursor-not-allowed'
             title='Hapus file'
@@ -270,6 +277,18 @@ export function StageFileInput({
           <span>{displayError}</span>
         </div>
       )}
+
+      {/* Modal Konfirmasi Hapus Berkas */}
+      <ConfirmModal
+        open={showConfirmRemove}
+        onOpenChange={setShowConfirmRemove}
+        title='Hapus Berkas Bukti?'
+        description={`Berkas "${value?.name || 'bukti ini'}" akan dihapus dari formulir aktivitas.`}
+        confirmLabel='Hapus'
+        cancelLabel='Batal'
+        icon={<Trash2 className='size-7 text-rose-600' />}
+        onConfirm={handleConfirmRemove}
+      />
     </div>
   );
 }

@@ -8,7 +8,7 @@ import { SubpageHeader } from '@/components/ui/subpage-header';
 import { SurfaceCard } from '@/components/ui/surface-card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { toast } from '@/components/ui/toast';
+import { toast } from '@heroui/react';
 import {
   INITIAL_KANBAN_STAGES,
   AKTIVITAS_STAGE_CONFIG,
@@ -145,18 +145,14 @@ export function ProspekDetailView({
         });
       }
 
-      toast.add({
-        title: 'Hasil Negosiasi Tersimpan',
+      toast.success('Hasil Negosiasi Tersimpan', {
         description: `Status prospek berhasil diperbarui menjadi ${result}.`,
-        type: 'success',
       });
       refetch();
     } catch (err: unknown) {
-      toast.add({
-        title: 'Gagal Memperbarui Negosiasi',
+      toast.danger('Gagal Memperbarui Negosiasi', {
         description:
           err instanceof Error ? err.message : 'Terjadi kesalahan sistem.',
-        type: 'error',
       });
     } finally {
       setNegotiationDrawerOpen(false);
@@ -345,19 +341,15 @@ export function ProspekDetailView({
               updateTicket(ticket.id_tiket, params.ticketUpdates);
             }
 
-            toast.add({
-              title: 'Aktivitas Berhasil Disimpan',
+            toast.success('Aktivitas Berhasil Disimpan', {
               description: 'Catatan aktivitas dan berkas bukti berhasil diperbarui.',
-              type: 'success',
             });
             refetch();
             setActivityDrawerOpen(false);
           } catch (err: unknown) {
-            toast.add({
-              title: 'Gagal Menyimpan Aktivitas',
+            toast.danger('Gagal Menyimpan Aktivitas', {
               description:
                 err instanceof Error ? err.message : 'Terjadi kesalahan sistem.',
-              type: 'error',
             });
           } finally {
             setIsSubmittingActivity(false);

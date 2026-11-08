@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 
 import { QueryProvider } from '@/components/providers/query-provider';
 import { SessionProvider } from '@/components/providers/session-provider';
+import { HeroUIToastProvider } from '@/components/providers/heroui-toast-provider';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -27,6 +28,7 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
         <SessionProvider>
           <QueryProvider>
             {children}
+            <HeroUIToastProvider />
           </QueryProvider>
         </SessionProvider>
       </body>

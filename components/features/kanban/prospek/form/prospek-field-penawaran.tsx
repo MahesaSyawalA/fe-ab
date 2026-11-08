@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Trash2, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { FormField } from '@/components/ui/form-field';
+import { ConfirmModal } from '@/components/ui/confirm-modal';
 import {
   Attachment,
   AttachmentAction,
@@ -24,12 +25,21 @@ export function ProspekFieldPenawaran({
   onChange,
 }: ProspekFieldPenawaranProps) {
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const [showConfirmRemove, setShowConfirmRemove] = React.useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const kb = Math.max(1, Math.round(file.size / 1024));
     onChange({ name: file.name, size: `${kb} KB` });
+  };
+
+  const handleConfirmRemove = () => {
+    onChange(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+    setShowConfirmRemove(false);
   };
 
   return (
@@ -58,7 +68,7 @@ export function ProspekFieldPenawaran({
           <AttachmentActions className='pr-2'>
             <AttachmentAction
               type='button'
-              onClick={() => onChange(null)}
+              onClick={() => setShowConfirmRemove(true)}
               className='text-muted-foreground hover:text-destructive cursor-pointer'
               aria-label='Hapus file penawaran'
             >
@@ -77,6 +87,17 @@ export function ProspekFieldPenawaran({
           Unggah dokumen penawaran (.PDF)
         </Button>
       )}
+
+      <ConfirmModal
+        open={showConfirmRemove}
+        onOpenChange={setShowConfirmRemove}
+        title='Hapus Berkas Penawaran?'
+        description={`Berkas "${value?.name || 'penawaran ini'}" akan dihapus dari formulir prospek.`}
+        confirmLabel='Hapus'
+        cancelLabel='Batal'
+        icon={<Trash2 className='size-7 text-rose-600' />}
+        onConfirm={handleConfirmRemove}
+      />
     </FormField>
   );
 }

@@ -1,11 +1,14 @@
 import * as React from 'react';
-import { Form } from '@heroui/react';
+import { Form, toast } from '@heroui/react';
+import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { JenisTahap } from '@/types/kanban-stage.types';
 import { JENIS_TAHAP_OPTIONS } from '@/constants/kanban-constants';
 import { useKanbanStore } from '@/lib/kanban-store';
+import { useCreateTahapMutation } from '@/hooks/queries';
+import { getErrorMessage } from '@/lib/axios';
 import {
   TambahKolomTextFieldInput,
   TambahKolomSelectInput,
@@ -28,6 +31,7 @@ const CHECKBOX_FIELDS = [
 /** Dirender hanya saat modal terbuka, sehingga state form selalu mulai bersih. */
 export function TambahKolomForm({ onClose }: { onClose: () => void }) {
   const { stages, addStage } = useKanbanStore();
+  const createTahapMutation = useCreateTahapMutation();
 
   const [form, setForm] = React.useState({
     nama_tahap: '',
@@ -43,14 +47,33 @@ export function TambahKolomForm({ onClose }: { onClose: () => void }) {
     [],
   );
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const isPending = createTahapMutation.isPending;
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.nama_tahap.trim()) {
       setError('Nama tahap wajib diisi');
       return;
     }
-    addStage({ ...form, urutan: Number(form.urutan) || stages.length + 1 });
-    onClose();
+
+    try {
+      const payload = {
+        nama_tahap: form.nama_tahap.trim(),
+        jenis_tahap: form.jenis_tahap,
+        urutan: Number(form.urutan) || stages.length + 1,
+        is_tahap_akhir: form.is_tahap_akhir,
+        is_aktif: form.is_aktif,
+      };
+
+      await createTahapMutation.mutateAsync(payload);
+      addStage(payload);
+      toast.success('Tahap berhasil ditambahkan', {
+        description: `Kolom "${payload.nama_tahap}" berhasil ditambahkan ke papan Kanban.`,
+      });
+      onClose();
+    } catch (err: unknown) {
+      setError(getErrorMessage(err) || 'Gagal menambahkan kolom tahap');
+    }
   };
 
   return (
@@ -106,11 +129,28 @@ export function TambahKolomForm({ onClose }: { onClose: () => void }) {
       </div>
 
       <div className='grid grid-cols-2 gap-3 pt-2'>
-        <Button type='button' variant='outline' onClick={onClose} className='h-10 rounded-xl text-xs font-semibold cursor-pointer'>
+        <Button
+          type='button'
+          variant='outline'
+          onClick={onClose}
+          disabled={isPending}
+          className='h-10 rounded-xl text-xs font-semibold cursor-pointer'
+        >
           Batal
         </Button>
-        <Button type='submit' className='h-10 rounded-xl text-xs font-semibold cursor-pointer'>
-          Tambah Kolom
+        <Button
+          type='submit'
+          disabled={isPending}
+          className='h-10 rounded-xl text-xs font-semibold cursor-pointer'
+        >
+          {isPending ? (
+            <>
+              <Loader2 className='mr-2 size-4 animate-spin' />
+              Menambahkan...
+            </>
+          ) : (
+            'Tambah Kolom'
+          )}
         </Button>
       </div>
     </Form>

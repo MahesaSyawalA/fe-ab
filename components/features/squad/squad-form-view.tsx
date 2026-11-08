@@ -1,13 +1,14 @@
 'use client';
 
+import * as React from 'react';
 import { Controller } from 'react-hook-form';
-import { UserPlus } from 'lucide-react';
+import { Trash2, UserMinus, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ConfirmModal } from '@/components/ui/confirm-modal';
 import { FormActions } from '@/components/ui/form-actions';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { Switch } from '@/components/ui/switch';
-import type { SquadWithDetails } from '@/types/squad.types';
+import type { SquadMember, SquadWithDetails } from '@/types/squad.types';
 import { SquadTextFieldInput, SquadSelectInput } from './inputs';
 import { SquadMemberCard } from './form/squad-member-card';
 import { SquadMemberPicker } from './form/squad-member-picker';
@@ -21,6 +22,7 @@ interface SquadFormViewProps {
 
 export function SquadFormView({ basePath, squad }: SquadFormViewProps) {
   const s = useSquadForm({ basePath, squad });
+  const [memberToRemove, setMemberToRemove] = React.useState<SquadMember | null>(null);
   const { control, formState } = s.form;
   const { errors } = formState;
 
@@ -127,7 +129,7 @@ export function SquadFormView({ basePath, squad }: SquadFormViewProps) {
             <SquadMemberCard
               key={member.id_user}
               member={member}
-              onRemove={() => s.toggleMember(member.id_user)}
+              onRemove={() => setMemberToRemove(member)}
             />
           ))}
           <Button
@@ -185,8 +187,26 @@ export function SquadFormView({ basePath, squad }: SquadFormViewProps) {
         title='Hapus squad?'
         description='Squad akan dihapus permanen dan seluruh anggotanya dikeluarkan dari squad ini.'
         confirmLabel='Hapus'
+        cancelLabel='Batal'
+        icon={<Trash2 className='size-7 text-rose-600' />}
         onConfirm={s.confirmDelete}
         isLoading={s.isDeleting}
+      />
+
+      <ConfirmModal
+        open={Boolean(memberToRemove)}
+        onOpenChange={(open) => !open && setMemberToRemove(null)}
+        title='Keluarkan Anggota?'
+        description={`Yakin ingin mengeluarkan "${memberToRemove?.nama || 'anggota ini'}" dari squad?`}
+        confirmLabel='Keluarkan'
+        cancelLabel='Batal'
+        icon={<UserMinus className='size-7 text-rose-600' />}
+        onConfirm={() => {
+          if (memberToRemove) {
+            s.toggleMember(memberToRemove.id_user);
+            setMemberToRemove(null);
+          }
+        }}
       />
     </div>
   );

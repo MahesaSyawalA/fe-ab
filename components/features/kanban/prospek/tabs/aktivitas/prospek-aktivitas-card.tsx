@@ -1,8 +1,7 @@
 import * as React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { format } from 'date-fns';
-import { id } from 'date-fns/locale';
+import { formatRelativeTime } from '@/lib/date-utils';
 import { AKTIVITAS_STAGE_CONFIG } from '@/constants/kanban-constants';
 import { AktivitasWithDetails } from '@/types/ticket.types';
 import { cn } from '@/lib/utils';
@@ -16,17 +15,10 @@ export function ProspekAktivitasCard({ akt }: { akt: AktivitasWithDetails }) {
   };
 
   const formattedWaktu = React.useMemo(() => {
-    if (akt.waktu_label) return akt.waktu_label;
     if (akt.tanggal) {
-      try {
-        return format(new Date(akt.tanggal), 'd MMM yyyy, HH:mm', {
-          locale: id,
-        });
-      } catch {
-        return String(akt.tanggal);
-      }
+      return formatRelativeTime(akt.tanggal);
     }
-    return '-';
+    return akt.waktu_label || '-';
   }, [akt.waktu_label, akt.tanggal]);
 
   const evidenceData =

@@ -11,6 +11,7 @@ import {
   useUserListQuery,
 } from '@/hooks/queries';
 import { getErrorMessage } from '@/lib/axios';
+import { toast } from '@heroui/react';
 import { SQUAD_FORM_DEFAULTS } from '@/constants/squad-constants';
 import { squadFormSchema, type SquadFormValues } from '@/schemas/squad.schema';
 import type { CreateSquadInput, SquadMember, SquadWithDetails } from '@/types/squad.types';
@@ -95,6 +96,9 @@ export function useSquadForm({ basePath, squad }: UseSquadFormOptions) {
       };
 
       await (isEdit ? updateMutation : createMutation).mutateAsync(payload);
+      toast.success('Data squad berhasil disimpan', {
+        description: `Squad "${values.nama_squad}" berhasil disimpan.`,
+      });
       goBack();
     } catch (error: unknown) {
       const message = getErrorMessage(error);
@@ -122,10 +126,17 @@ export function useSquadForm({ basePath, squad }: UseSquadFormOptions) {
     if (!squad) return;
     try {
       await deleteMutation.mutateAsync(squad.id_squad);
+      toast.success('Data berhasil dihapus', {
+        description: `Squad "${squad.nama_squad}" berhasil dihapus.`,
+      });
       goBack();
     } catch (error) {
       setDialog(null);
-      form.setError('root.server', { message: getErrorMessage(error) });
+      const msg = getErrorMessage(error);
+      form.setError('root.server', { message: msg });
+      toast.danger('Gagal Menghapus Squad', {
+        description: msg || 'Terjadi kesalahan sistem.',
+      });
     }
   };
 

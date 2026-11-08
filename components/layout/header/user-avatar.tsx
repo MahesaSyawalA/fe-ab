@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { Avatar, Dropdown, Label, Chip } from '@heroui/react';
 import { LogOutIcon, SettingsIcon, UserIcon } from 'lucide-react';
+import { ConfirmModal } from '@/components/ui/confirm-modal';
 import { getUserInitials, formatRoleLabel, logoutUser } from '@/lib/auth-helpers';
 
 interface UserAvatarProps {
@@ -14,6 +15,8 @@ interface UserAvatarProps {
 export function UserAvatar({ role }: UserAvatarProps) {
   const router = useRouter();
   const { data: session } = useSession();
+  const [showLogoutConfirm, setShowLogoutConfirm] = React.useState(false);
+  const [isLoggingOut, setIsLoggingOut] = React.useState(false);
 
   const user = session?.user;
   const userName = user?.nama || user?.name || 'Pengguna';
@@ -107,7 +110,7 @@ export function UserAvatar({ role }: UserAvatarProps) {
               textValue='Keluar'
               variant='danger'
               className='cursor-pointer'
-              onAction={() => logoutUser()}
+              onAction={() => setShowLogoutConfirm(true)}
             >
               <div className='flex items-center gap-3 text-danger'>
                 <LogOutIcon className='size-4' />
@@ -119,6 +122,21 @@ export function UserAvatar({ role }: UserAvatarProps) {
           </Dropdown.Menu>
         </div>
       </Dropdown.Popover>
+
+      <ConfirmModal
+        open={showLogoutConfirm}
+        onOpenChange={setShowLogoutConfirm}
+        title='Keluar dari akun?'
+        description='Jika Anda melakukan ini, Anda harus masuk kembali untuk mengakses akun Anda.'
+        confirmLabel='Keluar'
+        cancelLabel='Batal'
+        icon={<LogOutIcon className='size-7 text-rose-600' />}
+        onConfirm={async () => {
+          setIsLoggingOut(true);
+          await logoutUser();
+        }}
+        isLoading={isLoggingOut}
+      />
     </Dropdown>
   );
 }

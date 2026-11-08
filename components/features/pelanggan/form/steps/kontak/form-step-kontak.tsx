@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ContactRound } from 'lucide-react';
+import { ContactRound, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { KontakInputItem } from '../../types';
 import { WizardStepCard } from '../../wizard-step-card';
@@ -54,7 +54,14 @@ export function FormStepKontak({
           disabled={!kontak.canSubmit || isSubmitting}
           className='h-10 w-full md:w-auto md:min-w-56 rounded-md bg-primary-default hover:bg-primary-hover active:bg-primary data-[pressed=true]:bg-primary text-xs font-semibold text-white shadow-sm disabled:opacity-50 transition-all cursor-pointer'
         >
-          {isSubmitting ? 'Menyimpan Pelanggan...' : 'Simpan Semua & Selesaikan'}
+          {isSubmitting ? (
+            <>
+              <Loader2 className='mr-2 size-4 animate-spin' />
+              Menyimpan Pelanggan...
+            </>
+          ) : (
+            'Simpan Semua & Selesaikan'
+          )}
         </Button>
       </div>
     </WizardStepCard>

@@ -15,7 +15,7 @@ import {
   useCreateTicketMutation,
   useUpdateTicketMutation,
 } from '@/hooks/queries/use-kanban-query';
-import { toast } from '@/components/ui/toast';
+import { toast } from '@heroui/react';
 import { getErrorMessage } from '@/lib/axios';
 import { TiketWithDetails } from '@/types/ticket.types';
 
@@ -152,10 +152,8 @@ export function useProspekForm({
           },
         });
 
-        toast.add({
-          title: 'Prospek Berhasil Diperbarui',
+        toast.success('Prospek Berhasil Diperbarui', {
           description: `Perubahan data prospek ${values.judul} berhasil disimpan.`,
-          type: 'success',
         });
         onSuccess?.();
       } else {
@@ -174,10 +172,8 @@ export function useProspekForm({
           posisi: 1,
         });
 
-        toast.add({
-          title: 'Prospek Berhasil Dibuat',
+        toast.success('Tiket prospek berhasil dibuat', {
           description: `Prospek ${values.judul} berhasil didaftarkan ke pipa penjualan.`,
-          type: 'success',
         });
         onSuccess?.();
         const newTicketId = createdRes.data?.id_tiket;
@@ -192,10 +188,8 @@ export function useProspekForm({
       setServerError(
         msg || 'Gagal menyimpan prospek. Silakan periksa kembali formulir.',
       );
-      toast.add({
-        title: 'Gagal Menyimpan Prospek',
+      toast.danger('Gagal Menyimpan Prospek', {
         description: msg || 'Terjadi kesalahan pada server.',
-        type: 'error',
       });
     }
   };

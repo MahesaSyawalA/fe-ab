@@ -1,11 +1,14 @@
 'use client';
 
 import * as React from 'react';
-import { Pencil } from 'lucide-react';
+import { Pencil, Trash2 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
+import { toast } from '@heroui/react';
 import { PelangganWithDetails } from '@/types/customer.types';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { Button } from '@/components/ui/button';
+import { ConfirmModal } from '@/components/ui/confirm-modal';
+import { useDeletePelangganMutation } from '@/hooks/queries';
 import {
   PelangganHero,
   PelangganLocationCard,
@@ -28,9 +31,26 @@ export function PelangganDetailView({
 }: PelangganDetailViewProps) {
   const { data: session } = useSession();
   const [isEditOpen, setIsEditOpen] = React.useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = React.useState(false);
+  const deleteMutation = useDeletePelangganMutation();
 
-  // Sales dan Manager dapat mengedit; Director hanya memantau (view-only)
+  // Sales dan Manager dapat mengedit/menghapus; Director hanya memantau (view-only)
   const isAllowedToEdit = canEdit ?? (session?.user?.role !== 'director');
+
+  const handleDelete = async () => {
+    try {
+      await deleteMutation.mutateAsync(pelanggan.id_pelanggan);
+      toast.success('Data berhasil dihapus', {
+        description: `Pelanggan "${pelanggan.nama_outlet}" telah dihapus.`,
+      });
+      setIsDeleteOpen(false);
+      onBack();
+    } catch {
+      toast.danger('Gagal Menghapus Pelanggan', {
+        description: 'Terjadi kesalahan sistem saat menghapus data outlet.',
+      });
+    }
+  };
 
   const contacts = pelanggan.kontak_list || pelanggan.kontak || [];
 
@@ -43,8 +63,8 @@ export function PelangganDetailView({
         onBack={onBack}
         rightAction={
           isAllowedToEdit ? (
-            <>
-              {/* Mobile Edit Button (< md) */}
+            <div className='flex items-center gap-1.5'>
+              {/* Mobile Actions (< md) */}
               <Button
                 type='button'
                 variant='ghost'
@@ -54,6 +74,16 @@ export function PelangganDetailView({
                 aria-label='Edit Pelanggan'
               >
                 <Pencil className='size-4' />
+              </Button>
+              <Button
+                type='button'
+                variant='ghost'
+                size='icon-sm'
+                onClick={() => setIsDeleteOpen(true)}
+                className='size-8 rounded-full text-destructive hover:bg-destructive/10 cursor-pointer md:hidden'
+                aria-label='Hapus Pelanggan'
+              >
+                <Trash2 className='size-4' />
               </Button>
 
               {/* Desktop Edit Button (>= md) */}
@@ -67,7 +97,19 @@ export function PelangganDetailView({
                 <Pencil className='size-3.5' />
                 <span>Edit Pelanggan</span>
               </Button>
-            </>
+
+              {/* Desktop Delete Button (>= md) */}
+              <Button
+                type='button'
+                variant='outline'
+                size='sm'
+                onClick={() => setIsDeleteOpen(true)}
+                className='hidden md:flex h-9 rounded-xl border-destructive/30 bg-destructive/5 text-destructive shadow-2xs hover:bg-destructive/10 gap-1.5 px-3.5 cursor-pointer text-xs font-semibold'
+              >
+                <Trash2 className='size-3.5' />
+                <span>Hapus</span>
+              </Button>
+            </div>
           ) : undefined
         }
       />
@@ -94,6 +136,19 @@ export function PelangganDetailView({
         pelanggan={pelanggan}
         open={isEditOpen}
         onOpenChange={setIsEditOpen}
+      />
+
+      {/* Modal Konfirmasi Hapus Pelanggan */}
+      <ConfirmModal
+        open={isDeleteOpen}
+        onOpenChange={setIsDeleteOpen}
+        title='Hapus Pelanggan?'
+        description={`Data pelanggan "${pelanggan.nama_outlet}" dan seluruh riwayat terkait akan dihapus secara permanen dari sistem.`}
+        confirmLabel='Hapus'
+        cancelLabel='Batal'
+        icon={<Trash2 className='size-7 text-rose-600' />}
+        onConfirm={handleDelete}
+        isLoading={deleteMutation.isPending}
       />
     </div>
   );

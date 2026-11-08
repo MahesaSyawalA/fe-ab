@@ -6,7 +6,7 @@ import type {
   KanbanRootProps,
 } from '@/components/reui/kanban';
 import type { ChipFilterItem } from '@/components/ui/chip-filter';
-import { toast } from '@/components/ui/toast';
+import { toast } from '@heroui/react';
 import { countActiveFilters } from '../filter';
 import { useKanbanFilterStore } from '@/store/kanban-filter-store';
 import { StageDrawerMode, StageActivityDrawerProps } from '../stage-activity-drawer';
@@ -618,10 +618,12 @@ export function useKanbanBoard() {
         }
       }
 
-      toast.add({
-        title: 'Berhasil Memindahkan Tiket',
+      const targetStageName =
+        stages.find((s) => s.id_tahap === params.toStageId)?.nama_tahap ||
+        'tahap baru';
+
+      toast.success(`Tiket berhasil dipindahkan ke tahap ${targetStageName}`, {
         description: 'Tiket berhasil dipindahkan dan berkas bukti tercatat.',
-        type: 'success',
       });
 
       setSelectedStageId(params.toStageId);
@@ -633,10 +635,8 @@ export function useKanbanBoard() {
         err instanceof Error
           ? err.message
           : 'Terjadi kesalahan saat memproses aktivitas tiket.';
-      toast.add({
-        title: 'Gagal Memproses Perpindahan',
+      toast.danger('Gagal Memproses Perpindahan', {
         description: message,
-        type: 'error',
       });
     } finally {
       setIsSubmittingMove(false);
@@ -712,10 +712,8 @@ export function useKanbanBoard() {
         }
       }
 
-      toast.add({
-        title: 'Berhasil Membuat Prospek',
+      toast.success('Tiket prospek berhasil dibuat', {
         description: `Prospek "${createPayload.judul}" berhasil ditambahkan.`,
-        type: 'success',
       });
 
       const targetStageId = params.createPayload.id_tahap || 'visit';
@@ -728,10 +726,8 @@ export function useKanbanBoard() {
         err instanceof Error
           ? err.message
           : 'Terjadi kesalahan saat membuat tiket prospek.';
-      toast.add({
-        title: 'Gagal Membuat Prospek',
+      toast.danger('Gagal Membuat Prospek', {
         description: message,
-        type: 'error',
       });
     } finally {
       setIsCreatingTicket(false);

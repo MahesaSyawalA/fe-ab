@@ -1,10 +1,11 @@
 'use client';
 
 import * as React from 'react';
-import { UploadCloud, X } from 'lucide-react';
+import { Trash2, UploadCloud, X } from 'lucide-react';
 import { Label } from '@heroui/react';
 import { TriangleExclamation } from '@gravity-ui/icons';
 import { Button } from '@/components/ui/button';
+import { ConfirmModal } from '@/components/ui/confirm-modal';
 import { cn } from '@/lib/utils';
 
 export interface PelangganFileInputProps {
@@ -42,6 +43,7 @@ export function PelangganFileInput({
   const inputRef = React.useRef<HTMLInputElement | null>(null);
   const [isDragging, setIsDragging] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [showConfirmRemove, setShowConfirmRemove] = React.useState(false);
   const displayError = error || errorMessage;
   const invalid = isInvalid || Boolean(displayError);
 
@@ -107,14 +109,19 @@ export function PelangganFileInput({
     }
   };
 
-  const handleRemove = (e: React.MouseEvent) => {
+  const handleRemoveClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    setShowConfirmRemove(true);
+  };
+
+  const handleConfirmRemove = () => {
     setError(null);
     onChange?.('', undefined);
     onRemove?.();
     if (inputRef.current) {
       inputRef.current.value = '';
     }
+    setShowConfirmRemove(false);
   };
 
   return (
@@ -152,7 +159,7 @@ export function PelangganFileInput({
             type='button'
             variant='ghost'
             size='icon-xs'
-            onClick={handleRemove}
+            onClick={handleRemoveClick}
             className='absolute top-2 right-2 rounded-full bg-black/60 text-white hover:bg-black/80 hover:text-white cursor-pointer'
             title='Hapus foto'
           >
@@ -226,6 +233,18 @@ export function PelangganFileInput({
           <span>{displayError}</span>
         </span>
       )}
+
+      {/* Modal Konfirmasi Hapus Foto */}
+      <ConfirmModal
+        open={showConfirmRemove}
+        onOpenChange={setShowConfirmRemove}
+        title='Hapus Foto Outlet?'
+        description='Foto outlet yang telah dipilih akan dihapus dari formulir.'
+        confirmLabel='Hapus'
+        cancelLabel='Batal'
+        icon={<Trash2 className='size-7 text-rose-600' />}
+        onConfirm={handleConfirmRemove}
+      />
     </div>
   );
 }

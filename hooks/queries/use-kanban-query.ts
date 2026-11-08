@@ -12,7 +12,7 @@ import {
   type MoveTicketStagePayload,
 } from '@/services/kanban-service';
 import { getErrorMessage } from '@/lib/axios';
-import { toast } from '@/components/ui/toast';
+import { toast } from '@heroui/react';
 import type { ApiResponse } from '@/types/api.types';
 import type {
   TiketWithDetails,
@@ -194,10 +194,8 @@ export function useMoveTicketMutation(
       console.warn('[Move Ticket Error]:', errMsg);
 
       try {
-        toast.add({
-          title: 'Gagal memindahkan prospek',
+        toast.danger('Gagal memindahkan prospek', {
           description: errMsg || 'Terjadi kesalahan saat memindahkan tahap tiket.',
-          type: 'error',
         });
       } catch {
         // ignore fallback

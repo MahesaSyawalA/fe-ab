@@ -1,3 +1,4 @@
+import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -39,7 +40,14 @@ export function FormActions({
           disabled={isSubmitting}
           className='h-11 sm:h-10 sm:w-36 rounded-md bg-primary-default hover:bg-primary-hover active:bg-primary data-[pressed=true]:bg-primary text-xs font-semibold text-white shadow-sm disabled:opacity-50 transition-all cursor-pointer'
         >
-          {submitLabel}
+          {isSubmitting ? (
+            <>
+              <Loader2 className='mr-2 size-4 animate-spin' />
+              {submitLabel}
+            </>
+          ) : (
+            submitLabel
+          )}
         </Button>
       </div>
     </div>

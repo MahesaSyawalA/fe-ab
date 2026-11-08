@@ -6,9 +6,7 @@ import { signIn } from 'next-auth/react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { AlertCircle } from 'lucide-react';
-
-import { Form } from '@heroui/react';
+import { Form, toast } from '@heroui/react';
 import { TextFieldInput } from '../inputs/text-field-input';
 import { PasswordFieldInput } from '../inputs/password-field-input';
 import { AuthButton } from '../buttons/auth-button';
@@ -28,8 +26,6 @@ export function LoginForm() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
 
-  const [authError, setAuthError] = React.useState<string | null>(null);
-
   const {
     control,
     handleSubmit,
@@ -43,8 +39,6 @@ export function LoginForm() {
   });
 
   const onSubmit = async (data: LoginFormValues) => {
-    setAuthError(null);
-
     try {
       const result = await signIn('credentials', {
         email: data.email,
@@ -53,17 +47,24 @@ export function LoginForm() {
       });
 
       if (!result || result.error) {
-        setAuthError('Email atau password tidak valid. Silakan periksa kembali akun Anda.');
+        toast.danger('Gagal Masuk', {
+          description: 'Email atau password tidak valid. Silakan periksa kembali akun Anda.',
+        });
         return;
       }
 
       if (result.ok) {
+        toast.success('Berhasil Masuk', {
+          description: 'Mengalihkan ke dashboard...',
+        });
         // Arahkan ke target callback / dashboard dan refresh agar proxy.ts mengeksekusi navigasi default role
         router.push(callbackUrl);
         router.refresh();
       }
     } catch {
-      setAuthError('Terjadi gangguan koneksi ke server autentikasi. Silakan coba beberapa saat lagi.');
+      toast.danger('Koneksi Gagal', {
+        description: 'Terjadi gangguan koneksi ke server autentikasi. Silakan coba beberapa saat lagi.',
+      });
     }
   };
 
@@ -73,16 +74,6 @@ export function LoginForm() {
       className='mt-8 flex w-full flex-col gap-5'
       validationBehavior='aria'
     >
-      {authError && (
-        <div
-          role='alert'
-          className='flex items-center gap-2.5 rounded-lg border border-danger/30 bg-danger/10 px-3.5 py-3 text-xs font-medium text-danger transition-all'
-        >
-          <AlertCircle className='size-4 shrink-0' />
-          <span>{authError}</span>
-        </div>
-      )}
-
       <Controller
         name='email'
         control={control}
