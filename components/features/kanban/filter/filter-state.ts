@@ -1,26 +1,7 @@
-export interface KanbanFilterState {
-  stages: string[];
-  priorities: string[];
-  closingFrom: string;
-  closingTo: string;
-  minEstimate: string;
-  maxEstimate: string;
-  salesId: string;
-}
-
-export const INITIAL_KANBAN_FILTER: KanbanFilterState = {
-  stages: [],
-  priorities: [],
-  closingFrom: '',
-  closingTo: '',
-  minEstimate: '',
-  maxEstimate: '',
-  salesId: '',
-};
-
-export function countActiveFilters(filter: KanbanFilterState): number {
-  const { stages, priorities, ...scalars } = filter;
-  return (
-    stages.length + priorities.length + Object.values(scalars).filter(Boolean).length
-  );
-}
+export {
+  type KanbanFilterValues,
+  type KanbanFilterValues as KanbanFilterState,
+  INITIAL_KANBAN_FILTER_VALUES,
+  INITIAL_KANBAN_FILTER_VALUES as INITIAL_KANBAN_FILTER,
+  countActiveFilters,
+} from '@/store/kanban-filter-store';

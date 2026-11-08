@@ -5,16 +5,22 @@ import type {
   KanbanRootProps,
 } from '@/components/reui/kanban';
 import type { ChipFilterItem } from '@/components/ui/chip-filter';
-import {
-  INITIAL_KANBAN_FILTER,
-  countActiveFilters,
-  KanbanFilterState,
-} from '../filter';
+import { countActiveFilters } from '../filter';
+import { useKanbanFilterStore } from '@/store/kanban-filter-store';
 import { StageDrawerMode, StageActivityDrawerProps } from '../stage-activity-drawer';
 import { useKanbanStore } from '@/lib/kanban-store';
-import { KanbanStageColumn } from '@/constants/kanban-constants';
-import { TiketWithDetails } from '@/types/ticket.types';
+import {
+  INITIAL_KANBAN_STAGES,
+  AKTIVITAS_STAGE_CONFIG,
+  KanbanStageColumn,
+} from '@/constants/kanban-constants';
+import { TiketWithDetails, TeamContributionItem } from '@/types/ticket.types';
 import { formatCompactRupiah } from '@/lib/utils';
+import {
+  useKanbanStagesQuery,
+  useKanbanBoardQuery,
+} from '@/hooks/queries/use-kanban-query';
+import type { KanbanBoardFilterParams } from '@/services/kanban-service';
 
 type KanbanProps = KanbanRootProps<TiketWithDetails>;
 type DragStartEvent = Parameters<NonNullable<KanbanProps['onDragStart']>>[0];
@@ -29,24 +35,157 @@ export interface PendingStageMove {
 
 export function useKanbanBoard() {
   const {
-    stages,
-    ticketsByStage,
-    setTicketsByStage,
-    addTicket,
+    setTicketsByStage: setStoreTicketsByStage,
+    addTicket: addStoreTicket,
     moveTicketWithStageUpdate,
   } = useKanbanStore();
 
-  const [searchQuery, setSearchQuery] = React.useState('');
-  const [selectedStageId, setSelectedStageId] = React.useState<string>(
-    stages[0]?.id_tahap ?? 'visit',
-  );
-  const [filterOpen, setFilterOpen] = React.useState(false);
-  const [filterState, setFilterState] = React.useState<KanbanFilterState>(
-    INITIAL_KANBAN_FILTER,
-  );
-  const [isTambahKolomOpen, setIsTambahKolomOpen] = React.useState(false);
+  const {
+    searchQuery,
+    setSearchQuery,
+    selectedStageId: storeSelectedStageId,
+    setSelectedStageId,
+    isFilterDrawerOpen: filterOpen,
+    setFilterDrawerOpen: setFilterOpen,
+    isTambahKolomOpen,
+    setIsTambahKolomOpen,
+    filterState,
+    setFilterState,
+    resetFilters,
+  } = useKanbanFilterStore();
 
-  // Dragging active states
+  // -------------------------------------------------------------------
+  // 1. TanStack Query: Fetch Stages
+  // -------------------------------------------------------------------
+  const stagesQuery = useKanbanStagesQuery();
+
+  const stages: KanbanStageColumn[] = React.useMemo(() => {
+    const raw = stagesQuery.data?.data;
+    if (Array.isArray(raw) && raw.length > 0) {
+      return raw
+        .filter((s) => s.is_aktif ?? true)
+        .sort((a, b) => (a.urutan ?? 0) - (b.urutan ?? 0))
+        .map((s, idx) => ({
+          ...s,
+          dotColor:
+            s.dotColor ||
+            AKTIVITAS_STAGE_CONFIG[s.jenis_tahap]?.dotColor ||
+            INITIAL_KANBAN_STAGES[idx % INITIAL_KANBAN_STAGES.length]?.dotColor ||
+            '#7C5CFC',
+        }));
+    }
+    return INITIAL_KANBAN_STAGES;
+  }, [stagesQuery.data]);
+
+  // Ensure active selected stage defaults to stages[0]?.id_tahap (UUID tahap riil)
+  const activeSelectedStageId = React.useMemo(() => {
+    if (!stages.length) return storeSelectedStageId;
+    const exists = stages.some((s) => s.id_tahap === storeSelectedStageId);
+    return exists ? storeSelectedStageId : (stages[0]?.id_tahap ?? storeSelectedStageId);
+  }, [stages, storeSelectedStageId]);
+
+  // Synchronize store when stages arrive and storeSelectedStageId is not in stages
+  React.useEffect(() => {
+    if (stages.length > 0 && !stages.some((s) => s.id_tahap === storeSelectedStageId)) {
+      setSelectedStageId(stages[0].id_tahap);
+    }
+  }, [stages, storeSelectedStageId, setSelectedStageId]);
+
+  // -------------------------------------------------------------------
+  // 2. TanStack Query: Fetch Board Tickets
+  // -------------------------------------------------------------------
+  const queryParams: KanbanBoardFilterParams = React.useMemo(() => {
+    const minVal = filterState.minEstimate
+      ? Number(filterState.minEstimate.replace(/\D/g, ''))
+      : undefined;
+    const maxVal = filterState.maxEstimate
+      ? Number(filterState.maxEstimate.replace(/\D/g, ''))
+      : undefined;
+
+    return {
+      search: searchQuery.trim() || undefined,
+      salesId:
+        filterState.salesId && filterState.salesId !== 'all'
+          ? filterState.salesId
+          : undefined,
+      squadId: filterState.squadId || undefined,
+      priorities:
+        filterState.priorities.length > 0 ? filterState.priorities : undefined,
+      stages: filterState.stages.length > 0 ? filterState.stages : undefined,
+      minEstimate: minVal,
+      maxEstimate: maxVal,
+      closingFrom: filterState.closingFrom || undefined,
+      closingTo: filterState.closingTo || undefined,
+    };
+  }, [searchQuery, filterState]);
+
+  const boardQuery = useKanbanBoardQuery(queryParams);
+
+  // Parse flat array of tickets returned from backend GET /tiket
+  const rawTickets = React.useMemo(() => {
+    const data = boardQuery.data?.data;
+    if (Array.isArray(data)) return data;
+    return [];
+  }, [boardQuery.data]);
+
+  // Group real tickets by id_tahap (UUID stages from GET /tahap-kanban)
+  const ticketsByStageFromApi = React.useMemo(() => {
+    const map: Record<string, TiketWithDetails[]> = {};
+    stages.forEach((stage) => {
+      map[stage.id_tahap] = [];
+    });
+    (rawTickets || []).forEach((ticket) => {
+      const stageId = ticket.id_tahap;
+      if (map[stageId]) {
+        map[stageId].push(ticket);
+      } else {
+        map[stageId] = [ticket];
+      }
+    });
+    return map;
+  }, [stages, rawTickets]);
+
+  // Optimistic local state for DnD fluidity
+  const [localTicketsByStage, setLocalTicketsByStage] = React.useState<
+    Record<string, TiketWithDetails[]> | null
+  >(null);
+  const [prevApiData, setPrevApiData] = React.useState(boardQuery.data?.data);
+
+  if (boardQuery.data?.data !== prevApiData) {
+    setPrevApiData(boardQuery.data?.data);
+    setLocalTicketsByStage(null);
+  }
+
+  const ticketsByStage = localTicketsByStage ?? ticketsByStageFromApi;
+
+  const setTicketsByStage = React.useCallback(
+    (
+      next:
+        | Record<string, TiketWithDetails[]>
+        | ((
+            prev: Record<string, TiketWithDetails[]>,
+          ) => Record<string, TiketWithDetails[]>),
+    ) => {
+      setLocalTicketsByStage((prev) => {
+        const current = prev ?? ticketsByStageFromApi;
+        const updated = typeof next === 'function' ? next(current) : next;
+        setStoreTicketsByStage(updated);
+        return updated;
+      });
+    },
+    [ticketsByStageFromApi, setStoreTicketsByStage],
+  );
+
+  // Synchronize external Zustand store when backend data arrives
+  React.useEffect(() => {
+    if (boardQuery.data?.data) {
+      setStoreTicketsByStage(ticketsByStageFromApi);
+    }
+  }, [boardQuery.data, ticketsByStageFromApi, setStoreTicketsByStage]);
+
+  // -------------------------------------------------------------------
+  // 3. Dragging active states
+  // -------------------------------------------------------------------
   const [activeDraggedTicketId, setActiveDraggedTicketId] = React.useState<
     string | null
   >(null);
@@ -73,7 +212,9 @@ export function useKanbanBoard() {
     return null;
   }, [activeDraggedTicketId, ticketsByStage]);
 
-  // Filtered tickets per stage
+  // -------------------------------------------------------------------
+  // 4. Client-Side Filtering Fallback
+  // -------------------------------------------------------------------
   const filteredTicketsByStage = React.useMemo(() => {
     const result: Record<string, TiketWithDetails[]> = {};
     const q = searchQuery.trim().toLowerCase();
@@ -89,9 +230,9 @@ export function useKanbanBoard() {
       result[stage.id_tahap] = items.filter((ticket) => {
         if (
           q &&
-          !ticket.judul.toLowerCase().includes(q) &&
-          !ticket.nama_outlet.toLowerCase().includes(q) &&
-          !ticket.kode_tiket.toLowerCase().includes(q)
+          !ticket.judul?.toLowerCase().includes(q) &&
+          !ticket.nama_outlet?.toLowerCase().includes(q) &&
+          !ticket.kode_tiket?.toLowerCase().includes(q)
         ) {
           return false;
         }
@@ -108,10 +249,10 @@ export function useKanbanBoard() {
         ) {
           return false;
         }
-        if (minVal && ticket.estimasi_nilai < minVal) {
+        if (minVal !== null && !isNaN(minVal) && (ticket.estimasi_nilai ?? 0) < minVal) {
           return false;
         }
-        if (maxVal && ticket.estimasi_nilai > maxVal) {
+        if (maxVal !== null && !isNaN(maxVal) && (ticket.estimasi_nilai ?? 0) > maxVal) {
           return false;
         }
         if (
@@ -121,6 +262,22 @@ export function useKanbanBoard() {
         ) {
           return false;
         }
+        if (filterState.closingFrom && ticket.estimasi_closing) {
+          const ticketTime = new Date(ticket.estimasi_closing).getTime();
+          const fromTime = new Date(filterState.closingFrom).getTime();
+          if (!isNaN(ticketTime) && !isNaN(fromTime) && ticketTime < fromTime) {
+            return false;
+          }
+        }
+        if (filterState.closingTo && ticket.estimasi_closing) {
+          const ticketTime = new Date(ticket.estimasi_closing).getTime();
+          const toDate = new Date(filterState.closingTo);
+          toDate.setHours(23, 59, 59, 999);
+          const toTime = toDate.getTime();
+          if (!isNaN(ticketTime) && !isNaN(toTime) && ticketTime > toTime) {
+            return false;
+          }
+        }
         return true;
       });
     });
@@ -128,20 +285,69 @@ export function useKanbanBoard() {
     return result;
   }, [stages, ticketsByStage, searchQuery, filterState]);
 
-  // Calculate pipeline summary
-  const { totalPipelineLabel, activeTicketsCount } = React.useMemo(() => {
-    let total = 0;
-    let count = 0;
+  // -------------------------------------------------------------------
+  // 5. Dynamic Pipeline Summary Calculation
+  // -------------------------------------------------------------------
+  const { totalPipelineLabel, activeTicketsCount, targetPercentage } =
+    React.useMemo(() => {
+      let total = 0;
+      let count = 0;
+      let wonCount = 0;
+
+      Object.values(filteredTicketsByStage).forEach((list) => {
+        list.forEach((t) => {
+          total += t.estimasi_nilai || 0;
+          count += 1;
+          if (t.status === 'won' || t.id_tahap === 'revenue') {
+            wonCount += 1;
+          }
+        });
+      });
+
+      const percentage = count > 0 ? Math.round((wonCount / count) * 100) : 0;
+
+      return {
+        totalPipelineLabel: total > 0 ? formatCompactRupiah(total) : 'Rp0',
+        activeTicketsCount: count,
+        targetPercentage: percentage,
+      };
+    }, [filteredTicketsByStage]);
+
+  // Dynamic team contribution aggregation
+  const teamContributions: TeamContributionItem[] = React.useMemo(() => {
+    const salesMap: Record<
+      string,
+      { name: string; totalVal: number; count: number; wonCount: number }
+    > = {};
+
     Object.values(ticketsByStage).forEach((list) => {
       list.forEach((t) => {
-        total += t.estimasi_nilai;
-        count += 1;
+        const key = t.id_user || t.nama_sales || 'unknown';
+        const name = t.nama_sales || 'Sales';
+        if (!salesMap[key]) {
+          salesMap[key] = { name, totalVal: 0, count: 0, wonCount: 0 };
+        }
+        salesMap[key].totalVal += t.estimasi_nilai || 0;
+        salesMap[key].count += 1;
+        if (t.status === 'won' || t.id_tahap === 'revenue') {
+          salesMap[key].wonCount += 1;
+        }
       });
     });
-    return {
-      totalPipelineLabel: total > 0 ? formatCompactRupiah(total) : 'Rp6,15 M',
-      activeTicketsCount: count || 11,
-    };
+
+    const entries = Object.entries(salesMap);
+    if (entries.length === 0) return [];
+
+    return entries.slice(0, 3).map(([id, item]) => {
+      const rate =
+        item.count > 0 ? Math.round((item.wonCount / item.count) * 100) : 0;
+      return {
+        id,
+        name: item.name,
+        valueLabel: formatCompactRupiah(item.totalVal),
+        ticketsLabel: `${item.count} Tiket (${rate}%)`,
+      };
+    });
   }, [ticketsByStage]);
 
   // Stage filter chips (all 7 stages)
@@ -173,11 +379,11 @@ export function useKanbanBoard() {
 
   // Next stage for floating quick-move pill
   const currentStageIndex = stages.findIndex(
-    (s) => s.id_tahap === selectedStageId,
+    (s) => s.id_tahap === activeSelectedStageId,
   );
   const nextStage =
     stages[(currentStageIndex + 1) % Math.max(stages.length, 1)] ?? stages[1];
-  const activeStageTickets = filteredTicketsByStage[selectedStageId] ?? [];
+  const activeStageTickets = filteredTicketsByStage[activeSelectedStageId] ?? [];
   const quickMoveTicket = activeStageTickets[0];
 
   const startMove = (pending: PendingStageMove) => {
@@ -190,7 +396,7 @@ export function useKanbanBoard() {
   const handleQuickMove = () => {
     if (!quickMoveTicket || !nextStage) return;
     const currentStageObj =
-      stages.find((s) => s.id_tahap === selectedStageId) ??
+      stages.find((s) => s.id_tahap === activeSelectedStageId) ??
       stages.find((s) => s.id_tahap === quickMoveTicket.id_tahap) ??
       stages[0];
 
@@ -217,7 +423,6 @@ export function useKanbanBoard() {
   ) => {
     if (!overId) return;
 
-    // Source stage identification
     let fromStageId = dragSourceStageRef.current;
     let draggedTicket: TiketWithDetails | null = null;
 
@@ -230,7 +435,6 @@ export function useKanbanBoard() {
       }
     }
 
-    // Target stage identification
     let toStageId: string | null = null;
     if (stages.some((s) => s.id_tahap === overId)) {
       toStageId = overId;
@@ -245,7 +449,7 @@ export function useKanbanBoard() {
 
     if (!fromStageId || !toStageId || !draggedTicket) return;
 
-    // If dropped in the SAME stage, perform item reordering
+    // Dropped in SAME stage -> reorder
     if (fromStageId === toStageId) {
       const list = [...(ticketsByStage[fromStageId] ?? [])];
       const oldIdx = list.findIndex((t) => t.id_tiket === activeId);
@@ -259,7 +463,7 @@ export function useKanbanBoard() {
       return;
     }
 
-    // Dropped into a DIFFERENT activity/stage! Trigger the bottom Drawer form!
+    // Dropped into DIFFERENT stage -> trigger drawer
     const fromStageObj = stages.find((s) => s.id_tahap === fromStageId) ?? null;
     const toStageObj = stages.find((s) => s.id_tahap === toStageId) ?? null;
 
@@ -332,6 +536,27 @@ export function useKanbanBoard() {
     StageActivityDrawerProps['onConfirmMove']
   > = (params) => {
     moveTicketWithStageUpdate(params);
+
+    // Optimistically update local ticketsByStage
+    const nextMap = { ...ticketsByStage };
+    const fromList = (nextMap[params.fromStageId] ?? []).filter(
+      (t) => t.id_tiket !== params.id_tiket,
+    );
+    const movedTicket = (ticketsByStage[params.fromStageId] ?? []).find(
+      (t) => t.id_tiket === params.id_tiket,
+    );
+
+    if (movedTicket) {
+      const updated: TiketWithDetails = {
+        ...movedTicket,
+        ...params.ticketUpdates,
+        id_tahap: params.toStageId,
+      };
+      nextMap[params.fromStageId] = fromList;
+      nextMap[params.toStageId] = [updated, ...(nextMap[params.toStageId] ?? [])];
+      setTicketsByStage(nextMap);
+    }
+
     setSelectedStageId(params.toStageId);
     scrollToStage(params.toStageId);
     setPendingStageMove(null);
@@ -339,9 +564,14 @@ export function useKanbanBoard() {
 
   // Confirm new ticket creation in that stage
   const handleConfirmCreateTicket = (newTicket: TiketWithDetails) => {
-    addTicket(newTicket);
-    setSelectedStageId(newTicket.id_tahap);
-    scrollToStage(newTicket.id_tahap);
+    addStoreTicket(newTicket);
+    const stageId = newTicket.id_tahap || 'visit';
+    setTicketsByStage((prev) => ({
+      ...prev,
+      [stageId]: [newTicket, ...(prev[stageId] ?? [])],
+    }));
+    setSelectedStageId(stageId);
+    scrollToStage(stageId);
     setPendingStageMove(null);
   };
 
@@ -357,12 +587,13 @@ export function useKanbanBoard() {
     columnRefs,
     searchQuery,
     setSearchQuery,
-    selectedStageId,
+    selectedStageId: activeSelectedStageId,
     setSelectedStageId,
     filterOpen,
     setFilterOpen,
     filterState,
     setFilterState,
+    resetFilters,
     isTambahKolomOpen,
     setIsTambahKolomOpen,
     activeDraggedTicketId,
@@ -375,10 +606,20 @@ export function useKanbanBoard() {
     filteredTicketsByStage,
     totalPipelineLabel,
     activeTicketsCount,
+    targetPercentage,
+    teamContributions,
     stageChips,
     activeFilterCount,
     nextStage,
     quickMoveTicket,
+    isLoading: stagesQuery.isLoading || boardQuery.isLoading,
+    isFetching: stagesQuery.isFetching || boardQuery.isFetching,
+    isError: stagesQuery.isError || boardQuery.isError,
+    error: stagesQuery.error || boardQuery.error,
+    refetch: () => {
+      stagesQuery.refetch();
+      boardQuery.refetch();
+    },
     handleSelectStageChip,
     handleQuickMove,
     handleOpenAddCardDrawer,

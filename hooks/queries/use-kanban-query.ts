@@ -8,24 +8,53 @@ import {
 import {
   kanbanService,
   type KanbanBoardData,
+  type KanbanBoardFilterParams,
   type MoveTicketPayload,
+  type MoveTicketStagePayload,
 } from '@/services/kanban-service';
 import { getErrorMessage } from '@/lib/axios';
 import type { ApiResponse } from '@/types/api.types';
 import type { TiketWithDetails } from '@/types/ticket.types';
+import type {
+  TahapKanban,
+  CreateTahapKanbanInput,
+  UpdateTahapKanbanInput,
+} from '@/types/kanban-stage.types';
 
 export const kanbanKeys = {
   all: ['kanban'] as const,
-  board: (params?: { squadId?: string; salesId?: string; search?: string }) =>
+  stages: () => [...kanbanKeys.all, 'stages'] as const,
+  board: (params?: KanbanBoardFilterParams) =>
     [...kanbanKeys.all, 'board', params] as const,
   tickets: () => [...kanbanKeys.all, 'tickets'] as const,
   ticket: (id: string) => [...kanbanKeys.tickets(), id] as const,
+  activities: (ticketId: string) =>
+    [...kanbanKeys.ticket(ticketId), 'activities'] as const,
+  history: (ticketId: string) =>
+    [...kanbanKeys.ticket(ticketId), 'history'] as const,
 };
 
-export function useKanbanBoardQuery(
-  params?: { squadId?: string; salesId?: string; search?: string },
+// ---------------------------------------------------------
+// QUERY HOOKS
+// ---------------------------------------------------------
+
+export function useKanbanStagesQuery(
   options?: Omit<
-    UseQueryOptions<ApiResponse<KanbanBoardData>, Error>,
+    UseQueryOptions<ApiResponse<TahapKanban[]>, Error>,
+    'queryKey' | 'queryFn'
+  >,
+) {
+  return useQuery({
+    queryKey: kanbanKeys.stages(),
+    queryFn: () => kanbanService.getStages(),
+    ...options,
+  });
+}
+
+export function useKanbanBoardQuery(
+  params?: KanbanBoardFilterParams,
+  options?: Omit<
+    UseQueryOptions<ApiResponse<TiketWithDetails[]>, Error>,
     'queryKey' | 'queryFn'
   >,
 ) {
@@ -36,7 +65,7 @@ export function useKanbanBoardQuery(
   });
 }
 
-export function useKanbanTicketQuery(
+export function useKanbanTicketDetailQuery(
   id: string,
   options?: Omit<
     UseQueryOptions<ApiResponse<TiketWithDetails>, Error>,
@@ -51,6 +80,15 @@ export function useKanbanTicketQuery(
   });
 }
 
+/**
+ * Backward-compatible alias for useKanbanTicketDetailQuery
+ */
+export const useKanbanTicketQuery = useKanbanTicketDetailQuery;
+
+// ---------------------------------------------------------
+// MUTATION HOOKS
+// ---------------------------------------------------------
+
 export function useMoveTicketMutation(
   options?: UseMutationOptions<ApiResponse<TiketWithDetails>, Error, MoveTicketPayload>,
 ) {
@@ -64,7 +102,105 @@ export function useMoveTicketMutation(
       await options?.onSuccess?.(...args);
     },
     onError: (...args) => {
-      console.error('[Move Ticket Error]:', getErrorMessage(args[0]));
+      console.warn('[Move Ticket Error]:', getErrorMessage(args[0]));
+      options?.onError?.(...args);
+    },
+  });
+}
+
+export function useMoveTicketStageMutation(
+  options?: UseMutationOptions<
+    ApiResponse<TiketWithDetails>,
+    Error,
+    { id: string; payload: MoveTicketStagePayload }
+  >,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...options,
+    mutationFn: ({ id, payload }: { id: string; payload: MoveTicketStagePayload }) =>
+      kanbanService.moveTicketStage(id, payload),
+    onSuccess: async (...args) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: kanbanKeys.board() }),
+        queryClient.invalidateQueries({ queryKey: kanbanKeys.ticket(args[1].id) }),
+      ]);
+      await options?.onSuccess?.(...args);
+    },
+    onError: (...args) => {
+      console.warn('[Move Ticket Stage Error]:', getErrorMessage(args[0]));
+      options?.onError?.(...args);
+    },
+  });
+}
+
+export function useCreateTahapMutation(
+  options?: UseMutationOptions<ApiResponse<TahapKanban>, Error, CreateTahapKanbanInput>,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...options,
+    mutationFn: (payload: CreateTahapKanbanInput) => kanbanService.createTahap(payload),
+    onSuccess: async (...args) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: kanbanKeys.stages() }),
+        queryClient.invalidateQueries({ queryKey: kanbanKeys.board() }),
+      ]);
+      await options?.onSuccess?.(...args);
+    },
+    onError: (...args) => {
+      console.warn('[Create Tahap Error]:', getErrorMessage(args[0]));
+      options?.onError?.(...args);
+    },
+  });
+}
+
+export function useUpdateTahapMutation(
+  options?: UseMutationOptions<
+    ApiResponse<TahapKanban>,
+    Error,
+    { id: string; payload: UpdateTahapKanbanInput }
+  >,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...options,
+    mutationFn: ({ id, payload }: { id: string; payload: UpdateTahapKanbanInput }) =>
+      kanbanService.updateTahap(id, payload),
+    onSuccess: async (...args) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: kanbanKeys.stages() }),
+        queryClient.invalidateQueries({ queryKey: kanbanKeys.board() }),
+      ]);
+      await options?.onSuccess?.(...args);
+    },
+    onError: (...args) => {
+      console.warn('[Update Tahap Error]:', getErrorMessage(args[0]));
+      options?.onError?.(...args);
+    },
+  });
+}
+
+export function useDeleteTahapMutation(
+  options?: UseMutationOptions<ApiResponse<void>, Error, string>,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...options,
+    mutationFn: (id: string) => kanbanService.deleteTahap(id),
+    onSuccess: async (...args) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: kanbanKeys.stages() }),
+        queryClient.invalidateQueries({ queryKey: kanbanKeys.board() }),
+      ]);
+      await options?.onSuccess?.(...args);
+    },
+    onError: (...args) => {
+      console.warn('[Delete Tahap Error]:', getErrorMessage(args[0]));
       options?.onError?.(...args);
     },
   });

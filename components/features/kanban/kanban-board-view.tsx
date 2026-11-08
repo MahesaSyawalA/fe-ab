@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Plus } from 'lucide-react';
+import { Plus, AlertCircle, RefreshCw } from 'lucide-react';
 import { Kanban, KanbanBoard } from '@/components/reui/kanban';
 import { Button } from '@/components/ui/button';
 import { SearchFilterBar } from '@/components/ui/search-filter-bar';
@@ -16,7 +16,6 @@ import {
   KanbanQuickMovePill,
   useKanbanBoard,
 } from './board';
-import { TEAM_CONTRIBUTIONS } from '@/constants/kanban-constants';
 
 export type KanbanUserRole = 'sales' | 'manager' | 'director';
 
@@ -44,6 +43,26 @@ export function KanbanBoardView({ role, basePath }: KanbanBoardViewProps) {
         </p>
       </div>
 
+      {/* Error state alert banner */}
+      {board.isError && (
+        <div className='flex items-center justify-between gap-3 rounded-2xl border border-destructive/20 bg-destructive/10 p-3.5 text-xs text-destructive'>
+          <div className='flex items-center gap-2'>
+            <AlertCircle className='size-4 shrink-0' />
+            <span>Gagal memuat data Kanban board dari server.</span>
+          </div>
+          <Button
+            type='button'
+            variant='outline'
+            size='sm'
+            onClick={() => board.refetch()}
+            className='h-7 gap-1.5 rounded-lg border-destructive/30 bg-destructive/10 text-xs text-destructive hover:bg-destructive/20 cursor-pointer'
+          >
+            <RefreshCw className='size-3' />
+            Coba Lagi
+          </Button>
+        </div>
+      )}
+
       {/* Search Bar + Filter Button */}
       <div className='w-full max-w-full min-w-0'>
         <SearchFilterBar
@@ -59,9 +78,9 @@ export function KanbanBoardView({ role, basePath }: KanbanBoardViewProps) {
         <KanbanPipelineCard
           totalPipelineLabel={board.totalPipelineLabel}
           activeTicketsCount={board.activeTicketsCount}
-          targetPercentage={68}
+          targetPercentage={board.targetPercentage}
           showTeamContributions={canCreateColumn}
-          teamContributions={TEAM_CONTRIBUTIONS}
+          teamContributions={board.teamContributions}
         />
       </div>
 
@@ -93,6 +112,7 @@ export function KanbanBoardView({ role, basePath }: KanbanBoardViewProps) {
                 key={stage.id_tahap}
                 stage={stage}
                 items={board.filteredTicketsByStage[stage.id_tahap] ?? []}
+                isLoading={board.isLoading}
                 isFocused={board.selectedStageId === stage.id_tahap}
                 isHolding={board.activeHoldingStageId === stage.id_tahap}
                 activeDraggedTicketId={board.activeDraggedTicketId}

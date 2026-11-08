@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils';
 interface KanbanBoardColumnProps {
   stage: KanbanStageColumn;
   items: TiketWithDetails[];
+  isLoading?: boolean;
   isFocused: boolean;
   isHolding: boolean;
   activeDraggedTicketId: string | null;
@@ -26,6 +27,7 @@ interface KanbanBoardColumnProps {
 export function KanbanBoardColumn({
   stage,
   items,
+  isLoading = false,
   isFocused,
   isHolding,
   activeDraggedTicketId,
@@ -55,7 +57,7 @@ export function KanbanBoardColumn({
               style={{ backgroundColor: stage.dotColor }}
             />
             <h3 className='text-xs font-bold text-foreground'>
-              {stage.nama_tahap} ({items.length})
+              {stage.nama_tahap} ({isLoading ? '…' : items.length})
             </h3>
           </div>
           <button
@@ -71,26 +73,56 @@ export function KanbanBoardColumn({
         {/* Ticket Cards List */}
         <KanbanColumnContent
           value={stage.id_tahap}
-          className={cn('flex flex-col gap-2.5', items.length === 0 && '-mb-3')}
+          className={cn(
+            'flex flex-col gap-2.5',
+            !isLoading && items.length === 0 && '-mb-1',
+          )}
         >
-          {items.map((ticket) => (
-            <KanbanItem
-              key={ticket.id_tiket}
-              value={ticket.id_tiket}
-              className='rounded-2xl'
-            >
-              <KanbanItemHandle className='rounded-2xl'>
-                {ticket.id_tiket === activeDraggedTicketId ? (
-                  <div className='h-[126px] w-full rounded-2xl bg-[#3B82F6] transition-all' />
-                ) : (
-                  <KanbanTicketCard
-                    ticket={ticket}
-                    onClick={() => onTicketClick(ticket)}
-                  />
-                )}
-              </KanbanItemHandle>
-            </KanbanItem>
-          ))}
+          {isLoading ? (
+            <div className='flex flex-col gap-2.5'>
+              {[1, 2].map((i) => (
+                <div
+                  key={i}
+                  className='flex flex-col gap-2.5 rounded-2xl border border-border/60 bg-white p-3.5 shadow-2xs animate-pulse'
+                >
+                  <div className='flex items-center justify-between'>
+                    <div className='h-3.5 w-24 rounded-md bg-muted' />
+                    <div className='h-4 w-12 rounded-full bg-muted' />
+                  </div>
+                  <div className='h-4 w-36 rounded-md bg-muted' />
+                  <div className='flex items-center justify-between pt-1'>
+                    <div className='h-3.5 w-20 rounded-md bg-muted' />
+                    <div className='size-5 rounded-full bg-muted' />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : items.length === 0 ? (
+            <div className='flex flex-col items-center justify-center rounded-xl border border-dashed border-border/70 bg-white/40 py-8 px-3 text-center'>
+              <p className='text-xs font-medium text-muted-foreground'>
+                Belum ada prospek di tahap ini
+              </p>
+            </div>
+          ) : (
+            items.map((ticket) => (
+              <KanbanItem
+                key={ticket.id_tiket}
+                value={ticket.id_tiket}
+                className='rounded-2xl'
+              >
+                <KanbanItemHandle className='rounded-2xl'>
+                  {ticket.id_tiket === activeDraggedTicketId ? (
+                    <div className='h-[126px] w-full rounded-2xl bg-[#3B82F6] transition-all' />
+                  ) : (
+                    <KanbanTicketCard
+                      ticket={ticket}
+                      onClick={() => onTicketClick(ticket)}
+                    />
+                  )}
+                </KanbanItemHandle>
+              </KanbanItem>
+            ))
+          )}
         </KanbanColumnContent>
 
         {/* + Add Card Button -> Automatically opens stage-specific form drawer! */}
