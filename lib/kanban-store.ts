@@ -42,7 +42,15 @@ const STAGE_DOT_COLORS = ['#8B5CF6', '#EC4899', '#14B8A6', '#06B6D4', '#F97316']
 
 export const useKanbanStore = create<KanbanStoreState>((set, get) => ({
   stages: INITIAL_KANBAN_STAGES,
-  ticketsByStage: {},
+  ticketsByStage: {
+    visit: [],
+    kebutuhan: [],
+    opportunity: [],
+    follow_up: [],
+    quotation: [],
+    po: [],
+    revenue: [],
+  },
 
   setTicketsByStage: (next) =>
     set(() => {

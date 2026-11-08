@@ -7,12 +7,12 @@ import {
 } from '@tanstack/react-query';
 import {
   kanbanService,
-  type KanbanBoardData,
   type KanbanBoardFilterParams,
   type MoveTicketPayload,
   type MoveTicketStagePayload,
 } from '@/services/kanban-service';
 import { getErrorMessage } from '@/lib/axios';
+import { toast } from '@/components/ui/toast';
 import type { ApiResponse } from '@/types/api.types';
 import type { TiketWithDetails } from '@/types/ticket.types';
 import type {
@@ -89,21 +89,115 @@ export const useKanbanTicketQuery = useKanbanTicketDetailQuery;
 // MUTATION HOOKS
 // ---------------------------------------------------------
 
+interface MoveTicketContext {
+  previousQueries: [readonly unknown[], ApiResponse<TiketWithDetails[]> | undefined][];
+  previousTicketDetail?: ApiResponse<TiketWithDetails>;
+}
+
 export function useMoveTicketMutation(
-  options?: UseMutationOptions<ApiResponse<TiketWithDetails>, Error, MoveTicketPayload>,
+  options?: UseMutationOptions<
+    ApiResponse<TiketWithDetails>,
+    Error,
+    MoveTicketPayload,
+    MoveTicketContext
+  >,
 ) {
   const queryClient = useQueryClient();
 
   return useMutation({
     ...options,
     mutationFn: (payload: MoveTicketPayload) => kanbanService.moveTicket(payload),
-    onSuccess: async (...args) => {
-      await queryClient.invalidateQueries({ queryKey: kanbanKeys.all });
-      await options?.onSuccess?.(...args);
+    onMutate: async (...args) => {
+      const payload = args[0];
+
+      // 1. Cancel outgoing queries
+      await queryClient.cancelQueries({ queryKey: kanbanKeys.all });
+
+      // 2. Snapshot current cache
+      const previousQueries = queryClient.getQueriesData<ApiResponse<TiketWithDetails[]>>({
+        queryKey: ['kanban', 'board'],
+      });
+      const previousTicketDetail = queryClient.getQueryData<ApiResponse<TiketWithDetails>>(
+        kanbanKeys.ticket(payload.id_tiket),
+      );
+
+      const targetStageId = payload.id_tahap || payload.id_tahap_tujuan || payload.toStageId;
+
+      // 3. Optimistic update in cache
+      if (targetStageId) {
+        queryClient.setQueriesData<ApiResponse<TiketWithDetails[]>>(
+          { queryKey: ['kanban', 'board'] },
+          (old) => {
+            if (!old || !Array.isArray(old.data)) return old;
+            return {
+              ...old,
+              data: old.data.map((ticket) =>
+                ticket.id_tiket === payload.id_tiket
+                  ? {
+                      ...ticket,
+                      ...payload.ticketUpdates,
+                      id_tahap: targetStageId,
+                      posisi: payload.posisi ?? ticket.posisi,
+                    }
+                  : ticket,
+              ),
+            };
+          },
+        );
+
+        if (previousTicketDetail?.data) {
+          queryClient.setQueryData<ApiResponse<TiketWithDetails>>(
+            kanbanKeys.ticket(payload.id_tiket),
+            {
+              ...previousTicketDetail,
+              data: {
+                ...previousTicketDetail.data,
+                ...payload.ticketUpdates,
+                id_tahap: targetStageId,
+              },
+            },
+          );
+        }
+      }
+
+      await options?.onMutate?.(...args);
+
+      return { previousQueries, previousTicketDetail };
     },
     onError: (...args) => {
-      console.warn('[Move Ticket Error]:', getErrorMessage(args[0]));
+      const [err, variables, context] = args;
+
+      // Rollback
+      if (context?.previousQueries) {
+        context.previousQueries.forEach(([qKey, prevData]) => {
+          queryClient.setQueryData(qKey, prevData);
+        });
+      }
+      if (context?.previousTicketDetail) {
+        queryClient.setQueryData(
+          kanbanKeys.ticket(variables.id_tiket),
+          context.previousTicketDetail,
+        );
+      }
+
+      const errMsg = getErrorMessage(err);
+      console.warn('[Move Ticket Error]:', errMsg);
+
+      try {
+        toast.add({
+          title: 'Gagal memindahkan prospek',
+          description: errMsg || 'Terjadi kesalahan saat memindahkan tahap tiket.',
+          type: 'error',
+        });
+      } catch {
+        // ignore fallback
+      }
+
       options?.onError?.(...args);
+    },
+    onSettled: async (...args) => {
+      await queryClient.invalidateQueries({ queryKey: kanbanKeys.all });
+      await options?.onSettled?.(...args);
     },
   });
 }

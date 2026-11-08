@@ -19,6 +19,7 @@ import { formatCompactRupiah } from '@/lib/utils';
 import {
   useKanbanStagesQuery,
   useKanbanBoardQuery,
+  useMoveTicketMutation,
 } from '@/hooks/queries/use-kanban-query';
 import type { KanbanBoardFilterParams } from '@/services/kanban-service';
 
@@ -35,7 +36,8 @@ export interface PendingStageMove {
 
 export function useKanbanBoard() {
   const {
-    setTicketsByStage: setStoreTicketsByStage,
+    ticketsByStage,
+    setTicketsByStage,
     addTicket: addStoreTicket,
     moveTicketWithStageUpdate,
   } = useKanbanStore();
@@ -55,9 +57,10 @@ export function useKanbanBoard() {
   } = useKanbanFilterStore();
 
   // -------------------------------------------------------------------
-  // 1. TanStack Query: Fetch Stages
+  // 1. TanStack Query: Fetch Stages & Mutations
   // -------------------------------------------------------------------
   const stagesQuery = useKanbanStagesQuery();
+  const moveTicketMutation = useMoveTicketMutation();
 
   const stages: KanbanStageColumn[] = React.useMemo(() => {
     const raw = stagesQuery.data?.data;
@@ -145,43 +148,27 @@ export function useKanbanBoard() {
     return map;
   }, [stages, rawTickets]);
 
-  // Optimistic local state for DnD fluidity
-  const [localTicketsByStage, setLocalTicketsByStage] = React.useState<
-    Record<string, TiketWithDetails[]> | null
-  >(null);
-  const [prevApiData, setPrevApiData] = React.useState(boardQuery.data?.data);
-
-  if (boardQuery.data?.data !== prevApiData) {
-    setPrevApiData(boardQuery.data?.data);
-    setLocalTicketsByStage(null);
-  }
-
-  const ticketsByStage = localTicketsByStage ?? ticketsByStageFromApi;
-
-  const setTicketsByStage = React.useCallback(
-    (
-      next:
-        | Record<string, TiketWithDetails[]>
-        | ((
-            prev: Record<string, TiketWithDetails[]>,
-          ) => Record<string, TiketWithDetails[]>),
-    ) => {
-      setLocalTicketsByStage((prev) => {
-        const current = prev ?? ticketsByStageFromApi;
-        const updated = typeof next === 'function' ? next(current) : next;
-        setStoreTicketsByStage(updated);
-        return updated;
-      });
-    },
-    [ticketsByStageFromApi, setStoreTicketsByStage],
-  );
-
-  // Synchronize external Zustand store when backend data arrives
+  // Synchronize Zustand store when backend TanStack Query data arrives
   React.useEffect(() => {
-    if (boardQuery.data?.data) {
-      setStoreTicketsByStage(ticketsByStageFromApi);
+    if (ticketsByStageFromApi && Object.keys(ticketsByStageFromApi).length > 0) {
+      setTicketsByStage(ticketsByStageFromApi);
     }
-  }, [boardQuery.data, ticketsByStageFromApi, setStoreTicketsByStage]);
+  }, [ticketsByStageFromApi, setTicketsByStage]);
+
+  // Guaranteed normalization so every rendered stage column ALWAYS has an array (never undefined)
+  const normalizedTicketsByStage = React.useMemo(() => {
+    const result: Record<string, TiketWithDetails[]> = {};
+    stages.forEach((st) => {
+      const stageId = st.id_tahap;
+      result[stageId] = ticketsByStage[stageId] || [];
+    });
+    Object.entries(ticketsByStage).forEach(([key, items]) => {
+      if (!result[key]) {
+        result[key] = items;
+      }
+    });
+    return result;
+  }, [stages, ticketsByStage]);
 
   // -------------------------------------------------------------------
   // 3. Dragging active states
@@ -204,13 +191,13 @@ export function useKanbanBoard() {
   // Active column holding the dragged item
   const activeHoldingStageId = React.useMemo(() => {
     if (!activeDraggedTicketId) return null;
-    for (const [stageId, list] of Object.entries(ticketsByStage)) {
+    for (const [stageId, list] of Object.entries(normalizedTicketsByStage)) {
       if (list.some((item) => item.id_tiket === activeDraggedTicketId)) {
         return stageId;
       }
     }
     return null;
-  }, [activeDraggedTicketId, ticketsByStage]);
+  }, [activeDraggedTicketId, normalizedTicketsByStage]);
 
   // -------------------------------------------------------------------
   // 4. Client-Side Filtering Fallback
@@ -226,7 +213,7 @@ export function useKanbanBoard() {
       : null;
 
     stages.forEach((stage) => {
-      const items = ticketsByStage[stage.id_tahap] ?? [];
+      const items = normalizedTicketsByStage[stage.id_tahap] ?? [];
       result[stage.id_tahap] = items.filter((ticket) => {
         if (
           q &&
@@ -283,7 +270,7 @@ export function useKanbanBoard() {
     });
 
     return result;
-  }, [stages, ticketsByStage, searchQuery, filterState]);
+  }, [stages, normalizedTicketsByStage, searchQuery, filterState]);
 
   // -------------------------------------------------------------------
   // 5. Dynamic Pipeline Summary Calculation
@@ -320,7 +307,7 @@ export function useKanbanBoard() {
       { name: string; totalVal: number; count: number; wonCount: number }
     > = {};
 
-    Object.values(ticketsByStage).forEach((list) => {
+    Object.values(normalizedTicketsByStage).forEach((list) => {
       list.forEach((t) => {
         const key = t.id_user || t.nama_sales || 'unknown';
         const name = t.nama_sales || 'Sales';
@@ -348,7 +335,7 @@ export function useKanbanBoard() {
         ticketsLabel: `${item.count} Tiket (${rate}%)`,
       };
     });
-  }, [ticketsByStage]);
+  }, [normalizedTicketsByStage]);
 
   // Stage filter chips (all 7 stages)
   const stageChips: ChipFilterItem[] = React.useMemo(
@@ -382,7 +369,9 @@ export function useKanbanBoard() {
     (s) => s.id_tahap === activeSelectedStageId,
   );
   const nextStage =
-    stages[(currentStageIndex + 1) % Math.max(stages.length, 1)] ?? stages[1];
+    currentStageIndex >= 0 && currentStageIndex < stages.length - 1
+      ? stages[currentStageIndex + 1]
+      : null;
   const activeStageTickets = filteredTicketsByStage[activeSelectedStageId] ?? [];
   const quickMoveTicket = activeStageTickets[0];
 
@@ -426,7 +415,7 @@ export function useKanbanBoard() {
     let fromStageId = dragSourceStageRef.current;
     let draggedTicket: TiketWithDetails | null = null;
 
-    for (const [stageId, list] of Object.entries(ticketsByStage)) {
+    for (const [stageId, list] of Object.entries(normalizedTicketsByStage)) {
       const match = list.find((t) => t.id_tiket === activeId);
       if (match) {
         if (!fromStageId) fromStageId = stageId;
@@ -439,7 +428,7 @@ export function useKanbanBoard() {
     if (stages.some((s) => s.id_tahap === overId)) {
       toStageId = overId;
     } else {
-      for (const [stageId, list] of Object.entries(ticketsByStage)) {
+      for (const [stageId, list] of Object.entries(normalizedTicketsByStage)) {
         if (list.some((t) => t.id_tiket === overId)) {
           toStageId = stageId;
           break;
@@ -451,12 +440,12 @@ export function useKanbanBoard() {
 
     // Dropped in SAME stage -> reorder
     if (fromStageId === toStageId) {
-      const list = [...(ticketsByStage[fromStageId] ?? [])];
+      const list = [...(normalizedTicketsByStage[fromStageId] ?? [])];
       const oldIdx = list.findIndex((t) => t.id_tiket === activeId);
       const newIdx = list.findIndex((t) => t.id_tiket === overId);
       if (oldIdx !== -1 && newIdx !== -1 && oldIdx !== newIdx) {
         setTicketsByStage({
-          ...ticketsByStage,
+          ...normalizedTicketsByStage,
           [fromStageId]: arrayMove(list, oldIdx, newIdx),
         });
       }
@@ -480,7 +469,7 @@ export function useKanbanBoard() {
   const handleDragStart = (event: DragStartEvent) => {
     const activeId = event.active.id as string;
     setActiveDraggedTicketId(activeId);
-    for (const [stageId, list] of Object.entries(ticketsByStage)) {
+    for (const [stageId, list] of Object.entries(normalizedTicketsByStage)) {
       if (list.some((t) => t.id_tiket === activeId)) {
         dragSourceStageRef.current = stageId;
         break;
@@ -508,9 +497,9 @@ export function useKanbanBoard() {
     overIndex,
   }: KanbanMoveEvent) => {
     if (activeContainer === overContainer) {
-      const list = ticketsByStage[activeContainer] ?? [];
+      const list = normalizedTicketsByStage[activeContainer] ?? [];
       setTicketsByStage({
-        ...ticketsByStage,
+        ...normalizedTicketsByStage,
         [activeContainer]: arrayMove(list, activeIndex, overIndex),
       });
       return;
@@ -519,7 +508,7 @@ export function useKanbanBoard() {
     const fromStageObj =
       stages.find((s) => s.id_tahap === activeContainer) ?? null;
     const toStageObj = stages.find((s) => s.id_tahap === overContainer) ?? null;
-    const draggedItem = ticketsByStage[activeContainer]?.[activeIndex];
+    const draggedItem = normalizedTicketsByStage[activeContainer]?.[activeIndex];
 
     if (!draggedItem || !toStageObj) return;
 
@@ -534,27 +523,27 @@ export function useKanbanBoard() {
   // Confirm ticket move
   const handleConfirmStageMove: NonNullable<
     StageActivityDrawerProps['onConfirmMove']
-  > = (params) => {
+  > = async (params) => {
+    // 1. Local optimistic update in store for immediate rendering
     moveTicketWithStageUpdate(params);
 
-    // Optimistically update local ticketsByStage
-    const nextMap = { ...ticketsByStage };
-    const fromList = (nextMap[params.fromStageId] ?? []).filter(
-      (t) => t.id_tiket !== params.id_tiket,
-    );
-    const movedTicket = (ticketsByStage[params.fromStageId] ?? []).find(
-      (t) => t.id_tiket === params.id_tiket,
-    );
-
-    if (movedTicket) {
-      const updated: TiketWithDetails = {
-        ...movedTicket,
-        ...params.ticketUpdates,
+    // 2. Perform optimistic TanStack Query mutation to PATCH /tiket/:id
+    try {
+      await moveTicketMutation.mutateAsync({
+        id_tiket: params.id_tiket,
         id_tahap: params.toStageId,
-      };
-      nextMap[params.fromStageId] = fromList;
-      nextMap[params.toStageId] = [updated, ...(nextMap[params.toStageId] ?? [])];
-      setTicketsByStage(nextMap);
+        fromStageId: params.fromStageId,
+        toStageId: params.toStageId,
+        targetIndex: params.targetIndex,
+        ticketUpdates: params.ticketUpdates,
+        catatan: params.activity?.catatan,
+        posisi:
+          typeof params.targetIndex === 'number'
+            ? params.targetIndex + 1
+            : undefined,
+      });
+    } catch {
+      // Handled by mutation onError rollback
     }
 
     setSelectedStageId(params.toStageId);
@@ -566,10 +555,6 @@ export function useKanbanBoard() {
   const handleConfirmCreateTicket = (newTicket: TiketWithDetails) => {
     addStoreTicket(newTicket);
     const stageId = newTicket.id_tahap || 'visit';
-    setTicketsByStage((prev) => ({
-      ...prev,
-      [stageId]: [newTicket, ...(prev[stageId] ?? [])],
-    }));
     setSelectedStageId(stageId);
     scrollToStage(stageId);
     setPendingStageMove(null);
@@ -582,7 +567,7 @@ export function useKanbanBoard() {
 
   return {
     stages,
-    ticketsByStage,
+    ticketsByStage: normalizedTicketsByStage,
     setTicketsByStage,
     columnRefs,
     searchQuery,
@@ -612,6 +597,7 @@ export function useKanbanBoard() {
     activeFilterCount,
     nextStage,
     quickMoveTicket,
+    isMovingTicket: moveTicketMutation.isPending,
     isLoading: stagesQuery.isLoading || boardQuery.isLoading,
     isFetching: stagesQuery.isFetching || boardQuery.isFetching,
     isError: stagesQuery.isError || boardQuery.isError,
