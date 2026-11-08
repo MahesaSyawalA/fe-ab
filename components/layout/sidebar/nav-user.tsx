@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/sidebar';
 import { ConfirmModal } from '@/components/ui/confirm-modal';
 import { getUserInitials, formatRoleLabel, logoutUser } from '@/lib/auth-helpers';
+import { normalizeRole } from '@/lib/rbac';
 
 export function NavUser({ role }: { role: string }) {
   const { data: session } = useSession();
@@ -22,12 +23,11 @@ export function NavUser({ role }: { role: string }) {
   const user = session?.user;
   const userName = user?.nama || user?.name || 'Pengguna';
   const userEmail = user?.email || '';
-  const userRole = user?.role || role;
-  const displayRole = formatRoleLabel(userRole);
+  const activeRole = normalizeRole(user?.role) || normalizeRole(role) || 'sales';
+  const displayRole = formatRoleLabel(user?.role || role);
   const initials = getUserInitials(userName);
 
-  const routeRole = role || (userRole === 'sales_manager' ? 'manager' : userRole);
-  const settingsUrl = `/${routeRole}/pengaturan`;
+  const settingsUrl = `/${activeRole}/pengaturan`;
   const isActive = pathname.startsWith(settingsUrl);
 
   const handleLogout = async () => {

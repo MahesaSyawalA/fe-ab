@@ -1,5 +1,11 @@
 import { redirect } from 'next/navigation';
+import { auth } from '@/auth';
+import { getDefaultHome } from '@/lib/rbac';
 
-export default function DashboardPage() {
-  redirect('/sales/kanban');
+export default async function DashboardPage() {
+  const session = await auth();
+  if (!session?.user) {
+    redirect('/login');
+  }
+  redirect(getDefaultHome(session.user.role));
 }

@@ -7,6 +7,7 @@ import { Avatar, Dropdown, Label, Chip } from '@heroui/react';
 import { LogOutIcon, SettingsIcon, UserIcon } from 'lucide-react';
 import { ConfirmModal } from '@/components/ui/confirm-modal';
 import { getUserInitials, formatRoleLabel, logoutUser } from '@/lib/auth-helpers';
+import { normalizeRole } from '@/lib/rbac';
 
 interface UserAvatarProps {
   role?: 'sales' | 'manager' | 'director';
@@ -21,13 +22,11 @@ export function UserAvatar({ role }: UserAvatarProps) {
   const user = session?.user;
   const userName = user?.nama || user?.name || 'Pengguna';
   const userEmail = user?.email || '-';
-  const userRole = user?.role || role || 'sales';
-  const displayRole = formatRoleLabel(userRole);
+  const activeRole = normalizeRole(user?.role) || normalizeRole(role) || 'sales';
+  const displayRole = formatRoleLabel(user?.role || role);
   const initials = getUserInitials(userName);
 
-  const routeRole =
-    role || (userRole === 'sales_manager' ? 'manager' : userRole);
-  const settingsUrl = `/${routeRole}/pengaturan`;
+  const settingsUrl = `/${activeRole}/pengaturan`;
 
   return (
     <Dropdown>

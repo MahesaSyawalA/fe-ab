@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { signIn } from 'next-auth/react';
+import { signIn, getSession } from 'next-auth/react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -10,6 +10,7 @@ import { Form, toast } from '@heroui/react';
 import { TextFieldInput } from '../inputs/text-field-input';
 import { PasswordFieldInput } from '../inputs/password-field-input';
 import { AuthButton } from '../buttons/auth-button';
+import { getDefaultHome, isRouteAllowedForRole } from '@/lib/rbac';
 
 const loginSchema = z.object({
   email: z
@@ -65,7 +66,22 @@ export function LoginForm() {
             </span>
           ),
         });
-        router.push(callbackUrl);
+
+        // Ambil sesi user terkini untuk menentukan rute default sesuai role
+        const session = await getSession();
+        const role = session?.user?.role;
+        const defaultHome = getDefaultHome(role);
+
+        // Jika callbackUrl spesifik, valid, bukan generic dashboard/root, dan diizinkan untuk role ini, gunakan callbackUrl
+        const isValidCustomCallback =
+          callbackUrl &&
+          callbackUrl !== '/dashboard' &&
+          callbackUrl !== '/' &&
+          isRouteAllowedForRole(callbackUrl, role);
+
+        const targetUrl = isValidCustomCallback ? callbackUrl : defaultHome;
+
+        router.push(targetUrl);
         router.refresh();
       }
     } catch {

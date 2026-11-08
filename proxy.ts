@@ -1,37 +1,9 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import { type UserRole } from '@/types/user.types';
+import { normalizeRole, getDefaultHome } from '@/lib/rbac';
 
 /**
- * Normalisasi role backend/DB ke prefix rute App Router
- */
-function getRolePrefix(role?: string): 'sales' | 'manager' | 'director' | null {
-  if (!role) return null;
-  if (role === 'sales') return 'sales';
-  if (role === 'sales_manager' || role === 'manager') return 'manager';
-  if (role === 'director') return 'director';
-  return null;
-}
-
-/**
- * Mendapatkan rute default home berdasarkan role pengguna
- */
-function getDefaultHome(role?: UserRole | string): string {
-  const prefix = getRolePrefix(role);
-  switch (prefix) {
-    case 'sales':
-      return '/sales/kanban';
-    case 'manager':
-      return '/manager/kanban';
-    case 'director':
-      return '/director/dashboard';
-    default:
-      return '/login';
-  }
-}
-
-/**
- * Konvensi Next.js 16: Proxy handler untuk proteksi rute RBAC
+ * Konvensi Route Protection & Role Guards (RBAC Proxy / Middleware)
  */
 export const proxy = auth((req) => {
   const { nextUrl } = req;
@@ -39,11 +11,12 @@ export const proxy = auth((req) => {
   const user = req.auth?.user;
   const isAuthenticated = Boolean(user);
   const userRole = user?.role;
+  const currentPrefix = normalizeRole(userRole);
 
   // 1. Rute Tamu: /login atau Root /
   if (pathname === '/login' || pathname === '/') {
-    if (isAuthenticated && userRole) {
-      const defaultHome = getDefaultHome(userRole);
+    if (isAuthenticated && currentPrefix) {
+      const defaultHome = getDefaultHome(currentPrefix);
       return NextResponse.redirect(new URL(defaultHome, req.url));
     }
     // Tamu yang mengakses root diarahkan ke login
@@ -55,8 +28,8 @@ export const proxy = auth((req) => {
 
   // 2. Rute Universal: /dashboard -> dialihkan ke rute spesifik role
   if (pathname === '/dashboard') {
-    if (isAuthenticated && userRole) {
-      return NextResponse.redirect(new URL(getDefaultHome(userRole), req.url));
+    if (isAuthenticated && currentPrefix) {
+      return NextResponse.redirect(new URL(getDefaultHome(currentPrefix), req.url));
     }
     const loginUrl = new URL('/login', req.url);
     loginUrl.searchParams.set('callbackUrl', '/dashboard');
@@ -70,29 +43,27 @@ export const proxy = auth((req) => {
 
   if (isSalesRoute || isManagerRoute || isDirectorRoute) {
     // A. Pengguna belum login
-    if (!isAuthenticated || !userRole) {
+    if (!isAuthenticated || !currentPrefix) {
       const loginUrl = new URL('/login', req.url);
       const callbackPath = `${pathname}${nextUrl.search}`;
       loginUrl.searchParams.set('callbackUrl', callbackPath);
       return NextResponse.redirect(loginUrl);
     }
 
-    const currentPrefix = getRolePrefix(userRole);
-
-    // B. Pengecekan kecocokan rute dengan role
+    // B. Pengecekan kecocokan rute dengan role yang dinormalisasi
     const isAuthorized =
       (isSalesRoute && currentPrefix === 'sales') ||
       (isManagerRoute && currentPrefix === 'manager') ||
       (isDirectorRoute && currentPrefix === 'director');
 
-    // Jika role tidak sesuai rute, alihkan ke default home role miliknya
+    // Jika role tidak sesuai rute (contoh: Director buka /sales/*), alihkan ke default home role miliknya
     if (!isAuthorized) {
-      return NextResponse.redirect(new URL(getDefaultHome(userRole), req.url));
+      return NextResponse.redirect(new URL(getDefaultHome(currentPrefix), req.url));
     }
 
     // C. Role cocok: teruskan request dan sematkan header identitas role
     const response = NextResponse.next();
-    response.headers.set('x-user-role', userRole);
+    response.headers.set('x-user-role', currentPrefix);
     return response;
   }
 
@@ -106,4 +77,3 @@ export const config = {
     '/((?!api/auth|_next/static|_next/image|favicon\\.ico|manifest\\.json|sitemap\\.xml|assets/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)',
   ],
 };
-

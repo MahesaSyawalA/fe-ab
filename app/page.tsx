@@ -1,11 +1,11 @@
-import { Button } from "@heroui/react";
-import { Button as Buttons } from "@/components/ui/button";
+import { redirect } from 'next/navigation';
+import { auth } from '@/auth';
+import { getDefaultHome } from '@/lib/rbac';
 
-export default function Home() {
-  return (
-    <div>
-      <Button>Test</Button>
-      <Buttons>Test</Buttons>
-    </div>
-  );
+export default async function Home() {
+  const session = await auth();
+  if (!session?.user) {
+    redirect('/login');
+  }
+  redirect(getDefaultHome(session.user.role));
 }

@@ -16,10 +16,11 @@ export function getUserInitials(name?: string | null): string {
  */
 export function formatRoleLabel(role?: string | null): string {
   if (!role) return 'User';
-  if (role === 'sales_manager' || role === 'manager') return 'Sales Manager';
-  if (role === 'sales') return 'Sales';
-  if (role === 'director') return 'Director';
-  return role.charAt(0).toUpperCase() + role.slice(1);
+  const clean = role.trim().toLowerCase();
+  if (clean === 'sales_manager' || clean === 'manager') return 'Sales Manager';
+  if (clean === 'sales') return 'Sales';
+  if (clean === 'director') return 'Director';
+  return role.charAt(0).toUpperCase() + role.slice(1).toLowerCase();
 }
 
 /**

@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import Image from 'next/image'
+import { useSession } from 'next-auth/react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { NavMain } from '@/components/layout/sidebar/nav-main'
 import { NavUser } from '@/components/layout/sidebar/nav-user'
@@ -16,7 +17,7 @@ import {
   SidebarSeparator,
   useSidebar,
 } from '@/components/ui/sidebar'
-
+import { normalizeRole } from '@/lib/rbac'
 import { salesMenu, managerMenu, directorMenu } from '@/constants/sidebar-menus'
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
@@ -26,15 +27,21 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 
 export function AppSidebar({ role, hideOnMobile, ...props }: AppSidebarProps) {
   const { toggleSidebar, state, isMobile, openMobile } = useSidebar()
+  const { data: session } = useSession()
+
+  // Prioritaskan role user dari session aktif yang dinormalisasi (toLowerCase)
+  const activeRole = normalizeRole(session?.user?.role) || normalizeRole(role) || 'sales'
 
   if (hideOnMobile && isMobile) {
     return null
   }
 
   const menuItems =
-    role === 'sales' ? salesMenu :
-      role === 'manager' ? managerMenu :
-        directorMenu;
+    activeRole === 'director'
+      ? directorMenu
+      : activeRole === 'manager'
+        ? managerMenu
+        : salesMenu
 
   const isExpanded = isMobile ? openMobile : state === 'expanded'
 
@@ -87,7 +94,7 @@ export function AppSidebar({ role, hideOnMobile, ...props }: AppSidebarProps) {
       </SidebarContent>
 
       <SidebarFooter>
-        <NavUser role={role} />
+        <NavUser role={activeRole} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
