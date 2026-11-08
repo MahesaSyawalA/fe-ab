@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { PRIORITY_CONFIG, AKTIVITAS_STAGE_CONFIG } from '@/constants/kanban-constants';
 import { TiketWithDetails } from '@/types/ticket.types';
-import { cn, formatFullRupiah } from '@/lib/utils';
+import { cn, formatFullRupiah, formatShortDate } from '@/lib/utils';
 
 interface ProspekSummaryCardProps {
   ticket: TiketWithDetails;
@@ -63,7 +63,10 @@ export function ProspekSummaryCard({
             <div className='flex items-center gap-1 text-xs font-semibold text-foreground pt-0.5'>
               <Calendar className='size-3.5 text-secondary-foreground shrink-0' />
               <span className='truncate'>
-                {ticket.closing_full_label || '31 Okt 2026'}
+                {ticket.closing_full_label ||
+                  (ticket.estimasi_closing
+                    ? formatShortDate(ticket.estimasi_closing)
+                    : '-')}
               </span>
             </div>
           </div>

@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import { Check } from 'lucide-react';
 import { SurfaceCard } from '@/components/ui/surface-card';
@@ -11,7 +13,8 @@ import {
   StepperTitle,
   StepperTrigger,
 } from '@/components/reui/stepper';
-import { JENIS_TAHAP_OPTIONS } from '@/constants/kanban-constants';
+import { INITIAL_KANBAN_STAGES } from '@/constants/kanban-constants';
+import { useKanbanStagesQuery } from '@/hooks/queries/use-kanban-query';
 import { cn } from '@/lib/utils';
 
 interface ProspekProgressCardProps {
@@ -24,10 +27,24 @@ export function ProspekProgressCard({
   stageId,
   className,
 }: ProspekProgressCardProps) {
-  const currentStepIdx = Math.max(
-    0,
-    JENIS_TAHAP_OPTIONS.findIndex((s) => s.id === stageId),
-  );
+  const { data: stagesResponse } = useKanbanStagesQuery();
+
+  const stages = React.useMemo(() => {
+    const raw = stagesResponse?.data;
+    if (Array.isArray(raw) && raw.length > 0) {
+      return raw
+        .filter((s) => s.is_aktif ?? true)
+        .sort((a, b) => (a.urutan ?? 0) - (b.urutan ?? 0));
+    }
+    return INITIAL_KANBAN_STAGES;
+  }, [stagesResponse]);
+
+  const currentStepIdx = React.useMemo(() => {
+    const idx = stages.findIndex(
+      (s) => s.id_tahap === stageId || s.jenis_tahap === stageId,
+    );
+    return idx >= 0 ? idx : 0;
+  }, [stages, stageId]);
 
   return (
     <SurfaceCard className={className}>
@@ -37,7 +54,7 @@ export function ProspekProgressCard({
             Progres Tahap
           </span>
           <span className='text-[10px] lg:text-xs text-muted-foreground font-medium'>
-            Tahap {Math.min(currentStepIdx + 1, JENIS_TAHAP_OPTIONS.length)} dari {JENIS_TAHAP_OPTIONS.length}
+            Tahap {Math.min(currentStepIdx + 1, stages.length)} dari {stages.length}
           </span>
         </div>
 
@@ -50,14 +67,14 @@ export function ProspekProgressCard({
               className='w-full'
             >
               <StepperNav className='w-full items-start'>
-                {JENIS_TAHAP_OPTIONS.map((step, index) => {
+                {stages.map((step, index) => {
                   const isCompleted = index < currentStepIdx;
                   const isCurrent = index === currentStepIdx;
-                  const isLast = index === JENIS_TAHAP_OPTIONS.length - 1;
+                  const isLast = index === stages.length - 1;
 
                   return (
                     <StepperItem
-                      key={step.id}
+                      key={step.id_tahap}
                       step={index + 1}
                       completed={isCompleted}
                       className='relative flex-1 flex-col items-center justify-start'
@@ -67,7 +84,7 @@ export function ProspekProgressCard({
                           className={cn(
                             'size-6 lg:size-7 rounded-full transition-all text-xs font-semibold shrink-0 z-10',
                             isCompleted &&
-                              'bg-primary text-primary-foreground border-transparent shadow-xs',
+                              'bg-emerald-600 text-white border-transparent shadow-xs',
                             isCurrent &&
                               'bg-primary text-primary-foreground border-transparent ring-2 ring-primary/25 ring-offset-2 ring-offset-card shadow-xs font-bold',
                             !isCompleted &&
@@ -81,18 +98,27 @@ export function ProspekProgressCard({
                             index + 1
                           )}
                         </StepperIndicator>
-                        <StepperTitle
-                          className={cn(
-                            'text-[10px] lg:text-[11px] font-medium whitespace-nowrap text-center transition-colors',
-                            isCurrent
-                              ? 'text-primary font-bold'
-                              : isCompleted
-                                ? 'text-foreground font-medium'
-                                : 'text-muted-foreground',
-                          )}
-                        >
-                          {step.label}
-                        </StepperTitle>
+                        <div className='flex flex-col items-center'>
+                          <StepperTitle
+                            className={cn(
+                              'text-[10px] lg:text-[11px] font-medium whitespace-nowrap text-center transition-colors',
+                              isCurrent
+                                ? 'text-primary font-bold'
+                                : isCompleted
+                                  ? 'text-foreground font-medium'
+                                  : 'text-muted-foreground',
+                            )}
+                          >
+                            {step.nama_tahap}
+                          </StepperTitle>
+                          <span className='text-[9px] text-muted-foreground whitespace-nowrap hidden sm:inline-block'>
+                            {isCompleted
+                              ? 'Selesai'
+                              : isCurrent
+                                ? 'Sedang Berjalan'
+                                : 'Menunggu'}
+                          </span>
+                        </div>
                       </StepperTrigger>
 
                       {!isLast && (
@@ -100,8 +126,8 @@ export function ProspekProgressCard({
                           className={cn(
                             'absolute top-[11px] lg:top-[13px] left-1/2 w-full m-0 h-0.5 rounded-none z-0',
                             'group-data-[orientation=horizontal]/stepper-nav:w-full group-data-[orientation=horizontal]/stepper-nav:flex-none',
-                            'bg-muted/70 transition-colors',
-                            'group-data-[state=completed]/step:bg-primary',
+                            'transition-colors',
+                            isCompleted ? 'bg-emerald-600' : 'bg-muted/70',
                           )}
                         />
                       )}

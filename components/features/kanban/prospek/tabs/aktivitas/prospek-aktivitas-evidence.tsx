@@ -1,6 +1,7 @@
 import {
   AlignLeft,
   Camera,
+  ExternalLink,
   FileText,
   Mic,
   Paperclip,
@@ -18,6 +19,13 @@ export function ProspekAktivitasEvidence({
   fallbackTime,
 }: ProspekAktivitasEvidenceProps) {
   const ev = normalizeEvidence(evidence, fallbackTime);
+  const isImage =
+    ev.type === 'foto' ||
+    (Boolean(ev.preview) &&
+      Boolean(
+        typeof ev.preview === 'string' &&
+          ev.preview.match(/\.(jpg|jpeg|png|webp|gif|svg)($|\?)/i),
+      ));
 
   return (
     <div className='mt-1 flex flex-col gap-2 rounded-xl border border-primary/20 bg-primary/5 p-3 text-xs sm:text-sm'>
@@ -36,10 +44,10 @@ export function ProspekAktivitasEvidence({
 
       {ev.fileName && (
         <div className='flex items-center gap-1.5 text-xs text-foreground font-medium'>
-          <Paperclip className='size-3.5 text-muted-foreground' />
+          <Paperclip className='size-3.5 text-muted-foreground shrink-0' />
           <span className='truncate'>{ev.fileName}</span>
           {ev.size && (
-            <span className='text-[11px] text-muted-foreground'>
+            <span className='text-[11px] text-muted-foreground shrink-0'>
               ({ev.size})
             </span>
           )}
@@ -64,15 +72,27 @@ export function ProspekAktivitasEvidence({
         </p>
       )}
 
-      {ev.preview && (
+      {ev.preview && isImage && (
         <div className='mt-1 overflow-hidden rounded-xl border border-border/60 max-w-xs sm:max-w-sm'>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={ev.preview}
-            alt='Evidence'
+            alt='Bukti Aktivitas'
             className='h-36 sm:h-44 w-full object-cover hover:scale-105 transition-transform duration-300'
           />
         </div>
+      )}
+
+      {ev.preview && !isImage && (
+        <a
+          href={ev.preview}
+          target='_blank'
+          rel='noopener noreferrer'
+          className='inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline mt-1'
+        >
+          <ExternalLink className='size-3.5' />
+          <span>Lihat / Unduh Dokumen Berkas</span>
+        </a>
       )}
     </div>
   );

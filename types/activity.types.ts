@@ -1,3 +1,5 @@
+import type { BuktiKunjungan } from './visit-proof.types';
+
 export type JenisKegiatan =
   | 'visit'
   | 'kebutuhan'
@@ -42,6 +44,7 @@ export interface AktivitasWithDetails extends Aktivitas {
   pic_ditemui: string;
   waktu_label: string;
   evidence?: EvidenceItem | null;
+  bukti_kunjungan?: BuktiKunjungan | null;
 }
 
 export interface CreateAktivitasInput {

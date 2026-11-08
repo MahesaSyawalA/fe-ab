@@ -8,7 +8,8 @@ export interface ProspekFormViewProps {
 }
 
 export interface ProspekDetailViewProps {
-  ticket: TiketWithDetails;
+  ticketId?: string;
+  ticket?: TiketWithDetails;
   basePath: string;
 }
 

@@ -1,5 +1,8 @@
+import * as React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { format } from 'date-fns';
+import { id } from 'date-fns/locale';
 import { AKTIVITAS_STAGE_CONFIG } from '@/constants/kanban-constants';
 import { AktivitasWithDetails } from '@/types/ticket.types';
 import { cn } from '@/lib/utils';
@@ -11,6 +14,33 @@ export function ProspekAktivitasCard({ akt }: { akt: AktivitasWithDetails }) {
     badgeClass: 'bg-primary/10 text-primary border-primary/20',
     dotColor: '#2563EB',
   };
+
+  const formattedWaktu = React.useMemo(() => {
+    if (akt.waktu_label) return akt.waktu_label;
+    if (akt.tanggal) {
+      try {
+        return format(new Date(akt.tanggal), 'd MMM yyyy, HH:mm', {
+          locale: id,
+        });
+      } catch {
+        return String(akt.tanggal);
+      }
+    }
+    return '-';
+  }, [akt.waktu_label, akt.tanggal]);
+
+  const evidenceData =
+    akt.evidence ||
+    (akt.bukti_kunjungan
+      ? {
+          tipe: 'foto' as const,
+          nama_file: 'Foto Bukti Kunjungan (Selfie/Check-in)',
+          deskripsi: `Jarak Klien: ${akt.bukti_kunjungan.jarak_klien}m (${akt.bukti_kunjungan.dalam_radius ? 'Dalam Radius' : 'Luar Radius'})`,
+          url_preview: akt.bukti_kunjungan.img_url,
+          url_file: akt.bukti_kunjungan.file_url || undefined,
+          waktu_upload: formattedWaktu,
+        }
+      : null);
 
   return (
     <Card className='rounded-xl border border-border/70 bg-card py-0 shadow-2xs'>
@@ -26,18 +56,18 @@ export function ProspekAktivitasCard({ akt }: { akt: AktivitasWithDetails }) {
             {config.label}
           </Badge>
           <span className='text-[11px] sm:text-xs text-muted-foreground'>
-            {akt.waktu_label}
+            {formattedWaktu}
           </span>
         </div>
 
         <div className='grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs sm:text-sm bg-card p-2.5 sm:p-3 rounded-xl border border-border'>
           <div className='flex items-center gap-2'>
             <span className='text-muted-foreground'>Petugas:</span>
-            <span className='font-semibold text-foreground'>{akt.nama_petugas}</span>
+            <span className='font-semibold text-foreground'>{akt.nama_petugas || 'Sales'}</span>
           </div>
           <div className='flex items-center gap-2'>
             <span className='text-muted-foreground'>PIC Ditemui:</span>
-            <span className='font-semibold text-foreground'>{akt.pic_ditemui}</span>
+            <span className='font-semibold text-foreground'>{akt.pic_ditemui || 'PIC Outlet'}</span>
           </div>
         </div>
 
@@ -46,14 +76,14 @@ export function ProspekAktivitasCard({ akt }: { akt: AktivitasWithDetails }) {
             Catatan & Pembahasan:
           </span>
           <p className='text-xs sm:text-sm leading-relaxed text-muted-foreground'>
-            {akt.catatan}
+            {akt.catatan || 'Tidak ada catatan tambahan.'}
           </p>
         </div>
 
-        {akt.evidence && (
+        {evidenceData && (
           <ProspekAktivitasEvidence
-            evidence={akt.evidence}
-            fallbackTime={akt.waktu_label}
+            evidence={evidenceData}
+            fallbackTime={formattedWaktu}
           />
         )}
       </CardContent>
