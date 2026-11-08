@@ -68,7 +68,11 @@ export function TambahKolomForm({ onClose }: { onClose: () => void }) {
       await createTahapMutation.mutateAsync(payload);
       addStage(payload);
       toast.success('Tahap berhasil ditambahkan', {
-        description: `Kolom "${payload.nama_tahap}" berhasil ditambahkan ke papan Kanban.`,
+        description: (
+          <span className='text-xs sm:text-sm text-secondary-foreground leading-relaxed'>
+            Kolom &quot;{payload.nama_tahap}&quot; berhasil ditambahkan ke papan Kanban.
+          </span>
+        ),
       });
       onClose();
     } catch (err: unknown) {

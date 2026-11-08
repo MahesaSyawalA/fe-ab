@@ -82,14 +82,22 @@ export function usePelangganEditForm({
       setServerError(null);
       await updateMutation.mutateAsync(values);
       toast.success('Data pelanggan berhasil disimpan', {
-        description: 'Perubahan data pelanggan berhasil diperbarui.',
+        description: React.createElement(
+          'span',
+          { className: 'text-xs sm:text-sm text-secondary-foreground leading-relaxed' },
+          'Perubahan data pelanggan berhasil diperbarui.',
+        ),
       });
       onOpenChange(false);
     } catch (err) {
       const msg = getErrorMessage(err);
       setServerError(msg || 'Gagal memperbarui data pelanggan. Silakan coba lagi.');
       toast.danger('Gagal Memperbarui Pelanggan', {
-        description: msg || 'Terjadi kesalahan sistem.',
+        description: React.createElement(
+          'span',
+          { className: 'text-xs sm:text-sm text-secondary-foreground leading-relaxed' },
+          msg || 'Terjadi kesalahan sistem.',
+        ),
       });
     }
   };

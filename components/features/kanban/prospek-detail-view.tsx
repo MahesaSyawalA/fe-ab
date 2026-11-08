@@ -146,13 +146,20 @@ export function ProspekDetailView({
       }
 
       toast.success('Hasil Negosiasi Tersimpan', {
-        description: `Status prospek berhasil diperbarui menjadi ${result}.`,
+        description: (
+          <span className='text-xs sm:text-sm text-secondary-foreground leading-relaxed'>
+            Status prospek berhasil diperbarui menjadi {result}.
+          </span>
+        ),
       });
       refetch();
     } catch (err: unknown) {
       toast.danger('Gagal Memperbarui Negosiasi', {
-        description:
-          err instanceof Error ? err.message : 'Terjadi kesalahan sistem.',
+        description: (
+          <span className='text-xs sm:text-sm text-secondary-foreground leading-relaxed'>
+            {err instanceof Error ? err.message : 'Terjadi kesalahan sistem.'}
+          </span>
+        ),
       });
     } finally {
       setNegotiationDrawerOpen(false);
@@ -342,14 +349,21 @@ export function ProspekDetailView({
             }
 
             toast.success('Aktivitas Berhasil Disimpan', {
-              description: 'Catatan aktivitas dan berkas bukti berhasil diperbarui.',
+              description: (
+                <span className='text-xs text-secondary-foreground leading-relaxed'>
+                  Catatan aktivitas dan berkas bukti berhasil diperbarui.
+                </span>
+              ),
             });
             refetch();
             setActivityDrawerOpen(false);
           } catch (err: unknown) {
             toast.danger('Gagal Menyimpan Aktivitas', {
-              description:
-                err instanceof Error ? err.message : 'Terjadi kesalahan sistem.',
+              description: (
+                <span className='text-xs text-secondary-foreground leading-relaxed'>
+                  {err instanceof Error ? err.message : 'Terjadi kesalahan sistem.'}
+                </span>
+              ),
             });
           } finally {
             setIsSubmittingActivity(false);

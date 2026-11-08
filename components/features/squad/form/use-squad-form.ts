@@ -97,7 +97,11 @@ export function useSquadForm({ basePath, squad }: UseSquadFormOptions) {
 
       await (isEdit ? updateMutation : createMutation).mutateAsync(payload);
       toast.success('Data squad berhasil disimpan', {
-        description: `Squad "${values.nama_squad}" berhasil disimpan.`,
+        description: React.createElement(
+          'span',
+          { className: 'text-xs sm:text-sm text-secondary-foreground leading-relaxed' },
+          `Squad "${values.nama_squad}" berhasil disimpan.`,
+        ),
       });
       goBack();
     } catch (error: unknown) {
@@ -127,7 +131,11 @@ export function useSquadForm({ basePath, squad }: UseSquadFormOptions) {
     try {
       await deleteMutation.mutateAsync(squad.id_squad);
       toast.success('Data berhasil dihapus', {
-        description: `Squad "${squad.nama_squad}" berhasil dihapus.`,
+        description: React.createElement(
+          'span',
+          { className: 'text-xs sm:text-sm text-secondary-foreground leading-relaxed' },
+          `Squad "${squad.nama_squad}" berhasil dihapus.`,
+        ),
       });
       goBack();
     } catch (error) {
@@ -135,7 +143,11 @@ export function useSquadForm({ basePath, squad }: UseSquadFormOptions) {
       const msg = getErrorMessage(error);
       form.setError('root.server', { message: msg });
       toast.danger('Gagal Menghapus Squad', {
-        description: msg || 'Terjadi kesalahan sistem.',
+        description: React.createElement(
+          'span',
+          { className: 'text-xs sm:text-sm text-secondary-foreground leading-relaxed' },
+          msg || 'Terjadi kesalahan sistem.',
+        ),
       });
     }
   };

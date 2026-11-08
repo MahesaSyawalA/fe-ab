@@ -48,22 +48,33 @@ export function LoginForm() {
 
       if (!result || result.error) {
         toast.danger('Gagal Masuk', {
-          description: 'Email atau password tidak valid. Silakan periksa kembali akun Anda.',
+          description: (
+            <span className='text-xs sm:text-sm text-secondary-foreground leading-relaxed'>
+              Email atau password tidak valid. Silakan periksa kembali akun Anda.
+            </span>
+          ),
         });
         return;
       }
 
       if (result.ok) {
         toast.success('Berhasil Masuk', {
-          description: 'Mengalihkan ke dashboard...',
+          description: (
+            <span className='text-xs sm:text-sm text-secondary-foreground leading-relaxed'>
+              Mengalihkan ke dashboard...
+            </span>
+          ),
         });
-        // Arahkan ke target callback / dashboard dan refresh agar proxy.ts mengeksekusi navigasi default role
         router.push(callbackUrl);
         router.refresh();
       }
     } catch {
       toast.danger('Koneksi Gagal', {
-        description: 'Terjadi gangguan koneksi ke server autentikasi. Silakan coba beberapa saat lagi.',
+        description: (
+          <span className='text-xs sm:text-sm text-secondary-foreground leading-relaxed'>
+            Terjadi gangguan koneksi ke server autentikasi. Silakan coba beberapa saat lagi.
+          </span>
+        ),
       });
     }
   };

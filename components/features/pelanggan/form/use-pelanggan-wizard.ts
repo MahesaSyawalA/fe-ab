@@ -150,7 +150,11 @@ export function usePelangganWizard({
       const createdPelanggan = response.data;
 
       toast.success('Data pelanggan berhasil disimpan', {
-        description: `Pelanggan "${createdPelanggan?.nama_outlet || ''}" berhasil didaftarkan.`,
+        description: React.createElement(
+          'span',
+          { className: 'text-xs sm:text-sm text-secondary-foreground leading-relaxed' },
+          `Pelanggan "${createdPelanggan?.nama_outlet || ''}" berhasil didaftarkan.`,
+        ),
       });
 
       if (onSave) {

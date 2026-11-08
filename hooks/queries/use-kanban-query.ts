@@ -1,3 +1,4 @@
+import * as React from 'react';
 import {
   useQuery,
   useMutation,
@@ -195,7 +196,11 @@ export function useMoveTicketMutation(
 
       try {
         toast.danger('Gagal memindahkan prospek', {
-          description: errMsg || 'Terjadi kesalahan saat memindahkan tahap tiket.',
+          description: React.createElement(
+            'span',
+            { className: 'text-xs sm:text-sm text-secondary-foreground leading-relaxed' },
+            errMsg || 'Terjadi kesalahan saat memindahkan tahap tiket.',
+          ),
         });
       } catch {
         // ignore fallback

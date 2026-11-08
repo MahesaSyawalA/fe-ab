@@ -153,7 +153,11 @@ export function useProspekForm({
         });
 
         toast.success('Prospek Berhasil Diperbarui', {
-          description: `Perubahan data prospek ${values.judul} berhasil disimpan.`,
+          description: React.createElement(
+            'span',
+            { className: 'text-xs sm:text-sm text-secondary-foreground leading-relaxed' },
+            `Perubahan data prospek ${values.judul} berhasil disimpan.`,
+          ),
         });
         onSuccess?.();
       } else {
@@ -173,7 +177,11 @@ export function useProspekForm({
         });
 
         toast.success('Tiket prospek berhasil dibuat', {
-          description: `Prospek ${values.judul} berhasil didaftarkan ke pipa penjualan.`,
+          description: React.createElement(
+            'span',
+            { className: 'text-xs sm:text-sm text-secondary-foreground leading-relaxed' },
+            `Prospek ${values.judul} berhasil didaftarkan ke pipa penjualan.`,
+          ),
         });
         onSuccess?.();
         const newTicketId = createdRes.data?.id_tiket;
@@ -189,7 +197,11 @@ export function useProspekForm({
         msg || 'Gagal menyimpan prospek. Silakan periksa kembali formulir.',
       );
       toast.danger('Gagal Menyimpan Prospek', {
-        description: msg || 'Terjadi kesalahan pada server.',
+        description: React.createElement(
+          'span',
+          { className: 'text-xs sm:text-sm text-secondary-foreground leading-relaxed' },
+          msg || 'Terjadi kesalahan pada server.',
+        ),
       });
     }
   };

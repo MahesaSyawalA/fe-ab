@@ -623,7 +623,11 @@ export function useKanbanBoard() {
         'tahap baru';
 
       toast.success(`Tiket berhasil dipindahkan ke tahap ${targetStageName}`, {
-        description: 'Tiket berhasil dipindahkan dan berkas bukti tercatat.',
+        description: React.createElement(
+          'span',
+          { className: 'text-xs sm:text-sm text-secondary-foreground leading-relaxed' },
+          'Tiket berhasil dipindahkan dan berkas bukti tercatat.',
+        ),
       });
 
       setSelectedStageId(params.toStageId);
@@ -636,7 +640,11 @@ export function useKanbanBoard() {
           ? err.message
           : 'Terjadi kesalahan saat memproses aktivitas tiket.';
       toast.danger('Gagal Memproses Perpindahan', {
-        description: message,
+        description: React.createElement(
+          'span',
+          { className: 'text-xs sm:text-sm text-secondary-foreground leading-relaxed' },
+          message,
+        ),
       });
     } finally {
       setIsSubmittingMove(false);
@@ -713,7 +721,11 @@ export function useKanbanBoard() {
       }
 
       toast.success('Tiket prospek berhasil dibuat', {
-        description: `Prospek "${createPayload.judul}" berhasil ditambahkan.`,
+        description: React.createElement(
+          'span',
+          { className: 'text-xs sm:text-sm text-secondary-foreground leading-relaxed' },
+          `Prospek "${createPayload.judul}" berhasil ditambahkan.`,
+        ),
       });
 
       const targetStageId = params.createPayload.id_tahap || 'visit';
@@ -727,7 +739,11 @@ export function useKanbanBoard() {
           ? err.message
           : 'Terjadi kesalahan saat membuat tiket prospek.';
       toast.danger('Gagal Membuat Prospek', {
-        description: message,
+        description: React.createElement(
+          'span',
+          { className: 'text-xs sm:text-sm text-secondary-foreground leading-relaxed' },
+          message,
+        ),
       });
     } finally {
       setIsCreatingTicket(false);
