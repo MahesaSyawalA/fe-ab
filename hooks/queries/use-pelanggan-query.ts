@@ -29,9 +29,16 @@ export function usePelangganListQuery(
     'queryKey' | 'queryFn'
   >,
 ) {
+  const normalizedParams: PelangganListParams = {
+    page: 1,
+    limit: 10,
+    order: 'desc',
+    ...params,
+  };
+
   return useQuery({
-    queryKey: pelangganKeys.list(params),
-    queryFn: () => pelangganService.getList(params),
+    queryKey: pelangganKeys.list(normalizedParams),
+    queryFn: () => pelangganService.getList(normalizedParams),
     ...options,
   });
 }

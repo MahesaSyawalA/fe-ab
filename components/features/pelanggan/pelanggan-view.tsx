@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
+import { AppPagination } from '@/components/ui/app-pagination';
 import {
   PelangganCard,
   PelangganCardSkeleton,
@@ -93,6 +94,17 @@ export function PelangganView({
           </div>
         )}
       </div>
+
+      {!list.isLoading && !list.isError && list.filteredList.length > 0 && (
+        <AppPagination
+          page={list.page}
+          totalPages={list.totalPages}
+          onPageChange={list.setPage}
+          meta={list.paginationMeta}
+          total={list.total}
+          limit={10}
+        />
+      )}
     </div>
   );
 }

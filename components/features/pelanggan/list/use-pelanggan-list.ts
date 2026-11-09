@@ -34,18 +34,37 @@ export function usePelangganList() {
     setTipeOutlet: setSelectedCategory,
     isFilterDrawerOpen,
     setFilterDrawerOpen,
-    resetFilters,
+    resetFilters: storeResetFilters,
   } = usePelangganFilterStore();
 
+  const [page, setPage] = React.useState(1);
   const activeFilterCount = countActivePelangganFilters(selectedCategory);
   const debouncedSearchQuery = useDebounce(searchQuery, 400);
 
+  // Sesuaikan halaman kembali ke 1 saat pencarian atau filter kategori berubah (pola resmi React render-time adjustment)
+  const [prevSearch, setPrevSearch] = React.useState(debouncedSearchQuery);
+  const [prevCategory, setPrevCategory] = React.useState(selectedCategory);
+
+  if (prevSearch !== debouncedSearchQuery || prevCategory !== selectedCategory) {
+    setPrevSearch(debouncedSearchQuery);
+    setPrevCategory(selectedCategory);
+    setPage(1);
+  }
+
+  const resetFilters = React.useCallback(() => {
+    storeResetFilters();
+    setPage(1);
+  }, [storeResetFilters]);
+
   const queryParams = React.useMemo(
     () => ({
+      page,
+      limit: 10,
+      order: 'desc' as const,
       search: debouncedSearchQuery.trim() || undefined,
       tipe_outlet: selectedCategory === 'semua' ? undefined : selectedCategory,
     }),
-    [debouncedSearchQuery, selectedCategory],
+    [page, debouncedSearchQuery, selectedCategory],
   );
 
   const query = usePelangganListQuery(queryParams);
@@ -118,6 +137,11 @@ export function usePelangganList() {
     filterChips,
     filteredList,
     pelangganList,
+    page,
+    setPage,
+    paginationMeta: query.data?.meta,
+    totalPages: query.data?.meta?.total_pages ?? 1,
+    total: query.data?.meta?.total ?? filteredList.length,
     isLoading: query.isLoading,
     isFetching: query.isFetching,
     isError: query.isError,

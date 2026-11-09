@@ -11,9 +11,16 @@ export const squadKeys = {
 };
 
 export function useSquadListQuery(params?: SquadListParams, enabled = true) {
+  const normalizedParams: SquadListParams = {
+    page: 1,
+    limit: 10,
+    order: 'desc',
+    ...params,
+  };
+
   return useQuery({
-    queryKey: squadKeys.list(params),
-    queryFn: () => squadService.getList(params),
+    queryKey: squadKeys.list(normalizedParams),
+    queryFn: () => squadService.getList(normalizedParams),
     enabled,
   });
 }
