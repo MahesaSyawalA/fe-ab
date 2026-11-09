@@ -162,3 +162,46 @@
     display: none;
   }
 }
+
+/* ==========================================================================
+   HeroUI Checkbox Overrides (AB Medical Design System)
+   Force square box (4px radius) and primary blue color instead of orange circle
+   ========================================================================== */
+.checkbox .checkbox__control,
+.checkbox__control {
+  border-radius: 4px !important;
+  border-width: 1.5px !important;
+  border-color: #D1D5DB !important;
+  background-color: #FFFFFF !important;
+}
+
+.checkbox .checkbox__control::before,
+.checkbox__control::before {
+  border-radius: 3px !important;
+  background-color: var(--primary) !important;
+}
+
+.checkbox:hover .checkbox__control,
+.checkbox:has([data-slot="checkbox-content"][data-hovered="true"]) .checkbox__control,
+.checkbox__control:hover {
+  border-color: var(--primary) !important;
+}
+
+.checkbox:hover .checkbox__control::before,
+.checkbox:has([data-slot="checkbox-content"][data-hovered="true"]) .checkbox__control::before {
+  background-color: var(--primary-hover) !important;
+}
+
+.checkbox[data-selected="true"] .checkbox__control,
+.checkbox[aria-checked="true"] .checkbox__control,
+.checkbox__control[data-selected="true"] {
+  border-color: var(--primary) !important;
+  background-color: var(--primary) !important;
+}
+
+.checkbox[data-selected="true"] .checkbox__control::before,
+.checkbox[aria-checked="true"] .checkbox__control::before,
+.checkbox:has([data-slot="checkbox-content"][data-selected="true"]) .checkbox__control::before {
+  background-color: var(--primary) !important;
+}
+

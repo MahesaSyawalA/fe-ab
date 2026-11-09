@@ -41,12 +41,14 @@ export function KanbanBoardColumn({
       <KanbanColumn
         value={stage.id_tahap}
         className={cn(
-          'flex flex-col gap-3 rounded-2xl border p-3 transition-all',
+          'flex flex-col gap-3 rounded-2xl border p-3 transition-all duration-150',
           isHolding
             ? 'border-2 border-dashed border-[#2563EB] bg-[#EFF6FF]/70'
             : isFocused
               ? 'border-primary/30 bg-[#EEF2F6]'
               : 'border-border/60 bg-[#F1F5F9]/80',
+          !isHolding &&
+            'data-[over=true]:border-2 border-dashed data-[over=true]:border-[#2563EB] transition-all',
         )}
       >
         {/* Column Header */}

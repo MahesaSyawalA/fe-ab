@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Form, toast, Checkbox } from '@heroui/react';
+import { Form, toast, Checkbox, Description } from '@heroui/react';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { JenisTahap } from '@/types/kanban-stage.types';
@@ -111,7 +111,7 @@ export function TambahKolomForm({ onClose }: { onClose: () => void }) {
         onChange={(val) => setForm((prev) => ({ ...prev, urutan: Number(val) }))}
       />
 
-      <div className='flex flex-col gap-3 rounded-xl border border-border/70 bg-muted/20 p-3'>
+      <div className='flex flex-col gap-3 rounded-xl border border-border bg-muted/20 p-3 shadow-xs'>
         {CHECKBOX_FIELDS.map(({ key, label, hint }) => (
           <Checkbox
             key={key}
@@ -120,16 +120,19 @@ export function TambahKolomForm({ onClose }: { onClose: () => void }) {
             onChange={(checked) =>
               setForm((prev) => ({ ...prev, [key]: Boolean(checked) }))
             }
-            className='cursor-pointer items-start'
-            variant='primary'
+            className='w-full cursor-pointer items-start text-left'
           >
-            <Checkbox.Control className='mt-0.5 border-2 border-border/90 data-[hovered=true]:border-primary/60 data-[selected=true]:border-primary data-[selected=true]:bg-primary' />
-            <Checkbox.Content className='flex flex-col gap-0.5 ml-2'>
-              <span className='cursor-pointer text-xs font-semibold text-foreground'>
+            <Checkbox.Content className='flex items-center gap-2.5 text-xs font-semibold text-foreground'>
+              <Checkbox.Control className='size-4'>
+                <Checkbox.Indicator />
+              </Checkbox.Control>
+              <span className='cursor-pointer text-xs font-semibold text-foreground select-none'>
                 {label}
               </span>
-              <span className='text-[10px] text-muted-foreground'>{hint}</span>
             </Checkbox.Content>
+            <Description className='text-xs text-muted-foreground ps-6.5 leading-relaxed select-none text-left'>
+              {hint}
+            </Description>
           </Checkbox>
         ))}
       </div>
