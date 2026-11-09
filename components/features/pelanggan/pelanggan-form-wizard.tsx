@@ -55,6 +55,7 @@ export function PelangganFormWizard(props: PelangganFormWizardProps) {
           <FormStepProfil
             control={wizard.form.control}
             onNext={wizard.handleNextStep1}
+            onFileChange={wizard.setSelectedFile}
           />
         )}
 

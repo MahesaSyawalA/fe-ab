@@ -7,7 +7,7 @@ export const createCustomerSchema = z.object({
   latitude: z.coerce.number({ message: 'Latitude harus berupa angka' }),
   longitude: z.coerce.number({ message: 'Longitude harus berupa angka' }),
   radius_kunjungan: z.coerce.number({ message: 'Radius kunjungan harus berupa angka' }),
-  img_url: z.string().min(1, { message: 'URL gambar outlet wajib diupload' }),
+  img_url: z.string().min(1, { message: 'Foto outlet wajib diunggah' }),
   kontak: z.array(z.object({
     nama: z.string().min(1, { message: 'Nama kontak wajib diisi' }),
     jabatan: z.string().min(1, { message: 'Jabatan kontak wajib diisi' }),
@@ -23,9 +23,8 @@ export const updateCustomerSchema = z.object({
   latitude: z.coerce.number({ message: 'Latitude harus berupa angka' }),
   longitude: z.coerce.number({ message: 'Longitude harus berupa angka' }),
   radius_kunjungan: z.coerce.number({ message: 'Radius kunjungan harus berupa angka' }),
-  img_url: z.string().min(1, { message: 'URL gambar outlet wajib diupload' }),
+  img_url: z.string().optional(),
 });
 
 export type CreateCustomerInput = z.infer<typeof createCustomerSchema>;
 export type UpdateCustomerInput = z.infer<typeof updateCustomerSchema>;
-

@@ -110,10 +110,17 @@ export function PelangganEditFormFields({ formState }: PelangganEditFormFieldsPr
           render={({ field, fieldState: { error } }) => (
             <PelangganFileInput
               label='Foto Outlet'
-              required
+              required={false}
+              helperText='Unggah foto baru jika ingin mengganti foto outlet resmi'
               value={field.value}
-              onChange={(url) => field.onChange(url)}
-              onRemove={() => field.onChange('')}
+              onChange={(url, file) => {
+                field.onChange(url);
+                formState.setSelectedFile(file || null);
+              }}
+              onRemove={() => {
+                field.onChange('');
+                formState.setSelectedFile(null);
+              }}
               isInvalid={Boolean(error)}
               errorMessage={error?.message}
             />

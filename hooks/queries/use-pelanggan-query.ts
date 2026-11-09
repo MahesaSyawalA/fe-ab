@@ -59,13 +59,13 @@ export function usePelangganDetailQuery(
 }
 
 export function useCreatePelangganMutation(
-  options?: UseMutationOptions<ApiResponse<PelangganWithDetails>, Error, CreatePelangganInput>,
+  options?: UseMutationOptions<ApiResponse<PelangganWithDetails>, Error, CreatePelangganInput | FormData>,
 ) {
   const queryClient = useQueryClient();
 
   return useMutation({
     ...options,
-    mutationFn: (payload: CreatePelangganInput) => pelangganService.create(payload),
+    mutationFn: (payload: CreatePelangganInput | FormData) => pelangganService.create(payload),
     onSuccess: async (...args) => {
       await queryClient.invalidateQueries({ queryKey: pelangganKeys.all });
       await options?.onSuccess?.(...args);
@@ -79,13 +79,13 @@ export function useCreatePelangganMutation(
 
 export function useUpdatePelangganMutation(
   id: string,
-  options?: UseMutationOptions<ApiResponse<PelangganWithDetails>, Error, UpdatePelangganInput>,
+  options?: UseMutationOptions<ApiResponse<PelangganWithDetails>, Error, UpdatePelangganInput | FormData>,
 ) {
   const queryClient = useQueryClient();
 
   return useMutation({
     ...options,
-    mutationFn: (payload: UpdatePelangganInput) => pelangganService.update(id, payload),
+    mutationFn: (payload: UpdatePelangganInput | FormData) => pelangganService.update(id, payload),
     onSuccess: async (...args) => {
       await queryClient.invalidateQueries({ queryKey: pelangganKeys.all });
       await options?.onSuccess?.(...args);

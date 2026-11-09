@@ -24,7 +24,6 @@ export function AppPagination({
   total,
   limit = 10,
   className,
-  showSummary = true,
 }: AppPaginationProps) {
   const effectiveTotal = meta?.total ?? total;
   const effectiveTotalPages = meta?.total_pages ?? totalPages;
@@ -35,11 +34,6 @@ export function AppPagination({
     return null;
   }
 
-  const startItem = (page - 1) * effectiveLimit + 1;
-  const endItem = effectiveTotal
-    ? Math.min(page * effectiveLimit, effectiveTotal)
-    : page * effectiveLimit;
-
   const getPageNumbers = () => {
     const pages: (number | 'ellipsis')[] = [];
 
@@ -49,10 +43,7 @@ export function AppPagination({
       }
     } else {
       pages.push(1);
-
-      if (page > 3) {
-        pages.push('ellipsis');
-      }
+      if (page > 3) pages.push('ellipsis');
 
       const start = Math.max(2, page - 1);
       const end = Math.min(effectiveTotalPages - 1, page + 1);
@@ -61,10 +52,7 @@ export function AppPagination({
         pages.push(i);
       }
 
-      if (page < effectiveTotalPages - 2) {
-        pages.push('ellipsis');
-      }
-
+      if (page < effectiveTotalPages - 2) pages.push('ellipsis');
       pages.push(effectiveTotalPages);
     }
 
@@ -74,31 +62,20 @@ export function AppPagination({
   return (
     <div
       className={cn(
-        'flex flex-col sm:flex-row items-center justify-between gap-3 w-full pt-4',
+        'flex w-full items-center justify-center pt-4 pb-2',
         className,
       )}
     >
-      {showSummary && typeof effectiveTotal === 'number' && effectiveTotal > 0 ? (
-        <Pagination.Summary className='text-xs text-muted-foreground order-2 sm:order-1'>
-          Menampilkan{' '}
-          <span className='font-semibold text-foreground'>{startItem}</span> -{' '}
-          <span className='font-semibold text-foreground'>{endItem}</span> dari{' '}
-          <span className='font-semibold text-foreground'>{effectiveTotal}</span> data
-        </Pagination.Summary>
-      ) : (
-        <div className='order-2 sm:order-1' />
-      )}
-
-      <Pagination className='justify-center order-1 sm:order-2'>
-        <Pagination.Content>
+      <Pagination className='flex w-full items-center justify-center mx-auto'>
+        <Pagination.Content className='!self-center self-center items-center justify-center mx-auto flex-wrap gap-1 sm:gap-1.5'>
           <Pagination.Item>
             <Pagination.Previous
               isDisabled={page <= 1}
               onPress={() => onPageChange(Math.max(1, page - 1))}
-              className='cursor-pointer text-xs'
+              className='cursor-pointer text-xs hover:text-primary hover:bg-primary/10 transition-colors disabled:opacity-40 disabled:pointer-events-none'
             >
               <Pagination.PreviousIcon />
-              <span className='hidden sm:inline'>Sebelumnya</span>
+              <span>Sebelumnya</span>
             </Pagination.Previous>
           </Pagination.Item>
 
@@ -112,7 +89,12 @@ export function AppPagination({
                 <Pagination.Link
                   isActive={p === page}
                   onPress={() => onPageChange(p)}
-                  className='cursor-pointer text-xs'
+                  className={cn(
+                    'cursor-pointer text-xs transition-colors',
+                    p === page
+                      ? 'data-[active=true]:[--pagination-link-bg:var(--primary)] data-[active=true]:[--pagination-link-bg-hover:var(--primary-hover)] data-[active=true]:[--pagination-link-fg:var(--primary-foreground)] data-[active=true]:!bg-primary data-[active=true]:!text-primary-foreground font-semibold shadow-xs'
+                      : 'hover:text-primary hover:bg-primary/10',
+                  )}
                 >
                   {p}
                 </Pagination.Link>
@@ -124,9 +106,9 @@ export function AppPagination({
             <Pagination.Next
               isDisabled={page >= effectiveTotalPages}
               onPress={() => onPageChange(Math.min(effectiveTotalPages, page + 1))}
-              className='cursor-pointer text-xs'
+              className='cursor-pointer text-xs hover:text-primary hover:bg-primary/10 transition-colors disabled:opacity-40 disabled:pointer-events-none'
             >
-              <span className='hidden sm:inline'>Berikutnya</span>
+              <span>Selanjutnya</span>
               <Pagination.NextIcon />
             </Pagination.Next>
           </Pagination.Item>

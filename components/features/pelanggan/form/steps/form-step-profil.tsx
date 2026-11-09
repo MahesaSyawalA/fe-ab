@@ -17,9 +17,10 @@ import { WizardStepCard } from '../wizard-step-card';
 interface FormStepProfilProps {
   control: Control<CreateCustomerInput>;
   onNext: () => void;
+  onFileChange?: (file: File | null) => void;
 }
 
-export function FormStepProfil({ control, onNext }: FormStepProfilProps) {
+export function FormStepProfil({ control, onNext, onFileChange }: FormStepProfilProps) {
   return (
     <WizardStepCard
       icon={<Hospital className='size-4' />}
@@ -97,8 +98,14 @@ export function FormStepProfil({ control, onNext }: FormStepProfilProps) {
             isRequired
             helperText='Unggah 1 foto beresolusi jelas yang memperlihatkan identitas outlet resmi'
             value={field.value}
-            onChange={(url) => field.onChange(url)}
-            onRemove={() => field.onChange('')}
+            onChange={(url, file) => {
+              field.onChange(url);
+              onFileChange?.(file || null);
+            }}
+            onRemove={() => {
+              field.onChange('');
+              onFileChange?.(null);
+            }}
             isInvalid={Boolean(error)}
             errorMessage={error?.message}
           />

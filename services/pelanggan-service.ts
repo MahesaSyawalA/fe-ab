@@ -67,13 +67,58 @@ export const pelangganService = {
     return response.data;
   },
 
-  async create(payload: CreatePelangganInput): Promise<ApiResponse<PelangganWithDetails>> {
-    const response = await api.post<ApiResponse<PelangganWithDetails>>('/pelanggan', payload);
+  async create(payload: CreatePelangganInput | FormData): Promise<ApiResponse<PelangganWithDetails>> {
+    let body: FormData;
+    if (payload instanceof FormData) {
+      body = payload;
+    } else {
+      body = new FormData();
+      if (payload.file) {
+        body.append('file', payload.file);
+      }
+      body.append('nama_outlet', payload.nama_outlet);
+      body.append('tipe_outlet', payload.tipe_outlet);
+      body.append('alamat', payload.alamat);
+      body.append('latitude', String(payload.latitude));
+      body.append('longitude', String(payload.longitude));
+      body.append('radius_kunjungan', String(payload.radius_kunjungan));
+
+      if (payload.kontak && payload.kontak.length > 0) {
+        body.append('kontak', JSON.stringify(payload.kontak));
+      }
+    }
+
+    const response = await api.post<ApiResponse<PelangganWithDetails>>('/pelanggan', body, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
     return response.data;
   },
 
-  async update(id: string, payload: UpdatePelangganInput): Promise<ApiResponse<PelangganWithDetails>> {
-    const response = await api.put<ApiResponse<PelangganWithDetails>>(`/pelanggan/${id}`, payload);
+  async update(id: string, payload: UpdatePelangganInput | FormData): Promise<ApiResponse<PelangganWithDetails>> {
+    let body: FormData | UpdatePelangganInput;
+    let headers: Record<string, string> | undefined;
+
+    if (payload instanceof FormData) {
+      body = payload;
+      headers = { 'Content-Type': 'multipart/form-data' };
+    } else if (payload.file) {
+      const formData = new FormData();
+      formData.append('file', payload.file);
+      if (payload.nama_outlet !== undefined) formData.append('nama_outlet', payload.nama_outlet);
+      if (payload.tipe_outlet !== undefined) formData.append('tipe_outlet', payload.tipe_outlet);
+      if (payload.alamat !== undefined) formData.append('alamat', payload.alamat);
+      if (payload.latitude !== undefined) formData.append('latitude', String(payload.latitude));
+      if (payload.longitude !== undefined) formData.append('longitude', String(payload.longitude));
+      if (payload.radius_kunjungan !== undefined) formData.append('radius_kunjungan', String(payload.radius_kunjungan));
+      body = formData;
+      headers = { 'Content-Type': 'multipart/form-data' };
+    } else {
+      body = payload;
+    }
+
+    const response = await api.put<ApiResponse<PelangganWithDetails>>(`/pelanggan/${id}`, body, {
+      headers,
+    });
     return response.data;
   },
 

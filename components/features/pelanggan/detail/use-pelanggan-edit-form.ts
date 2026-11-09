@@ -22,6 +22,7 @@ export function usePelangganEditForm({
   onOpenChange,
 }: UsePelangganEditFormProps) {
   const [serverError, setServerError] = React.useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
 
   const form = useForm<UpdateCustomerInput>({
     resolver: zodResolver(updateCustomerSchema) as Resolver<UpdateCustomerInput>,
@@ -36,6 +37,14 @@ export function usePelangganEditForm({
     },
     mode: 'onTouched',
   });
+
+  const [prevOpen, setPrevOpen] = React.useState(open);
+  if (prevOpen !== open) {
+    setPrevOpen(open);
+    if (open) {
+      setSelectedFile(null);
+    }
+  }
 
   React.useEffect(() => {
     if (open) {
@@ -54,6 +63,7 @@ export function usePelangganEditForm({
   const handleOpenChange = (newOpen: boolean) => {
     if (newOpen) {
       setServerError(null);
+      setSelectedFile(null);
     }
     onOpenChange(newOpen);
   };
@@ -80,7 +90,10 @@ export function usePelangganEditForm({
   const onSubmit = async (values: UpdateCustomerInput) => {
     try {
       setServerError(null);
-      await updateMutation.mutateAsync(values);
+      await updateMutation.mutateAsync({
+        ...values,
+        file: selectedFile,
+      });
       toast.success('Data pelanggan berhasil disimpan', {
         description: React.createElement(
           'span',
@@ -105,6 +118,8 @@ export function usePelangganEditForm({
   return {
     form,
     serverError,
+    selectedFile,
+    setSelectedFile,
     latitude,
     longitude,
     isLocating,

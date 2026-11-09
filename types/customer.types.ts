@@ -30,7 +30,8 @@ export interface CreatePelangganInput {
   latitude: number;
   longitude: number;
   radius_kunjungan: number;
-  img_url: string;
+  img_url?: string;
+  file?: File | null;
   kontak?: Array<{
     nama: string;
     jabatan: string;
@@ -47,4 +48,5 @@ export interface UpdatePelangganInput {
   longitude?: number;
   radius_kunjungan?: number;
   img_url?: string;
+  file?: File | null;
 }

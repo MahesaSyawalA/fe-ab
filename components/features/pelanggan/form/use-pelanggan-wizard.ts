@@ -44,6 +44,7 @@ export function usePelangganWizard({
   const createMutation = useCreatePelangganMutation();
 
   const [currentStep, setCurrentStep] = React.useState(initialStep);
+  const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
   const [serverError, setServerError] = React.useState<string | null>(null);
 
   const form = useForm<CreateCustomerInput>({
@@ -70,6 +71,10 @@ export function usePelangganWizard({
       'img_url',
     ]);
     if (isStep1Valid) {
+      if (!selectedFile && !form.getValues('img_url')) {
+        form.setError('img_url', { message: 'Foto outlet wajib diunggah' });
+        return;
+      }
       setCurrentStep(2);
     }
   };
@@ -129,11 +134,18 @@ export function usePelangganWizard({
   const onValid = async (values: CreateCustomerInput) => {
     setServerError(null);
 
+    if (!selectedFile && !values.img_url) {
+      form.setError('img_url', { message: 'Foto outlet wajib diunggah' });
+      setCurrentStep(1);
+      return;
+    }
+
     const payload: CreatePelangganInput = {
       nama_outlet: values.nama_outlet.trim(),
       tipe_outlet: values.tipe_outlet,
       alamat: values.alamat.trim(),
       img_url: values.img_url || DEFAULT_OUTLET_IMAGE,
+      file: selectedFile,
       latitude: Number(values.latitude),
       longitude: Number(values.longitude),
       radius_kunjungan: Number(values.radius_kunjungan),
@@ -193,6 +205,8 @@ export function usePelangganWizard({
   return {
     form,
     currentStep,
+    selectedFile,
+    setSelectedFile,
     isSubmitting: createMutation.isPending,
     serverError,
     contacts,
