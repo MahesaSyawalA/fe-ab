@@ -82,7 +82,7 @@ export function TambahKolomSelectInput({
       name={name}
       className={cn('flex w-full min-w-0 flex-col gap-1.5', className)}
     >
-      <Label className='text-xs font-semibold text-foreground'>{label}</Label>
+      <Label className='text-sm font-medium text-foreground'>{label}</Label>
 
       {hint && !invalid && (
         <Description className='text-[11px] text-muted-foreground'>
@@ -92,7 +92,7 @@ export function TambahKolomSelectInput({
 
       <Select.Trigger
         className={cn(
-          'h-10 w-full min-w-0 items-center gap-2 overflow-hidden rounded-xl border border-border bg-card px-3 text-xs text-foreground transition-all focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary aria-invalid:border-destructive disabled:bg-muted/40 disabled:text-muted-foreground disabled:cursor-not-allowed',
+          'h-10 w-full min-w-0 items-center gap-2 overflow-hidden rounded-md border border-border bg-card px-3 text-xs sm:text-sm text-foreground transition-all focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary aria-invalid:border-destructive disabled:bg-muted/40 disabled:text-muted-foreground disabled:cursor-not-allowed',
           triggerClassName,
         )}
       >

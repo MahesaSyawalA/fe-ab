@@ -2,11 +2,12 @@
 
 import * as React from 'react';
 import { Camera, File, FileText, Mic, Trash2, UploadCloud, X } from 'lucide-react';
-import { Label } from '@heroui/react';
+import { Label, toast } from '@heroui/react';
 import { TriangleExclamation } from '@gravity-ui/icons';
 import { Button } from '@/components/ui/button';
 import { ConfirmModal } from '@/components/ui/confirm-modal';
 import { cn } from '@/lib/utils';
+import { validateAllowedFile } from '@/lib/file-validation';
 import { detectFileType, EvidenceFileState } from '../types';
 
 const EVIDENCE_ICON = {
@@ -36,7 +37,7 @@ export function StageFileInput({
   onChange,
   isInvalid,
   errorMessage,
-  accept = '.pdf,.docx,.doc,.jpg,.jpeg,.png,.xls,.xlsx,.txt,.m4a,.mp3',
+  accept = 'image/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx,.txt',
   maxSizeInMb = 10,
   disabled,
   className,
@@ -56,32 +57,23 @@ export function StageFileInput({
   const handleProcessFile = (file: File) => {
     if (disabled) return;
 
-    // 1. Validasi Batas Ukuran File (Maksimal 10MB)
-    const maxSizeBytes = maxSizeInMb * 1024 * 1024;
-    if (file.size > maxSizeBytes) {
-      setInternalError(`Ukuran file melebihi batas maksimal ${maxSizeInMb}MB (${formatFileSize(file.size)})`);
-      return;
-    }
+    // 1. Validasi fleksibel dengan proteksi anti-malware/script
+    const validation = validateAllowedFile(file, {
+      maxSizeBytes: maxSizeInMb * 1024 * 1024,
+      category: 'evidence',
+    });
 
-    // 2. Validasi Ekstensi File
-    if (accept && accept !== '*') {
-      const extension = `.${file.name.split('.').pop()?.toLowerCase()}`;
-      const allowed = accept
-        .split(',')
-        .map((item) => item.trim().toLowerCase());
-      const isAccepted = allowed.some((ext) => {
-        if (ext.startsWith('.')) return ext === extension;
-        if (ext.endsWith('/*')) {
-          const typePrefix = ext.slice(0, -2);
-          return file.type.startsWith(typePrefix);
-        }
-        return file.type === ext;
+    if (!validation.isValid) {
+      const msg = validation.errorMessage || 'Format berkas tidak didukung.';
+      setInternalError(msg);
+      toast.danger('Berkas Tidak Valid', {
+        description: (
+          <span className='text-xs text-secondary-foreground leading-relaxed'>
+            {msg}
+          </span>
+        ),
       });
-
-      if (!isAccepted) {
-        setInternalError('Format file tidak didukung. Harap unggah format yang sesuai.');
-        return;
-      }
+      return;
     }
 
     // Bersihkan error jika file valid

@@ -62,6 +62,7 @@ interface KanbanContextProps<T> {
   getItemId: (item: T) => string
   columnIds: string[]
   activeId: UniqueIdentifier | null
+  overId: UniqueIdentifier | null
   setActiveId: (id: UniqueIdentifier | null) => void
   findContainer: (id: UniqueIdentifier) => string | undefined
   isColumn: (id: UniqueIdentifier) => boolean
@@ -75,6 +76,7 @@ const KanbanContext = createContext<KanbanContextProps<any>>({
   getItemId: () => "",
   columnIds: [],
   activeId: null,
+  overId: null,
   setActiveId: () => {},
   findContainer: () => undefined,
   isColumn: () => false,
@@ -86,11 +88,13 @@ const ColumnContext = createContext<{
   listeners: DraggableSyntheticListeners | undefined
   isDragging?: boolean
   disabled?: boolean
+  isOver?: boolean
 }>({
   attributes: {} as DraggableAttributes,
   listeners: undefined,
   isDragging: false,
   disabled: false,
+  isOver: false,
 })
 
 const ItemContext = createContext<{
@@ -206,6 +210,7 @@ function Kanban<T>({
   const columns = value
   const setColumns = onValueChange
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null)
+  const [overId, setOverId] = useState<UniqueIdentifier | null>(null)
 
   // Always-current mirrors so the drag handlers can read fresh values without
   // widening their dependency arrays (keeps handler identity stable). The
@@ -367,6 +372,7 @@ function Kanban<T>({
     (event: DragStartEvent) => {
       lastOverIdRef.current = null
       setActiveId(event.active.id)
+      setOverId(null)
       onDragStart?.(event)
 
       if (onValueCommit || restoreOnCancel) {
@@ -400,6 +406,7 @@ function Kanban<T>({
 
   const handleDragOver = useCallback(
     (event: DragOverEvent) => {
+      setOverId(event.over?.id ?? null)
       if (onMove) {
         return
       }
@@ -477,6 +484,7 @@ function Kanban<T>({
       dragOriginRef.current = null
       lastOverIdRef.current = null
       setActiveId(null)
+      setOverId(null)
       onDragCancel?.(event)
     },
     [
@@ -494,6 +502,7 @@ function Kanban<T>({
       const { active, over } = event
       lastOverIdRef.current = null
       setActiveId(null)
+      setOverId(null)
       onDragEnd?.(event)
 
       if (!over) {
@@ -614,6 +623,7 @@ function Kanban<T>({
       getItemId: getItemValue,
       columnIds,
       activeId,
+      overId,
       setActiveId,
       findContainer,
       isColumn,
@@ -625,6 +635,7 @@ function Kanban<T>({
       getItemValue,
       columnIds,
       activeId,
+      overId,
       findContainer,
       isColumn,
       modifiers,
@@ -709,6 +720,7 @@ function KanbanColumn({
     attributes,
     listeners,
     isDragging: isSortableDragging,
+    isOver,
   } = useSortable({
     id: value,
     disabled: disabled || isOverlay,
@@ -716,8 +728,14 @@ function KanbanColumn({
   })
 
   // Hooks must run unconditionally; the derived value below is used only in the non-overlay branch.
-  const { activeId, isColumn } = useContext(KanbanContext)
+  const { activeId, overId, isColumn, findContainer } = useContext(KanbanContext)
   const isColumnDragging = activeId ? isColumn(activeId) : false
+  const isItemOver = Boolean(
+    !isOverlay &&
+      activeId &&
+      !isColumn(activeId) &&
+      (isOver || (overId && (overId === value || findContainer(overId) === value)))
+  )
 
   const style = {
     transition,
@@ -736,6 +754,7 @@ function KanbanColumn({
         "data-slot": "kanban-column",
         "data-value": value,
         "data-dragging": isSortableDragging,
+        "data-over": isItemOver ? "true" : undefined,
         "data-disabled": disabled,
         ref: setNodeRef,
         style,
@@ -758,8 +777,9 @@ function KanbanColumn({
               listeners: undefined,
               isDragging: true,
               disabled: false,
+              isOver: false,
             }
-          : { attributes, listeners, isDragging: isColumnDragging, disabled }
+          : { attributes, listeners, isDragging: isColumnDragging, disabled, isOver: isItemOver }
       }
     >
       {useRender({
@@ -1000,6 +1020,10 @@ function KanbanOverlay({ children, className, ...props }: KanbanOverlayProps) {
     </DragOverlay>,
     document.body
   )
+}
+
+export function useKanbanColumn() {
+  return useContext(ColumnContext)
 }
 
 export {

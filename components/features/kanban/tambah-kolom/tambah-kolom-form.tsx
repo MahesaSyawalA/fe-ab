@@ -1,9 +1,7 @@
 import * as React from 'react';
-import { Form, toast } from '@heroui/react';
+import { Form, toast, Checkbox } from '@heroui/react';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
 import { JenisTahap } from '@/types/kanban-stage.types';
 import { JENIS_TAHAP_OPTIONS } from '@/constants/kanban-constants';
 import { useKanbanStore } from '@/lib/kanban-store';
@@ -115,20 +113,24 @@ export function TambahKolomForm({ onClose }: { onClose: () => void }) {
 
       <div className='flex flex-col gap-3 rounded-xl border border-border/70 bg-muted/20 p-3'>
         {CHECKBOX_FIELDS.map(({ key, label, hint }) => (
-          <div key={key} className='flex items-start gap-2.5'>
-            <Checkbox
-              id={key}
-              checked={form[key]}
-              onCheckedChange={(checked) => setForm((prev) => ({ ...prev, [key]: Boolean(checked) }))}
-              className='mt-0.5'
-            />
-            <div className='flex flex-col gap-0.5'>
-              <Label htmlFor={key} className='cursor-pointer text-xs font-semibold'>
+          <Checkbox
+            key={key}
+            id={key}
+            isSelected={Boolean(form[key])}
+            onChange={(checked) =>
+              setForm((prev) => ({ ...prev, [key]: Boolean(checked) }))
+            }
+            className='cursor-pointer items-start'
+            variant='primary'
+          >
+            <Checkbox.Control className='mt-0.5 border-2 border-border/90 data-[hovered=true]:border-primary/60 data-[selected=true]:border-primary data-[selected=true]:bg-primary' />
+            <Checkbox.Content className='flex flex-col gap-0.5 ml-2'>
+              <span className='cursor-pointer text-xs font-semibold text-foreground'>
                 {label}
-              </Label>
+              </span>
               <span className='text-[10px] text-muted-foreground'>{hint}</span>
-            </div>
-          </div>
+            </Checkbox.Content>
+          </Checkbox>
         ))}
       </div>
 

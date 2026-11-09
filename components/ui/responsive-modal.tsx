@@ -43,18 +43,18 @@ export function ResponsiveModal({
   const isMobile = useIsMobile();
 
   const heading = (
-    <div className='flex flex-col gap-0.5'>
+    <div className='flex flex-col gap-0.5 text-left items-start justify-start w-full'>
       {isMobile ? (
         <>
-          <DrawerTitle className='text-base font-bold text-foreground'>{title}</DrawerTitle>
+          <DrawerTitle className='text-base font-bold text-foreground text-left'>{title}</DrawerTitle>
           {description && (
-            <DrawerDescription className='text-xs text-muted-foreground'>{description}</DrawerDescription>
+            <DrawerDescription className='text-xs text-muted-foreground text-left'>{description}</DrawerDescription>
           )}
         </>
       ) : (
         <>
-          <DialogTitle>{title}</DialogTitle>
-          {description && <DialogDescription>{description}</DialogDescription>}
+          <DialogTitle className='text-left'>{title}</DialogTitle>
+          {description && <DialogDescription className='text-left'>{description}</DialogDescription>}
         </>
       )}
     </div>
@@ -65,7 +65,7 @@ export function ResponsiveModal({
       type='button'
       variant='ghost'
       size='icon-sm'
-      className='size-8 rounded-full text-muted-foreground hover:bg-muted cursor-pointer'
+      className='size-8 rounded-full text-muted-foreground hover:bg-muted cursor-pointer shrink-0'
     />
   );
 
@@ -73,7 +73,7 @@ export function ResponsiveModal({
     return (
       <Drawer open={open} onOpenChange={onOpenChange} showSwipeHandle>
         <DrawerContent className='fixed inset-x-0 bottom-0 mx-auto w-full sm:max-w-lg max-h-[92dvh] flex flex-col rounded-t-[28px] bg-card border-t border-border shadow-2xl overflow-hidden'>
-          <DrawerHeader className='shrink-0 flex flex-row items-start justify-between px-5 pt-2 pb-1 text-left border-b border-border/60 bg-card'>
+          <DrawerHeader className='shrink-0 flex flex-row items-start justify-between px-5 pt-2 pb-1 text-left group-data-[swipe-axis=y]/drawer-popup:text-left border-b border-border/60 bg-card'>
             {heading}
             <DrawerClose render={closeButton}>
               <X className='size-4' />

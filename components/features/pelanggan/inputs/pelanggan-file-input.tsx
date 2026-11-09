@@ -2,11 +2,12 @@
 
 import * as React from 'react';
 import { Trash2, UploadCloud, X } from 'lucide-react';
-import { Label } from '@heroui/react';
+import { Label, toast } from '@heroui/react';
 import { TriangleExclamation } from '@gravity-ui/icons';
 import { Button } from '@/components/ui/button';
 import { ConfirmModal } from '@/components/ui/confirm-modal';
 import { cn } from '@/lib/utils';
+import { validateAllowedFile } from '@/lib/file-validation';
 
 export interface PelangganFileInputProps {
   label?: string;
@@ -50,10 +51,22 @@ export function PelangganFileInput({
   const handleProcessFile = (file: File) => {
     if (disabled) return;
 
-    // Validasi ukuran file (default 10MB)
-    const maxSizeBytes = maxSizeInMb * 1024 * 1024;
-    if (file.size > maxSizeBytes) {
-      setError(`Ukuran file melebihi batas maksimal ${maxSizeInMb}MB`);
+    // Validasi berkas foto outlet (khusus image-only) dan batas ukuran
+    const validation = validateAllowedFile(file, {
+      maxSizeBytes: maxSizeInMb * 1024 * 1024,
+      category: 'image-only',
+    });
+
+    if (!validation.isValid) {
+      const msg = validation.errorMessage || 'Berkas foto tidak valid';
+      setError(msg);
+      toast.danger('Berkas Tidak Valid', {
+        description: (
+          <span className='text-xs text-secondary-foreground leading-relaxed'>
+            {msg}
+          </span>
+        ),
+      });
       return;
     }
 

@@ -52,7 +52,7 @@ export function TambahKolomTextFieldInput({
       className={cn('flex w-full flex-col gap-1.5', className)}
       {...props}
     >
-      <Label className='text-xs font-semibold text-foreground'>{label}</Label>
+      <Label className='text-sm font-medium text-foreground'>{label}</Label>
 
       <Input
         type={type}
@@ -61,7 +61,9 @@ export function TambahKolomTextFieldInput({
         autoFocus={autoFocus}
         placeholder={placeholder}
         className={cn(
-          'h-10 w-full rounded-xl border border-border bg-card px-3 text-xs text-foreground transition-all placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary aria-invalid:border-destructive aria-invalid:focus:border-destructive aria-invalid:focus:ring-destructive',
+          'h-10 w-full rounded-md border border-border bg-card px-3 text-xs sm:text-sm text-foreground transition-all placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary aria-invalid:border-destructive aria-invalid:focus:border-destructive aria-invalid:focus:ring-destructive',
+          type === 'number' &&
+            '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none',
           inputClassName,
         )}
       />
