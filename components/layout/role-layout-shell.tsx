@@ -18,9 +18,11 @@ export function RoleLayoutShell({ role, children }: RoleLayoutShellProps) {
   const { data: session } = useSession();
   const activeRole = normalizeRole(session?.user?.role) || normalizeRole(role) || 'sales';
 
-  // Standalone full-screen pages (e.g. /pelanggan/tambah, /kanban/[id], /squad/tambah, /squad/[id]/edit)
-  // render without Sidebar and without AppHeader
-  const isStandaloneSubpage = /\/(pelanggan|kanban|squad)\/.+/.test(pathname);
+  // Standalone full-screen pages (e.g. /pelanggan/tambah, /kanban/[id], /squad/tambah, /pengaturan, /profile)
+  // render without Sidebar and without AppHeader on mobile
+  const isStandaloneSubpage =
+    /\/(pelanggan|kanban|squad)\/.+/.test(pathname) ||
+    /\/(pengaturan|profile|profil)/.test(pathname);
 
   if (isStandaloneSubpage) {
     return (

@@ -28,6 +28,7 @@ export function NavUser({ role }: { role: string }) {
   const initials = getUserInitials(userName);
 
   const settingsUrl = `/${activeRole}/pengaturan`;
+  const profileUrl = `/${activeRole}/profile`;
   const isActive = pathname.startsWith(settingsUrl);
 
   const handleLogout = async () => {
@@ -40,7 +41,11 @@ export function NavUser({ role }: { role: string }) {
       <SidebarMenu className='gap-2 mb-2'>
         {/* Profil Ringkas Pengguna (Hanya tampil saat Sidebar terbuka) */}
         <SidebarMenuItem className='group-data-[collapsible=icon]:hidden px-2 py-1 mb-1'>
-          <div className='flex items-center gap-2.5 overflow-hidden'>
+          <Link
+            href={profileUrl}
+            className='flex items-center gap-2.5 overflow-hidden p-1 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer w-full'
+            title='Lihat Profil Saya'
+          >
             <div className='flex size-8 shrink-0 items-center justify-center rounded-full bg-accent-default text-white font-semibold text-xs'>
               {initials}
             </div>
@@ -52,7 +57,7 @@ export function NavUser({ role }: { role: string }) {
                 {displayRole}
               </span>
             </div>
-          </div>
+          </Link>
         </SidebarMenuItem>
 
         <SidebarMenuItem>

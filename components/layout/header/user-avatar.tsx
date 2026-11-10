@@ -27,6 +27,7 @@ export function UserAvatar({ role }: UserAvatarProps) {
   const initials = getUserInitials(userName);
 
   const settingsUrl = `/${activeRole}/pengaturan`;
+  const profileUrl = `/${activeRole}/profile`;
 
   return (
     <Dropdown>
@@ -80,7 +81,7 @@ export function UserAvatar({ role }: UserAvatarProps) {
               id='profile'
               textValue='Profil'
               className='mb-1 px-3 py-2.5 cursor-pointer'
-              onAction={() => router.push(settingsUrl)}
+              onAction={() => router.push(profileUrl)}
             >
               <div className='flex items-center gap-3'>
                 <UserIcon className='size-4 text-foreground' />

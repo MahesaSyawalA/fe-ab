@@ -1,5 +1,5 @@
+import { SettingsView } from '@/components/features/settings';
+
 export default function ManagerPengaturanPage() {
-    return (
-        <div>ManagerPengaturanPage</div>
-    )
+  return <SettingsView />;
 }
