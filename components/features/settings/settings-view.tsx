@@ -9,34 +9,40 @@ import { Button } from '@/components/ui/button';
 import { SettingsProfileCard } from './settings-profile-card';
 import { SettingsAccountInfoCard } from './settings-account-info-card';
 import { formatRoleLabel, getUserInitials, logoutUser } from '@/lib/auth-helpers';
+import { useUserProfileQuery, useUpdateProfileMutation } from '@/hooks/queries/use-user-query';
+import { updateProfileSchema } from '@/schemas/profile.schema';
 import { toast } from '@heroui/react';
+import { getErrorMessage } from '@/lib/axios';
 
 export function SettingsView() {
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: session, update: updateSession } = useSession();
 
-  const user = session?.user;
+  // 1. Data Layer: Fetch profil pengguna riil dari server
+  const { data: userProfile } = useUserProfileQuery();
+  const updateProfileMutation = useUpdateProfileMutation();
+
+  const user = userProfile || session?.user;
   const rawRole = user?.role;
   const displayRole = formatRoleLabel(rawRole);
 
-  const [savedName, setSavedName] = React.useState<string | null>(null);
-  const [savedPhone, setSavedPhone] = React.useState<string | null>(null);
+  const baseName = user?.nama || (user as { name?: string })?.name || 'Pengguna';
+  const basePhone = user?.no_telp || (session?.user as { no_telp?: string })?.no_telp || '';
+  const email = user?.email || session?.user?.email || '-';
 
-  const baseName = savedName ?? (user?.nama || user?.name || 'Malcolm Todd');
-  const basePhone = savedPhone ?? ((user as { no_telp?: string })?.no_telp || '+62 812-3756-2349');
-
+  // 2. State Form Edit Profil & Telepon Terpadu
   const [isEditing, setIsEditing] = React.useState(false);
   const [draftName, setDraftName] = React.useState<string>(baseName);
   const [draftPhone, setDraftPhone] = React.useState<string>(basePhone);
 
+  // 3. State Modal
   const [showLogoutConfirm, setShowLogoutConfirm] = React.useState(false);
   const [isLoggingOut, setIsLoggingOut] = React.useState(false);
+  const [showSecurityModal, setShowSecurityModal] = React.useState(false);
 
   const displayName = isEditing ? draftName : baseName;
   const displayPhone = isEditing ? draftPhone : basePhone;
-
   const initials = getUserInitials(displayName);
-  const email = user?.email || 'm.todd@abmedical.com';
 
   const handleStartEdit = () => {
     setDraftName(baseName);
@@ -50,45 +56,73 @@ export function SettingsView() {
     setIsEditing(false);
   };
 
-  const handleSaveEdit = () => {
-    const trimmedName = draftName.trim();
-    if (!trimmedName || trimmedName.length < 3) {
-      toast.danger('Nama lengkap minimal 3 karakter', {
-        description: 'Silakan periksa kembali nama lengkap Anda.',
+  const handleSaveEdit = async () => {
+    const userId = userProfile?.id_user || session?.user?.id_user || session?.user?.id;
+    if (!userId) {
+      toast.danger('Gagal Menyimpan', {
+        description: 'Sesi pengguna tidak valid. Silakan muat ulang halaman.',
       });
       return;
     }
 
-    const digits = draftPhone.replace(/\D/g, '');
-    if (digits.length < 9) {
-      toast.danger('Nomor telepon minimal 9 digit angka', {
-        description: 'Silakan periksa kembali nomor telepon Anda.',
-      });
-      return;
-    }
-
-    setSavedName(trimmedName);
-    setSavedPhone(draftPhone);
-    setIsEditing(false);
-    toast.success('Profil berhasil diperbarui', {
-      description: 'Nama lengkap dan nomor telepon telah berhasil disimpan.',
+    // Validasi Zod Schemas
+    const validation = updateProfileSchema.safeParse({
+      nama: draftName,
+      no_telp: draftPhone,
     });
+
+    if (!validation.success) {
+      const firstError = validation.error.issues[0]?.message || 'Data yang dimasukkan tidak valid';
+      toast.danger('Validasi Gagal', {
+        description: firstError,
+      });
+      return;
+    }
+
+    try {
+      // 1. Jalankan mutasi ke backend API
+      const updatedUser = await updateProfileMutation.mutateAsync({
+        id: userId,
+        data: {
+          nama: validation.data.nama,
+          no_telp: validation.data.no_telp,
+        },
+      });
+
+      // 2. Notifikasi Toast Sukses HeroUI
+      toast.success('Profil Berhasil Diperbarui', {
+        description: 'Informasi profil Anda telah disimpan ke sistem.',
+      });
+
+      // 3. Sinkronisasi Sesi NextAuth seketika
+      if (updateSession) {
+        await updateSession({
+          ...session,
+          user: {
+            ...session?.user,
+            name: updatedUser.data?.nama || validation.data.nama,
+            nama: updatedUser.data?.nama || validation.data.nama,
+            no_telp: updatedUser.data?.no_telp || validation.data.no_telp,
+          },
+        });
+      }
+
+      setIsEditing(false);
+    } catch (error) {
+      toast.danger('Gagal Memperbarui Profil', {
+        description: getErrorMessage(error) || 'Terjadi kesalahan pada sistem. Silakan coba beberapa saat lagi.',
+      });
+    }
   };
 
   const handleAvatarClick = () => {
-    if (!isEditing) {
-      handleStartEdit();
-    } else {
-      toast('Fitur unggah foto profil akan segera hadir');
-    }
+    toast.info('Fitur Foto Profil Segera Hadir', {
+      description: 'Saat ini avatar otomatis menggunakan inisial nama Anda.',
+    });
   };
 
-  const handleRequestChangeEmail = () => {
-    toast('Permintaan ubah email dikirim ke administrator');
-  };
-
-  const handleRequestChangePassword = () => {
-    toast('Tautan pengaturan ulang password telah dikirim ke email');
+  const handleRequestChangeSecurity = () => {
+    setShowSecurityModal(true);
   };
 
   const handleLogout = async () => {
@@ -117,6 +151,7 @@ export function SettingsView() {
               role={displayRole}
               initials={initials}
               isEditing={isEditing}
+              isSaving={updateProfileMutation.isPending}
               onStartEdit={handleStartEdit}
               onCancelEdit={handleCancelEdit}
               onSaveEdit={handleSaveEdit}
@@ -152,13 +187,26 @@ export function SettingsView() {
               email={email}
               phone={displayPhone}
               isEditing={isEditing}
+              isSaving={updateProfileMutation.isPending}
               onPhoneChange={setDraftPhone}
-              onRequestChangeEmail={handleRequestChangeEmail}
-              onRequestChangePassword={handleRequestChangePassword}
+              onRequestChangeEmail={handleRequestChangeSecurity}
+              onRequestChangePassword={handleRequestChangeSecurity}
             />
           </div>
         </div>
       </div>
+
+      {/* Modal Dialog Keamanan untuk Request Ubah Email / Password */}
+      <ConfirmModal
+        open={showSecurityModal}
+        onOpenChange={setShowSecurityModal}
+        title='Permintaan Perubahan Akun'
+        description='Untuk alasan keamanan data medis, silakan hubungi Administrator atau IT Support untuk memproses perubahan email dan kata sandi akun Anda.'
+        confirmLabel='Mengerti'
+        cancelLabel='Tutup'
+        variant='warning'
+        onConfirm={() => setShowSecurityModal(false)}
+      />
 
       {/* Logout Confirmation Modal */}
       <ConfirmModal

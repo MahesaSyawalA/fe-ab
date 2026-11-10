@@ -9,6 +9,7 @@ interface SettingsAccountInfoCardProps {
   email: string;
   phone: string;
   isEditing?: boolean;
+  isSaving?: boolean;
   onPhoneChange?: (phone: string) => void;
   onRequestChangeEmail?: () => void;
   onRequestChangePassword?: () => void;
@@ -19,6 +20,7 @@ export function SettingsAccountInfoCard({
   email,
   phone,
   isEditing = false,
+  isSaving = false,
   onPhoneChange,
   onRequestChangeEmail,
   onRequestChangePassword,
@@ -69,7 +71,7 @@ export function SettingsAccountInfoCard({
               aria-label='Nomor Telepon'
               value={phone}
               onChange={onPhoneChange}
-              disabled={!isEditing || disabled}
+              disabled={!isEditing || disabled || isSaving}
               placeholder='+62 812-xxxx-xxxx'
             />
           </div>

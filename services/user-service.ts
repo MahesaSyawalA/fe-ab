@@ -1,10 +1,18 @@
 import { api } from '@/lib/axios';
-import type { ApiPaginatedResponse } from '@/types/api.types';
+import type { ApiResponse, ApiPaginatedResponse } from '@/types/api.types';
 import type { User } from '@/types/user.types';
 import type { PaginationQueryParams } from '@/types/pagination.types';
 import { buildPaginationMeta } from '@/types/pagination.types';
 
 export type PublicUser = Omit<User, 'password_hash'>;
+
+export interface UserProfile extends PublicUser {
+  squad?: {
+    id_squad: string;
+    nama_squad: string;
+    wilayah?: string;
+  } | null;
+}
 
 export interface UserListParams extends PaginationQueryParams {
   role?: string;
@@ -55,6 +63,39 @@ export const userService = {
       success: true,
       data: [],
       meta: buildPaginationMeta(0, params),
+    };
+  },
+
+  async getMe(): Promise<ApiResponse<UserProfile>> {
+    const response = await api.get<unknown>('/auth/me');
+    const res = response.data as { success?: boolean; data?: UserProfile; message?: string } | UserProfile;
+    const user = res && typeof res === 'object' && 'data' in res && res.data ? res.data : (res as UserProfile);
+    return {
+      success: true,
+      data: user,
+      message: (res as { message?: string })?.message,
+    };
+  },
+
+  async getUserById(id: string): Promise<ApiResponse<UserProfile>> {
+    const response = await api.get<unknown>(`/users/${id}`);
+    const res = response.data as { success?: boolean; data?: UserProfile; message?: string } | UserProfile;
+    const user = res && typeof res === 'object' && 'data' in res && res.data ? res.data : (res as UserProfile);
+    return {
+      success: true,
+      data: user,
+      message: (res as { message?: string })?.message,
+    };
+  },
+
+  async updateUser(id: string, data: { nama?: string; no_telp?: string }): Promise<ApiResponse<UserProfile>> {
+    const response = await api.patch<unknown>(`/users/${id}`, data);
+    const res = response.data as { success?: boolean; data?: UserProfile; message?: string } | UserProfile;
+    const user = res && typeof res === 'object' && 'data' in res && res.data ? res.data : (res as UserProfile);
+    return {
+      success: true,
+      data: user,
+      message: (res as { message?: string })?.message,
     };
   },
 };

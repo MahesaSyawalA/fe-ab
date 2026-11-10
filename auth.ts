@@ -73,6 +73,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             email: String(userObj.email),
             role: userObj.role as UserRole,
             id_squad: userObj.id_squad ?? null,
+            no_telp: userObj.no_telp ? String(userObj.no_telp) : undefined,
             accessToken,
             refreshToken,
           };
@@ -83,14 +84,23 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id_user = user.id_user;
         token.nama = user.nama;
         token.role = user.role;
         token.id_squad = user.id_squad;
+        token.no_telp = user.no_telp;
         token.accessToken = user.accessToken;
         token.refreshToken = user.refreshToken;
+      }
+      if (trigger === 'update' && session) {
+        if (session.user?.nama || session.user?.name) {
+          token.nama = session.user.nama || session.user.name;
+        }
+        if (session.user?.no_telp) {
+          token.no_telp = session.user.no_telp;
+        }
       }
       return token;
     },
@@ -100,10 +110,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           ...session.user,
           id: token.id_user,
           id_user: token.id_user,
+          name: token.nama || session.user?.name || '',
           nama: token.nama || session.user?.name || '',
           email: token.email || session.user?.email || '',
           role: token.role,
           id_squad: token.id_squad,
+          no_telp: token.no_telp,
         };
         session.accessToken = token.accessToken;
       }

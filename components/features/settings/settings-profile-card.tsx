@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Pencil, Check, X } from 'lucide-react';
+import { Pencil, Check, X, Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { SettingsTextFieldInput } from './inputs';
@@ -11,6 +11,7 @@ interface SettingsProfileCardProps {
   role: string;
   initials: string;
   isEditing: boolean;
+  isSaving?: boolean;
   onStartEdit: () => void;
   onCancelEdit: () => void;
   onSaveEdit: () => void;
@@ -23,6 +24,7 @@ export function SettingsProfileCard({
   role,
   initials,
   isEditing,
+  isSaving = false,
   onStartEdit,
   onCancelEdit,
   onSaveEdit,
@@ -101,13 +103,13 @@ export function SettingsProfileCard({
               aria-label='Nama Lengkap'
               value={name}
               onChange={onNameChange}
-              disabled={!isEditing}
+              disabled={!isEditing || isSaving}
               placeholder='Masukkan nama lengkap Anda'
               endAddon={
                 <button
                   type='button'
                   onClick={isEditing ? undefined : onStartEdit}
-                  disabled={isEditing}
+                  disabled={isEditing || isSaving}
                   title={isEditing ? undefined : 'Klik untuk mengedit profil'}
                   className={`p-1 rounded-md transition-colors ${
                     isEditing
@@ -128,6 +130,7 @@ export function SettingsProfileCard({
                   variant='outline'
                   size='sm'
                   onClick={onCancelEdit}
+                  disabled={isSaving}
                   className='h-8.5 rounded-lg px-3 text-xs font-semibold cursor-pointer border-border shadow-none hover:bg-muted/50'
                 >
                   <X className='mr-1 size-3.5' />
@@ -137,10 +140,20 @@ export function SettingsProfileCard({
                   type='button'
                   size='sm'
                   onClick={onSaveEdit}
-                  className='h-8.5 rounded-lg px-4 text-xs font-semibold text-white bg-primary-default hover:bg-primary-hover active:bg-primary cursor-pointer shadow-sm'
+                  disabled={isSaving}
+                  className='h-8.5 rounded-lg px-4 text-xs font-semibold text-white bg-primary-default hover:bg-primary-hover active:bg-primary cursor-pointer shadow-sm disabled:opacity-70'
                 >
-                  <Check className='mr-1 size-3.5' />
-                  Simpan Perubahan
+                  {isSaving ? (
+                    <>
+                      <Loader2 className='mr-1.5 size-3.5 animate-spin' />
+                      Menyimpan...
+                    </>
+                  ) : (
+                    <>
+                      <Check className='mr-1 size-3.5' />
+                      Simpan Perubahan
+                    </>
+                  )}
                 </Button>
               </div>
             )}

@@ -11,10 +11,15 @@ export const updateProfileSchema = z.object({
     .string()
     .trim()
     .min(1, { message: 'Nomor telepon wajib diisi' })
-    .regex(/^(\+62|62|0)[0-9]{8,15}$/, {
-      message: 'Format nomor telepon tidak valid (contoh: 08123456789 atau +628123456789)',
-    }),
+    .refine(
+      (val) => {
+        const digits = val.replace(/\D/g, '');
+        return digits.length >= 9 && digits.length <= 15;
+      },
+      {
+        message: 'Nomor telepon harus antara 9 hingga 15 digit angka',
+      },
+    ),
 });
 
 export type UpdateProfileFormValues = z.infer<typeof updateProfileSchema>;
-

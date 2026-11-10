@@ -8,32 +8,36 @@ import { ProfileHeroCard } from './profile-hero-card';
 import { ProfileInfoListCard, type ProfileDetailItem } from './profile-info-list-card';
 import { formatRoleLabel, getUserInitials } from '@/lib/auth-helpers';
 import { useSquadDetailQuery } from '@/hooks/queries/use-squad-query';
+import { useUserProfileQuery } from '@/hooks/queries/use-user-query';
 
 export function ProfileView() {
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+  const { data: userProfile, isLoading: isProfileLoading } = useUserProfileQuery();
 
   const user = session?.user;
-  const name = user?.nama || user?.name || 'Maulana Tri';
-  const email = user?.email || 'maulana@abmedical.id';
-  const rawRole = user?.role;
+  const name = userProfile?.nama || user?.nama || user?.name || 'Pengguna';
+  const email = userProfile?.email || user?.email || '-';
+  const rawRole = userProfile?.role || user?.role;
   const roleLabel = formatRoleLabel(rawRole);
   const initials = getUserInitials(name);
 
-  // Optional squad detail query if id_squad is present
-  const squadId = user?.id_squad || '';
+  // Squad data from profile query or fallback to squadDetailQuery
+  const squadId = userProfile?.id_squad || user?.id_squad || '';
   const { data: squadData } = useSquadDetailQuery(squadId);
 
-  const phone = (user as { no_telp?: string })?.no_telp || '0812-9876-5432';
-  const squadName = squadData?.data?.nama_squad || 'Squad Jakarta 1';
-  const area = squadData?.data?.wilayah || 'Jakarta';
-  const joinDate = (user as { created_at?: string })?.created_at
-    ? new Date((user as { created_at?: string }).created_at || '').toLocaleDateString('id-ID', {
+  const phone = userProfile?.no_telp || (user as { no_telp?: string })?.no_telp || '-';
+  const squadName = userProfile?.squad?.nama_squad || squadData?.data?.nama_squad || '-';
+  const area = userProfile?.squad?.wilayah || squadData?.data?.wilayah || '-';
+
+  const rawCreatedAt = userProfile?.created_at || (user as { created_at?: string })?.created_at;
+  const joinDate = rawCreatedAt
+    ? new Date(rawCreatedAt).toLocaleDateString('id-ID', {
         day: '2-digit',
         month: 'short',
         year: 'numeric',
       })
-    : '03 Jan 2025';
+    : '-';
 
   const details: ProfileDetailItem[] = [
     { label: 'Nama Lengkap', value: name },
@@ -43,6 +47,8 @@ export function ProfileView() {
     { label: 'Area', value: area },
     { label: 'Bergabung', value: joinDate },
   ];
+
+  const isLoading = (status === 'loading' || isProfileLoading) && !userProfile && !session;
 
   return (
     <div className='flex flex-col min-h-full w-full'>
@@ -64,12 +70,16 @@ export function ProfileView() {
               email={email}
               roleLabel={roleLabel}
               initials={initials}
+              isLoading={isLoading}
             />
           </div>
 
           {/* Right Column (lg: 7 cols): Detailed Account Information */}
           <div className='lg:col-span-7'>
-            <ProfileInfoListCard details={details} />
+            <ProfileInfoListCard
+              details={details}
+              isLoading={isLoading}
+            />
           </div>
         </div>
       </div>

@@ -2,12 +2,14 @@
 
 import * as React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface ProfileHeroCardProps {
   name: string;
   email: string;
   roleLabel: string;
   initials: string;
+  isLoading?: boolean;
 }
 
 export function ProfileHeroCard({
@@ -15,7 +17,21 @@ export function ProfileHeroCard({
   email,
   roleLabel,
   initials,
+  isLoading = false,
 }: ProfileHeroCardProps) {
+  if (isLoading) {
+    return (
+      <Card className='rounded-2xl border border-border/70 bg-card shadow-xs'>
+        <CardContent className='flex flex-col items-center text-center p-6 sm:p-8'>
+          <Skeleton className='size-24 rounded-full' />
+          <Skeleton className='mt-4 h-6 w-36 rounded-md' />
+          <Skeleton className='mt-2 h-4 w-48 rounded-md' />
+          <Skeleton className='mt-3 h-6 w-20 rounded-lg' />
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className='rounded-2xl border border-border/70 bg-card shadow-xs'>
       <CardContent className='flex flex-col items-center text-center p-6 sm:p-8'>
@@ -42,4 +58,3 @@ export function ProfileHeroCard({
     </Card>
   );
 }
-

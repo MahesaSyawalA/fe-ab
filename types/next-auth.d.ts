@@ -7,6 +7,7 @@ export interface AuthUser {
   email: string;
   role: UserRole;
   id_squad: string | null;
+  no_telp?: string;
 }
 
 declare module 'next-auth' {
@@ -15,6 +16,7 @@ declare module 'next-auth' {
     nama: string;
     role: UserRole;
     id_squad: string | null;
+    no_telp?: string;
     accessToken: string;
     refreshToken?: string;
   }
@@ -31,6 +33,7 @@ declare module 'next-auth/jwt' {
     nama?: string;
     role: UserRole;
     id_squad: string | null;
+    no_telp?: string;
     accessToken: string;
     refreshToken?: string;
   }
@@ -42,6 +45,7 @@ declare module '@auth/core/types' {
     nama: string;
     role: UserRole;
     id_squad: string | null;
+    no_telp?: string;
     accessToken: string;
     refreshToken?: string;
   }
@@ -58,6 +62,7 @@ declare module '@auth/core/jwt' {
     nama?: string;
     role: UserRole;
     id_squad: string | null;
+    no_telp?: string;
     accessToken: string;
     refreshToken?: string;
   }
