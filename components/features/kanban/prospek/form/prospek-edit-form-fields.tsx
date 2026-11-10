@@ -189,20 +189,20 @@ export function ProspekEditFooterActions({
   isPending,
 }: ProspekEditFooterActionsProps) {
   return (
-    <div className='flex items-center justify-end gap-2 w-full'>
+    <div className='grid grid-cols-2 gap-3 w-full sm:flex sm:w-auto sm:justify-end sm:items-center sm:gap-2.5'>
       <Button
         type='button'
         variant='outline'
         onClick={onCancel}
         disabled={isPending}
-        className='h-8.5 shrink-0 rounded-[8px] px-4 text-xs font-semibold cursor-pointer'
+        className='h-10 sm:h-9 w-full sm:w-28 rounded-md text-xs font-semibold cursor-pointer border-border bg-card shadow-none hover:bg-muted/50'
       >
         Batal
       </Button>
       <Button
         type='submit'
         disabled={isPending}
-        className='h-8.5 flex-1 sm:flex-none rounded-[8px] px-5 text-xs font-semibold text-white shadow-sm bg-primary-default hover:bg-primary-hover active:bg-primary transition-all cursor-pointer disabled:opacity-60'
+        className='h-10 sm:h-9 w-full sm:w-auto sm:min-w-[140px] sm:px-5 rounded-md text-xs font-semibold text-white shadow-sm bg-primary-default hover:bg-primary-hover active:bg-primary transition-all cursor-pointer disabled:opacity-60'
       >
         {isPending ? (
           <span className='flex items-center gap-1.5'>

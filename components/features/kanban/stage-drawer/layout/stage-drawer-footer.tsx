@@ -25,14 +25,14 @@ export function StageDrawerFooterActions({
         variant='outline'
         onClick={onClose}
         disabled={isSubmitting}
-        className='h-8.5 shrink-0 rounded-[8px] px-4 text-xs font-semibold cursor-pointer'
+        className='h-10 sm:h-9 w-full sm:w-28 rounded-md text-xs font-semibold cursor-pointer border-border bg-card shadow-none hover:bg-muted/50'
       >
         Batal
       </Button>
       <Button
         type='submit'
         disabled={isSubmitting}
-        className='h-8.5 flex-1 sm:flex-none rounded-[8px] px-5 text-xs font-semibold text-white shadow-sm bg-primary-default hover:bg-primary-hover active:bg-primary data-[pressed=true]:bg-primary transition-all cursor-pointer disabled:opacity-60'
+        className='h-10 sm:h-9 w-full sm:w-auto sm:min-w-[130px] sm:px-5 rounded-md text-xs font-semibold text-white shadow-sm bg-primary-default hover:bg-primary-hover active:bg-primary data-[pressed=true]:bg-primary transition-all cursor-pointer disabled:opacity-60'
       >
         {isSubmitting ? (
           <span className='flex items-center gap-1.5'>
@@ -55,7 +55,7 @@ export function StageDrawerFooterActions({
 
 export function StageDrawerFooter(props: StageDrawerFooterProps) {
   return (
-    <DrawerFooter className='shrink-0 z-10 flex flex-row items-center justify-end gap-2 px-4 sm:px-6 py-2.5 border-t border-border/70 bg-card shadow-[0_-4px_16px_rgba(0,0,0,0.04)] pb-3 sm:pb-2.5'>
+    <DrawerFooter className='shrink-0 z-10 grid grid-cols-2 gap-3 w-full px-4 sm:px-6 py-3 border-t border-border/70 bg-card shadow-[0_-4px_16px_rgba(0,0,0,0.04)] pb-4 sm:pb-3 sm:flex sm:w-auto sm:justify-end sm:items-center sm:gap-2.5'>
       <StageDrawerFooterActions {...props} />
     </DrawerFooter>
   );
