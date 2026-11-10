@@ -199,3 +199,26 @@ export function validateAllowedFile(
   return { isValid: true };
 }
 
+/**
+ * Memastikan berkas audio memiliki MIME type "audio/*" yang valid sebelum diunggah ke backend.
+ * Sebagian browser memberikan MIME "application/ogg" atau string kosong pada berkas audio seperti WhatsApp PTT (.ogg/.opus).
+ * Backend Express memvalidasi tipe file audio dengan `req.file.mimetype.startsWith('audio/')`.
+ */
+export function normalizeAudioFile(file: File): File {
+  const ext = getFileExtension(file.name);
+  if (['.ogg', '.oga', '.opus'].includes(ext) && !file.type.startsWith('audio/')) {
+    return new File([file], file.name, { type: 'audio/ogg' });
+  }
+  if (['.mp3'].includes(ext) && !file.type.startsWith('audio/')) {
+    return new File([file], file.name, { type: 'audio/mpeg' });
+  }
+  if (['.wav'].includes(ext) && !file.type.startsWith('audio/')) {
+    return new File([file], file.name, { type: 'audio/wav' });
+  }
+  if (['.m4a', '.aac'].includes(ext) && !file.type.startsWith('audio/')) {
+    return new File([file], file.name, { type: 'audio/mp4' });
+  }
+  return file;
+}
+
+

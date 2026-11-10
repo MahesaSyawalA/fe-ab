@@ -17,7 +17,7 @@ import type {
   EvidenceItem,
 } from '@/types/activity.types';
 import type { BuktiKunjungan } from '@/types/visit-proof.types';
-
+/*  */
 export interface KanbanBoardData {
   stages: (KanbanStageColumn | TahapKanban)[];
   ticketsByStage: Record<string, TiketWithDetails[]>;
@@ -75,11 +75,41 @@ export const kanbanService = {
 
   /**
    * Fetch single ticket detail by ID
-   * GET /tiket/:id
+   * GET /tiket/:id (diperkaya dengan relasi bukti lampiran dari GET /aktivitas)
    */
   async getTicketById(id: string): Promise<ApiResponse<TiketWithDetails>> {
-    const response = await api.get<ApiResponse<TiketWithDetails>>(`/tiket/${id}`);
-    return response.data;
+    const [ticketResponse, aktivitasResponse] = await Promise.all([
+      api.get<ApiResponse<TiketWithDetails>>(`/tiket/${id}`),
+      api
+        .get<ApiResponse<AktivitasWithDetails[]>>('/aktivitas', {
+          params: { id_tiket: id, limit: 50 },
+        })
+        .catch(() => null),
+    ]);
+
+    const ticket = ticketResponse.data;
+    if (ticket.data && aktivitasResponse?.data?.data) {
+      const aktMap = new Map<string, AktivitasWithDetails>(
+        aktivitasResponse.data.data.map((a) => [a.id_aktivitas, a]),
+      );
+      if (ticket.data.aktivitas_list) {
+        ticket.data.aktivitas_list = ticket.data.aktivitas_list.map((akt) => {
+          const fresh = aktMap.get(akt.id_aktivitas);
+          if (fresh) {
+            return {
+              ...akt,
+              ...fresh,
+              evidence: fresh.evidence ?? akt.evidence,
+              bukti_kunjungan: fresh.bukti_kunjungan ?? akt.bukti_kunjungan,
+            };
+          }
+          return akt;
+        });
+      } else {
+        ticket.data.aktivitas_list = aktivitasResponse.data.data;
+      }
+    }
+    return ticket;
   },
 
   /**

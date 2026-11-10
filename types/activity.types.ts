@@ -43,8 +43,8 @@ export interface AktivitasWithDetails extends Aktivitas {
   nama_petugas: string;
   pic_ditemui: string;
   waktu_label: string;
-  evidence?: EvidenceItem | null;
-  bukti_kunjungan?: BuktiKunjungan | null;
+  evidence?: EvidenceItem | EvidenceItem[] | null;
+  bukti_kunjungan?: BuktiKunjungan | BuktiKunjungan[] | null;
 }
 
 export interface CreateAktivitasInput {

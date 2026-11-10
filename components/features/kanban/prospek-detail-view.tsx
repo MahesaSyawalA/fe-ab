@@ -24,6 +24,7 @@ import {
   useCreateEvidenceMutation,
 } from '@/hooks/queries/use-kanban-query';
 import { detectFileType } from './stage-drawer/types';
+import { normalizeAudioFile } from '@/lib/file-validation';
 import { StageActivityDrawer } from './stage-activity-drawer';
 import {
   ProspekActionsCard,
@@ -310,9 +311,10 @@ export function ProspekDetailView({
                 (s) => s.id_tahap === params.toStageId,
               );
               if (targetStageObj?.jenis_tahap === 'visit') {
+                const normalizedFile = normalizeAudioFile(params.evidenceFile.rawFile);
                 const formData = new FormData();
                 formData.append('id_aktivitas', newAktivitasId);
-                formData.append('img_url', params.evidenceFile.rawFile);
+                formData.append('img_url', normalizedFile);
                 if (params.gpsData) {
                   formData.append('latitude', String(params.gpsData.latitude));
                   formData.append('longitude', String(params.gpsData.longitude));
@@ -327,9 +329,10 @@ export function ProspekDetailView({
                 }
                 await createBuktiKunjunganMutation.mutateAsync(formData);
               } else {
+                const normalizedFile = normalizeAudioFile(params.evidenceFile.rawFile);
                 const formData = new FormData();
                 formData.append('id_aktivitas', newAktivitasId);
-                formData.append('file', params.evidenceFile.rawFile);
+                formData.append('file', normalizedFile);
                 formData.append(
                   'tipe',
                   detectFileType(params.evidenceFile.name),

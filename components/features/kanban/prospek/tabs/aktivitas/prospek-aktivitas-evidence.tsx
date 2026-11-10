@@ -1,13 +1,19 @@
+'use client';
+
+import * as React from 'react';
 import {
   AlignLeft,
   Camera,
-  ExternalLink,
   FileText,
   Mic,
   Paperclip,
-  Volume2,
+  ZoomIn,
 } from 'lucide-react';
 import { AktivitasEvidence, normalizeEvidence } from './normalize-evidence';
+import { MediaLightbox } from '@/components/ui/media-lightbox';
+import { DocumentPreviewCard } from '@/components/ui/document-preview-card';
+import { CompactAudioPlayer } from '@/components/ui/compact-audio-player';
+import { formatRelativeTime } from '@/lib/date-utils';
 
 interface ProspekAktivitasEvidenceProps {
   evidence: AktivitasEvidence;
@@ -19,30 +25,52 @@ export function ProspekAktivitasEvidence({
   fallbackTime,
 }: ProspekAktivitasEvidenceProps) {
   const ev = normalizeEvidence(evidence, fallbackTime);
-  const isImage =
-    ev.type === 'foto' ||
-    (Boolean(ev.preview) &&
-      Boolean(
-        typeof ev.preview === 'string' &&
-          ev.preview.match(/\.(jpg|jpeg|png|webp|gif|svg)($|\?)/i),
-      ));
+  const [isLightboxOpen, setIsLightboxOpen] = React.useState(false);
+
+  const isImage = ev.category === 'image';
+  const isAudio = ev.category === 'audio';
+  const isDocument = ev.category === 'document' || ev.category === 'text';
+
+  const typeLabel = isImage
+    ? 'FOTO'
+    : isAudio
+      ? 'AUDIO'
+      : isDocument
+        ? 'DOKUMEN'
+        : ev.type.toUpperCase();
+
+  const previewUrl = ev.preview || ev.url;
+
+  const formattedUploadedAt = React.useMemo(() => {
+    if (!ev.uploadedAt) return fallbackTime;
+    if (ev.uploadedAt.includes('lalu') || ev.uploadedAt === 'Baru saja') {
+      return ev.uploadedAt;
+    }
+    const d = new Date(ev.uploadedAt);
+    if (!isNaN(d.getTime())) {
+      return formatRelativeTime(d);
+    }
+    return ev.uploadedAt;
+  }, [ev.uploadedAt, fallbackTime]);
 
   return (
-    <div className='mt-1 flex flex-col gap-2 rounded-xl border border-primary/20 bg-primary/5 p-3 text-xs sm:text-sm'>
+    <div className='mt-1 flex flex-col gap-2.5 rounded-xl border border-primary/20 bg-primary/5 p-3 text-xs sm:text-sm'>
+      {/* Header Tipe & Waktu Bukti */}
       <div className='flex items-center justify-between'>
         <div className='flex items-center gap-1.5 font-semibold text-primary text-xs'>
-          {ev.type === 'foto' && <Camera className='size-3.5' />}
-          {ev.type === 'audio' && <Mic className='size-3.5' />}
-          {ev.type === 'dokumen' && <FileText className='size-3.5' />}
-          {ev.type === 'teks' && <AlignLeft className='size-3.5' />}
-          <span>File Bukti ({ev.type.toUpperCase()})</span>
+          {isImage && <Camera className='size-3.5' />}
+          {isAudio && <Mic className='size-3.5' />}
+          {isDocument && <FileText className='size-3.5' />}
+          {!isImage && !isAudio && !isDocument && <AlignLeft className='size-3.5' />}
+          <span>File Bukti ({typeLabel})</span>
         </div>
         <span className='text-[10px] sm:text-xs text-muted-foreground'>
-          {ev.uploadedAt}
+          {formattedUploadedAt}
         </span>
       </div>
 
-      {ev.fileName && (
+      {/* Info Nama & Ukuran Berkas (jika bukan dokumen card terpisah) */}
+      {ev.fileName && !isDocument && (
         <div className='flex items-center gap-1.5 text-xs text-foreground font-medium'>
           <Paperclip className='size-3.5 text-muted-foreground shrink-0' />
           <span className='truncate'>{ev.fileName}</span>
@@ -54,45 +82,65 @@ export function ProspekAktivitasEvidence({
         </div>
       )}
 
-      {ev.duration && (
-        <div className='flex items-center gap-2 rounded-lg bg-background/80 px-3 py-2 border border-border/50'>
-          <Volume2 className='size-4 text-primary' />
-          <span className='text-xs font-semibold text-foreground'>
-            Rekaman Suara Lapangan
-          </span>
-          <span className='text-xs font-mono text-muted-foreground ml-auto'>
-            {ev.duration}
-          </span>
-        </div>
-      )}
-
+      {/* Catatan / Keterangan Deskripsi Evidence */}
       {ev.description && (
-        <p className='text-xs text-foreground/80 italic bg-background/60 p-2 rounded-lg border border-border/40'>
+        <p className='text-xs text-foreground/85 italic bg-background/70 p-2.5 rounded-lg border border-border/50 leading-relaxed'>
           &quot;{ev.description}&quot;
         </p>
       )}
 
-      {ev.preview && isImage && (
-        <div className='mt-1 overflow-hidden rounded-xl border border-border/60 max-w-xs sm:max-w-sm'>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={ev.preview}
-            alt='Bukti Aktivitas'
-            className='h-36 sm:h-44 w-full object-cover hover:scale-105 transition-transform duration-300'
+      {/* 1. Preview Media: GAMBAR / FOTO */}
+      {previewUrl && isImage && (
+        <>
+          <div
+            onClick={() => setIsLightboxOpen(true)}
+            className='group relative mt-1 overflow-hidden rounded-xl border border-border/70 max-w-xs sm:max-w-sm cursor-pointer bg-background/60 shadow-2xs'
+            title='Klik untuk memperbesar gambar'
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={previewUrl}
+              alt={ev.fileName || 'Bukti Aktivitas'}
+              className='h-36 sm:h-44 w-full object-cover transition-transform duration-300 group-hover:scale-105'
+            />
+            {/* Overlay Hover Hint */}
+            <div className='absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 text-white text-xs font-semibold backdrop-blur-[1px]'>
+              <ZoomIn className='size-4' />
+              <span>Perbesar Foto</span>
+            </div>
+          </div>
+
+          {/* Modal Lightbox Resolusi Penuh */}
+          <MediaLightbox
+            isOpen={isLightboxOpen}
+            onClose={() => setIsLightboxOpen(false)}
+            src={previewUrl}
+            alt={ev.fileName || 'Foto Bukti Aktivitas'}
+            title={ev.fileName || 'Foto Bukti Aktivitas'}
+          />
+        </>
+      )}
+
+      {/* 2. Preview Media: AUDIO / VOICE NOTE */}
+      {previewUrl && isAudio && (
+        <div className='mt-1'>
+          <CompactAudioPlayer
+            src={previewUrl}
+            title={ev.fileName || 'Rekaman Suara Lapangan'}
+            durationLabel={ev.duration}
           />
         </div>
       )}
 
-      {ev.preview && !isImage && (
-        <a
-          href={ev.preview}
-          target='_blank'
-          rel='noopener noreferrer'
-          className='inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline mt-1'
-        >
-          <ExternalLink className='size-3.5' />
-          <span>Lihat / Unduh Dokumen Berkas</span>
-        </a>
+      {/* 3. Preview Media: DOKUMEN (PDF, DOCX, XLSX, TXT) */}
+      {previewUrl && isDocument && (
+        <div className='mt-1'>
+          <DocumentPreviewCard
+            url={previewUrl}
+            fileName={ev.fileName}
+            fileSize={ev.size}
+          />
+        </div>
       )}
     </div>
   );

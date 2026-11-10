@@ -58,6 +58,7 @@ function buildEvidence(f: StageForm): AktivitasWithDetails['evidence'] {
     deskripsi: file.name,
     waktu_upload: 'Baru saja',
     url_preview: file.url,
+    url_file: file.url,
   };
 }
 

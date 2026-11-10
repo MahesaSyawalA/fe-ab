@@ -11,6 +11,7 @@ import { countActiveFilters } from '../filter';
 import { useKanbanFilterStore } from '@/store/kanban-filter-store';
 import { StageDrawerMode, StageActivityDrawerProps } from '../stage-activity-drawer';
 import { detectFileType } from '../stage-drawer/types';
+import { normalizeAudioFile } from '@/lib/file-validation';
 import { useKanbanStore } from '@/lib/kanban-store';
 import {
   INITIAL_KANBAN_STAGES,
@@ -591,9 +592,10 @@ export function useKanbanBoard() {
 
         if (stageType === 'visit') {
           // POST /bukti-kunjungan (multipart/form-data)
+          const normalizedFile = normalizeAudioFile(params.evidenceFile.rawFile);
           const formData = new FormData();
           formData.append('id_aktivitas', newAktivitasId);
-          formData.append('img_url', params.evidenceFile.rawFile);
+          formData.append('img_url', normalizedFile);
           if (params.gpsData) {
             formData.append('latitude', String(params.gpsData.latitude));
             formData.append('longitude', String(params.gpsData.longitude));
@@ -606,9 +608,10 @@ export function useKanbanBoard() {
           await createBuktiKunjunganMutation.mutateAsync(formData);
         } else {
           // POST /evidence (multipart/form-data)
+          const normalizedFile = normalizeAudioFile(params.evidenceFile.rawFile);
           const formData = new FormData();
           formData.append('id_aktivitas', newAktivitasId);
-          formData.append('file', params.evidenceFile.rawFile);
+          formData.append('file', normalizedFile);
           formData.append('tipe', detectFileType(params.evidenceFile.name));
           formData.append('deskripsi', params.evidenceFile.name);
           if (params.activity.catatan) {
@@ -690,9 +693,10 @@ export function useKanbanBoard() {
             const stageType = targetStageObj?.jenis_tahap;
 
             if (stageType === 'visit') {
+              const normalizedFile = normalizeAudioFile(params.evidenceFile.rawFile);
               const formData = new FormData();
               formData.append('id_aktivitas', newAktivitasId);
-              formData.append('img_url', params.evidenceFile.rawFile);
+              formData.append('img_url', normalizedFile);
               if (params.gpsData) {
                 formData.append('latitude', String(params.gpsData.latitude));
                 formData.append('longitude', String(params.gpsData.longitude));
@@ -704,9 +708,10 @@ export function useKanbanBoard() {
               }
               await createBuktiKunjunganMutation.mutateAsync(formData);
             } else {
+              const normalizedFile = normalizeAudioFile(params.evidenceFile.rawFile);
               const formData = new FormData();
               formData.append('id_aktivitas', newAktivitasId);
-              formData.append('file', params.evidenceFile.rawFile);
+              formData.append('file', normalizedFile);
               formData.append('tipe', detectFileType(params.evidenceFile.name));
               formData.append('deskripsi', params.evidenceFile.name);
               if (params.activityPayload.catatan) {
@@ -715,8 +720,8 @@ export function useKanbanBoard() {
               await createEvidenceMutation.mutateAsync(formData);
             }
           }
-        } catch {
-          // Abaikan error chaining jika pembuatan aktivitas/bukti gagal setelah tiket terbuat
+        } catch (chainErr) {
+          console.warn('[Chaining Bukti/Aktivitas Warning]:', chainErr);
         }
       }
 
