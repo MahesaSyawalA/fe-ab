@@ -41,7 +41,6 @@ export function usePelangganList() {
   const activeFilterCount = countActivePelangganFilters(selectedCategory);
   const debouncedSearchQuery = useDebounce(searchQuery, 400);
 
-  // Sesuaikan halaman kembali ke 1 saat pencarian atau filter kategori berubah (pola resmi React render-time adjustment)
   const [prevSearch, setPrevSearch] = React.useState(debouncedSearchQuery);
   const [prevCategory, setPrevCategory] = React.useState(selectedCategory);
 
@@ -76,13 +75,10 @@ export function usePelangganList() {
     return [];
   }, [rawList, query.data]);
 
-  // Client-side filtering fallback: memastikan hasil filter & search selalu akurat di UI
-  // meskipun backend endpoint mengembalikan seluruh dataset tanpa filter DB.
   const filteredList = React.useMemo(() => {
     const queryStr = debouncedSearchQuery.trim().toLowerCase();
 
     return pelangganList.filter((item) => {
-      // 1. Filter Tipe Outlet
       if (
         selectedCategory &&
         selectedCategory !== 'semua' &&
@@ -91,7 +87,6 @@ export function usePelangganList() {
         return false;
       }
 
-      // 2. Filter Search Query (nama outlet, alamat, nama kontak)
       if (queryStr) {
         const matchNama = item.nama_outlet?.toLowerCase().includes(queryStr);
         const matchAlamat = item.alamat?.toLowerCase().includes(queryStr);
@@ -110,7 +105,6 @@ export function usePelangganList() {
     });
   }, [pelangganList, selectedCategory, debouncedSearchQuery]);
 
-  // Hitung ulang badge counter pada filter chips secara dinamis berdasarkan seluruh data riil
   const filterChips: ChipFilterItem[] = React.useMemo(
     () => [
       {

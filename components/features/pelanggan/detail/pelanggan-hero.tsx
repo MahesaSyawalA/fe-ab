@@ -4,7 +4,6 @@ import { DEFAULT_OUTLET_IMAGE } from '@/constants/pelanggan-constants';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
-/** Banner foto outlet dengan nama, tipe, status, dan alamat di atas gradien. */
 export function PelangganHero({ pelanggan }: { pelanggan: PelangganWithDetails }) {
   const isNonaktif = pelanggan.status === 'Nonaktif';
 

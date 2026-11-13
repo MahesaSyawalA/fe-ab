@@ -9,7 +9,6 @@ interface PelangganPicListProps {
   className?: string;
 }
 
-/** Daftar PIC outlet beserta jumlahnya; menampilkan pesan kosong bila belum ada. */
 export function PelangganPicList({ contacts, className }: PelangganPicListProps) {
   return (
     <div className={cn('flex flex-col gap-3.5', className)}>

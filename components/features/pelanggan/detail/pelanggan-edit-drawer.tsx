@@ -20,7 +20,6 @@ interface PelangganEditDrawerProps {
   formState: PelangganEditFormState;
 }
 
-/** Drawer Mobile / Bottom Sheet untuk Edit Pelanggan. */
 export function PelangganEditDrawer({
   open,
   formState,
@@ -72,4 +71,3 @@ export function PelangganEditDrawer({
     </Drawer>
   );
 }
-

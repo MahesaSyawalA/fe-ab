@@ -10,7 +10,6 @@ interface PelangganEditDialogProps {
   formState: PelangganEditFormState;
 }
 
-/** Modal Desktop untuk Edit Pelanggan (menggunakan HeroUI Modal components). */
 export function PelangganEditDialog({
   open,
   formState,
@@ -51,4 +50,3 @@ export function PelangganEditDialog({
     </Modal.Backdrop>
   );
 }
-

@@ -27,7 +27,7 @@ export function FormStepProfil({ control, onNext, onFileChange }: FormStepProfil
       title='Informasi Outlet'
       badgeText='Wajib'
     >
-      {/* Nama Outlet */}
+
       <Controller
         control={control}
         name='nama_outlet'
@@ -45,7 +45,6 @@ export function FormStepProfil({ control, onNext, onFileChange }: FormStepProfil
         )}
       />
 
-      {/* Tipe Outlet */}
       <Controller
         control={control}
         name='tipe_outlet'
@@ -70,7 +69,6 @@ export function FormStepProfil({ control, onNext, onFileChange }: FormStepProfil
         )}
       />
 
-      {/* Alamat Lengkap Outlet (Full Width) */}
       <Controller
         control={control}
         name='alamat'
@@ -88,7 +86,6 @@ export function FormStepProfil({ control, onNext, onFileChange }: FormStepProfil
         )}
       />
 
-      {/* Foto Outlet (Full Width below Alamat) */}
       <Controller
         control={control}
         name='img_url'
@@ -112,7 +109,6 @@ export function FormStepProfil({ control, onNext, onFileChange }: FormStepProfil
         )}
       />
 
-      {/* Submit Step 1 */}
       <div className='flex justify-end pt-2'>
         <Button
           type='button'

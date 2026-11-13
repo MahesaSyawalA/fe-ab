@@ -46,7 +46,6 @@ export function FormStepKontak({
         </div>
       )}
 
-      {/* Final Submit Button */}
       <div className='flex justify-end pt-3 border-t border-border/60'>
         <Button
           type='button'

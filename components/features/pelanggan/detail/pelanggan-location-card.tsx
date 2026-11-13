@@ -6,7 +6,6 @@ import { SectionHeader } from '@/components/ui/section-header';
 import { PelangganResponsiveMap } from '../map';
 import { PelangganCoordinateBox } from './pelanggan-coordinate-box';
 
-/** Kartu "Lokasi & Koordinat": alamat, peta, tautan Google Maps, dan titik GPS. */
 export function PelangganLocationCard({ pelanggan }: { pelanggan: PelangganWithDetails }) {
   const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${pelanggan.latitude},${pelanggan.longitude}`;
 

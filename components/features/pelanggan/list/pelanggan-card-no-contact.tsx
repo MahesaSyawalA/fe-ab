@@ -12,7 +12,6 @@ interface PelangganCardNoContactProps {
   onAddContact?: (e: React.MouseEvent) => void;
 }
 
-/** Peringatan "Belum ada kontak" beserta tombol tambah kontak. */
 export function PelangganCardNoContact({ onAddContact }: PelangganCardNoContactProps) {
   return (
     <Alert className='flex items-center justify-between gap-2.5 rounded-xl border-0 bg-amber-50/50 p-2.5 has-data-[slot=alert-action]:pr-2.5'>

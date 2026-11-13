@@ -5,7 +5,6 @@ interface Coordinates {
   longitude: number;
 }
 
-/** Mengambil koordinat GPS perangkat; tidak melakukan apa pun jika geolocation tidak tersedia. */
 export function useCurrentLocation(onLocated: (coords: Coordinates) => void) {
   const [isLocating, setIsLocating] = React.useState(false);
 

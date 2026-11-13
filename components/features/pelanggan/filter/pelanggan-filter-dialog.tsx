@@ -84,9 +84,6 @@ function PelangganFilterDialogContent({
   );
 }
 
-/**
- * Filter Pelanggan Desktop (>= md) menggunakan HeroUI Modal.
- */
 export function PelangganFilterDialog({
   open,
   onOpenChange,

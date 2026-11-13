@@ -12,11 +12,10 @@ interface PelangganResponsiveMapProps
   extends Omit<PelangganMapProps, 'interactive' | 'height'> {
   mobile: MapVariant;
   desktop: MapVariant;
-  /** Ukuran dan posisi badge "GPS Siap" di pojok kanan bawah peta. */
+
   badgeClassName?: string;
 }
 
-/** Peta dengan varian mobile (< md) dan desktop (>= md), dibungkus frame + badge GPS. */
 export function PelangganResponsiveMap({
   mobile,
   desktop,

@@ -1,13 +1,14 @@
 'use client';
 
 import * as React from 'react';
-import { Trash2, UploadCloud, X } from 'lucide-react';
+import { Trash2, UploadCloud } from 'lucide-react';
 import { Label, toast } from '@heroui/react';
 import { TriangleExclamation } from '@gravity-ui/icons';
 import { Button } from '@/components/ui/button';
 import { ConfirmModal } from '@/components/ui/confirm-modal';
 import { cn } from '@/lib/utils';
 import { validateAllowedFile } from '@/lib/file-validation';
+import { PelangganFilePreviewCard } from './pelanggan-file-preview-card';
 
 export interface PelangganFileInputProps {
   label?: string;
@@ -51,7 +52,6 @@ export function PelangganFileInput({
   const handleProcessFile = (file: File) => {
     if (disabled) return;
 
-    // Validasi berkas foto outlet (khusus image-only) dan batas ukuran
     const validation = validateAllowedFile(file, {
       maxSizeBytes: maxSizeInMb * 1024 * 1024,
       category: 'image-only',
@@ -153,7 +153,6 @@ export function PelangganFileInput({
         </p>
       )}
 
-      {/* Hidden Native File Input */}
       <input
         ref={inputRef}
         type='file'
@@ -164,23 +163,11 @@ export function PelangganFileInput({
       />
 
       {value ? (
-        /* State File/Foto Terunggah (Preview Card) */
-        <div className='relative mt-1 h-44 sm:h-52 md:h-60 w-full overflow-hidden rounded-xl border border-border bg-secondary/40'>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={value} alt='Preview' className='size-full object-cover' />
-          <Button
-            type='button'
-            variant='ghost'
-            size='icon-xs'
-            onClick={handleRemoveClick}
-            className='absolute top-2 right-2 rounded-full bg-black/60 text-white hover:bg-black/80 hover:text-white cursor-pointer'
-            title='Hapus foto'
-          >
-            <X className='size-3.5' />
-          </Button>
-        </div>
+        <PelangganFilePreviewCard
+          value={value}
+          onRemove={handleRemoveClick}
+        />
       ) : (
-        /* State Kosong (Dropzone UI Sesuai Kanban) */
         <div
           role='button'
           tabIndex={disabled ? -1 : 0}
@@ -207,7 +194,6 @@ export function PelangganFileInput({
                 : 'border-slate-300 dark:border-slate-600 bg-card hover:border-primary/60 hover:bg-muted/10',
           )}
         >
-          {/* Ikon Tengah: Cloud dengan Panah ke Atas */}
           <UploadCloud
             className={cn(
               'size-8 mb-2 transition-colors',
@@ -216,17 +202,14 @@ export function PelangganFileInput({
             strokeWidth={1.5}
           />
 
-          {/* Teks Utama */}
           <span className='text-xs sm:text-sm font-semibold text-foreground leading-tight'>
             Choose a file or drag & drop it here
           </span>
 
-          {/* Teks Format & Limit Ukuran */}
           <span className='text-[10px] sm:text-[11px] text-muted-foreground mt-1'>
             .jpg, .jpeg, .png, .webp formats, up to {maxSizeInMb}MB
           </span>
 
-          {/* Tombol Browse File */}
           <Button
             type='button'
             variant='outline'
@@ -247,7 +230,6 @@ export function PelangganFileInput({
         </span>
       )}
 
-      {/* Modal Konfirmasi Hapus Foto */}
       <ConfirmModal
         open={showConfirmRemove}
         onOpenChange={setShowConfirmRemove}
@@ -261,4 +243,3 @@ export function PelangganFileInput({
     </div>
   );
 }
-

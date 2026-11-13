@@ -13,11 +13,6 @@ export interface PelangganEditModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
-/**
- * Komponen orkestrator Edit Pelanggan:
- * - Desktop (>= md): Menampilkan HeroUI Modal (PelangganEditDialog)
- * - Mobile (< md): Menampilkan Bottom Sheet (PelangganEditDrawer)
- */
 export function PelangganEditModal(props: PelangganEditModalProps) {
   const isMobile = useIsMobile();
   const formState = usePelangganEditForm(props);

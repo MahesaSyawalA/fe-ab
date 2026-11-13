@@ -32,7 +32,7 @@ export function PelangganCard({
       )}
     >
       <CardContent className='gap-2.5 px-3.5'>
-        {/* Top Meta: Type Badge, Distance, Ticket Badge */}
+
         <div className='flex items-center justify-between gap-2'>
           <div className='flex min-w-0 items-center gap-2'>
             <Badge className='h-5 rounded-md bg-primary-default px-2 py-0.5 text-[11px] font-medium text-white'>
@@ -55,12 +55,10 @@ export function PelangganCard({
           </Badge>
         </div>
 
-        {/* Outlet Name */}
         <h3 className='text-sm sm:text-base font-bold text-foreground leading-snug truncate group-hover:text-primary transition-colors'>
           {pelanggan.nama_outlet}
         </h3>
 
-        {/* PIC Sub-Card or Empty Contact Warning */}
         {primaryContact ? (
           <PelangganCardContact contact={primaryContact} />
         ) : (

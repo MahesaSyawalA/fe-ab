@@ -91,9 +91,6 @@ function PelangganFilterSheetContent({
   );
 }
 
-/**
- * Filter Pelanggan Mobile (< md) menggunakan Bottom Sheet Drawer.
- */
 export function PelangganFilterSheet({
   open,
   onOpenChange,

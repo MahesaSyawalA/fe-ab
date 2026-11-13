@@ -13,11 +13,6 @@ export interface PelangganFilterDrawerProps {
   onReset: () => void;
 }
 
-/**
- * Filter Pelanggan Adaptif:
- * - Desktop (>= md): HeroUI Modal (PelangganFilterDialog)
- * - Mobile (< md): Bottom Sheet Drawer (PelangganFilterSheet)
- */
 export function PelangganFilterDrawer(props: PelangganFilterDrawerProps) {
   const isMobile = useIsMobile();
 

@@ -10,7 +10,6 @@ interface KontakDraftFormProps {
   onAdd: () => void;
 }
 
-/** Kolom kiri: formulir satu kontak PIC + tombol "Tambahkan ke Daftar Kontak". */
 export function KontakDraftForm({
   draft,
   onChange,
@@ -45,7 +44,6 @@ export function KontakDraftForm({
           icon={<Phone className='size-4' />}
           value={draft.no_telp}
           onChange={(val) => {
-            // Hanya memperbolehkan angka, spasi, tanda strip, atau awalan '+'
             let sanitized = val.replace(/[^\d\s\-+]/g, '');
             if (sanitized.includes('+')) {
               sanitized = (sanitized.startsWith('+') ? '+' : '') + sanitized.replace(/\+/g, '');

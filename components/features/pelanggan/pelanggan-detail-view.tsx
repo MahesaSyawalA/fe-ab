@@ -34,7 +34,6 @@ export function PelangganDetailView({
   const [isDeleteOpen, setIsDeleteOpen] = React.useState(false);
   const deleteMutation = useDeletePelangganMutation();
 
-  // Sales dan Manager dapat mengedit/menghapus; Director hanya memantau (view-only)
   const isAllowedToEdit = canEdit ?? (session?.user?.role !== 'director');
 
   const handleDelete = async () => {
@@ -56,7 +55,7 @@ export function PelangganDetailView({
 
   return (
     <div className='mx-auto flex min-h-svh md:min-h-0 w-full max-w-xl md:max-w-6xl lg:max-w-7xl min-w-0 flex-col bg-background pb-12'>
-      {/* Top Header */}
+
       <SubpageHeader
         title='Detail Pelanggan'
         subtitle='Informasi lengkap profil outlet, data geolokasi GPS, dan kontak PIC'
@@ -64,7 +63,7 @@ export function PelangganDetailView({
         rightAction={
           isAllowedToEdit ? (
             <div className='flex items-center gap-1.5'>
-              {/* Mobile Actions (< md) */}
+
               <Button
                 type='button'
                 variant='ghost'
@@ -86,7 +85,6 @@ export function PelangganDetailView({
                 <Trash2 className='size-4' />
               </Button>
 
-              {/* Desktop Edit Button (>= md) */}
               <Button
                 type='button'
                 variant='outline'
@@ -98,7 +96,6 @@ export function PelangganDetailView({
                 <span>Edit Pelanggan</span>
               </Button>
 
-              {/* Desktop Delete Button (>= md) */}
               <Button
                 type='button'
                 variant='outline'
@@ -117,28 +114,24 @@ export function PelangganDetailView({
       <PelangganHero pelanggan={pelanggan} />
       <PelangganStatsBand pelanggan={pelanggan} />
 
-      {/* Main Content: 2 Columns on Desktop (7:5) */}
       <div className='grid grid-cols-1 lg:grid-cols-12 gap-5 md:gap-6 px-4 md:px-0 pt-4 md:pt-6 items-start'>
-        {/* Left Column: Lokasi & Koordinat (7 cols on Desktop) */}
+
         <div className='lg:col-span-7 flex flex-col gap-4'>
           <PelangganLocationCard pelanggan={pelanggan} />
         </div>
 
-        {/* Right Column: Daftar PIC (5 cols on Desktop) */}
         <PelangganPicList
           contacts={contacts}
           className='lg:col-span-5'
         />
       </div>
 
-      {/* Modal Edit Pelanggan */}
       <PelangganEditModal
         pelanggan={pelanggan}
         open={isEditOpen}
         onOpenChange={setIsEditOpen}
       />
 
-      {/* Modal Konfirmasi Hapus Pelanggan */}
       <ConfirmModal
         open={isDeleteOpen}
         onOpenChange={setIsDeleteOpen}

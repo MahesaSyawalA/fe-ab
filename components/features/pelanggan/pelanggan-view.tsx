@@ -27,7 +27,6 @@ export function PelangganView({
   const list = usePelangganList();
   const { data: session } = useSession();
 
-  // Role Sales & Manager berhak menambah pelanggan, Director hanya memantau (view-only)
   const isAllowedToAdd = canAdd ?? (session?.user?.role !== 'director');
 
   return (

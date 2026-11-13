@@ -100,7 +100,6 @@ export function usePelangganWizard({
     }
   };
 
-  // Navigasi lewat stepper indicator di header
   const handleStepClick = async (targetStep: number) => {
     if (targetStep === currentStep) return;
     if (targetStep < currentStep) {

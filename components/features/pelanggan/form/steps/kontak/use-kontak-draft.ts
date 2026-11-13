@@ -16,7 +16,6 @@ interface UseKontakDraftArgs {
   onSubmit: (finalContacts: KontakInputItem[]) => void;
 }
 
-/** Draft kontak yang sedang diisi + aksi tambah, hapus, dan simpan akhir daftar kontak. */
 export function useKontakDraft({
   contacts,
   onChangeContacts,
@@ -26,7 +25,6 @@ export function useKontakDraft({
 
   const isDraftValid = React.useMemo(() => {
     const isNameValid = draft.nama.trim().length >= 1;
-    // Nomor telepon minimal 9 digit angka sesuai skema Zod kontak
     const digitsCount = draft.no_telp.replace(/\D/g, '').length;
     const isPhoneValid = digitsCount >= 9;
     const isEmailValid = EMAIL_REGEX.test(draft.email.trim());
@@ -49,7 +47,6 @@ export function useKontakDraft({
     onChangeContacts(contacts.filter((_, idx) => idx !== indexToRemove));
   };
 
-  // Draft yang valid dan belum ditambahkan ikut tersimpan.
   const handleFinalSubmit = () => {
     const finalContacts = isDraftValid ? [...contacts, draft] : contacts;
     onChangeContacts(finalContacts);

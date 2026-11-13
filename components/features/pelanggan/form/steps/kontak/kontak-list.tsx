@@ -7,7 +7,6 @@ interface KontakListProps {
   onRemove: (index: number) => void;
 }
 
-/** Kolom kanan: daftar kontak yang sudah ditambahkan, atau petunjuk jika masih kosong. */
 export function KontakList({ contacts, onRemove }: KontakListProps) {
   return (
     <div className='md:col-span-5 flex flex-col gap-3'>

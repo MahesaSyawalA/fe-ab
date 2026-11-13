@@ -9,7 +9,6 @@ interface WizardStepCardProps {
   children: React.ReactNode;
 }
 
-/** Pembungkus kartu + judul seksi yang dipakai bersama oleh setiap step wizard. */
 export function WizardStepCard({
   icon,
   title,

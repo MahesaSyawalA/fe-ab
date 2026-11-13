@@ -3,7 +3,6 @@ import { Kontak } from '@/types/contact.types';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 
-/** Sub-kartu kontak PIC utama di dalam kartu pelanggan. */
 export function PelangganCardContact({ contact }: { contact: Kontak }) {
   return (
     <div className='flex items-center justify-between gap-2.5 rounded-xl bg-[#F6F8FD] p-2.5'>

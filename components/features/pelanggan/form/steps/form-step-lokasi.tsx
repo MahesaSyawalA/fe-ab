@@ -44,7 +44,7 @@ export function FormStepLokasi({
       badgeText='Wajib'
     >
       <div className='grid grid-cols-1 md:grid-cols-12 gap-5 md:gap-6 items-start'>
-        {/* Left Column on Desktop: Map (7 cols) */}
+
         <div className='md:col-span-7 flex flex-col gap-2'>
           <PelangganResponsiveMap
             latitude={latitude}
@@ -59,9 +59,8 @@ export function FormStepLokasi({
           </p>
         </div>
 
-        {/* Right Column on Desktop: Coordinates & Inputs (5 cols) */}
         <div className='md:col-span-5 flex flex-col gap-4'>
-          {/* Latitude & Longitude */}
+
           <div className='grid grid-cols-2 gap-3'>
             <Controller
               control={control}
@@ -100,7 +99,6 @@ export function FormStepLokasi({
             />
           </div>
 
-          {/* Radius Kunjungan */}
           <Controller
             control={control}
             name='radius_kunjungan'
@@ -121,7 +119,6 @@ export function FormStepLokasi({
             )}
           />
 
-          {/* Action Buttons inside card */}
           <div className='flex flex-col gap-2.5 pt-2'>
             <Button
               type='button'
