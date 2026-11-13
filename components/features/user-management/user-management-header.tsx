@@ -11,7 +11,7 @@ export function UserManagementHeader({ onAddUser }: UserManagementHeaderProps) {
   return (
     <ListPageHeader
       title='Kelola Pengguna'
-      subtitle='Daftar Pengguna'
+      subtitle='Daftar Pengguna aktif, pembagian role tim sales, dan manajemen akses akun'
       addLabel='Buat Pengguna'
       onAddClick={onAddUser}
     />
