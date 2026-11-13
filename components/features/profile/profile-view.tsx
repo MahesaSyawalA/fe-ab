@@ -22,7 +22,6 @@ export function ProfileView() {
   const roleLabel = formatRoleLabel(rawRole);
   const initials = getUserInitials(name);
 
-  // Squad data from profile query or fallback to squadDetailQuery
   const squadId = userProfile?.id_squad || user?.id_squad || '';
   const { data: squadData } = useSquadDetailQuery(squadId);
 
@@ -52,7 +51,6 @@ export function ProfileView() {
 
   return (
     <div className='flex flex-col min-h-full w-full'>
-      {/* Container Header & Breadcrumb Aligned with Grid */}
       <div className='w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-2 sm:pt-4'>
         <SubpageHeader
           title='Profil Saya'
@@ -60,10 +58,8 @@ export function ProfileView() {
         />
       </div>
 
-      {/* Main Content Area - Responsive 2-Col Grid on Desktop (lg:) */}
       <div className='w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-4 pb-12'>
         <div className='grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-start'>
-          {/* Left Column (lg: 5 cols): Profile Hero Card */}
           <div className='lg:col-span-5'>
             <ProfileHeroCard
               name={name}
@@ -74,7 +70,6 @@ export function ProfileView() {
             />
           </div>
 
-          {/* Right Column (lg: 7 cols): Detailed Account Information */}
           <div className='lg:col-span-7'>
             <ProfileInfoListCard
               details={details}

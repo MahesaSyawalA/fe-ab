@@ -18,7 +18,6 @@ export function SettingsView() {
   const router = useRouter();
   const { data: session, update: updateSession } = useSession();
 
-  // 1. Data Layer: Fetch profil pengguna riil dari server
   const { data: userProfile } = useUserProfileQuery();
   const updateProfileMutation = useUpdateProfileMutation();
 
@@ -30,12 +29,10 @@ export function SettingsView() {
   const basePhone = user?.no_telp || (session?.user as { no_telp?: string })?.no_telp || '';
   const email = user?.email || session?.user?.email || '-';
 
-  // 2. State Form Edit Profil & Telepon Terpadu
   const [isEditing, setIsEditing] = React.useState(false);
   const [draftName, setDraftName] = React.useState<string>(baseName);
   const [draftPhone, setDraftPhone] = React.useState<string>(basePhone);
 
-  // 3. State Modal
   const [showLogoutConfirm, setShowLogoutConfirm] = React.useState(false);
   const [isLoggingOut, setIsLoggingOut] = React.useState(false);
   const [showSecurityModal, setShowSecurityModal] = React.useState(false);
@@ -60,12 +57,13 @@ export function SettingsView() {
     const userId = userProfile?.id_user || session?.user?.id_user || session?.user?.id;
     if (!userId) {
       toast.danger('Gagal Menyimpan', {
-        description: 'Sesi pengguna tidak valid. Silakan muat ulang halaman.',
+        description: (
+          <span className='text-xs sm:text-sm text-secondary-foreground leading-relaxed'>Sesi pengguna tidak valid. Silakan muat ulang halaman.</span>
+        ),
       });
       return;
     }
 
-    // Validasi Zod Schemas
     const validation = updateProfileSchema.safeParse({
       nama: draftName,
       no_telp: draftPhone,
@@ -74,13 +72,14 @@ export function SettingsView() {
     if (!validation.success) {
       const firstError = validation.error.issues[0]?.message || 'Data yang dimasukkan tidak valid';
       toast.danger('Validasi Gagal', {
-        description: firstError,
+        description: (
+          <span className='text-xs sm:text-sm text-secondary-foreground leading-relaxed'>{firstError}</span>
+        ),
       });
       return;
     }
 
     try {
-      // 1. Jalankan mutasi ke backend API
       const updatedUser = await updateProfileMutation.mutateAsync({
         id: userId,
         data: {
@@ -89,12 +88,14 @@ export function SettingsView() {
         },
       });
 
-      // 2. Notifikasi Toast Sukses HeroUI
       toast.success('Profil Berhasil Diperbarui', {
-        description: 'Informasi profil Anda telah disimpan ke sistem.',
+        description: (
+          <span className='text-xs sm:text-sm text-secondary-foreground leading-relaxed'>
+            Informasi profil Anda telah disimpan ke sistem.
+          </span>
+        ),
       });
 
-      // 3. Sinkronisasi Sesi NextAuth seketika
       if (updateSession) {
         await updateSession({
           ...session,
@@ -110,14 +111,18 @@ export function SettingsView() {
       setIsEditing(false);
     } catch (error) {
       toast.danger('Gagal Memperbarui Profil', {
-        description: getErrorMessage(error) || 'Terjadi kesalahan pada sistem. Silakan coba beberapa saat lagi.',
+        description: (
+          <span className='text-xs sm:text-sm text-secondary-foreground leading-relaxed'>{getErrorMessage(error) || 'Terjadi kesalahan pada sistem. Silakan coba beberapa saat lagi.'}</span>
+        ),
       });
     }
   };
 
   const handleAvatarClick = () => {
     toast.info('Fitur Foto Profil Segera Hadir', {
-      description: 'Saat ini avatar otomatis menggunakan inisial nama Anda.',
+      description: (
+        <span className='text-xs sm:text-sm text-secondary-foreground leading-relaxed'>Saat ini avatar otomatis menggunakan inisial nama Anda.</span>
+      ),
     });
   };
 
@@ -132,7 +137,6 @@ export function SettingsView() {
 
   return (
     <div className='flex flex-col min-h-full w-full'>
-      {/* Container Header & Breadcrumb Aligned with Grid */}
       <div className='w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-2 sm:pt-4'>
         <SubpageHeader
           title='Pengaturan Profil'
@@ -140,12 +144,9 @@ export function SettingsView() {
         />
       </div>
 
-      {/* Main Content Area - Responsive 2-Col Grid on Desktop (lg:) */}
       <div className='w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-4 pb-12'>
         <div className='grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-start'>
-          {/* Left Column (lg: 5 cols): Profile Settings & Logout */}
           <div className='lg:col-span-5 flex flex-col gap-5'>
-            {/* Card 1: Pengaturan Profil */}
             <SettingsProfileCard
               name={displayName}
               role={displayRole}
@@ -159,7 +160,6 @@ export function SettingsView() {
               onAvatarClick={handleAvatarClick}
             />
 
-            {/* Logout Action Card */}
             <div className='rounded-2xl border border-destructive/20 bg-destructive/5 p-4 sm:p-5 flex flex-col gap-3 shadow-2xs'>
               <div className='flex flex-col gap-0.5'>
                 <h3 className='text-xs sm:text-sm font-bold text-destructive'>
@@ -180,9 +180,7 @@ export function SettingsView() {
             </div>
           </div>
 
-          {/* Right Column (lg: 7 cols): Personal & Account Information */}
           <div className='lg:col-span-7 flex flex-col gap-5'>
-            {/* Card 2: Informasi Pribadi */}
             <SettingsAccountInfoCard
               email={email}
               phone={displayPhone}
@@ -196,7 +194,6 @@ export function SettingsView() {
         </div>
       </div>
 
-      {/* Modal Dialog Keamanan untuk Request Ubah Email / Password */}
       <ConfirmModal
         open={showSecurityModal}
         onOpenChange={setShowSecurityModal}
@@ -208,7 +205,6 @@ export function SettingsView() {
         onConfirm={() => setShowSecurityModal(false)}
       />
 
-      {/* Logout Confirmation Modal */}
       <ConfirmModal
         open={showLogoutConfirm}
         onOpenChange={setShowLogoutConfirm}

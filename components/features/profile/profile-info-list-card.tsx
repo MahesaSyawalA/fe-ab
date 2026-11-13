@@ -40,12 +40,9 @@ export function ProfileInfoListCard({ details, isLoading = false }: ProfileInfoL
 
   return (
     <div className='flex flex-col gap-2'>
-      {/* Section Label */}
       <h3 className='text-xs font-bold tracking-wider text-muted-foreground uppercase px-1'>
         Informasi Akun
       </h3>
-
-      {/* Card with list rows */}
       <Card className='rounded-2xl border border-border/70 bg-card shadow-xs overflow-hidden'>
         <CardContent className='p-0 divide-y divide-border/60'>
           {details.map((item, index) => (

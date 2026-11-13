@@ -33,7 +33,6 @@ export function SettingsProfileCard({
 }: SettingsProfileCardProps) {
   const inputRef = React.useRef<HTMLInputElement>(null);
 
-  // Focus input when editing starts
   React.useEffect(() => {
     if (isEditing) {
       inputRef.current?.focus();
@@ -43,7 +42,6 @@ export function SettingsProfileCard({
   return (
     <Card className='rounded-2xl border border-border/70 bg-card shadow-xs transition-shadow hover:shadow-sm'>
       <CardContent className='flex flex-col gap-4 p-5 sm:p-6'>
-        {/* Card Header with unified Edit button */}
         <div className='flex items-start justify-between gap-2'>
           <div className='flex flex-col gap-0.5'>
             <h2 className='text-base sm:text-lg font-bold text-foreground'>
@@ -75,7 +73,6 @@ export function SettingsProfileCard({
           )}
         </div>
 
-        {/* Avatar Section */}
         <div className='flex justify-center my-1'>
           <div className='relative'>
             <div className='size-20 rounded-full bg-[#FFEDD5] text-accent flex items-center justify-center text-xl font-bold select-none shadow-inner'>
@@ -92,9 +89,7 @@ export function SettingsProfileCard({
           </div>
         </div>
 
-        {/* Input Fields */}
         <div className='flex flex-col gap-4'>
-          {/* Nama Lengkap */}
           <div className='flex flex-col gap-1.5'>
             <SettingsTextFieldInput
               ref={inputRef}
@@ -122,7 +117,6 @@ export function SettingsProfileCard({
               }
             />
 
-            {/* Edit Action Buttons (Simpan & Batal) */}
             {isEditing && (
               <div className='flex items-center justify-end gap-2 pt-1.5'>
                 <Button
@@ -159,7 +153,6 @@ export function SettingsProfileCard({
             )}
           </div>
 
-          {/* Role */}
           <SettingsTextFieldInput
             id='user-role'
             label='Role'

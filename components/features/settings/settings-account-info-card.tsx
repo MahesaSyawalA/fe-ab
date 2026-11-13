@@ -29,7 +29,6 @@ export function SettingsAccountInfoCard({
   return (
     <Card className='rounded-2xl border border-border/70 bg-card shadow-xs transition-shadow hover:shadow-sm'>
       <CardContent className='flex flex-col gap-4 p-5 sm:p-6'>
-        {/* Card Header */}
         <div className='flex items-start justify-between gap-2'>
           <div className='flex flex-col gap-0.5'>
             <h2 className='text-base sm:text-lg font-bold text-foreground'>
@@ -42,7 +41,6 @@ export function SettingsAccountInfoCard({
         </div>
 
         <div className='flex flex-col gap-4'>
-          {/* Alamat Email */}
           <div className='flex flex-col gap-1.5'>
             <SettingsTextFieldInput
               id='user-email'
@@ -63,7 +61,6 @@ export function SettingsAccountInfoCard({
             </Button>
           </div>
 
-          {/* Nomor Telepon */}
           <div className='flex flex-col gap-1.5'>
             <SettingsPhoneInput
               id='user-phone'
@@ -76,7 +73,6 @@ export function SettingsAccountInfoCard({
             />
           </div>
 
-          {/* Password */}
           <div className='flex flex-col gap-1.5'>
             <SettingsTextFieldInput
               id='user-password'
