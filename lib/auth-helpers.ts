@@ -20,6 +20,7 @@ export function formatRoleLabel(role?: string | null): string {
   if (clean === 'sales_manager' || clean === 'manager') return 'Sales Manager';
   if (clean === 'sales') return 'Sales';
   if (clean === 'director') return 'Director';
+  if (clean === 'admin') return 'Admin';
   return role.charAt(0).toUpperCase() + role.slice(1).toLowerCase();
 }
 

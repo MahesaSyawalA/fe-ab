@@ -5,7 +5,7 @@ import { UserNotification } from '@/components/layout/header/user-notification'
 import { UserAvatar } from '@/components/layout/header/user-avatar'
 
 interface AppHeaderProps {
-    role?: 'sales' | 'manager' | 'director'
+    role?: 'sales' | 'manager' | 'director' | 'admin'
     className?: string
 }
 

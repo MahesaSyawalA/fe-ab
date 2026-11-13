@@ -1,4 +1,4 @@
-import { LayoutGridCircles, KanbanSquare, Hospital, Users } from 'lucide-react';
+import { LayoutGridCircles, KanbanSquare, Hospital, Users, UserCog } from 'lucide-react';
 
 export const salesMenu = [
   { title: 'CRM Kanban', url: '/sales/kanban', icon: KanbanSquare },
@@ -16,4 +16,9 @@ export const directorMenu = [
   { title: 'CRM Kanban', url: '/director/kanban', icon: KanbanSquare },
   { title: 'Squad', url: '/director/squad', icon: Users },
   { title: 'Data Pelanggan', url: '/director/pelanggan', icon: Hospital },
+  { title: 'Kelola Pengguna', url: '/director/kelola-pengguna', icon: UserCog },
+];
+
+export const adminMenu = [
+  { title: 'Kelola Pengguna', url: '/admin/kelola-pengguna', icon: UserCog },
 ];

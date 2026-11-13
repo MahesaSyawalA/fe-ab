@@ -18,10 +18,10 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar'
 import { normalizeRole } from '@/lib/rbac'
-import { salesMenu, managerMenu, directorMenu } from '@/constants/sidebar-menus'
+import { salesMenu, managerMenu, directorMenu, adminMenu } from '@/constants/sidebar-menus'
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
-  role: 'sales' | 'manager' | 'director'
+  role: 'sales' | 'manager' | 'director' | 'admin'
   hideOnMobile?: boolean
 }
 
@@ -37,11 +37,13 @@ export function AppSidebar({ role, hideOnMobile, ...props }: AppSidebarProps) {
   }
 
   const menuItems =
-    activeRole === 'director'
-      ? directorMenu
-      : activeRole === 'manager'
-        ? managerMenu
-        : salesMenu
+    activeRole === 'admin'
+      ? adminMenu
+      : activeRole === 'director'
+        ? directorMenu
+        : activeRole === 'manager'
+          ? managerMenu
+          : salesMenu
 
   const isExpanded = isMobile ? openMobile : state === 'expanded'
 

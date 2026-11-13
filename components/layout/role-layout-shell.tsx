@@ -9,7 +9,7 @@ import { AppHeader } from '@/components/layout/header/app-header';
 import { normalizeRole } from '@/lib/rbac';
 
 interface RoleLayoutShellProps {
-  role: 'sales' | 'manager' | 'director';
+  role: 'sales' | 'manager' | 'director' | 'admin';
   children: React.ReactNode;
 }
 

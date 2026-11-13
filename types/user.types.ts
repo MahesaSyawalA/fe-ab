@@ -1,4 +1,4 @@
-export type UserRole = 'sales' | 'sales_manager' | 'director';
+export type UserRole = 'sales' | 'sales_manager' | 'director' | 'admin';
 
 /** Bentuk lengkap termasuk `password_hash` — hanya untuk keperluan internal (auth). */
 export interface User {

@@ -10,7 +10,7 @@ import { getUserInitials, formatRoleLabel, logoutUser } from '@/lib/auth-helpers
 import { normalizeRole } from '@/lib/rbac';
 
 interface UserAvatarProps {
-  role?: 'sales' | 'manager' | 'director';
+  role?: 'sales' | 'manager' | 'director' | 'admin';
 }
 
 export function UserAvatar({ role }: UserAvatarProps) {

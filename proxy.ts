@@ -36,12 +36,13 @@ export const proxy = auth((req) => {
     return NextResponse.redirect(loginUrl);
   }
 
-  // 3. Rute Terproteksi Multi-Role: /sales/*, /manager/*, /director/*
+  // 3. Rute Terproteksi Multi-Role: /sales/*, /manager/*, /director/*, /admin/*
   const isSalesRoute = pathname.startsWith('/sales');
   const isManagerRoute = pathname.startsWith('/manager');
   const isDirectorRoute = pathname.startsWith('/director');
+  const isAdminRoute = pathname.startsWith('/admin');
 
-  if (isSalesRoute || isManagerRoute || isDirectorRoute) {
+  if (isSalesRoute || isManagerRoute || isDirectorRoute || isAdminRoute) {
     // A. Pengguna belum login
     if (!isAuthenticated || !currentPrefix) {
       const loginUrl = new URL('/login', req.url);
@@ -54,7 +55,8 @@ export const proxy = auth((req) => {
     const isAuthorized =
       (isSalesRoute && currentPrefix === 'sales') ||
       (isManagerRoute && currentPrefix === 'manager') ||
-      (isDirectorRoute && currentPrefix === 'director');
+      (isDirectorRoute && currentPrefix === 'director') ||
+      (isAdminRoute && currentPrefix === 'admin');
 
     // Jika role tidak sesuai rute (contoh: Director buka /sales/*), alihkan ke default home role miliknya
     if (!isAuthorized) {
