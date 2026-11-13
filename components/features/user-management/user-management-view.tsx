@@ -6,13 +6,18 @@ import { UserManagementHeader } from './user-management-header';
 import { UserManagementFilters } from './user-management-filters';
 import { UserManagementTable } from './table/user-management-table';
 import {
+  CreateUserModal,
+  EditUserModal,
+  ResetPasswordModal,
+} from './modals';
+import {
   INITIAL_DUMMY_USERS,
   type ManagedUser,
   type RoleFilterValue,
 } from './types';
 
 export function UserManagementView() {
-  const [users] = React.useState<ManagedUser[]>(INITIAL_DUMMY_USERS);
+  const [users, setUsers] = React.useState<ManagedUser[]>(INITIAL_DUMMY_USERS);
   const [searchQuery, setSearchQuery] = React.useState('');
   const [selectedRole, setSelectedRole] = React.useState<RoleFilterValue>('all');
 
@@ -20,11 +25,6 @@ export function UserManagementView() {
   const [isEditOpen, setIsEditOpen] = React.useState(false);
   const [isResetPasswordOpen, setIsResetPasswordOpen] = React.useState(false);
   const [selectedUser, setSelectedUser] = React.useState<ManagedUser | null>(null);
-
-  void isCreateOpen;
-  void isEditOpen;
-  void isResetPasswordOpen;
-  void selectedUser;
 
   const roleCounts: Record<RoleFilterValue, number> = React.useMemo(() => {
     return {
@@ -54,34 +54,31 @@ export function UserManagementView() {
 
   const handleOpenCreate = () => {
     setIsCreateOpen(true);
-    toast.info('Form Buat Pengguna', {
-      description: (
-        <span className='text-xs sm:text-sm text-secondary-foreground leading-relaxed'>
-          Modal pembuatan akun baru siap diintegrasikan pada Tahap 2.
-        </span>
-      ),
-    });
   };
 
   const handleEditUser = (user: ManagedUser) => {
     setSelectedUser(user);
     setIsEditOpen(true);
-    toast.info(`Edit Pengguna: ${user.nama}`, {
-      description: (
-        <span className='text-xs sm:text-sm text-secondary-foreground leading-relaxed'>
-          Modal edit data pengguna siap diintegrasikan pada Tahap 2.
-        </span>
-      ),
-    });
   };
 
   const handleResetPassword = (user: ManagedUser) => {
     setSelectedUser(user);
     setIsResetPasswordOpen(true);
-    toast.info(`Reset Password: ${user.nama}`, {
+  };
+
+  const handleCreateUser = (newUser: ManagedUser) => {
+    setUsers((prev) => [newUser, ...prev]);
+  };
+
+  const handleUpdateUser = (updatedUser: ManagedUser) => {
+    setUsers((prev) => prev.map((u) => (u.id === updatedUser.id ? updatedUser : u)));
+  };
+
+  const handleResetPasswordSuccess = () => {
+    toast.success('Password Berhasil Direset', {
       description: (
         <span className='text-xs sm:text-sm text-secondary-foreground leading-relaxed'>
-          Modal reset password siap diintegrasikan pada Tahap 2.
+          Password baru telah aktif dan siap dibagikan ke pengguna.
         </span>
       ),
     });
@@ -91,7 +88,7 @@ export function UserManagementView() {
     toast.info('Filter Pengguna', {
       description: (
         <span className='text-xs sm:text-sm text-secondary-foreground leading-relaxed'>
-          Filter lanjutan status & squad siap diintegrasikan pada Tahap 2.
+          Penyaringan cepat dapat dilakukan langsung melalui role filter chip di atas.
         </span>
       ),
     });
@@ -114,6 +111,26 @@ export function UserManagementView() {
         users={filteredUsers}
         onEditUser={handleEditUser}
         onResetPassword={handleResetPassword}
+      />
+
+      <CreateUserModal
+        open={isCreateOpen}
+        onOpenChange={setIsCreateOpen}
+        onCreateUser={handleCreateUser}
+      />
+
+      <EditUserModal
+        open={isEditOpen}
+        onOpenChange={setIsEditOpen}
+        user={selectedUser}
+        onUpdateUser={handleUpdateUser}
+      />
+
+      <ResetPasswordModal
+        open={isResetPasswordOpen}
+        onOpenChange={setIsResetPasswordOpen}
+        user={selectedUser}
+        onResetSuccess={handleResetPasswordSuccess}
       />
     </div>
   );

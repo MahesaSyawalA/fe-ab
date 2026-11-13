@@ -68,7 +68,7 @@ export function UserManagementTable({
   }
 
   return (
-    <Table className='border border-border/70 shadow-xs'>
+    <Table aria-label='Tabel Kelola Pengguna' className='border border-border/70 shadow-xs'>
       <Table.ScrollContainer>
         <Table.Content
           aria-label='Daftar Pengguna Sistem'

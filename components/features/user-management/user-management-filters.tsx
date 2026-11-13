@@ -48,6 +48,7 @@ export function UserManagementFilters({
               </div>
               <SearchField.Input
                 placeholder='Cari nama, email, no telepon...'
+                aria-label='Cari nama, email, no telepon'
                 className='w-full bg-transparent text-xs sm:text-sm text-foreground placeholder:text-muted-foreground outline-none border-0 shadow-none px-2'
               />
               <SearchField.ClearButton className='text-muted-foreground hover:text-foreground cursor-pointer shrink-0' />
