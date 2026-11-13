@@ -6,10 +6,13 @@ import { Pencil, KeyRound, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getUserInitials } from '@/lib/auth-helpers';
 import { cn } from '@/lib/utils';
+import { UserManagementTableSkeleton } from './user-management-table-skeleton';
 import type { ManagedUser, ManagedUserRole } from '../types';
 
 interface UserManagementTableProps {
   users: ManagedUser[];
+  isLoading?: boolean;
+  squadMap?: Record<string, string>;
   onEditUser: (user: ManagedUser) => void;
   onResetPassword: (user: ManagedUser) => void;
 }
@@ -46,9 +49,15 @@ function getRoleBadge(role: ManagedUserRole) {
 
 export function UserManagementTable({
   users,
+  isLoading,
+  squadMap,
   onEditUser,
   onResetPassword,
 }: UserManagementTableProps) {
+  if (isLoading) {
+    return <UserManagementTableSkeleton />;
+  }
+
   if (users.length === 0) {
     return (
       <div className='flex flex-col items-center justify-center rounded-2xl border border-border/70 bg-card p-12 text-center shadow-xs gap-3'>
@@ -97,6 +106,10 @@ export function UserManagementTable({
               const roleBadge = getRoleBadge(user.role);
               const initials = getUserInitials(user.nama);
               const isAktif = user.status === 'aktif';
+              const displaySquad =
+                user.squad ||
+                (user.id_squad && squadMap ? squadMap[user.id_squad] : null) ||
+                '—';
 
               return (
                 <Table.Row key={user.id} id={user.id}>
@@ -135,7 +148,7 @@ export function UserManagementTable({
 
                   <Table.Cell className='py-3.5 px-4'>
                     <span className='font-medium text-foreground text-xs sm:text-sm'>
-                      {user.squad || '—'}
+                      {displaySquad}
                     </span>
                   </Table.Cell>
 

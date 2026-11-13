@@ -130,7 +130,7 @@ api.interceptors.response.use(
         // Refresh token kedaluwarsa atau server menolak refresh -> bersihkan antrean & logout
         processQueue(refreshError);
 
-        console.error('[Silent Refresh Failed] Sesi kedaluwarsa. Mengarahkan ke login...');
+        console.warn('[Silent Refresh] Sesi kedaluwarsa. Mengarahkan ke login...');
         if (typeof window !== 'undefined') {
           if (!window.location.pathname.startsWith('/login')) {
             try {

@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import { useSession } from 'next-auth/react';
-import { toast } from '@heroui/react';
 import {
   UserTextFieldInput,
   UserPhoneInput,
@@ -11,21 +10,18 @@ import {
 } from '../inputs';
 import { UserModalShell, UserModalFooterActions } from './shared';
 import { normalizeRole } from '@/lib/rbac';
+import { useSquadListQuery } from '@/hooks/queries/use-squad-query';
 import { editUserSchema } from '@/schemas/user-management.schema';
+import type { UpdateUserApiPayload } from '@/services/user-service';
 import type { ManagedUser, ManagedUserRole, UserStatus } from '../types';
 
 interface EditUserModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   user: ManagedUser | null;
-  onUpdateUser: (updatedUser: ManagedUser) => void;
+  onUpdateUser: (id: string, payload: UpdateUserApiPayload) => Promise<void> | void;
+  isSubmitting?: boolean;
 }
-
-const SQUAD_OPTIONS: UserSelectOption[] = [
-  { value: 'Squad Jakarta 1', label: 'Squad Jakarta 1' },
-  { value: 'Squad Surabaya', label: 'Squad Surabaya' },
-  { value: 'Squad Bandung', label: 'Squad Bandung' },
-];
 
 const STATUS_OPTIONS: UserSelectOption[] = [
   { value: 'aktif', label: 'Aktif' },
@@ -36,7 +32,8 @@ interface EditUserModalContentProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   user: ManagedUser;
-  onUpdateUser: (updatedUser: ManagedUser) => void;
+  onUpdateUser: (id: string, payload: UpdateUserApiPayload) => Promise<void> | void;
+  isSubmitting?: boolean;
 }
 
 function EditUserModalContent({
@@ -44,9 +41,19 @@ function EditUserModalContent({
   onOpenChange,
   user,
   onUpdateUser,
+  isSubmitting = false,
 }: EditUserModalContentProps) {
   const { data: session } = useSession();
   const currentUserRole = normalizeRole(session?.user?.role);
+
+  const { data: squadData } = useSquadListQuery({ limit: 100 });
+  const squadOptions: UserSelectOption[] = React.useMemo(() => {
+    if (!squadData?.data) return [];
+    return squadData.data.map((s) => ({
+      value: s.id_squad,
+      label: s.nama_squad,
+    }));
+  }, [squadData]);
 
   const roleOptions: UserSelectOption[] = React.useMemo(() => {
     const baseOptions: UserSelectOption[] = [];
@@ -84,11 +91,20 @@ function EditUserModalContent({
     return baseOptions;
   }, [currentUserRole, user.role]);
 
+  const initialSquadValue = React.useMemo(() => {
+    if (user.id_squad) return user.id_squad;
+    if (user.squad && squadData?.data) {
+      const found = squadData.data.find((s) => s.nama_squad === user.squad || s.id_squad === user.squad);
+      if (found) return found.id_squad;
+    }
+    return user.squad || null;
+  }, [user.id_squad, user.squad, squadData]);
+
   const [nama, setNama] = React.useState(user.nama);
   const [email, setEmail] = React.useState(user.email);
   const [noTelp, setNoTelp] = React.useState(user.no_telp === '-' ? '' : user.no_telp);
   const [role, setRole] = React.useState<ManagedUserRole>(user.role);
-  const [squad, setSquad] = React.useState<string | null>(user.squad);
+  const [squad, setSquad] = React.useState<string | null>(initialSquadValue);
   const [status, setStatus] = React.useState<UserStatus>(user.status);
   const [errors, setErrors] = React.useState<Record<string, string>>({});
 
@@ -97,14 +113,12 @@ function EditUserModalContent({
     setRole(parsedRole);
     if (parsedRole === 'director' || parsedRole === 'admin') {
       setSquad(null);
-    } else if (!squad) {
-      setSquad('Squad Jakarta 1');
     }
   };
 
   const isSquadDisabled = role === 'director' || role === 'admin';
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const validation = editUserSchema.safeParse({
@@ -128,27 +142,18 @@ function EditUserModalContent({
       return;
     }
 
-    const updatedUser: ManagedUser = {
-      ...user,
+    const cleanedPhone = noTelp ? noTelp.replace(/[^0-9+]/g, '') : '';
+    const targetSquadId = isSquadDisabled ? null : squad || null;
+
+    const updatePayload: UpdateUserApiPayload = {
       nama: validation.data.nama,
       email: validation.data.email,
-      no_telp: validation.data.no_telp || '-',
-      role: validation.data.role,
-      squad: isSquadDisabled ? null : squad,
-      status: validation.data.status,
+      no_telp: cleanedPhone,
+      role: validation.data.role as 'sales' | 'sales_manager' | 'director',
+      id_squad: targetSquadId,
     };
 
-    onUpdateUser(updatedUser);
-
-    toast.success('Perubahan Berhasil Disimpan', {
-      description: (
-        <span className='text-xs sm:text-sm text-secondary-foreground leading-relaxed'>
-          Data akun <strong>{updatedUser.nama}</strong> telah berhasil diperbarui.
-        </span>
-      ),
-    });
-
-    onOpenChange(false);
+    await onUpdateUser(user.id, updatePayload);
   };
 
   return (
@@ -163,6 +168,7 @@ function EditUserModalContent({
         <UserModalFooterActions
           onCancel={() => onOpenChange(false)}
           submitLabel='Simpan Perubahan'
+          isSubmitting={isSubmitting}
         />
       }
     >
@@ -219,7 +225,7 @@ function EditUserModalContent({
           <UserSelectInput
             label='Squad'
             placeholder={isSquadDisabled ? 'Tidak terikat squad' : 'Pilih squad'}
-            options={SQUAD_OPTIONS}
+            options={squadOptions}
             value={squad}
             onChange={(val) => setSquad(val)}
             isDisabled={isSquadDisabled}
@@ -246,6 +252,7 @@ export function EditUserModal({
   onOpenChange,
   user,
   onUpdateUser,
+  isSubmitting,
 }: EditUserModalProps) {
   if (!open || !user) return null;
 
@@ -256,6 +263,7 @@ export function EditUserModal({
       onOpenChange={onOpenChange}
       user={user}
       onUpdateUser={onUpdateUser}
+      isSubmitting={isSubmitting}
     />
   );
 }

@@ -11,46 +11,79 @@ import {
   ResetPasswordModal,
 } from './modals';
 import {
-  INITIAL_DUMMY_USERS,
-  type ManagedUser,
-  type RoleFilterValue,
-} from './types';
+  useUserManagementFilterStore,
+} from '@/store/user-management-filter-store';
+import { useDebounce } from '@/hooks/use-debounce';
+import {
+  useUserListQuery,
+  useCreateUserMutation,
+  useUpdateUserMutation,
+} from '@/hooks/queries/use-user-query';
+import { useSquadListQuery } from '@/hooks/queries/use-squad-query';
+import { AppPagination } from '@/components/ui/app-pagination';
+import { getErrorMessage } from '@/lib/axios';
+import type { CreateUserApiPayload, UpdateUserApiPayload } from '@/services/user-service';
+import type { ManagedUser, RoleFilterValue } from './types';
 
 export function UserManagementView() {
-  const [users, setUsers] = React.useState<ManagedUser[]>(INITIAL_DUMMY_USERS);
-  const [searchQuery, setSearchQuery] = React.useState('');
-  const [selectedRole, setSelectedRole] = React.useState<RoleFilterValue>('all');
+  const searchQuery = useUserManagementFilterStore((state) => state.searchQuery);
+  const setSearchQuery = useUserManagementFilterStore((state) => state.setSearchQuery);
+  const selectedRole = useUserManagementFilterStore((state) => state.selectedRole) as RoleFilterValue;
+  const setSelectedRole = useUserManagementFilterStore((state) => state.setSelectedRole);
+  const squadFilter = useUserManagementFilterStore((state) => state.squadFilter);
+  const page = useUserManagementFilterStore((state) => state.page);
+  const setPage = useUserManagementFilterStore((state) => state.setPage);
+  const limit = useUserManagementFilterStore((state) => state.limit);
+
+  const debouncedSearch = useDebounce(searchQuery, 400);
 
   const [isCreateOpen, setIsCreateOpen] = React.useState(false);
   const [isEditOpen, setIsEditOpen] = React.useState(false);
   const [isResetPasswordOpen, setIsResetPasswordOpen] = React.useState(false);
   const [selectedUser, setSelectedUser] = React.useState<ManagedUser | null>(null);
 
+  const { data: userListData, isLoading: isUserLoading } = useUserListQuery({
+    page,
+    limit,
+    search: debouncedSearch.trim() || undefined,
+    role: selectedRole === 'all' ? undefined : (selectedRole as ManagedUser['role']),
+    id_squad: squadFilter || undefined,
+  });
+
+  const { data: squadData } = useSquadListQuery({ limit: 100 });
+  const squadMap = React.useMemo(() => {
+    const map: Record<string, string> = {};
+    squadData?.data?.forEach((s) => {
+      map[s.id_squad] = s.nama_squad;
+    });
+    return map;
+  }, [squadData]);
+
+  const users: ManagedUser[] = React.useMemo(() => {
+    if (!userListData?.data) return [];
+    return userListData.data.map((u) => ({
+      id: u.id_user,
+      nama: u.nama,
+      email: u.email,
+      no_telp: u.no_telp || '-',
+      role: u.role,
+      id_squad: u.id_squad,
+      squad: u.id_squad ? squadMap[u.id_squad] || null : null,
+      status: 'aktif',
+    }));
+  }, [userListData, squadMap]);
+
   const roleCounts: Record<RoleFilterValue, number> = React.useMemo(() => {
     return {
-      all: users.length,
+      all: userListData?.meta?.total ?? users.length,
       director: users.filter((u) => u.role === 'director').length,
       sales_manager: users.filter((u) => u.role === 'sales_manager').length,
       sales: users.filter((u) => u.role === 'sales').length,
     };
-  }, [users]);
+  }, [users, userListData?.meta?.total]);
 
-  const filteredUsers = React.useMemo(() => {
-    return users.filter((user) => {
-      if (selectedRole !== 'all' && user.role !== selectedRole) {
-        return false;
-      }
-      if (searchQuery.trim()) {
-        const query = searchQuery.toLowerCase().trim();
-        const matchName = user.nama.toLowerCase().includes(query);
-        const matchEmail = user.email.toLowerCase().includes(query);
-        const matchPhone = user.no_telp.toLowerCase().includes(query);
-        const matchSquad = user.squad ? user.squad.toLowerCase().includes(query) : false;
-        return matchName || matchEmail || matchPhone || matchSquad;
-      }
-      return true;
-    });
-  }, [users, selectedRole, searchQuery]);
+  const createMutation = useCreateUserMutation();
+  const updateMutation = useUpdateUserMutation();
 
   const handleOpenCreate = () => {
     setIsCreateOpen(true);
@@ -66,12 +99,48 @@ export function UserManagementView() {
     setIsResetPasswordOpen(true);
   };
 
-  const handleCreateUser = (newUser: ManagedUser) => {
-    setUsers((prev) => [newUser, ...prev]);
+  const handleCreateUser = async (payload: CreateUserApiPayload) => {
+    try {
+      await createMutation.mutateAsync(payload);
+      toast.success('Pengguna Berhasil Dibuat', {
+        description: (
+          <span className='text-xs sm:text-sm text-secondary-foreground leading-relaxed'>
+            Akun untuk <strong>{payload.nama}</strong> telah berhasil ditambahkan.
+          </span>
+        ),
+      });
+      setIsCreateOpen(false);
+    } catch (error) {
+      toast.danger('Gagal Membuat Pengguna', {
+        description: (
+          <span className='text-xs sm:text-sm text-secondary-foreground leading-relaxed'>
+            {getErrorMessage(error) || 'Terjadi kesalahan pada server.'}
+          </span>
+        ),
+      });
+    }
   };
 
-  const handleUpdateUser = (updatedUser: ManagedUser) => {
-    setUsers((prev) => prev.map((u) => (u.id === updatedUser.id ? updatedUser : u)));
+  const handleUpdateUser = async (id: string, payload: UpdateUserApiPayload) => {
+    try {
+      await updateMutation.mutateAsync({ id, data: payload });
+      toast.success('Perubahan Berhasil Disimpan', {
+        description: (
+          <span className='text-xs sm:text-sm text-secondary-foreground leading-relaxed'>
+            Data akun telah berhasil diperbarui.
+          </span>
+        ),
+      });
+      setIsEditOpen(false);
+    } catch (error) {
+      toast.danger('Gagal Memperbarui Pengguna', {
+        description: (
+          <span className='text-xs sm:text-sm text-secondary-foreground leading-relaxed'>
+            {getErrorMessage(error) || 'Terjadi kesalahan pada server.'}
+          </span>
+        ),
+      });
+    }
   };
 
   const handleResetPasswordSuccess = () => {
@@ -102,21 +171,35 @@ export function UserManagementView() {
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         selectedRole={selectedRole}
-        onRoleChange={setSelectedRole}
+        onRoleChange={(role) => setSelectedRole(role)}
         roleCounts={roleCounts}
         onOpenFilterModal={handleOpenFilterModal}
       />
 
       <UserManagementTable
-        users={filteredUsers}
+        users={users}
+        isLoading={isUserLoading}
+        squadMap={squadMap}
         onEditUser={handleEditUser}
         onResetPassword={handleResetPassword}
       />
+
+      {!isUserLoading && users.length > 0 && (
+        <AppPagination
+          page={page}
+          totalPages={userListData?.meta?.total_pages ?? 1}
+          onPageChange={setPage}
+          meta={userListData?.meta}
+          total={userListData?.meta?.total}
+          limit={limit}
+        />
+      )}
 
       <CreateUserModal
         open={isCreateOpen}
         onOpenChange={setIsCreateOpen}
         onCreateUser={handleCreateUser}
+        isSubmitting={createMutation.isPending}
       />
 
       <EditUserModal
@@ -124,6 +207,7 @@ export function UserManagementView() {
         onOpenChange={setIsEditOpen}
         user={selectedUser}
         onUpdateUser={handleUpdateUser}
+        isSubmitting={updateMutation.isPending}
       />
 
       <ResetPasswordModal

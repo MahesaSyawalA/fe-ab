@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { toast } from '@heroui/react';
 import { Button } from '@/components/ui/button';
 import {
   UserMiniProfileCard,
@@ -10,6 +11,8 @@ import {
   UserModalFooterActions,
 } from './shared';
 import { generateSecurePassword } from '@/lib/password-generator';
+import { useResetPasswordMutation } from '@/hooks/queries/use-user-query';
+import { getErrorMessage } from '@/lib/axios';
 import { resetPasswordSchema } from '@/schemas/user-management.schema';
 import type { ManagedUser } from '../types';
 
@@ -43,6 +46,8 @@ function ResetPasswordModalContent({
   const [sendEmail, setSendEmail] = React.useState(true);
   const [manualPasswordError, setManualPasswordError] = React.useState('');
 
+  const resetPasswordMutation = useResetPasswordMutation();
+
   const handleRegenerate = React.useCallback(() => {
     setGeneratedPassword(generateSecurePassword(10));
   }, []);
@@ -51,7 +56,7 @@ function ResetPasswordModalContent({
     onOpenChange(false);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const effectivePassword = passwordMode === 'auto' ? generatedPassword : manualPassword;
@@ -69,9 +74,32 @@ function ResetPasswordModalContent({
       return;
     }
 
-    setActivePassword(effectivePassword);
-    onResetSuccess?.(user.id, effectivePassword);
-    setStep('success');
+    try {
+      await resetPasswordMutation.mutateAsync({
+        id: user.id,
+        password: effectivePassword,
+      });
+
+      setActivePassword(effectivePassword);
+      onResetSuccess?.(user.id, effectivePassword);
+      setStep('success');
+
+      toast.success('Password Berhasil Direset', {
+        description: (
+          <span className='text-xs sm:text-sm text-secondary-foreground leading-relaxed'>
+            Password baru untuk <strong>{user.nama}</strong> telah berhasil diperbarui.
+          </span>
+        ),
+      });
+    } catch (error) {
+      toast.danger('Gagal Mereset Password', {
+        description: (
+          <span className='text-xs sm:text-sm text-secondary-foreground leading-relaxed'>
+            {getErrorMessage(error) || 'Terjadi kesalahan saat mereset password pengguna.'}
+          </span>
+        ),
+      });
+    }
   };
 
   if (step === 'success') {
@@ -110,6 +138,7 @@ function ResetPasswordModalContent({
         <UserModalFooterActions
           onCancel={handleClose}
           submitLabel='Reset Password'
+          isSubmitting={resetPasswordMutation.isPending}
         />
       }
     >

@@ -9,6 +9,7 @@ export interface ManagedUser {
   no_telp: string;
   role: ManagedUserRole;
   squad: string | null;
+  id_squad?: string | null;
   status: UserStatus;
   avatar_url?: string | null;
 }

@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import { useSession } from 'next-auth/react';
-import { toast } from '@heroui/react';
 import {
   UserTextFieldInput,
   UserPhoneInput,
@@ -16,34 +15,42 @@ import {
 } from './shared';
 import { generateSecurePassword } from '@/lib/password-generator';
 import { normalizeRole } from '@/lib/rbac';
+import { useSquadListQuery } from '@/hooks/queries/use-squad-query';
 import { createUserSchema } from '@/schemas/user-management.schema';
-import type { ManagedUser, ManagedUserRole } from '../types';
+import type { CreateUserApiPayload } from '@/services/user-service';
+import type { ManagedUserRole } from '../types';
 
 interface CreateUserModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onCreateUser: (user: ManagedUser) => void;
+  onCreateUser: (payload: CreateUserApiPayload) => Promise<void> | void;
+  isSubmitting?: boolean;
 }
-
-const SQUAD_OPTIONS: UserSelectOption[] = [
-  { value: 'Squad Jakarta 1', label: 'Squad Jakarta 1' },
-  { value: 'Squad Surabaya', label: 'Squad Surabaya' },
-  { value: 'Squad Bandung', label: 'Squad Bandung' },
-];
 
 interface CreateUserModalContentProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onCreateUser: (user: ManagedUser) => void;
+  onCreateUser: (payload: CreateUserApiPayload) => Promise<void> | void;
+  isSubmitting?: boolean;
 }
 
 function CreateUserModalContent({
   open,
   onOpenChange,
   onCreateUser,
+  isSubmitting = false,
 }: CreateUserModalContentProps) {
   const { data: session } = useSession();
   const currentUserRole = normalizeRole(session?.user?.role);
+
+  const { data: squadData } = useSquadListQuery({ limit: 100 });
+  const squadOptions: UserSelectOption[] = React.useMemo(() => {
+    if (!squadData?.data) return [];
+    return squadData.data.map((s) => ({
+      value: s.id_squad,
+      label: s.nama_squad,
+    }));
+  }, [squadData]);
 
   const roleOptions: UserSelectOption[] = React.useMemo(() => {
     if (currentUserRole === 'director') {
@@ -69,7 +76,7 @@ function CreateUserModalContent({
   const [email, setEmail] = React.useState('');
   const [noTelp, setNoTelp] = React.useState('');
   const [role, setRole] = React.useState<ManagedUserRole>('sales');
-  const [squad, setSquad] = React.useState<string | null>('Squad Jakarta 1');
+  const [squad, setSquad] = React.useState<string | null>(null);
 
   const [passwordMode, setPasswordMode] = React.useState<'auto' | 'manual'>('auto');
   const [generatedPassword, setGeneratedPassword] = React.useState(() => generateSecurePassword(10));
@@ -88,8 +95,6 @@ function CreateUserModalContent({
     setRole(parsedRole);
     if (parsedRole === 'director' || parsedRole === 'admin') {
       setSquad(null);
-    } else if (!squad) {
-      setSquad('Squad Jakarta 1');
     }
     if (errors.role) {
       setErrors((prev) => ({ ...prev, role: '' }));
@@ -98,7 +103,7 @@ function CreateUserModalContent({
 
   const isSquadDisabled = role === 'director' || role === 'admin';
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const effectivePassword = passwordMode === 'auto' ? generatedPassword : manualPassword;
@@ -127,27 +132,19 @@ function CreateUserModalContent({
       return;
     }
 
-    const newUser: ManagedUser = {
-      id: `usr-${Date.now().toString(36)}`,
+    const cleanedPhone = noTelp ? noTelp.replace(/[^0-9+]/g, '') : '';
+    const targetSquadId = isSquadDisabled ? null : squad || null;
+
+    const apiPayload: CreateUserApiPayload = {
       nama: validation.data.nama,
       email: validation.data.email,
-      no_telp: validation.data.no_telp || '-',
-      role: validation.data.role,
-      squad: isSquadDisabled ? null : squad,
-      status: 'aktif',
+      no_telp: cleanedPhone,
+      role: validation.data.role as 'sales' | 'sales_manager' | 'director',
+      id_squad: targetSquadId,
+      password: effectivePassword,
     };
 
-    onCreateUser(newUser);
-
-    toast.success('Pengguna Berhasil Dibuat', {
-      description: (
-        <span className='text-xs sm:text-sm text-secondary-foreground leading-relaxed'>
-          Akun untuk <strong>{newUser.nama}</strong> telah berhasil ditambahkan.
-        </span>
-      ),
-    });
-
-    onOpenChange(false);
+    await onCreateUser(apiPayload);
   };
 
   return (
@@ -162,6 +159,7 @@ function CreateUserModalContent({
         <UserModalFooterActions
           onCancel={() => onOpenChange(false)}
           submitLabel='Buat Pengguna'
+          isSubmitting={isSubmitting}
         />
       }
     >
@@ -217,7 +215,7 @@ function CreateUserModalContent({
         <UserSelectInput
           label='Squad'
           placeholder={isSquadDisabled ? 'Tidak terikat squad' : 'Pilih squad'}
-          options={SQUAD_OPTIONS}
+          options={squadOptions}
           value={squad}
           onChange={(val) => setSquad(val)}
           isDisabled={isSquadDisabled}
@@ -251,6 +249,7 @@ export function CreateUserModal({
   open,
   onOpenChange,
   onCreateUser,
+  isSubmitting,
 }: CreateUserModalProps) {
   if (!open) return null;
 
@@ -259,6 +258,7 @@ export function CreateUserModal({
       open={open}
       onOpenChange={onOpenChange}
       onCreateUser={onCreateUser}
+      isSubmitting={isSubmitting}
     />
   );
 }

@@ -19,6 +19,24 @@ export interface UserListParams extends PaginationQueryParams {
   id_squad?: string;
 }
 
+export interface CreateUserApiPayload {
+  nama: string;
+  email: string;
+  no_telp: string;
+  role: 'sales' | 'sales_manager' | 'director';
+  id_squad?: string | null;
+  password: string;
+}
+
+export interface UpdateUserApiPayload {
+  nama?: string;
+  email?: string;
+  no_telp?: string;
+  role?: 'sales' | 'sales_manager' | 'director';
+  id_squad?: string | null;
+  password?: string;
+}
+
 export const userService = {
   async getList(params?: UserListParams): Promise<ApiPaginatedResponse<PublicUser>> {
     const response = await api.get<unknown>('/users', { params });
@@ -66,6 +84,17 @@ export const userService = {
     };
   },
 
+  async createUser(payload: CreateUserApiPayload): Promise<ApiResponse<PublicUser>> {
+    const response = await api.post<unknown>('/users', payload);
+    const res = response.data as { success?: boolean; data?: PublicUser; message?: string } | PublicUser;
+    const user = res && typeof res === 'object' && 'data' in res && res.data ? (res.data as PublicUser) : (res as PublicUser);
+    return {
+      success: true,
+      data: user,
+      message: (res as { message?: string })?.message,
+    };
+  },
+
   async getMe(): Promise<ApiResponse<UserProfile>> {
     const response = await api.get<unknown>('/auth/me');
     const res = response.data as { success?: boolean; data?: UserProfile; message?: string } | UserProfile;
@@ -88,7 +117,7 @@ export const userService = {
     };
   },
 
-  async updateUser(id: string, data: { nama?: string; no_telp?: string }): Promise<ApiResponse<UserProfile>> {
+  async updateUser(id: string, data: UpdateUserApiPayload): Promise<ApiResponse<UserProfile>> {
     const response = await api.patch<unknown>(`/users/${id}`, data);
     const res = response.data as { success?: boolean; data?: UserProfile; message?: string } | UserProfile;
     const user = res && typeof res === 'object' && 'data' in res && res.data ? res.data : (res as UserProfile);

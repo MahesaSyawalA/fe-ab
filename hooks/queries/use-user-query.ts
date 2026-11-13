@@ -1,6 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
-import { userService, type UserListParams, type UserProfile } from '@/services/user-service';
+import {
+  userService,
+  type UserListParams,
+  type UserProfile,
+  type CreateUserApiPayload,
+  type UpdateUserApiPayload,
+} from '@/services/user-service';
 import { getErrorMessage } from '@/lib/axios';
 
 export const userKeys = {
@@ -41,7 +47,7 @@ export function useUserProfileQuery() {
       return null;
     },
     enabled: Boolean(userId),
-    staleTime: 1000 * 60 * 5, // 5 menit
+    staleTime: 1000 * 60 * 5,
   });
 }
 
@@ -63,6 +69,50 @@ export function useUpdateProfileMutation() {
     },
     onError: (error) => {
       console.warn('[useUpdateProfileMutation Error]:', getErrorMessage(error));
+    },
+  });
+}
+
+export function useCreateUserMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: CreateUserApiPayload) => userService.createUser(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: userKeys.all });
+    },
+    onError: (error) => {
+      console.warn('[useCreateUserMutation Error]:', getErrorMessage(error));
+    },
+  });
+}
+
+export function useUpdateUserMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: UpdateUserApiPayload }) =>
+      userService.updateUser(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: userKeys.all });
+    },
+    onError: (error) => {
+      console.warn('[useUpdateUserMutation Error]:', getErrorMessage(error));
+    },
+  });
+}
+
+export function useResetPasswordMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, password }: { id: string; password: string }) =>
+      userService.updateUser(id, { password }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: userKeys.all });
+    },
+    onError: (error) => {
+      console.warn('[useResetPasswordMutation Error]:', getErrorMessage(error));
     },
   });
 }
