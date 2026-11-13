@@ -21,7 +21,7 @@ export function StageFormQuotation({
 }: StageFormQuotationProps) {
   return (
     <div className='flex flex-col gap-3'>
-      {/* Nomor Penawaran (Auto-Generated) dengan background grey/disabled style */}
+
       <StageTextFieldInput
         label='Nomor Penawaran (Auto-Generated)'
         isRequired
@@ -31,7 +31,6 @@ export function StageFormQuotation({
         inputClassName='bg-muted/60 text-muted-foreground cursor-default'
       />
 
-      {/* Total Nilai Penawaran * */}
       <StageCurrencyInput
         label='Total Nilai Penawaran'
         name='nilaiQuotation'
@@ -43,7 +42,6 @@ export function StageFormQuotation({
         prefixClassName='text-primary font-bold'
       />
 
-      {/* Penawaran ke- * */}
       <StageTextFieldInput
         label='Penawaran ke-'
         isRequired
@@ -52,12 +50,10 @@ export function StageFormQuotation({
         value={revisiKe}
         placeholder='1'
         onChange={(val) => {
-          // Hanya izinkan angka, tanpa force fallback agar sales leluasa hapus dan ubah angka
           const digitsOnly = val.replace(/\D/g, '');
           onRevisiKeChange(digitsOnly);
         }}
         onBlur={() => {
-          // Jika dikosongkan lalu fokus berpindah, fallback aman ke '1'
           if (!revisiKe || revisiKe === '0') {
             onRevisiKeChange('1');
           }

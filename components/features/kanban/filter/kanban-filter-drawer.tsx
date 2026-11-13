@@ -13,11 +13,6 @@ export interface KanbanFilterDrawerProps {
   onApply: (nextFilter: KanbanFilterState) => void;
 }
 
-/**
- * Filter Kanban Adaptif:
- * - Desktop (>= md): HeroUI Modal (KanbanFilterDialog)
- * - Mobile (< md): Bottom Sheet Drawer (KanbanFilterSheet)
- */
 export function KanbanFilterDrawer(props: KanbanFilterDrawerProps) {
   const isMobile = useIsMobile();
 

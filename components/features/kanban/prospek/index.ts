@@ -6,4 +6,3 @@ export * from './tabs';
 export * from './prospek-edit-modal';
 export * from './prospek-edit-dialog';
 export * from './prospek-edit-drawer';
-

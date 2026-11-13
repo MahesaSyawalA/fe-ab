@@ -3,26 +3,7 @@ import { usePelangganStore } from '@/lib/pelanggan-store';
 import { usePelangganListQuery } from '@/hooks/queries/use-pelanggan-query';
 import { TiketPrioritas } from '@/types/ticket.types';
 import { StageActivityDrawerProps, EvidenceFileState } from '../types';
-
-function calculateHaversineDistance(
-  lat1: number,
-  lon1: number,
-  lat2: number,
-  lon2: number,
-): number {
-  const R = 6371e3; // Radius bumi dalam meter
-  const toRad = (deg: number) => (deg * Math.PI) / 180;
-  const dLat = toRad(lat2 - lat1);
-  const dLon = toRad(lon2 - lon1);
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRad(lat1)) *
-      Math.cos(toRad(lat2)) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return Math.round(R * c);
-}
+import { useStageGeolocation } from './use-stage-geolocation';
 
 type FormArgs = Pick<
   StageActivityDrawerProps,
@@ -45,11 +26,9 @@ export function useStageActivityForm({
     return storePelangganList;
   }, [pelangganQuery.data?.data, storePelangganList]);
 
-  // Create Mode state
   const [selectedPelangganId, setSelectedPelangganId] = React.useState('');
   const [judulProspek, setJudulProspek] = React.useState('');
 
-  // Common ticket/activity fields
   const [picDitemui, setPicDitemui] = React.useState('');
   const [jabatanPic, setJabatanPic] = React.useState('');
   const [noTelpPic, setNoTelpPic] = React.useState('');
@@ -62,43 +41,9 @@ export function useStageActivityForm({
   const [prioritas, setPrioritas] = React.useState<TiketPrioritas>('sedang');
   const [catatan, setCatatan] = React.useState('');
 
-  // Unified Evidence File Upload state
   const [evidenceFile, setEvidenceFile] = React.useState<EvidenceFileState | null>(null);
   const [evidenceError, setEvidenceError] = React.useState(false);
 
-  // GPS State & Haversine calculation
-  const [gpsCoords, setGpsCoords] = React.useState<{
-    latitude: number;
-    longitude: number;
-  } | null>(null);
-  const [isLocating, setIsLocating] = React.useState(false);
-
-  const refreshLocation = React.useCallback(() => {
-    if (typeof window === 'undefined' || !navigator.geolocation) return;
-    setIsLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setGpsCoords({
-          latitude: Number(pos.coords.latitude.toFixed(6)),
-          longitude: Number(pos.coords.longitude.toFixed(6)),
-        });
-        setIsLocating(false);
-      },
-      () => {
-        setIsLocating(false);
-      },
-      { enableHighAccuracy: true, timeout: 8000 }
-    );
-  }, []);
-
-  React.useEffect(() => {
-    if (open && targetStage?.jenis_tahap === 'visit') {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      refreshLocation();
-    }
-  }, [open, targetStage?.jenis_tahap, refreshLocation]);
-
-  // Relasi Data Client & Kontak PIC
   const currentPelanggan = React.useMemo(() => {
     if (mode === 'create') {
       return pelangganList.find((p) => p.id_pelanggan === selectedPelangganId) || pelangganList[0];
@@ -116,46 +61,19 @@ export function useStageActivityForm({
     return currentPelanggan?.kontak_list || [];
   }, [currentPelanggan]);
 
-  const distanceToClient = React.useMemo(() => {
-    if (!gpsCoords) return 38;
-    const clientLat = currentPelanggan?.latitude;
-    const clientLng = currentPelanggan?.longitude;
-    if (clientLat == null || clientLng == null) return 38;
-    return calculateHaversineDistance(
-      gpsCoords.latitude,
-      gpsCoords.longitude,
-      clientLat,
-      clientLng,
-    );
-  }, [gpsCoords, currentPelanggan]);
-
-  const radiusLimit = currentPelanggan?.radius_kunjungan ?? 50;
-  const isWithinRadius = distanceToClient <= radiusLimit;
-
-  const koordinatGps = React.useMemo(() => {
-    if (gpsCoords) {
-      return `${gpsCoords.latitude}, ${gpsCoords.longitude}`;
-    }
-    return isLocating ? 'Mencari sinyal GPS...' : '-6.2088, 106.8456';
-  }, [gpsCoords, isLocating]);
-
-  const statusRadius = React.useMemo(() => {
-    if (isLocating) return 'Mengecek radius...';
-    return isWithinRadius
-      ? `Dalam Radius (${distanceToClient}m)`
-      : `Luar Radius (${distanceToClient}m)`;
-  }, [isLocating, isWithinRadius, distanceToClient]);
-
-  const gpsData = React.useMemo(() => {
-    const lat = gpsCoords ? gpsCoords.latitude : -6.2088;
-    const lng = gpsCoords ? gpsCoords.longitude : 106.8456;
-    return {
-      latitude: lat,
-      longitude: lng,
-      jarak_klien: distanceToClient,
-      dalam_radius: isWithinRadius,
-    };
-  }, [gpsCoords, distanceToClient, isWithinRadius]);
+  const {
+    isLocating,
+    refreshLocation,
+    distanceToClient,
+    isWithinRadius,
+    koordinatGps,
+    statusRadius,
+    gpsData,
+  } = useStageGeolocation({
+    open,
+    isVisitStage: targetStage?.jenis_tahap === 'visit',
+    currentPelanggan,
+  });
 
   const handlePicSelect = (nama: string, jabatan: string, noTelp?: string) => {
     setPicDitemui(nama);
@@ -163,34 +81,27 @@ export function useStageActivityForm({
     if (noTelp) setNoTelpPic(noTelp);
   };
 
-  // Kebutuhan specifics
   const [spesifikasiKebutuhan] = React.useState('');
 
-  // Opportunity specifics
   const [estimasiNilai, setEstimasiNilai] = React.useState('');
   const [targetClosing, setTargetClosing] = React.useState('');
   const [probabilitas, setProbabilitas] = React.useState('75%');
   const [analisisKompetitor, setAnalisisKompetitor] = React.useState('');
 
-  // Follow Up specifics
   const [mediaKomunikasi, setMediaKomunikasi] = React.useState('WhatsApp');
   const [jadwalFollowUp, setJadwalFollowUp] = React.useState('');
 
-  // Quotation specifics
   const [noQuotation, setNoQuotation] = React.useState('');
   const [nilaiQuotation, setNilaiQuotation] = React.useState('');
   const [revisiKe, setRevisiKe] = React.useState('1');
 
-  // PO specifics
   const [noPo, setNoPo] = React.useState('');
   const [nominalPo, setNominalPo] = React.useState('');
   const [targetPengiriman, setTargetPengiriman] = React.useState('');
 
-  // Revenue specifics
   const [statusClosing, setStatusClosing] = React.useState<'won' | 'lost'>('won');
   const [realisasiRevenue, setRealisasiRevenue] = React.useState('');
 
-  // Handle Outlet change in Create mode
   const handleOutletChange = (pelangganId: string) => {
     setSelectedPelangganId(pelangganId);
     const chosen = pelangganList.find((p) => p.id_pelanggan === pelangganId);
@@ -204,14 +115,12 @@ export function useStageActivityForm({
     }
   };
 
-  // Prefill state whenever open, mode, ticket or targetStage changes
   React.useEffect(() => {
     if (!open || !targetStage) return;
 
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setEvidenceError(false);
 
-    // Pastikan berkas bukti selalu kosong secara default pada setiap pembukaan form
     setEvidenceFile(null);
 
     const randNum = Math.floor(100 + Math.random() * 900);
@@ -266,7 +175,6 @@ export function useStageActivityForm({
       return;
     }
 
-    // Move Mode: Prefill from existing ticket
     if (!ticket) return;
 
     setJudulProspek(ticket.judul || '');

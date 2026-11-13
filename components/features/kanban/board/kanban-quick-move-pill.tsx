@@ -6,7 +6,6 @@ interface KanbanQuickMovePillProps {
   onClick: () => void;
 }
 
-/** Tombol mengambang "→ Pindah ke [Tahap]" di bawah layar. */
 export function KanbanQuickMovePill({
   nextStageName,
   onClick,

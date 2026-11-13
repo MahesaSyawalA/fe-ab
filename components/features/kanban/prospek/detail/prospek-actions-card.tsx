@@ -8,7 +8,6 @@ interface ProspekActionsCardProps {
   onAddActivity: () => void;
 }
 
-/** Kartu aksi cepat, hanya tampil di desktop (>= lg). */
 export function ProspekActionsCard({
   onNegotiate,
   onAddActivity,

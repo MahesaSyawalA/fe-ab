@@ -23,7 +23,7 @@ export function StageFormOpportunity({
     <div className='flex flex-col gap-3'>
       {mode === 'move' ? (
         <>
-          {/* Estimasi Nilai Closing * */}
+
           <StageCurrencyInput
             label='Estimasi Nilai Closing'
             name='estimasiNilaiOpportunity'
@@ -35,7 +35,6 @@ export function StageFormOpportunity({
             prefixClassName='text-primary font-bold'
           />
 
-          {/* Target Closing * */}
           <StageDatePicker
             label='Target Closing'
             name='targetClosing'
@@ -45,7 +44,7 @@ export function StageFormOpportunity({
           />
         </>
       ) : (
-        /* Estimasi Nilai Closing (opsional) di mode create */
+
         <StageCurrencyInput
           label='Estimasi Nilai Closing (opsional)'
           name='estimasiNilaiOpportunity'

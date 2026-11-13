@@ -17,7 +17,7 @@ export function ProspekRiwayatItem({ item }: { item: RiwayatItem }) {
   return (
     <div className='flex items-start justify-between gap-3 p-3 sm:p-4 rounded-xl border border-border/60 bg-card hover:bg-muted/10 transition-colors'>
       <div className='flex flex-col gap-2 min-w-0 flex-1'>
-        {/* Badges alur perpindahan */}
+
         <div className='flex items-center gap-1.5 flex-wrap min-w-0'>
           {item.nama_tahap_asal ? (
             <>
@@ -45,7 +45,6 @@ export function ProspekRiwayatItem({ item }: { item: RiwayatItem }) {
           )}
         </div>
 
-        {/* User pemindah */}
         <div className='flex items-center gap-1.5 text-xs text-muted-foreground'>
           <UserRound className='size-3.5 text-muted-foreground/80 shrink-0' />
           <span>
@@ -54,7 +53,6 @@ export function ProspekRiwayatItem({ item }: { item: RiwayatItem }) {
         </div>
       </div>
 
-      {/* Tanggal & Jam */}
       <div className='flex items-center gap-1 text-[11px] sm:text-xs text-muted-foreground shrink-0 self-start pt-0.5'>
         <Clock className='size-3 text-muted-foreground/70 shrink-0' />
         <span className='whitespace-nowrap'>{formattedWaktu}</span>

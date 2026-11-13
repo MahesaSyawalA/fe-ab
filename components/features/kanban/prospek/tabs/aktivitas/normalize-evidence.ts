@@ -46,7 +46,6 @@ function detectCategory(
 ): EvidenceMediaCategory {
   const extName = extractExt(fileName);
   const extUrl = extractExt(url);
-  // Prioritaskan ekstensi valid dari fileName, jika tidak ada/generic gunakan url
   const ext = (extName && extName.length <= 5 ? extName : extUrl) || extUrl;
 
   if (ext) {
@@ -63,7 +62,6 @@ function detectCategory(
   return 'document';
 }
 
-/** Evidence punya dua nama field untuk beberapa hal (mis. tipe/jenis); satukan di sini. */
 export function normalizeEvidence(
   ev: AktivitasEvidence,
   fallbackTime: string,

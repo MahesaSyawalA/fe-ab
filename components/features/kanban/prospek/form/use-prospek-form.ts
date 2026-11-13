@@ -38,7 +38,6 @@ export function useProspekForm({
   const { data: session } = useSession();
   const [serverError, setServerError] = React.useState<string | null>(null);
 
-  // 1. Fetch real customer list via TanStack Query
   const { data: pelangganResponse, isLoading: isLoadingPelanggan } =
     usePelangganListQuery({
       limit: 100,
@@ -48,7 +47,6 @@ export function useProspekForm({
     return pelangganResponse?.data ?? [];
   }, [pelangganResponse]);
 
-  // 2. TanStack Query Mutations
   const createMutation = useCreateTicketMutation();
   const updateMutation = useUpdateTicketMutation();
   const isPending = createMutation.isPending || updateMutation.isPending;
@@ -59,7 +57,6 @@ export function useProspekForm({
     return d.toISOString().slice(0, 10);
   });
 
-  // 3. Setup React Hook Form with Zod Resolver
   const form = useForm<CreateTicketFormValues>({
     resolver: zodResolver(
       mode === 'create' ? createTicketSchema : updateTicketSchema,
@@ -84,7 +81,6 @@ export function useProspekForm({
     mode: 'onTouched',
   });
 
-  // Re-sync default values when ticket changes (e.g. after fetch)
   React.useEffect(() => {
     if (ticket) {
       form.reset({
@@ -106,7 +102,6 @@ export function useProspekForm({
     }
   }, [ticket, form]);
 
-  // Derived options for dropdowns
   const selectedPelangganId = useWatch({
     control: form.control,
     name: 'id_pelanggan',
@@ -134,7 +129,6 @@ export function useProspekForm({
   const backPath =
     mode === 'edit' && ticket ? `${basePath}/${ticket.id_tiket}` : basePath;
 
-  // Submit Handler
   const onSubmit = async (values: CreateTicketFormValues) => {
     try {
       setServerError(null);

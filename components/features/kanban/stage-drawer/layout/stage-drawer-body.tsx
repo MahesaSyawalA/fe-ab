@@ -22,7 +22,7 @@ interface StageDrawerBodyProps {
 export function StageDrawerBody({ mode, stageType, form }: StageDrawerBodyProps) {
   return (
     <div className='no-scrollbar flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 py-3 flex flex-col gap-3'>
-      {/* 1. INFORMASI DASAR: HANYA DIRENDER JIKA MODE === 'create' */}
+
       {mode === 'create' && (
         <StageFormInformasiDasar
           judulProspek={form.judulProspek}
@@ -43,7 +43,6 @@ export function StageDrawerBody({ mode, stageType, form }: StageDrawerBodyProps)
         />
       )}
 
-      {/* 2. FIELD TAMBAHAN SPESIFIK STAGE (DI LUAR / DI BAWAH INFORMASI DASAR) */}
       {stageType === 'visit' && (
         <StageFormVisit
           mode={mode}
@@ -60,8 +59,6 @@ export function StageDrawerBody({ mode, stageType, form }: StageDrawerBodyProps)
           kontakList={form.kontakList}
         />
       )}
-
-      {/* Tahap Kebutuhan: Tidak ada input tambahan spesifik */}
 
       {stageType === 'opportunity' && (
         <StageFormOpportunity
@@ -114,7 +111,6 @@ export function StageDrawerBody({ mode, stageType, form }: StageDrawerBodyProps)
         />
       )}
 
-      {/* 3. UNIVERSAL: UPLOAD BUKTI */}
       <StageFormEvidence
         evidenceFile={form.evidenceFile}
         onEvidenceFileChange={form.setEvidenceFile}
@@ -124,7 +120,6 @@ export function StageDrawerBody({ mode, stageType, form }: StageDrawerBodyProps)
         label='Upload Bukti'
       />
 
-      {/* 4. UNIVERSAL: CATATAN AKTIVITAS (MOVE) / CATATAN PELANGGAN (CREATE) */}
       <div className='flex flex-col gap-1'>
         <StageTextAreaInput
           label={mode === 'move' ? 'Catatan Aktivitas' : 'Catatan Pelanggan (opsional)'}

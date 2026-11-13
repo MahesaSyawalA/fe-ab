@@ -27,7 +27,7 @@ export function ProspekEditFormFields({
 
   return (
     <div className='flex flex-col gap-4'>
-      {/* Server Error Alert */}
+
       {serverError && (
         <div className='rounded-xl border border-rose-300 bg-rose-50 px-3.5 py-2.5 text-xs text-rose-800'>
           <p className='font-semibold'>Gagal menyimpan perubahan</p>
@@ -35,7 +35,6 @@ export function ProspekEditFormFields({
         </div>
       )}
 
-      {/* ID / Kode Tiket (Readonly) */}
       {showKodeTiket && ticket?.kode_tiket && (
         <ProspekTextFieldInput
           label='ID Tiket'
@@ -45,7 +44,6 @@ export function ProspekEditFormFields({
         />
       )}
 
-      {/* Judul Prospek */}
       <Controller
         name='judul'
         control={form.control}
@@ -62,7 +60,6 @@ export function ProspekEditFormFields({
         )}
       />
 
-      {/* Pelanggan / Outlet */}
       <Controller
         name='id_pelanggan'
         control={form.control}
@@ -75,7 +72,6 @@ export function ProspekEditFormFields({
             value={field.value}
             onChange={(val) => {
               field.onChange(val);
-              // Reset kontak when outlet changes
               form.setValue('id_kontak', null, { shouldValidate: true });
             }}
             isInvalid={Boolean(fieldState.error)}
@@ -84,7 +80,6 @@ export function ProspekEditFormFields({
         )}
       />
 
-      {/* Kontak PIC */}
       <Controller
         name='id_kontak'
         control={form.control}
@@ -105,7 +100,6 @@ export function ProspekEditFormFields({
         )}
       />
 
-      {/* Estimasi Nilai Penawaran */}
       <Controller
         name='estimasi_nilai'
         control={form.control}
@@ -124,7 +118,6 @@ export function ProspekEditFormFields({
         )}
       />
 
-      {/* Target Estimasi Closing */}
       <Controller
         name='estimasi_closing'
         control={form.control}
@@ -148,7 +141,6 @@ export function ProspekEditFormFields({
         }}
       />
 
-      {/* Tingkat Prioritas Prospek */}
       <Controller
         name='prioritas'
         control={form.control}
@@ -160,7 +152,6 @@ export function ProspekEditFormFields({
         )}
       />
 
-      {/* Kebutuhan Pelanggan */}
       <Controller
         name='kebutuhan_pelanggan'
         control={form.control}
@@ -216,4 +207,3 @@ export function ProspekEditFooterActions({
     </div>
   );
 }
-

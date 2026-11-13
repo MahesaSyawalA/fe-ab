@@ -1,4 +1,3 @@
-export * from './build-prospek-ticket';
 export * from './prospek-field-closing';
 export * from './prospek-field-estimasi';
 export * from './prospek-field-judul';

@@ -26,7 +26,7 @@ export function KanbanPipelineCard({
   return (
     <Card className='rounded-2xl border-0 bg-linear-to-r from-[#1D4ED8] via-[#2563EB] to-[#3B82F6] py-0 text-white shadow-sm ring-0'>
       <CardContent className='flex flex-col gap-3.5 p-4 sm:p-5'>
-        {/* Top Summary Row */}
+
         <div className='flex items-start justify-between gap-2'>
           <div className='flex flex-col gap-0.5'>
             <span className='text-xs sm:text-base font-medium text-white/90'>
@@ -55,7 +55,6 @@ export function KanbanPipelineCard({
           </div>
         </div>
 
-        {/* Manager / Owner Team Contribution Section */}
         {showTeamContributions && teamContributions.length > 0 && (
           <div className='flex flex-col gap-2.5 pt-0.5'>
             <div className='flex items-center justify-between'>

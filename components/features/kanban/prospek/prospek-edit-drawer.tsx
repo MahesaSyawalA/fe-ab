@@ -26,9 +26,6 @@ export interface ProspekEditDrawerProps {
   ticket: TiketWithDetails;
 }
 
-/**
- * Drawer Mobile / Bottom Sheet untuk Edit Prospek.
- */
 export function ProspekEditDrawer({
   open,
   onOpenChange,
@@ -82,4 +79,3 @@ export function ProspekEditDrawer({
     </Drawer>
   );
 }
-

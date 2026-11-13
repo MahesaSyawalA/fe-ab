@@ -16,10 +16,6 @@ import {
   useStageActivityForm,
 } from './index';
 
-/**
- * Modal Desktop untuk Aktivitas & Perpindahan Stage Kanban.
- * Menggunakan @heroui/react Modal komponen (Backdrop, Container, Dialog, CloseTrigger, Header, Body, Footer).
- */
 export function StageActivityDialog({
   open,
   onOpenChange,
@@ -181,4 +177,3 @@ export function StageActivityDialog({
     </Modal.Backdrop>
   );
 }
-

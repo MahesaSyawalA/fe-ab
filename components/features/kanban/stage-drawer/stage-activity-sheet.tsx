@@ -15,10 +15,6 @@ import {
   useStageActivityForm,
 } from './index';
 
-/**
- * Bottom Sheet Drawer Mobile untuk Aktivitas & Perpindahan Stage Kanban.
- * Menggunakan @/components/ui/drawer dengan gesture swipe down dan sticky footer.
- */
 export function StageActivitySheet({
   open,
   onOpenChange,
@@ -32,7 +28,6 @@ export function StageActivitySheet({
   onCreateTicket,
   onCancelMove,
 }: StageActivityDrawerProps) {
-  // Backdrop press safety check against Base UI / React Aria event bubbling
   const handleDrawerOpenChange = React.useCallback(
     (nextOpen: boolean, eventDetails?: DrawerRootChangeEventDetails) => {
       if (!nextOpen && eventDetails?.reason === 'outside-press') {
@@ -65,7 +60,6 @@ export function StageActivitySheet({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Bukti aktivitas wajib
     if (!form.evidenceFile) {
       form.setEvidenceError(true);
       return;
@@ -132,4 +126,3 @@ export function StageActivitySheet({
     </Drawer>
   );
 }
-

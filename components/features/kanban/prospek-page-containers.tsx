@@ -46,4 +46,3 @@ export function ProspekEditPageContainer({ basePath }: { basePath: string }) {
     <ProspekFormView mode='edit' basePath={basePath} ticket={ticket} />
   );
 }
-

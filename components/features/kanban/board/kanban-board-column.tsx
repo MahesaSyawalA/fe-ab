@@ -51,7 +51,7 @@ export function KanbanBoardColumn({
             'data-[over=true]:border-2 border-dashed data-[over=true]:border-[#2563EB] transition-all',
         )}
       >
-        {/* Column Header */}
+
         <div className='flex items-center justify-between px-1 pt-0.5'>
           <div className='flex items-center gap-2'>
             <span
@@ -72,7 +72,6 @@ export function KanbanBoardColumn({
           </button>
         </div>
 
-        {/* Ticket Cards List */}
         <KanbanColumnContent
           value={stage.id_tahap}
           className={cn(
@@ -127,7 +126,6 @@ export function KanbanBoardColumn({
           )}
         </KanbanColumnContent>
 
-        {/* + Add Card Button -> Automatically opens stage-specific form drawer! */}
         <Button
           type='button'
           variant='outline'

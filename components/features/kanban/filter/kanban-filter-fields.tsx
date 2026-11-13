@@ -116,4 +116,3 @@ export function KanbanFilterFields({ draft, setDraft }: KanbanFilterFieldsProps)
     </div>
   );
 }
-

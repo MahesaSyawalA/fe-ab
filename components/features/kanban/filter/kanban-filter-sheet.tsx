@@ -85,9 +85,6 @@ function KanbanFilterSheetContent({
   );
 }
 
-/**
- * Filter Kanban Mobile (< md) menggunakan Bottom Sheet Drawer.
- */
 export function KanbanFilterSheet({
   open,
   onOpenChange,

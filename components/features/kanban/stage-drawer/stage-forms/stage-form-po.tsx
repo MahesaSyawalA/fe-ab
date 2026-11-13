@@ -25,7 +25,7 @@ export function StageFormPo({
 }: StageFormPoProps) {
   return (
     <div className='flex flex-col gap-3'>
-      {/* Nomor PO (Auto-Generated) dengan background grey/disabled style */}
+
       <StageTextFieldInput
         label='Nomor PO (Auto-Generated)'
         isRequired
@@ -35,7 +35,6 @@ export function StageFormPo({
         inputClassName='bg-muted/60 text-muted-foreground cursor-default'
       />
 
-      {/* Total Nilai Purchase Order * */}
       <StageCurrencyInput
         label='Total Nilai Purchase Order'
         name='nominalPo'
@@ -47,7 +46,6 @@ export function StageFormPo({
         prefixClassName='text-primary font-bold'
       />
 
-      {/* Target Tanggal Pengiriman * */}
       <StageDatePicker
         label='Target Tanggal Pengiriman'
         name='targetPengiriman'

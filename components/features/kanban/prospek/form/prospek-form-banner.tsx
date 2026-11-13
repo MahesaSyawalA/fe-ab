@@ -6,7 +6,6 @@ interface ProspekFormBannerProps {
   mode: 'create' | 'edit';
 }
 
-/** Banner error validasi; di mode create tanpa error menampilkan info status tiket baru. */
 export function ProspekFormBanner({ errorCount, mode }: ProspekFormBannerProps) {
   if (errorCount > 0) {
     return (

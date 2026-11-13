@@ -13,7 +13,6 @@ interface ProspekFieldOutletPicProps {
   error?: string;
 }
 
-/** Outlet dan PIC dijadikan satu karena daftar PIC bergantung pada outlet terpilih. */
 export function ProspekFieldOutletPic({
   outlets,
   outletId,

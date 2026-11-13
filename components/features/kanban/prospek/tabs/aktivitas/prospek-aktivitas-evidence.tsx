@@ -55,7 +55,7 @@ export function ProspekAktivitasEvidence({
 
   return (
     <div className='mt-1 flex flex-col gap-2.5 rounded-xl border border-primary/20 bg-primary/5 p-3 text-xs sm:text-sm'>
-      {/* Header Tipe & Waktu Bukti */}
+
       <div className='flex items-center justify-between'>
         <div className='flex items-center gap-1.5 font-semibold text-primary text-xs'>
           {isImage && <Camera className='size-3.5' />}
@@ -69,7 +69,6 @@ export function ProspekAktivitasEvidence({
         </span>
       </div>
 
-      {/* Info Nama & Ukuran Berkas (jika bukan dokumen card terpisah) */}
       {ev.fileName && !isDocument && (
         <div className='flex items-center gap-1.5 text-xs text-foreground font-medium'>
           <Paperclip className='size-3.5 text-muted-foreground shrink-0' />
@@ -82,14 +81,12 @@ export function ProspekAktivitasEvidence({
         </div>
       )}
 
-      {/* Catatan / Keterangan Deskripsi Evidence */}
       {ev.description && (
         <p className='text-xs text-foreground/85 italic bg-background/70 p-2.5 rounded-lg border border-border/50 leading-relaxed'>
           &quot;{ev.description}&quot;
         </p>
       )}
 
-      {/* 1. Preview Media: GAMBAR / FOTO */}
       {previewUrl && isImage && (
         <>
           <div
@@ -103,14 +100,13 @@ export function ProspekAktivitasEvidence({
               alt={ev.fileName || 'Bukti Aktivitas'}
               className='h-36 sm:h-44 w-full object-cover transition-transform duration-300 group-hover:scale-105'
             />
-            {/* Overlay Hover Hint */}
+
             <div className='absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 text-white text-xs font-semibold backdrop-blur-[1px]'>
               <ZoomIn className='size-4' />
               <span>Perbesar Foto</span>
             </div>
           </div>
 
-          {/* Modal Lightbox Resolusi Penuh */}
           <MediaLightbox
             isOpen={isLightboxOpen}
             onClose={() => setIsLightboxOpen(false)}
@@ -121,7 +117,6 @@ export function ProspekAktivitasEvidence({
         </>
       )}
 
-      {/* 2. Preview Media: AUDIO / VOICE NOTE */}
       {previewUrl && isAudio && (
         <div className='mt-1'>
           <CompactAudioPlayer
@@ -132,7 +127,6 @@ export function ProspekAktivitasEvidence({
         </div>
       )}
 
-      {/* 3. Preview Media: DOKUMEN (PDF, DOCX, XLSX, TXT) */}
       {previewUrl && isDocument && (
         <div className='mt-1'>
           <DocumentPreviewCard

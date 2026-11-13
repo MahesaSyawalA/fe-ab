@@ -2,7 +2,6 @@ import { KanbanOverlay } from '@/components/reui/kanban';
 import { KanbanTicketCard } from './cards/kanban-ticket-card';
 import { TiketWithDetails } from '@/types/ticket.types';
 
-/** Kartu miring yang mengikuti kursor saat drag. */
 export function KanbanDragOverlay({
   ticketsByStage,
 }: {

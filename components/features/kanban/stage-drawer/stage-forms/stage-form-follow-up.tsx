@@ -35,7 +35,7 @@ export function StageFormFollowUp({
 
   return (
     <div className='flex flex-col gap-3'>
-      {/* Media Komunikasi * */}
+
       <StageSelectInput
         label='Media Komunikasi'
         name='mediaKomunikasi'
@@ -46,7 +46,6 @@ export function StageFormFollowUp({
         placeholder='Pilih Media Komunikasi...'
       />
 
-      {/* Jadwal Follow Up Berikutnya * (Move) vs Jadwal Follow Up (opsional) (Create) */}
       <StageDatePicker
         label={isMove ? 'Jadwal Follow Up Berikutnya' : 'Jadwal Follow Up (opsional)'}
         name='jadwalFollowUp'

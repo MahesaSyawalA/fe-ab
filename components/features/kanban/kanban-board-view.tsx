@@ -33,7 +33,7 @@ export function KanbanBoardView({ role, basePath }: KanbanBoardViewProps) {
 
   return (
     <div className='relative flex w-full max-w-full min-w-0 flex-col gap-3.5 pb-20'>
-      {/* Page Title */}
+
       <div className='flex flex-col gap-0.5 sm:gap-1 w-full max-w-full'>
         <h1 className='text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug'>
           Papan Kanban
@@ -43,7 +43,6 @@ export function KanbanBoardView({ role, basePath }: KanbanBoardViewProps) {
         </p>
       </div>
 
-      {/* Error state alert banner */}
       {board.isError && (
         <div className='flex items-center justify-between gap-3 rounded-2xl border border-destructive/20 bg-destructive/10 p-3.5 text-xs text-destructive'>
           <div className='flex items-center gap-2'>
@@ -63,7 +62,6 @@ export function KanbanBoardView({ role, basePath }: KanbanBoardViewProps) {
         </div>
       )}
 
-      {/* Search Bar + Filter Button */}
       <div className='w-full max-w-full min-w-0'>
         <SearchFilterBar
           searchQuery={board.searchQuery}
@@ -73,7 +71,6 @@ export function KanbanBoardView({ role, basePath }: KanbanBoardViewProps) {
         />
       </div>
 
-      {/* Blue Pipeline Summary Card */}
       <div className='w-full max-w-full min-w-0'>
         <KanbanPipelineCard
           totalPipelineLabel={board.totalPipelineLabel}
@@ -85,7 +82,6 @@ export function KanbanBoardView({ role, basePath }: KanbanBoardViewProps) {
         />
       </div>
 
-      {/* Stage Filter Chips (7 Tahapan: Visit, Kebutuhan, Opportunity, Follow Up, Quotation, PO, Revenue) */}
       <div className='w-full max-w-full min-w-0 overflow-hidden'>
         <ChipFilter
           items={board.stageChips}
@@ -94,7 +90,6 @@ export function KanbanBoardView({ role, basePath }: KanbanBoardViewProps) {
         />
       </div>
 
-      {/* Kanban Columns Board with drag-and-drop & automatic Bottom Drawer */}
       <div className='w-full max-w-full min-w-0'>
         <Kanban
           id='kanban-board-dnd'
@@ -128,7 +123,6 @@ export function KanbanBoardView({ role, basePath }: KanbanBoardViewProps) {
               />
             ))}
 
-            {/* + Tambah List: hanya Manager Sales & Director/Owner */}
             {canCreateColumn && (
               <div className='w-[270px] shrink-0 sm:w-[290px]'>
                 <Button
@@ -155,7 +149,6 @@ export function KanbanBoardView({ role, basePath }: KanbanBoardViewProps) {
         />
       )}
 
-      {/* Smooth Shadcn UI Bottom Drawer Form (for Move & Add Card) */}
       <StageActivityDrawer
         open={board.isStageDrawerOpen}
         onOpenChange={board.setIsStageDrawerOpen}
@@ -174,7 +167,6 @@ export function KanbanBoardView({ role, basePath }: KanbanBoardViewProps) {
         onCancelMove={board.handleCancelMove}
       />
 
-      {/* Filter Tiket Bottom Sheet Drawer */}
       <KanbanFilterDrawer
         open={board.filterOpen}
         onOpenChange={board.setFilterOpen}
@@ -182,7 +174,6 @@ export function KanbanBoardView({ role, basePath }: KanbanBoardViewProps) {
         onApply={board.setFilterState}
       />
 
-      {/* Tambah Kolom Board Baru: hanya Manager Sales & Director/Owner */}
       {canCreateColumn && (
         <TambahKolomDialog
           open={board.isTambahKolomOpen}

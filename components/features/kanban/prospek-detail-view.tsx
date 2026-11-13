@@ -2,29 +2,11 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
 import { AlertCircle, ArrowLeft, Pencil, RotateCcw } from 'lucide-react';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { SurfaceCard } from '@/components/ui/surface-card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { toast } from '@heroui/react';
-import {
-  INITIAL_KANBAN_STAGES,
-  AKTIVITAS_STAGE_CONFIG,
-  KanbanStageColumn,
-} from '@/constants/kanban-constants';
-import { useKanbanStore } from '@/lib/kanban-store';
-import {
-  useKanbanTicketDetailQuery,
-  useKanbanStagesQuery,
-  useMoveTicketMutation,
-  useCreateAktivitasMutation,
-  useCreateBuktiKunjunganMutation,
-  useCreateEvidenceMutation,
-} from '@/hooks/queries/use-kanban-query';
-import { detectFileType } from './stage-drawer/types';
-import { normalizeAudioFile } from '@/lib/file-validation';
 import { StageActivityDrawer } from './stage-activity-drawer';
 import {
   ProspekActionsCard,
@@ -39,140 +21,37 @@ import {
   ProspekTabInfo,
   ProspekTabRiwayat,
 } from './prospek/tabs';
-import {
-  DetailTab,
-  NegotiationResult,
-  ProspekDetailViewProps,
-} from './prospek/types';
+import { ProspekDetailViewProps } from './prospek/types';
+import { useProspekDetail } from './prospek/use-prospek-detail';
 
-export function ProspekDetailView({
-  ticketId: propTicketId,
-  ticket: propTicket,
-  basePath,
-}: ProspekDetailViewProps) {
+export function ProspekDetailView(props: ProspekDetailViewProps) {
   const router = useRouter();
-  const { data: session } = useSession();
-  const { addActivity, moveTicketToStage, updateTicket } = useKanbanStore();
+  const { basePath } = props;
 
-  const ticketId = propTicketId || propTicket?.id_tiket || '';
-
-  // 1. TanStack Query: Ticket Detail & Stages
   const {
-    data: ticketResponse,
-    isLoading: isTicketLoading,
+    ticket,
+    currentStage,
+    stageLabel,
+    activeTab,
+    setActiveTab,
+    activityDrawerOpen,
+    setActivityDrawerOpen,
+    negotiationDrawerOpen,
+    setNegotiationDrawerOpen,
+    isEditModalOpen,
+    setIsEditModalOpen,
+    isSubmittingActivity,
+    isTicketLoading,
     isError,
     refetch,
-  } = useKanbanTicketDetailQuery(ticketId, {
-    enabled: Boolean(ticketId),
-    initialData: propTicket ? { success: true, data: propTicket } : undefined,
-  });
+    handleNegotiationResult,
+    handleConfirmActivity,
+  } = useProspekDetail(props);
 
-  const { data: stagesResponse } = useKanbanStagesQuery();
-
-  const stages: KanbanStageColumn[] = React.useMemo(() => {
-    const raw = stagesResponse?.data;
-    if (Array.isArray(raw) && raw.length > 0) {
-      return raw
-        .filter((s) => s.is_aktif ?? true)
-        .sort((a, b) => (a.urutan ?? 0) - (b.urutan ?? 0))
-        .map((s, idx) => ({
-          ...s,
-          dotColor:
-            s.dotColor ||
-            AKTIVITAS_STAGE_CONFIG[s.jenis_tahap]?.dotColor ||
-            INITIAL_KANBAN_STAGES[idx % INITIAL_KANBAN_STAGES.length]?.dotColor ||
-            '#7C5CFC',
-        }));
-    }
-    return INITIAL_KANBAN_STAGES;
-  }, [stagesResponse]);
-
-  const ticket = ticketResponse?.data ?? propTicket;
-
-  // Mutation hooks
-  const moveTicketMutation = useMoveTicketMutation();
-  const createAktivitasMutation = useCreateAktivitasMutation();
-  const createBuktiKunjunganMutation = useCreateBuktiKunjunganMutation();
-  const createEvidenceMutation = useCreateEvidenceMutation();
-
-  const [activeTab, setActiveTab] = React.useState<DetailTab>('info');
-  const [activityDrawerOpen, setActivityDrawerOpen] = React.useState(false);
-  const [negotiationDrawerOpen, setNegotiationDrawerOpen] = React.useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
-  const [isSubmittingActivity, setIsSubmittingActivity] = React.useState(false);
-
-  const currentStage = React.useMemo(() => {
-    if (!ticket) return stages[0];
-    return (
-      stages.find((s) => s.id_tahap === ticket.id_tahap) ||
-      stages.find((s) => s.jenis_tahap === ticket.id_tahap) ||
-      stages[0]
-    );
-  }, [stages, ticket]);
-
-  const stageLabel = currentStage?.nama_tahap ?? 'Tahap Prospek';
-
-  // Handle Negotiation result
-  const handleNegotiationResult = async (result: NegotiationResult) => {
-    if (!ticket) return;
-
-    const targetStageType = result === 'negosiasi' ? 'follow_up' : 'revenue';
-    const targetStageObj =
-      stages.find((s) => s.jenis_tahap === targetStageType) ||
-      stages.find((s) => s.id_tahap === targetStageType) ||
-      stages[stages.length - 1];
-
-    const newStatus =
-      result === 'won' ? 'won' : result === 'lost' ? 'lost' : 'open';
-
-    try {
-      await moveTicketMutation.mutateAsync({
-        id_tiket: ticket.id_tiket,
-        id_tahap: targetStageObj.id_tahap,
-        ticketUpdates: {
-          status: newStatus,
-          tanggal_closing: result !== 'negosiasi' ? new Date().toISOString() : null,
-        },
-        catatan: `Hasil negosiasi: ${result.toUpperCase()} dicatat oleh Sales.`,
-      });
-
-      // Optimistic update in client store
-      if (result === 'negosiasi') {
-        moveTicketToStage(ticket.id_tiket, targetStageObj.id_tahap);
-      } else {
-        updateTicket(ticket.id_tiket, {
-          status: newStatus,
-          id_tahap: targetStageObj.id_tahap,
-        });
-      }
-
-      toast.success('Hasil Negosiasi Tersimpan', {
-        description: (
-          <span className='text-xs sm:text-sm text-secondary-foreground leading-relaxed'>
-            Status prospek berhasil diperbarui menjadi {result}.
-          </span>
-        ),
-      });
-      refetch();
-    } catch (err: unknown) {
-      toast.danger('Gagal Memperbarui Negosiasi', {
-        description: (
-          <span className='text-xs sm:text-sm text-secondary-foreground leading-relaxed'>
-            {err instanceof Error ? err.message : 'Terjadi kesalahan sistem.'}
-          </span>
-        ),
-      });
-    } finally {
-      setNegotiationDrawerOpen(false);
-    }
-  };
-
-  // 2. Loading State: Skeleton Layout
   if (isTicketLoading && !ticket) {
     return <ProspekDetailSkeleton onBack={() => router.push(basePath)} />;
   }
 
-  // 3. Error / Not Found State
   if (isError || (!isTicketLoading && !ticket)) {
     return (
       <ProspekNotFoundView
@@ -182,7 +61,6 @@ export function ProspekDetailView({
     );
   }
 
-  // Guaranteed ticket exists from here on
   if (!ticket) return null;
 
   return (
@@ -193,7 +71,6 @@ export function ProspekDetailView({
         onBack={() => router.push(basePath)}
         rightAction={
           <>
-            {/* Mobile Edit Button (< md) */}
             <Button
               type='button'
               variant='ghost'
@@ -205,7 +82,6 @@ export function ProspekDetailView({
               <Pencil className='size-4' />
             </Button>
 
-            {/* Desktop Edit Button (>= md) */}
             <Button
               type='button'
               variant='outline'
@@ -222,14 +98,12 @@ export function ProspekDetailView({
 
       <div className='flex flex-1 flex-col gap-4 lg:gap-6 px-4 md:px-0 py-4 md:py-2'>
         <div className='grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 items-start'>
-          {/* 1. Progres Tahap (full-width di desktop, scrollable di mobile) */}
           <ProspekProgressCard
             stageId={ticket.id_tahap}
             stageLabel={stageLabel}
             className='order-2 lg:order-1 lg:col-span-12'
           />
 
-          {/* 2. Kolom kiri: ringkasan & aksi cepat */}
           <div className='order-1 lg:order-2 lg:col-span-5 xl:col-span-4 flex flex-col gap-4 lg:sticky lg:top-20'>
             <ProspekSummaryCard ticket={ticket} stageLabel={stageLabel} />
             <ProspekActionsCard
@@ -238,7 +112,6 @@ export function ProspekDetailView({
             />
           </div>
 
-          {/* 3. Kolom kanan: tab & isi */}
           <div className='order-3 lg:col-span-7 xl:col-span-8 flex flex-col gap-3.5'>
             <SurfaceCard className='overflow-hidden'>
               <ProspekDetailTabs
@@ -258,7 +131,6 @@ export function ProspekDetailView({
             </SurfaceCard>
           </div>
 
-          {/* 4. CTA mobile: Tentukan Hasil Negosiasi (Sticky di mobile/PWA, disembunyikan di desktop) */}
           <div className='fixed bottom-0 inset-x-0 z-30 border-t border-border bg-background/85 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] backdrop-blur-md lg:hidden shadow-lg'>
             <div className='mx-auto w-full max-w-lg'>
               <Button
@@ -273,7 +145,6 @@ export function ProspekDetailView({
         </div>
       </div>
 
-      {/* Drawer: Tambah Aktivitas Dinamis Sesuai Tahap Prospek */}
       <StageActivityDrawer
         open={activityDrawerOpen}
         onOpenChange={setActivityDrawerOpen}
@@ -282,96 +153,7 @@ export function ProspekDetailView({
         fromStage={currentStage}
         targetStage={currentStage}
         isSubmitting={isSubmittingActivity}
-        onConfirmMove={async (params) => {
-          try {
-            setIsSubmittingActivity(true);
-            await moveTicketMutation.mutateAsync({
-              id_tiket: params.id_tiket,
-              id_tahap: params.toStageId,
-              ticketUpdates: params.ticketUpdates,
-              catatan: params.activity.catatan,
-            });
-
-            const userId =
-              session?.user?.id_user || params.activity.id_user || 'usr-1';
-            const createdRes = await createAktivitasMutation.mutateAsync({
-              id_user: userId,
-              id_tiket: params.id_tiket,
-              tanggal: params.activity.tanggal || new Date().toISOString(),
-              catatan:
-                params.activity.catatan || `Aktivitas tahap ${params.toStageId}`,
-              jenis_kegiatan: params.activity.jenis_kegiatan,
-              jadwal_follow_up: params.activity.jadwal_follow_up,
-            });
-
-            const newAktivitasId = createdRes.data?.id_aktivitas;
-
-            if (newAktivitasId && params.evidenceFile?.rawFile) {
-              const targetStageObj = stages.find(
-                (s) => s.id_tahap === params.toStageId,
-              );
-              if (targetStageObj?.jenis_tahap === 'visit') {
-                const normalizedFile = normalizeAudioFile(params.evidenceFile.rawFile);
-                const formData = new FormData();
-                formData.append('id_aktivitas', newAktivitasId);
-                formData.append('img_url', normalizedFile);
-                if (params.gpsData) {
-                  formData.append('latitude', String(params.gpsData.latitude));
-                  formData.append('longitude', String(params.gpsData.longitude));
-                  formData.append(
-                    'jarak_klien',
-                    String(params.gpsData.jarak_klien),
-                  );
-                  formData.append(
-                    'dalam_radius',
-                    params.gpsData.dalam_radius ? 'true' : 'false',
-                  );
-                }
-                await createBuktiKunjunganMutation.mutateAsync(formData);
-              } else {
-                const normalizedFile = normalizeAudioFile(params.evidenceFile.rawFile);
-                const formData = new FormData();
-                formData.append('id_aktivitas', newAktivitasId);
-                formData.append('file', normalizedFile);
-                formData.append(
-                  'tipe',
-                  detectFileType(params.evidenceFile.name),
-                );
-                formData.append('deskripsi', params.evidenceFile.name);
-                if (params.activity.catatan) {
-                  formData.append('catatan', params.activity.catatan);
-                }
-                await createEvidenceMutation.mutateAsync(formData);
-              }
-            }
-
-            // Sync with local store
-            addActivity(ticket.id_tiket, params.activity);
-            if (params.ticketUpdates && Object.keys(params.ticketUpdates).length > 0) {
-              updateTicket(ticket.id_tiket, params.ticketUpdates);
-            }
-
-            toast.success('Aktivitas Berhasil Disimpan', {
-              description: (
-                <span className='text-xs text-secondary-foreground leading-relaxed'>
-                  Catatan aktivitas dan berkas bukti berhasil diperbarui.
-                </span>
-              ),
-            });
-            refetch();
-            setActivityDrawerOpen(false);
-          } catch (err: unknown) {
-            toast.danger('Gagal Menyimpan Aktivitas', {
-              description: (
-                <span className='text-xs text-secondary-foreground leading-relaxed'>
-                  {err instanceof Error ? err.message : 'Terjadi kesalahan sistem.'}
-                </span>
-              ),
-            });
-          } finally {
-            setIsSubmittingActivity(false);
-          }
-        }}
+        onConfirmMove={handleConfirmActivity}
         onCancelMove={() => setActivityDrawerOpen(false)}
       />
 
@@ -392,9 +174,6 @@ export function ProspekDetailView({
   );
 }
 
-/**
- * Skeleton Loader untuk Halaman Detail Prospek saat data TanStack Query sedang dimuat.
- */
 function ProspekDetailSkeleton({ onBack }: { onBack: () => void }) {
   return (
     <div className='mx-auto flex min-h-dvh md:min-h-0 w-full max-w-lg lg:max-w-7xl min-w-0 flex-col bg-muted/25 lg:bg-transparent pb-10'>
@@ -405,18 +184,15 @@ function ProspekDetailSkeleton({ onBack }: { onBack: () => void }) {
       />
       <div className='flex flex-1 flex-col gap-4 lg:gap-6 px-4 md:px-0 py-4 md:py-2'>
         <div className='grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 items-start'>
-          {/* Stepper Skeleton */}
           <div className='order-2 lg:order-1 lg:col-span-12'>
             <Skeleton className='h-24 w-full rounded-2xl' />
           </div>
 
-          {/* Left Column Skeleton */}
           <div className='order-1 lg:order-2 lg:col-span-5 xl:col-span-4 flex flex-col gap-4'>
             <Skeleton className='h-64 w-full rounded-2xl' />
             <Skeleton className='h-28 w-full rounded-2xl' />
           </div>
 
-          {/* Right Column Skeleton */}
           <div className='order-3 lg:col-span-7 xl:col-span-8 flex flex-col gap-3.5'>
             <Skeleton className='h-96 w-full rounded-2xl' />
           </div>
@@ -426,9 +202,6 @@ function ProspekDetailSkeleton({ onBack }: { onBack: () => void }) {
   );
 }
 
-/**
- * Tampilan Not Found / Error ramah pengguna jika ID tiket tidak ada di server.
- */
 function ProspekNotFoundView({
   onBack,
   onRetry,

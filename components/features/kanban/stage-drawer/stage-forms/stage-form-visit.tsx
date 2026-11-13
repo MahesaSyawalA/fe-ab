@@ -42,7 +42,6 @@ export function StageFormVisit({
   jabatanPic = '',
   kontakList = [],
 }: StageFormVisitProps) {
-  // PIC Options
   const picOptions = React.useMemo(() => {
     const list = [...kontakList];
     if (picDitemui && !list.some((k) => k.nama.toLowerCase() === picDitemui.toLowerCase())) {
@@ -71,7 +70,7 @@ export function StageFormVisit({
 
   return (
     <div className='flex flex-col gap-3'>
-      {/* Section Geo (Simple & Compact Box) */}
+
       <div className='flex items-center justify-between gap-2 rounded-xl border border-blue-100 bg-blue-50/60 px-3 py-2 text-xs text-blue-900'>
         <div className='flex items-center gap-1.5 min-w-0 truncate'>
           <MapPin className='size-4 text-blue-600 shrink-0' />
@@ -105,7 +104,7 @@ export function StageFormVisit({
 
       {mode === 'move' ? (
         <>
-          {/* Waktu Kunjungan * */}
+
           <StageDatePicker
             label='Waktu Kunjungan'
             name='waktuKunjungan'
@@ -114,7 +113,6 @@ export function StageFormVisit({
             onChange={(val) => onWaktuChange?.(val)}
           />
 
-          {/* PIC Outlet * */}
           <StageSelectInput
             label='PIC Outlet'
             name='picOutlet'
@@ -130,7 +128,6 @@ export function StageFormVisit({
             options={picOptions}
           />
 
-          {/* Jabatan PIC * */}
           <StageTextFieldInput
             label='Jabatan PIC'
             isRequired
@@ -141,7 +138,7 @@ export function StageFormVisit({
           />
         </>
       ) : (
-        /* Tombol Lebar Ambil Titik Koordinat Saat Ini (Hanya di mode create) */
+
         <Button
           type='button'
           variant='outline'

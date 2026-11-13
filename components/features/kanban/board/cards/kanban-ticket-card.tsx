@@ -34,7 +34,7 @@ export function KanbanTicketCard({
       )}
     >
       <CardContent className='flex flex-col gap-2.5 p-3.5'>
-        {/* Top Row: Priority Pill & Ticket Code */}
+
         <div className='flex items-center justify-between gap-2'>
           <Badge
             className={cn(
@@ -52,7 +52,6 @@ export function KanbanTicketCard({
           </span>
         </div>
 
-        {/* Title & Hospital */}
         <div className='flex flex-col gap-1'>
           <h4 className='line-clamp-1 text-sm font-bold text-foreground'>
             {ticket.judul}
@@ -65,7 +64,6 @@ export function KanbanTicketCard({
 
         <Separator className='bg-border/60' />
 
-        {/* Bottom Row: Price, Date, Avatar */}
         <div className='flex items-center justify-between gap-2 pt-0.5'>
           <span className='text-sm font-bold text-accent'>
             {formatCompactRupiah(ticket.estimasi_nilai)}

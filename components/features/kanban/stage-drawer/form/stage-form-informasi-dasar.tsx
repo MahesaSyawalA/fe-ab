@@ -17,26 +17,19 @@ import {
 } from '../inputs';
 
 export interface StageFormInformasiDasarProps {
-  // Judul
   judulProspek: string;
   onJudulChange: (judul: string) => void;
-  // Outlet
   selectedPelangganId: string;
   onOutletChange: (pelangganId: string) => void;
   pelangganList: PelangganWithDetails[];
-  // PIC Outlet
   picDitemui: string;
   onPicSelect: (nama: string, jabatan: string, noTelp?: string) => void;
   kontakList: Kontak[];
-  // Jabatan PIC
   jabatanPic: string;
-  // Estimasi Nilai Closing
   estimasiNilai: string;
   onEstimasiNilaiChange: (val: string) => void;
-  // Target Tanggal Closing
   targetClosing: string;
   onTargetClosingChange: (val: string) => void;
-  // Tingkat Prioritas
   prioritas: TiketPrioritas;
   onPrioritasChange: (p: TiketPrioritas) => void;
 }
@@ -58,7 +51,6 @@ export function StageFormInformasiDasar({
   prioritas,
   onPrioritasChange,
 }: StageFormInformasiDasarProps) {
-  // Opsi dropdown Outlet
   const outletOptions = React.useMemo(
     () =>
       pelangganList.map((p) => ({
@@ -68,7 +60,6 @@ export function StageFormInformasiDasar({
     [pelangganList],
   );
 
-  // Opsi dropdown PIC Outlet
   const picOptions = React.useMemo(() => {
     const list = [...kontakList];
     if (picDitemui && !list.some((k) => k.nama.toLowerCase() === picDitemui.toLowerCase())) {
@@ -97,13 +88,12 @@ export function StageFormInformasiDasar({
 
   return (
     <div className='flex flex-col gap-3 rounded-xl border border-primary/20 bg-primary/5 p-3.5 sm:p-4'>
-      {/* Header INFORMASI DASAR */}
+
       <div className='flex items-center gap-2 text-xs font-bold text-primary tracking-wide uppercase'>
         <Building2 className='size-4 text-primary shrink-0' />
         <span>INFORMASI DASAR</span>
       </div>
 
-      {/* 1. Judul Prospek / Pengadaan */}
       <StageTextFieldInput
         label='Judul Prospek / Pengadaan'
         isRequired
@@ -113,7 +103,6 @@ export function StageFormInformasiDasar({
         inputClassName='bg-white'
       />
 
-      {/* 2. Outlet */}
       <StageSelectInput
         label='Outlet'
         name='outlet'
@@ -125,7 +114,6 @@ export function StageFormInformasiDasar({
         triggerClassName='bg-white'
       />
 
-      {/* 3. PIC Outlet */}
       <StageSelectInput
         label='PIC Outlet'
         name='picOutlet'
@@ -142,7 +130,6 @@ export function StageFormInformasiDasar({
         triggerClassName='bg-white'
       />
 
-      {/* 4. Jabatan PIC (Read-only disabled style) */}
       <StageTextFieldInput
         label='Jabatan PIC'
         isRequired
@@ -152,7 +139,6 @@ export function StageFormInformasiDasar({
         inputClassName='bg-muted/60 text-muted-foreground cursor-default'
       />
 
-      {/* 5. Estimasi Nilai Closing */}
       <StageCurrencyInput
         label='Estimasi Nilai Closing'
         name='estimasiNilaiClosing'
@@ -164,7 +150,6 @@ export function StageFormInformasiDasar({
         inputGroupClassName='bg-white'
       />
 
-      {/* 6. Target Tanggal Closing */}
       <StageDatePicker
         label='Target Tanggal Closing'
         name='targetTanggalClosing'
@@ -174,7 +159,6 @@ export function StageFormInformasiDasar({
         inputClassName='bg-white'
       />
 
-      {/* 7. Tingkat Prioritas */}
       <div className='flex flex-col gap-1.5'>
         <Label className='text-sm font-semibold text-foreground'>
           Tingkat Prioritas <span className='text-rose-500'>*</span>
@@ -211,4 +195,3 @@ export function StageFormInformasiDasar({
     </div>
   );
 }
-

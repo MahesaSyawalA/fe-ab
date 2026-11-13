@@ -12,11 +12,6 @@ import {
 
 export type { StageDrawerMode, StageActivityDrawerProps, CreateTicketDrawerParams };
 
-/**
- * Komponen orkestrator Stage Activity:
- * - Desktop (>= md): Menampilkan HeroUI Modal (StageActivityDialog)
- * - Mobile (< md): Menampilkan Bottom Sheet (StageActivitySheet)
- */
 export function StageActivityDrawer(props: StageActivityDrawerProps) {
   const isMobile = useIsMobile();
 

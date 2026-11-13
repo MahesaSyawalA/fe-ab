@@ -58,7 +58,6 @@ export function ProspekProgressCard({
           </span>
         </div>
 
-        {/* Stepper Track */}
         <div className='overflow-x-auto lg:overflow-x-visible no-scrollbar -mx-1 px-1 py-1.5'>
           <div className='min-w-[580px] lg:min-w-0 lg:w-full'>
             <Stepper

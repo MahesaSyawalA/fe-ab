@@ -15,11 +15,6 @@ export interface ProspekEditModalProps {
   onSuccess?: () => void;
 }
 
-/**
- * Komponen orkestrator Edit Prospek:
- * - Desktop (>= md): Menampilkan HeroUI Modal (ProspekEditDialog)
- * - Mobile (< md): Menampilkan Bottom Sheet (ProspekEditDrawer)
- */
 export function ProspekEditModal(props: ProspekEditModalProps) {
   const isMobile = useIsMobile();
   const formState = useProspekForm({
@@ -52,4 +47,3 @@ export function ProspekEditModal(props: ProspekEditModalProps) {
     />
   );
 }
-

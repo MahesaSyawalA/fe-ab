@@ -26,7 +26,6 @@ const CHECKBOX_FIELDS = [
   },
 ] as const;
 
-/** Dirender hanya saat modal terbuka, sehingga state form selalu mulai bersih. */
 export function TambahKolomForm({ onClose }: { onClose: () => void }) {
   const { stages, addStage } = useKanbanStore();
   const createTahapMutation = useCreateTahapMutation();

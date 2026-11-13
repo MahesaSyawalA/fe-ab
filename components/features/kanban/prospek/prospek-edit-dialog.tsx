@@ -16,9 +16,6 @@ export interface ProspekEditDialogProps {
   ticket: TiketWithDetails;
 }
 
-/**
- * Modal Desktop untuk Edit Prospek (menggunakan HeroUI Modal components).
- */
 export function ProspekEditDialog({
   open,
   onOpenChange,
@@ -61,4 +58,3 @@ export function ProspekEditDialog({
     </Modal.Backdrop>
   );
 }
-

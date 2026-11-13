@@ -35,7 +35,6 @@ type JenisKegiatan = AktivitasWithDetails['jenis_kegiatan'];
 const toKegiatan = (stage: KanbanStageColumn) =>
   (stage.jenis_tahap || 'visit') as JenisKegiatan;
 
-/** Nilai rupiah dari input tahap aktif, sebagai angka. */
 function parseNilai(f: StageForm, stageType: JenisTahap): number {
   const raw =
     stageType === 'quotation'
@@ -199,10 +198,6 @@ export function buildCreatedTicketParams({
   };
 }
 
-export function buildCreatedTicket(args: CreateArgs): TiketWithDetails {
-  return buildCreatedTicketParams(args).newTicket;
-}
-
 type ConfirmMoveParams = Parameters<
   NonNullable<StageActivityDrawerProps['onConfirmMove']>
 >[0];
@@ -225,7 +220,7 @@ export function buildMoveParams({
   const stageType = targetStage.jenis_tahap ?? 'visit';
 
   const ticketUpdates: Partial<TiketWithDetails> = {
-    prioritas: ticket.prioritas, // Prioritas tidak bisa diganti saat pindah tiket
+    prioritas: ticket.prioritas,
     estimasi_nilai: parseNilai(f, stageType),
   };
 

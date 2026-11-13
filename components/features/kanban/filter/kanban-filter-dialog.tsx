@@ -78,9 +78,6 @@ function KanbanFilterDialogContent({
   );
 }
 
-/**
- * Filter Kanban Desktop (>= md) menggunakan HeroUI Modal.
- */
 export function KanbanFilterDialog({
   open,
   onOpenChange,

@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 interface ProspekInfoRowProps {
   label: string;
   value: React.ReactNode;
-  /** Jika ada, nilai dirender sebagai link (mis. `tel:`). */
+
   href?: string;
   isMultiline?: boolean;
 }

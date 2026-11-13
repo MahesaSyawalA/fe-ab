@@ -21,7 +21,7 @@ export function StageFormRevenue({
 }: StageFormRevenueProps) {
   return (
     <div className='flex flex-col gap-3'>
-      {/* Selector Custom Hasil Penawaran (WON / LOST) */}
+
       <div className='flex flex-col gap-1.5'>
         <Label isRequired className='text-sm font-medium text-foreground'>Hasil Penawaran</Label>
         <div
@@ -29,7 +29,7 @@ export function StageFormRevenue({
           aria-label='Hasil Penawaran'
           className='flex flex-col gap-2 w-full'
         >
-          {/* Opsi WON */}
+
           <div
             role='radio'
             aria-checked={statusClosing === 'won'}
@@ -81,7 +81,6 @@ export function StageFormRevenue({
             </div>
           </div>
 
-          {/* Opsi LOST */}
           <div
             role='radio'
             aria-checked={statusClosing === 'lost'}
@@ -135,7 +134,6 @@ export function StageFormRevenue({
         </div>
       </div>
 
-      {/* Nilai Revenue */}
       <StageCurrencyInput
         label='Nilai Revenue'
         name='realisasiRevenue'

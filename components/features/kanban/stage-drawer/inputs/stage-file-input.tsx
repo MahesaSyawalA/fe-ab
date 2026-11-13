@@ -1,21 +1,15 @@
 'use client';
 
 import * as React from 'react';
-import { Camera, File, FileText, Mic, Trash2, UploadCloud, X } from 'lucide-react';
+import { Trash2, UploadCloud } from 'lucide-react';
 import { Label, toast } from '@heroui/react';
 import { TriangleExclamation } from '@gravity-ui/icons';
 import { Button } from '@/components/ui/button';
 import { ConfirmModal } from '@/components/ui/confirm-modal';
 import { cn } from '@/lib/utils';
 import { validateAllowedFile } from '@/lib/file-validation';
-import { detectFileType, EvidenceFileState } from '../types';
-
-const EVIDENCE_ICON = {
-  foto: Camera,
-  audio: Mic,
-  teks: FileText,
-  dokumen: FileText,
-} as const;
+import type { EvidenceFileState } from '../types';
+import { StageFilePreviewCard } from './stage-file-preview-card';
 
 export interface StageFileInputProps {
   label?: string;
@@ -57,7 +51,6 @@ export function StageFileInput({
   const handleProcessFile = (file: File) => {
     if (disabled) return;
 
-    // 1. Validasi fleksibel dengan proteksi anti-malware/script
     const validation = validateAllowedFile(file, {
       maxSizeBytes: maxSizeInMb * 1024 * 1024,
       category: 'evidence',
@@ -76,10 +69,8 @@ export function StageFileInput({
       return;
     }
 
-    // Bersihkan error jika file valid
     setInternalError(null);
 
-    // Update state file
     onChange({
       name: file.name,
       size: formatFileSize(file.size),
@@ -148,10 +139,6 @@ export function StageFileInput({
   const displayError = internalError || (isInvalid ? errorMessage : undefined);
   const hasError = Boolean(displayError);
 
-  const FileIcon = value
-    ? EVIDENCE_ICON[detectFileType(value.name)] || File
-    : FileText;
-
   return (
     <div className={cn('flex w-full flex-col gap-1.5', className)}>
       {label && (
@@ -163,7 +150,6 @@ export function StageFileInput({
         </Label>
       )}
 
-      {/* Hidden Native File Input */}
       <input
         ref={inputRef}
         type='file'
@@ -174,32 +160,12 @@ export function StageFileInput({
       />
 
       {value ? (
-        /* State File Terunggah (Card Preview Sesuai Figma) */
-        <div className='flex items-center justify-between gap-3 rounded-md border border-border/80 bg-card px-3.5 py-2.5 shadow-2xs transition-colors'>
-          <div className='flex items-center gap-2.5 min-w-0 flex-1'>
-            <FileIcon className='size-4 shrink-0 text-primary' />
-            <div className='flex flex-col min-w-0 flex-1 text-left'>
-              <span className='truncate text-xs font-semibold text-foreground leading-tight'>
-                {value.name}
-              </span>
-              <span className='text-[10px] text-muted-foreground mt-0.5'>
-                {value.size}
-              </span>
-            </div>
-          </div>
-
-          <button
-            type='button'
-            onClick={handleRemoveClick}
-            disabled={disabled}
-            className='shrink-0 rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-destructive transition-colors cursor-pointer disabled:cursor-not-allowed'
-            title='Hapus file'
-          >
-            <X className='size-4' />
-          </button>
-        </div>
+        <StageFilePreviewCard
+          file={value}
+          disabled={disabled}
+          onRemove={handleRemoveClick}
+        />
       ) : (
-        /* State Kosong (Dropzone UI Sesuai Desain Figma) */
         <div
           role='button'
           tabIndex={disabled ? -1 : 0}
@@ -226,7 +192,6 @@ export function StageFileInput({
                 : 'border-slate-300 dark:border-slate-600 bg-card hover:border-primary/60 hover:bg-muted/10',
           )}
         >
-          {/* Ikon Tengah: Cloud dengan Panah ke Atas Sesuai Desain */}
           <UploadCloud
             className={cn(
               'size-8 mb-2 transition-colors',
@@ -235,17 +200,14 @@ export function StageFileInput({
             strokeWidth={1.5}
           />
 
-          {/* Teks Utama */}
           <span className='text-xs sm:text-sm font-semibold text-foreground leading-tight'>
             Choose a file or drag & drop it here
           </span>
 
-          {/* Teks Format & Limit Ukuran */}
           <span className='text-[10px] sm:text-[11px] text-muted-foreground mt-1'>
             .pdf, .docx, .jpg, .jpeg, .png formats, up to {maxSizeInMb}MB
           </span>
 
-          {/* Tombol Browse File */}
           <Button
             type='button'
             variant='outline'
@@ -262,7 +224,6 @@ export function StageFileInput({
         </div>
       )}
 
-      {/* Pesan Error Validasi */}
       {displayError && (
         <div className='mt-1 text-xs text-destructive flex items-center gap-1.5'>
           <TriangleExclamation width={14} height={14} className='shrink-0' />
@@ -270,7 +231,6 @@ export function StageFileInput({
         </div>
       )}
 
-      {/* Modal Konfirmasi Hapus Berkas */}
       <ConfirmModal
         open={showConfirmRemove}
         onOpenChange={setShowConfirmRemove}
@@ -284,4 +244,3 @@ export function StageFileInput({
     </div>
   );
 }
-

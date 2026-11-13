@@ -18,8 +18,6 @@ export function ProspekAktivitasCard({ akt }: { akt: AktivitasWithDetails }) {
   };
 
   const formattedWaktu = React.useMemo(() => {
-    // Prioritaskan created_at agar menampilkan waktu aktivitas riil (misal: "Baru saja", "5 menit lalu")
-    // bukan tanggal kalender aktivitas yang bernilai tengah malam UTC (00:00:00Z)
     if (akt.created_at) {
       return formatRelativeTime(akt.created_at);
     }
@@ -29,11 +27,9 @@ export function ProspekAktivitasCard({ akt }: { akt: AktivitasWithDetails }) {
     return akt.waktu_label || '-';
   }, [akt.created_at, akt.tanggal, akt.waktu_label]);
 
-  // Kumpulkan seluruh data bukti lampiran secara universal (baik evidence maupun bukti_kunjungan, format array maupun object)
   const evidences = React.useMemo(() => {
     const list: AktivitasEvidence[] = [];
 
-    // 1. Lampiran Bukti Umum (mendukung array evidence[] maupun object tunggal evidence)
     const rawEvidenceList: EvidenceItem[] = Array.isArray(akt.evidence)
       ? akt.evidence
       : akt.evidence
@@ -49,7 +45,6 @@ export function ProspekAktivitasCard({ akt }: { akt: AktivitasWithDetails }) {
       }
     }
 
-    // 2. Lampiran Bukti Kunjungan (mendukung array bukti_kunjungan[] maupun object tunggal)
     const rawBuktiList: BuktiKunjungan[] = Array.isArray(akt.bukti_kunjungan)
       ? akt.bukti_kunjungan
       : akt.bukti_kunjungan
@@ -79,7 +74,6 @@ export function ProspekAktivitasCard({ akt }: { akt: AktivitasWithDetails }) {
           waktu_upload: bk.created_at ? formatRelativeTime(bk.created_at) : formattedWaktu,
         });
 
-        // Jika ada file berkas pendukung terpisah pada bukti kunjungan
         if (bk.file_url && bk.file_url !== bk.img_url) {
           list.push({
             tipe: 'dokumen',
@@ -133,7 +127,6 @@ export function ProspekAktivitasCard({ akt }: { akt: AktivitasWithDetails }) {
           </p>
         </div>
 
-        {/* Universal Evidence Renderer untuk semua tahap */}
         {evidences.length > 0 && (
           <div className='flex flex-col gap-2 pt-1'>
             {evidences.map((ev, idx) => (
