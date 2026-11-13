@@ -26,9 +26,6 @@ export interface SettingsPhoneInputProps
   containerClassName?: string;
 }
 
-/**
- * Sanitizer nomor telepon: hanya memperbolehkan angka, spasi, tanda strip, atau awalan '+'
- */
 export function sanitizePhoneNumber(val: string): string {
   let sanitized = val.replace(/[^\d\s\-+]/g, '');
   if (sanitized.includes('+')) {

@@ -67,12 +67,10 @@ export function LoginForm() {
           ),
         });
 
-        // Ambil sesi user terkini untuk menentukan rute default sesuai role
         const session = await getSession();
         const role = session?.user?.role;
         const defaultHome = getDefaultHome(role);
 
-        // Jika callbackUrl spesifik, valid, bukan generic dashboard/root, dan diizinkan untuk role ini, gunakan callbackUrl
         const isValidCustomCallback =
           callbackUrl &&
           callbackUrl !== '/dashboard' &&

@@ -9,7 +9,6 @@ interface SquadMemberCardProps {
   onRemove?: () => void;
 }
 
-/** Kartu anggota di form squad: identitas, kontak, role, dan tombol hapus dari squad. */
 export function SquadMemberCard({ member, onRemove }: SquadMemberCardProps) {
   return (
     <div className='flex items-center gap-2.5 rounded-xl border border-primary/30 bg-primary/5 p-3'>

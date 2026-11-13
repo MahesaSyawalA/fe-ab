@@ -12,7 +12,6 @@ interface SquadMemberPickerProps {
   onToggle: (id: string) => void;
 }
 
-/** Modal pilih anggota squad: baris terpilih diberi highlight + centang jelas, tekan lagi untuk batal. */
 export function SquadMemberPicker({
   open,
   onOpenChange,

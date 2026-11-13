@@ -18,7 +18,6 @@ import type { CreateSquadInput, SquadMember, SquadWithDetails } from '@/types/sq
 
 interface UseSquadFormOptions {
   basePath: string;
-  /** Diisi saat mode edit. */
   squad?: SquadWithDetails;
 }
 
@@ -49,7 +48,6 @@ export function useSquadForm({ basePath, squad }: UseSquadFormOptions) {
   const [dialog, setDialog] = React.useState<'cancel' | 'delete' | 'picker' | null>(null);
   const closeDialog = (open: boolean) => !open && setDialog(null);
 
-  // Manager membuat squad untuk dirinya sendiri secara default.
   const managerId = session?.user.role === 'sales_manager' ? session.user.id_user : null;
   React.useEffect(() => {
     if (!isEdit && managerId && !form.getValues('id_supervisor')) {
@@ -107,7 +105,6 @@ export function useSquadForm({ basePath, squad }: UseSquadFormOptions) {
     } catch (error: unknown) {
       const message = getErrorMessage(error);
 
-      // Tangani error backend spesifik HTTP 409 ("Kode squad sudah digunakan")
       if (
         (isAxiosError(error) && error.response?.status === 409) ||
         message.toLowerCase().includes('kode squad')

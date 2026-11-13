@@ -16,7 +16,6 @@ import { useSquadForm } from './form/use-squad-form';
 
 interface SquadFormViewProps {
   basePath: string;
-  /** Diisi saat mode edit. */
   squad?: SquadWithDetails;
 }
 

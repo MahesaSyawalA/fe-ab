@@ -146,11 +146,6 @@ function SquadFilterDialogContent({
   );
 }
 
-/**
- * Filter Squad Adaptif:
- * - Desktop (>= md): HeroUI Modal
- * - Mobile (< md): Bottom Sheet Drawer
- */
 export function SquadFilterModal({
   open,
   onOpenChange,

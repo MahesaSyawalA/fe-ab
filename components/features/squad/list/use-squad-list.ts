@@ -5,7 +5,6 @@ import { useDebounce } from '@/hooks/use-debounce';
 import type { SquadListParams } from '@/services/squad-service';
 import type { SquadWithDetails } from '@/types/squad.types';
 
-/** Daftar squad + pencarian & filter status dengan server-side pagination. Manager hanya melihat squad yang ia supervisi. */
 export function useSquadList() {
   const { data: session } = useSession();
   const user = session?.user;
@@ -16,7 +15,6 @@ export function useSquadList() {
   const debouncedSearchQuery = useDebounce(searchQuery, 400);
   const [status, setStatus] = React.useState('semua');
 
-  // Sesuaikan halaman kembali ke 1 saat pencarian atau status berubah (pola resmi React render-time adjustment)
   const [prevSearch, setPrevSearch] = React.useState(debouncedSearchQuery);
   const [prevStatus, setPrevStatus] = React.useState(status);
 
@@ -47,7 +45,6 @@ export function useSquadList() {
     return [];
   }, [rawList, query.data]);
 
-  // Client-side filtering fallback jika backend merespons tanpa filter DB
   const filteredList = React.useMemo(() => {
     const keyword = debouncedSearchQuery.trim().toLowerCase();
 
