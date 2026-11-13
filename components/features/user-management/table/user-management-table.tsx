@@ -12,7 +12,6 @@ import type { ManagedUser, ManagedUserRole } from '../types';
 interface UserManagementTableProps {
   users: ManagedUser[];
   isLoading?: boolean;
-  squadMap?: Record<string, string>;
   onEditUser: (user: ManagedUser) => void;
   onResetPassword: (user: ManagedUser) => void;
 }
@@ -50,7 +49,6 @@ function getRoleBadge(role: ManagedUserRole) {
 export function UserManagementTable({
   users,
   isLoading,
-  squadMap,
   onEditUser,
   onResetPassword,
 }: UserManagementTableProps) {
@@ -87,11 +85,11 @@ export function UserManagementTable({
             <Table.Column isRowHeader id='pengguna' className='text-foreground font-semibold text-xs sm:text-sm py-3 px-4'>
               Pengguna
             </Table.Column>
+            <Table.Column id='no_telp' className='text-foreground font-semibold text-xs sm:text-sm py-3 px-4'>
+              No. Telepon
+            </Table.Column>
             <Table.Column id='role' className='text-foreground font-semibold text-xs sm:text-sm py-3 px-4'>
               Role
-            </Table.Column>
-            <Table.Column id='squad' className='text-foreground font-semibold text-xs sm:text-sm py-3 px-4'>
-              Squad
             </Table.Column>
             <Table.Column id='status' className='text-foreground font-semibold text-xs sm:text-sm py-3 px-4'>
               Status
@@ -106,10 +104,7 @@ export function UserManagementTable({
               const roleBadge = getRoleBadge(user.role);
               const initials = getUserInitials(user.nama);
               const isAktif = user.status === 'aktif';
-              const displaySquad =
-                user.squad ||
-                (user.id_squad && squadMap ? squadMap[user.id_squad] : null) ||
-                '—';
+              const displayPhone = user.no_telp && user.no_telp !== '-' ? user.no_telp : '—';
 
               return (
                 <Table.Row key={user.id} id={user.id}>
@@ -136,6 +131,12 @@ export function UserManagementTable({
                   </Table.Cell>
 
                   <Table.Cell className='py-3.5 px-4'>
+                    <span className='font-medium text-foreground text-xs sm:text-sm'>
+                      {displayPhone}
+                    </span>
+                  </Table.Cell>
+
+                  <Table.Cell className='py-3.5 px-4'>
                     <span
                       className={cn(
                         'inline-flex items-center rounded-md px-2.5 py-0.5 text-[11px] font-semibold text-white shadow-2xs',
@@ -143,12 +144,6 @@ export function UserManagementTable({
                       )}
                     >
                       {roleBadge.label}
-                    </span>
-                  </Table.Cell>
-
-                  <Table.Cell className='py-3.5 px-4'>
-                    <span className='font-medium text-foreground text-xs sm:text-sm'>
-                      {displaySquad}
                     </span>
                   </Table.Cell>
 

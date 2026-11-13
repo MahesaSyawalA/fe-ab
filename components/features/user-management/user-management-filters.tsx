@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import {
   ROLE_FILTER_OPTIONS,
+  type RoleFilterOption,
   type RoleFilterValue,
 } from './types';
 
@@ -19,6 +20,8 @@ interface UserManagementFiltersProps {
   onRoleChange: (role: RoleFilterValue) => void;
   roleCounts: Record<RoleFilterValue, number>;
   onOpenFilterModal?: () => void;
+  activeFilterCount?: number;
+  filterOptions?: RoleFilterOption[];
   className?: string;
 }
 
@@ -29,6 +32,8 @@ export function UserManagementFilters({
   onRoleChange,
   roleCounts,
   onOpenFilterModal,
+  activeFilterCount = 0,
+  filterOptions = ROLE_FILTER_OPTIONS,
   className,
 }: UserManagementFiltersProps) {
   return (
@@ -60,17 +65,25 @@ export function UserManagementFilters({
             variant='outline'
             size='icon'
             onClick={onOpenFilterModal}
-            className='relative size-10 shrink-0 rounded-xl border-primary/15 bg-primary/8 text-primary shadow-none hover:bg-primary/15 hover:text-primary cursor-pointer'
-            title='Filter Tambahan'
-            aria-label='Buka filter tambahan'
+            className={cn(
+              'relative size-10 shrink-0 rounded-xl border-primary/15 bg-primary/8 text-primary shadow-none hover:bg-primary/15 hover:text-primary cursor-pointer',
+              activeFilterCount > 0 && 'border-primary/40 bg-primary/15 text-primary'
+            )}
+            title='Filter Pengguna'
+            aria-label='Buka filter pengguna'
           >
             <Filter className='size-4' />
+            {activeFilterCount > 0 && (
+              <span className='absolute -top-1 -right-1 flex size-4.5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white shadow-2xs'>
+                {activeFilterCount}
+              </span>
+            )}
           </Button>
         </div>
 
         <div className='w-full lg:w-auto min-w-0 overflow-x-auto no-scrollbar'>
           <div className='flex items-center gap-2 py-0.5'>
-            {ROLE_FILTER_OPTIONS.map((option) => {
+            {filterOptions.map((option) => {
               const isSelected = selectedRole === option.key;
               const count = roleCounts[option.key] ?? 0;
 

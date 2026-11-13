@@ -15,7 +15,6 @@ import {
 } from './shared';
 import { generateSecurePassword } from '@/lib/password-generator';
 import { normalizeRole } from '@/lib/rbac';
-import { useSquadListQuery } from '@/hooks/queries/use-squad-query';
 import { createUserSchema } from '@/schemas/user-management.schema';
 import type { CreateUserApiPayload } from '@/services/user-service';
 import type { ManagedUserRole } from '../types';
@@ -43,15 +42,6 @@ function CreateUserModalContent({
   const { data: session } = useSession();
   const currentUserRole = normalizeRole(session?.user?.role);
 
-  const { data: squadData } = useSquadListQuery({ limit: 100 });
-  const squadOptions: UserSelectOption[] = React.useMemo(() => {
-    if (!squadData?.data) return [];
-    return squadData.data.map((s) => ({
-      value: s.id_squad,
-      label: s.nama_squad,
-    }));
-  }, [squadData]);
-
   const roleOptions: UserSelectOption[] = React.useMemo(() => {
     if (currentUserRole === 'director') {
       return [
@@ -76,7 +66,6 @@ function CreateUserModalContent({
   const [email, setEmail] = React.useState('');
   const [noTelp, setNoTelp] = React.useState('');
   const [role, setRole] = React.useState<ManagedUserRole>('sales');
-  const [squad, setSquad] = React.useState<string | null>(null);
 
   const [passwordMode, setPasswordMode] = React.useState<'auto' | 'manual'>('auto');
   const [generatedPassword, setGeneratedPassword] = React.useState(() => generateSecurePassword(10));
@@ -93,15 +82,10 @@ function CreateUserModalContent({
   const handleRoleChange = (newRole: string) => {
     const parsedRole = newRole as ManagedUserRole;
     setRole(parsedRole);
-    if (parsedRole === 'director' || parsedRole === 'admin') {
-      setSquad(null);
-    }
     if (errors.role) {
       setErrors((prev) => ({ ...prev, role: '' }));
     }
   };
-
-  const isSquadDisabled = role === 'director' || role === 'admin';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -113,7 +97,7 @@ function CreateUserModalContent({
       email,
       no_telp: noTelp || undefined,
       role,
-      id_squad: isSquadDisabled ? null : squad,
+      id_squad: null,
       password_mode: passwordMode,
       password: effectivePassword,
       must_change_password: mustChangePassword,
@@ -133,14 +117,13 @@ function CreateUserModalContent({
     }
 
     const cleanedPhone = noTelp ? noTelp.replace(/[^0-9+]/g, '') : '';
-    const targetSquadId = isSquadDisabled ? null : squad || null;
 
     const apiPayload: CreateUserApiPayload = {
       nama: validation.data.nama,
       email: validation.data.email,
       no_telp: cleanedPhone,
       role: validation.data.role as 'sales' | 'sales_manager' | 'director',
-      id_squad: targetSquadId,
+      id_squad: null,
       password: effectivePassword,
     };
 
@@ -211,17 +194,6 @@ function CreateUserModalContent({
             errorMessage={errors.role}
           />
         </div>
-
-        <UserSelectInput
-          label='Squad'
-          placeholder={isSquadDisabled ? 'Tidak terikat squad' : 'Pilih squad'}
-          options={squadOptions}
-          value={squad}
-          onChange={(val) => setSquad(val)}
-          isDisabled={isSquadDisabled}
-          hint={isSquadDisabled ? 'Role Director dan Admin tidak terikat pada squad tertentu' : undefined}
-          errorMessage={errors.id_squad}
-        />
 
         <PasswordGeneratorCard
           title='Password awal'

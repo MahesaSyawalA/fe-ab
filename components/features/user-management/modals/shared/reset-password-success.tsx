@@ -2,8 +2,8 @@
 
 import * as React from 'react';
 import { Check } from 'lucide-react';
-import { toast } from '@heroui/react';
 import { Button } from '@/components/ui/button';
+import { CopyPasswordButton } from './copy-password-button';
 
 interface ResetPasswordSuccessProps {
   userName: string;
@@ -16,27 +16,6 @@ export function ResetPasswordSuccess({
   temporaryPassword,
   onClose,
 }: ResetPasswordSuccessProps) {
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(temporaryPassword);
-      toast.success('Password Berhasil Disalin', {
-        description: (
-          <span className='text-xs sm:text-sm text-secondary-foreground leading-relaxed'>
-            Password telah disalin ke clipboard perangkat Anda.
-          </span>
-        ),
-      });
-    } catch {
-      toast.danger('Gagal Menyalin', {
-        description: (
-          <span className='text-xs sm:text-sm text-secondary-foreground leading-relaxed'>
-            Tidak dapat mengakses clipboard browser.
-          </span>
-        ),
-      });
-    }
-  };
-
   return (
     <div className='flex flex-col items-center text-center gap-5 py-2 w-full'>
       <div className='flex size-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400 shadow-xs'>
@@ -56,14 +35,10 @@ export function ResetPasswordSuccess({
         <span className='font-mono font-bold text-lg sm:text-xl text-foreground tracking-wider select-all overflow-x-auto no-scrollbar'>
           {temporaryPassword}
         </span>
-        <Button
-          type='button'
-          variant='outline'
-          onClick={handleCopy}
-          className='h-9.5 rounded-md px-4 text-xs font-semibold text-primary border-border bg-card hover:bg-muted cursor-pointer shrink-0 shadow-2xs'
-        >
-          Salin
-        </Button>
+        <CopyPasswordButton
+          textToCopy={temporaryPassword}
+          className='h-9.5 px-4'
+        />
       </div>
 
       <span className='text-xs font-semibold text-amber-600 dark:text-amber-400'>

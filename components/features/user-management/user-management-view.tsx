@@ -1,10 +1,12 @@
 'use client';
 
 import * as React from 'react';
+import { useSession } from 'next-auth/react';
 import { toast } from '@heroui/react';
 import { UserManagementHeader } from './user-management-header';
 import { UserManagementFilters } from './user-management-filters';
 import { UserManagementTable } from './table/user-management-table';
+import { UserManagementFilterModal } from './filter/user-management-filter-modal';
 import {
   CreateUserModal,
   EditUserModal,
@@ -12,6 +14,9 @@ import {
 } from './modals';
 import {
   useUserManagementFilterStore,
+  countActiveUserFilters,
+  type UserStatusFilter,
+  type UserSortOption,
 } from '@/store/user-management-filter-store';
 import { useDebounce } from '@/hooks/use-debounce';
 import {
@@ -19,18 +24,32 @@ import {
   useCreateUserMutation,
   useUpdateUserMutation,
 } from '@/hooks/queries/use-user-query';
-import { useSquadListQuery } from '@/hooks/queries/use-squad-query';
 import { AppPagination } from '@/components/ui/app-pagination';
+import { normalizeRole } from '@/lib/rbac';
 import { getErrorMessage } from '@/lib/axios';
 import type { CreateUserApiPayload, UpdateUserApiPayload } from '@/services/user-service';
-import type { ManagedUser, RoleFilterValue } from './types';
+import {
+  ROLE_FILTER_OPTIONS,
+  type ManagedUser,
+  type RoleFilterOption,
+  type RoleFilterValue,
+} from './types';
 
 export function UserManagementView() {
+  const { data: session } = useSession();
+  const currentUserRole = normalizeRole(session?.user?.role);
+
   const searchQuery = useUserManagementFilterStore((state) => state.searchQuery);
   const setSearchQuery = useUserManagementFilterStore((state) => state.setSearchQuery);
   const selectedRole = useUserManagementFilterStore((state) => state.selectedRole) as RoleFilterValue;
   const setSelectedRole = useUserManagementFilterStore((state) => state.setSelectedRole);
-  const squadFilter = useUserManagementFilterStore((state) => state.squadFilter);
+  const selectedStatus = useUserManagementFilterStore((state) => state.selectedStatus);
+  const setSelectedStatus = useUserManagementFilterStore((state) => state.setSelectedStatus);
+  const sortBy = useUserManagementFilterStore((state) => state.sortBy);
+  const setSortBy = useUserManagementFilterStore((state) => state.setSortBy);
+  const isFilterDrawerOpen = useUserManagementFilterStore((state) => state.isFilterDrawerOpen);
+  const setFilterDrawerOpen = useUserManagementFilterStore((state) => state.setFilterDrawerOpen);
+  const resetFilters = useUserManagementFilterStore((state) => state.resetFilters);
   const page = useUserManagementFilterStore((state) => state.page);
   const setPage = useUserManagementFilterStore((state) => state.setPage);
   const limit = useUserManagementFilterStore((state) => state.limit);
@@ -47,40 +66,62 @@ export function UserManagementView() {
     limit,
     search: debouncedSearch.trim() || undefined,
     role: selectedRole === 'all' ? undefined : (selectedRole as ManagedUser['role']),
-    id_squad: squadFilter || undefined,
   });
-
-  const { data: squadData } = useSquadListQuery({ limit: 100 });
-  const squadMap = React.useMemo(() => {
-    const map: Record<string, string> = {};
-    squadData?.data?.forEach((s) => {
-      map[s.id_squad] = s.nama_squad;
-    });
-    return map;
-  }, [squadData]);
 
   const users: ManagedUser[] = React.useMemo(() => {
     if (!userListData?.data) return [];
-    return userListData.data.map((u) => ({
-      id: u.id_user,
-      nama: u.nama,
-      email: u.email,
-      no_telp: u.no_telp || '-',
-      role: u.role,
-      id_squad: u.id_squad,
-      squad: u.id_squad ? squadMap[u.id_squad] || null : null,
-      status: 'aktif',
-    }));
-  }, [userListData, squadMap]);
+
+    let list = userListData.data
+      .filter((u) => {
+        if (u.role === 'admin') return false;
+
+        if (currentUserRole === 'director' && u.role === 'director') return false;
+
+        if (currentUserRole === 'manager' && u.role !== 'sales') return false;
+
+        return true;
+      })
+      .map((u) => ({
+        id: u.id_user,
+        nama: u.nama,
+        email: u.email,
+        no_telp: u.no_telp || '-',
+        role: u.role,
+        id_squad: u.id_squad,
+        squad: null,
+        status: 'aktif' as const,
+      }));
+
+    if (selectedStatus !== 'all') {
+      list = list.filter((u) => u.status === selectedStatus);
+    }
+
+    if (sortBy === 'name_asc') {
+      list.sort((a, b) => a.nama.localeCompare(b.nama));
+    } else if (sortBy === 'name_desc') {
+      list.sort((a, b) => b.nama.localeCompare(a.nama));
+    }
+
+    return list;
+  }, [userListData, currentUserRole, selectedStatus, sortBy]);
+
+  const filterOptions: RoleFilterOption[] = React.useMemo(() => {
+    if (currentUserRole === 'director') {
+      return ROLE_FILTER_OPTIONS.filter((opt) => opt.key !== 'director');
+    }
+    return ROLE_FILTER_OPTIONS;
+  }, [currentUserRole]);
 
   const roleCounts: Record<RoleFilterValue, number> = React.useMemo(() => {
     return {
-      all: userListData?.meta?.total ?? users.length,
+      all: users.length,
       director: users.filter((u) => u.role === 'director').length,
       sales_manager: users.filter((u) => u.role === 'sales_manager').length,
       sales: users.filter((u) => u.role === 'sales').length,
     };
-  }, [users, userListData?.meta?.total]);
+  }, [users]);
+
+  const activeFilterCount = countActiveUserFilters(selectedRole, selectedStatus, sortBy);
 
   const createMutation = useCreateUserMutation();
   const updateMutation = useUpdateUserMutation();
@@ -153,14 +194,14 @@ export function UserManagementView() {
     });
   };
 
-  const handleOpenFilterModal = () => {
-    toast.info('Filter Pengguna', {
-      description: (
-        <span className='text-xs sm:text-sm text-secondary-foreground leading-relaxed'>
-          Penyaringan cepat dapat dilakukan langsung melalui role filter chip di atas.
-        </span>
-      ),
-    });
+  const handleApplyFilterModal = (filters: {
+    role: string;
+    status: UserStatusFilter;
+    sortBy: UserSortOption;
+  }) => {
+    setSelectedRole(filters.role);
+    setSelectedStatus(filters.status);
+    setSortBy(filters.sortBy);
   };
 
   return (
@@ -173,13 +214,14 @@ export function UserManagementView() {
         selectedRole={selectedRole}
         onRoleChange={(role) => setSelectedRole(role)}
         roleCounts={roleCounts}
-        onOpenFilterModal={handleOpenFilterModal}
+        onOpenFilterModal={() => setFilterDrawerOpen(true)}
+        activeFilterCount={activeFilterCount}
+        filterOptions={filterOptions}
       />
 
       <UserManagementTable
         users={users}
         isLoading={isUserLoading}
-        squadMap={squadMap}
         onEditUser={handleEditUser}
         onResetPassword={handleResetPassword}
       />
@@ -194,6 +236,16 @@ export function UserManagementView() {
           limit={limit}
         />
       )}
+
+      <UserManagementFilterModal
+        open={isFilterDrawerOpen}
+        onOpenChange={setFilterDrawerOpen}
+        selectedRole={selectedRole}
+        selectedStatus={selectedStatus}
+        sortBy={sortBy}
+        onApply={handleApplyFilterModal}
+        onReset={resetFilters}
+      />
 
       <CreateUserModal
         open={isCreateOpen}

@@ -1,10 +1,11 @@
 'use client';
 
 import * as React from 'react';
-import { Tabs, Checkbox, toast } from '@heroui/react';
+import { Tabs, Checkbox } from '@heroui/react';
 import { TriangleExclamation } from '@gravity-ui/icons';
 import { Button } from '@/components/ui/button';
 import { UserTextFieldInput } from '../../inputs';
+import { CopyPasswordButton } from './copy-password-button';
 
 interface PasswordGeneratorCardProps {
   title?: string;
@@ -35,30 +36,6 @@ export function PasswordGeneratorCard({
   sendEmail,
   onSendEmailChange,
 }: PasswordGeneratorCardProps) {
-  const handleCopy = async () => {
-    const textToCopy = passwordMode === 'auto' ? generatedPassword : manualPassword;
-    if (!textToCopy) return;
-
-    try {
-      await navigator.clipboard.writeText(textToCopy);
-      toast.success('Password Berhasil Disalin', {
-        description: (
-          <span className='text-xs sm:text-sm text-secondary-foreground leading-relaxed'>
-            Password telah disalin ke clipboard perangkat Anda.
-          </span>
-        ),
-      });
-    } catch {
-      toast.danger('Gagal Menyalin', {
-        description: (
-          <span className='text-xs sm:text-sm text-secondary-foreground leading-relaxed'>
-            Tidak dapat mengakses clipboard browser.
-          </span>
-        ),
-      });
-    }
-  };
-
   return (
     <div className='flex flex-col gap-3.5 rounded-2xl border border-primary/20 dark:border-primary/30 bg-[#F4F7FF] dark:bg-primary-950/25 p-4 sm:p-5'>
       <span className='text-xs sm:text-sm font-bold text-foreground'>
@@ -66,15 +43,13 @@ export function PasswordGeneratorCard({
       </span>
 
       <Tabs
+        aria-label='Pilih mode password'
         selectedKey={passwordMode}
         onSelectionChange={(key) => onPasswordModeChange(key as 'auto' | 'manual')}
         className='w-full'
       >
-        <Tabs.ListContainer className='rounded-none bg-transparent p-0'>
-          <Tabs.List
-            aria-label='Pilihan pembuatan password'
-            className='grid grid-cols-2 w-full rounded-xl border border-primary/15 dark:border-border bg-card p-1 gap-1 shadow-2xs relative'
-          >
+        <Tabs.ListContainer className='w-full'>
+          <Tabs.List className='relative grid w-full grid-cols-2 rounded-xl bg-card border border-border/80 p-1 shadow-2xs'>
             <Tabs.Tab
               id='auto'
               className='relative z-10 h-9 rounded-lg text-xs font-semibold text-muted-foreground data-[selected=true]:text-white transition-colors cursor-pointer flex items-center justify-center outline-none bg-transparent'
@@ -82,6 +57,7 @@ export function PasswordGeneratorCard({
               <span className='relative z-10'>Buat otomatis</span>
               <Tabs.Indicator className='rounded-lg bg-primary-default shadow-sm' />
             </Tabs.Tab>
+
             <Tabs.Tab
               id='manual'
               className='relative z-10 h-9 rounded-lg text-xs font-semibold text-muted-foreground data-[selected=true]:text-white transition-colors cursor-pointer flex items-center justify-center outline-none bg-transparent'
@@ -98,14 +74,7 @@ export function PasswordGeneratorCard({
               {generatedPassword}
             </div>
 
-            <Button
-              type='button'
-              variant='outline'
-              onClick={handleCopy}
-              className='h-10 rounded-md px-3 sm:px-4 text-xs font-medium text-primary border-border/80 bg-card hover:bg-muted cursor-pointer shrink-0 shadow-2xs'
-            >
-              Salin
-            </Button>
+            <CopyPasswordButton textToCopy={generatedPassword} />
 
             <Button
               type='button'
@@ -131,15 +100,11 @@ export function PasswordGeneratorCard({
               />
             </div>
 
-            <Button
-              type='button'
-              variant='outline'
-              onClick={handleCopy}
+            <CopyPasswordButton
+              textToCopy={manualPassword}
               disabled={!manualPassword}
-              className='h-10 rounded-md px-4 text-xs font-medium text-primary border-border/80 bg-card hover:bg-muted cursor-pointer shrink-0 shadow-2xs'
-            >
-              Salin
-            </Button>
+              className='px-4'
+            />
           </div>
 
           {manualPasswordError && (

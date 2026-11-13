@@ -15,11 +15,11 @@ export function UserManagementTableSkeleton() {
             <Table.Column isRowHeader id='pengguna' className='text-foreground font-semibold text-xs sm:text-sm py-3 px-4'>
               Pengguna
             </Table.Column>
+            <Table.Column id='no_telp' className='text-foreground font-semibold text-xs sm:text-sm py-3 px-4'>
+              No. Telepon
+            </Table.Column>
             <Table.Column id='role' className='text-foreground font-semibold text-xs sm:text-sm py-3 px-4'>
               Role
-            </Table.Column>
-            <Table.Column id='squad' className='text-foreground font-semibold text-xs sm:text-sm py-3 px-4'>
-              Squad
             </Table.Column>
             <Table.Column id='status' className='text-foreground font-semibold text-xs sm:text-sm py-3 px-4'>
               Status
@@ -43,11 +43,11 @@ export function UserManagementTableSkeleton() {
                 </Table.Cell>
 
                 <Table.Cell className='py-3.5 px-4'>
-                  <Skeleton className='h-5 w-20 rounded-md' />
+                  <Skeleton className='h-4 w-28 rounded' />
                 </Table.Cell>
 
                 <Table.Cell className='py-3.5 px-4'>
-                  <Skeleton className='h-4 w-28 rounded' />
+                  <Skeleton className='h-5 w-20 rounded-md' />
                 </Table.Cell>
 
                 <Table.Cell className='py-3.5 px-4'>
@@ -68,4 +68,3 @@ export function UserManagementTableSkeleton() {
     </Table>
   );
 }
-
