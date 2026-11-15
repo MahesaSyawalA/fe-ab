@@ -125,6 +125,8 @@ function CreateUserModalContent({
       role: validation.data.role as 'sales' | 'sales_manager' | 'director',
       id_squad: null,
       password: effectivePassword,
+      send_credentials: validation.data.send_email,
+      must_change_password: validation.data.must_change_password,
     };
 
     await onCreateUser(apiPayload);

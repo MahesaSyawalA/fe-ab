@@ -106,8 +106,15 @@ export function useResetPasswordMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, password }: { id: string; password: string }) =>
-      userService.updateUser(id, { password }),
+    mutationFn: ({
+      id,
+      new_password,
+      must_change_password,
+    }: {
+      id: string;
+      new_password: string;
+      must_change_password?: boolean;
+    }) => userService.resetPassword(id, { new_password, must_change_password }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: userKeys.all });
     },

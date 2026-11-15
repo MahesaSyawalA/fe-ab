@@ -88,8 +88,8 @@ export function UserManagementView() {
         no_telp: u.no_telp || '-',
         role: u.role,
         id_squad: u.id_squad,
-        squad: null,
-        status: 'aktif' as const,
+        squad: u.squad?.nama_squad ?? null,
+        status: (u.is_active ? 'aktif' : 'nonaktif') as ManagedUser['status'],
       }));
 
     if (selectedStatus !== 'all') {

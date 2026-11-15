@@ -1,6 +1,6 @@
 export type UserRole = 'sales' | 'sales_manager' | 'director' | 'admin';
+export type UserSortBy = 'created_at' | 'nama' | 'role';
 
-/** Bentuk lengkap termasuk `password_hash` — hanya untuk keperluan internal (auth). */
 export interface User {
   id_user: string;
   id_squad: string | null;
@@ -9,12 +9,21 @@ export interface User {
   email: string;
   no_telp: string;
   password_hash: string;
+  is_active: boolean;
+  must_change_password: boolean;
   created_at: Date | string;
   updated_at: Date | string;
 }
 
-/** Bentuk user yang boleh dikirim ke client — tanpa `password_hash`. */
 export type PublicUser = Omit<User, 'password_hash'>;
+
+export type PublicUserWithSquad = PublicUser & {
+  squad?: {
+    id_squad: string;
+    nama_squad: string;
+    wilayah?: string;
+  } | null;
+};
 
 export interface CreateUserInput {
   id_squad?: string | null;
@@ -22,8 +31,9 @@ export interface CreateUserInput {
   role: UserRole;
   email: string;
   no_telp: string;
-  /** Password polos dari client; di-hash di service sebelum disimpan. */
   password: string;
+  send_credentials?: boolean;
+  must_change_password?: boolean;
 }
 
 export interface UpdateUserInput {
@@ -32,22 +42,17 @@ export interface UpdateUserInput {
   role?: UserRole;
   email?: string;
   no_telp?: string;
-  /** Bila diisi, password akan di-hash ulang. */
+  is_active?: boolean;
   password?: string;
 }
 
-/** Bentuk yang benar-benar dikirim ke database. */
-export interface CreateUserRecord extends Omit<CreateUserInput, 'password'> {
-  password_hash: string;
+export interface ResetPasswordInput {
+  new_password: string;
+  must_change_password?: boolean;
 }
 
-export interface UpdateUserRecord extends Omit<UpdateUserInput, 'password'> {
-  password_hash?: string;
-}
-
-
-/** Bentuk yang benar-benar dikirim ke database. */
-export interface CreateUserRecord extends Omit<CreateUserInput, 'password'> {
+export interface CreateUserRecord
+  extends Omit<CreateUserInput, 'password' | 'send_credentials' | 'must_change_password'> {
   password_hash: string;
 }
 

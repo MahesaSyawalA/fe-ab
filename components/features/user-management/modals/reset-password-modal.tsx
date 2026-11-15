@@ -77,7 +77,8 @@ function ResetPasswordModalContent({
     try {
       await resetPasswordMutation.mutateAsync({
         id: user.id,
-        password: effectivePassword,
+        new_password: effectivePassword,
+        must_change_password: mustChangePassword,
       });
 
       setActivePassword(effectivePassword);

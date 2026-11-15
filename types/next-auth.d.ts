@@ -8,6 +8,8 @@ export interface AuthUser {
   role: UserRole;
   id_squad: string | null;
   no_telp?: string;
+  is_active?: boolean;
+  must_change_password?: boolean;
 }
 
 declare module 'next-auth' {
@@ -17,6 +19,8 @@ declare module 'next-auth' {
     role: UserRole;
     id_squad: string | null;
     no_telp?: string;
+    is_active?: boolean;
+    must_change_password?: boolean;
     accessToken: string;
     refreshToken?: string;
   }
@@ -34,6 +38,8 @@ declare module 'next-auth/jwt' {
     role: UserRole;
     id_squad: string | null;
     no_telp?: string;
+    is_active?: boolean;
+    must_change_password?: boolean;
     accessToken: string;
     refreshToken?: string;
   }
@@ -46,6 +52,8 @@ declare module '@auth/core/types' {
     role: UserRole;
     id_squad: string | null;
     no_telp?: string;
+    is_active?: boolean;
+    must_change_password?: boolean;
     accessToken: string;
     refreshToken?: string;
   }
@@ -63,6 +71,8 @@ declare module '@auth/core/jwt' {
     role: UserRole;
     id_squad: string | null;
     no_telp?: string;
+    is_active?: boolean;
+    must_change_password?: boolean;
     accessToken: string;
     refreshToken?: string;
   }

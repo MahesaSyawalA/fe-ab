@@ -128,6 +128,7 @@ function EditUserModalContent({
       no_telp: cleanedPhone,
       role: validation.data.role as 'sales' | 'sales_manager' | 'director',
       id_squad: user.id_squad ?? null,
+      is_active: validation.data.status === 'aktif',
     };
 
     await onUpdateUser(user.id, updatePayload);

@@ -29,7 +29,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             return null;
           }
 
-          // Tangkap cookies dari header backend
           const rawHeader = response.headers['set-cookie'];
           const rawCookies: string[] = Array.isArray(rawHeader)
             ? rawHeader
@@ -51,7 +50,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             }
           }
 
-          // Fallback aman jika backend menggunakan custom cookie key atau body token
           const accessToken =
             extractedAccessToken ||
             resJson?.accessToken ||
@@ -74,6 +72,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             role: userObj.role as UserRole,
             id_squad: userObj.id_squad ?? null,
             no_telp: userObj.no_telp ? String(userObj.no_telp) : undefined,
+            is_active:
+              typeof userObj.is_active === 'boolean' ? userObj.is_active : undefined,
+            must_change_password:
+              typeof userObj.must_change_password === 'boolean'
+                ? userObj.must_change_password
+                : undefined,
             accessToken,
             refreshToken,
           };
@@ -91,6 +95,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.role = user.role;
         token.id_squad = user.id_squad;
         token.no_telp = user.no_telp;
+        token.is_active = user.is_active;
+        token.must_change_password = user.must_change_password;
         token.accessToken = user.accessToken;
         token.refreshToken = user.refreshToken;
       }
@@ -100,6 +106,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }
         if (session.user?.no_telp) {
           token.no_telp = session.user.no_telp;
+        }
+        if (typeof session.user?.is_active === 'boolean') {
+          token.is_active = session.user.is_active;
+        }
+        if (typeof session.user?.must_change_password === 'boolean') {
+          token.must_change_password = session.user.must_change_password;
         }
       }
       return token;
@@ -116,6 +128,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           role: token.role,
           id_squad: token.id_squad,
           no_telp: token.no_telp,
+          is_active: token.is_active,
+          must_change_password: token.must_change_password,
         };
         session.accessToken = token.accessToken;
       }
