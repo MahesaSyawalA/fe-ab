@@ -143,13 +143,17 @@ export function SquadFormView({ basePath, squad }: SquadFormViewProps) {
         </div>
 
         {s.isEdit && (
-          <Button
-            type='button'
-            onClick={() => s.setDialog('delete')}
-            className='h-10 rounded-md bg-destructive text-xs font-semibold text-white hover:bg-destructive/90 cursor-pointer'
-          >
-            Hapus Squad
-          </Button>
+          <div className='flex justify-start pt-1'>
+            <Button
+              type='button'
+              variant='destructive'
+              onClick={() => s.setDialog('delete')}
+              className='h-9 w-fit gap-1.5 rounded-md border border-destructive/30 bg-destructive/10 px-4 text-xs font-semibold text-destructive shadow-none hover:bg-destructive/15 active:bg-destructive/20 transition-all cursor-pointer'
+            >
+              <Trash2 className='size-3.5' />
+              <span>Hapus Squad</span>
+            </Button>
+          </div>
         )}
 
         {errors.root?.server && (

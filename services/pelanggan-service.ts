@@ -7,6 +7,7 @@ import type {
   CreatePelangganInput,
   UpdatePelangganInput,
 } from '@/types/customer.types';
+import type { CreateKontakInput, Kontak } from '@/types/contact.types';
 
 export interface PelangganListParams extends PaginationQueryParams {
   tipe_outlet?: string;
@@ -24,7 +25,6 @@ export const pelangganService = {
       message?: string;
     } | PelangganWithDetails[] | undefined;
 
-    // Adaptasi fleksibel: Tangani respons standar { data, meta } maupun raw array fallback
     if (resData && !Array.isArray(resData) && Array.isArray(resData.data)) {
       const meta = resData.meta
         ? {
@@ -124,6 +124,11 @@ export const pelangganService = {
 
   async delete(id: string): Promise<ApiResponse<null>> {
     const response = await api.delete<ApiResponse<null>>(`/pelanggan/${id}`);
+    return response.data;
+  },
+
+  async addContact(payload: CreateKontakInput): Promise<ApiResponse<Kontak>> {
+    const response = await api.post<ApiResponse<Kontak>>('/kontak', payload);
     return response.data;
   },
 };

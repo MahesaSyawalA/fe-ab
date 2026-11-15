@@ -121,7 +121,9 @@ export function PelangganDetailView({
         </div>
 
         <PelangganPicList
+          idPelanggan={pelanggan.id_pelanggan}
           contacts={contacts}
+          canEdit={isAllowedToEdit}
           className='lg:col-span-5'
         />
       </div>

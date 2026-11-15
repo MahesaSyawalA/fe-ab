@@ -1,3 +1,5 @@
+export * from './pelanggan-add-pic-form';
+export * from './pelanggan-add-pic-modal';
 export * from './pelanggan-coordinate-box';
 export * from './pelanggan-detail-skeleton';
 export * from './pelanggan-edit-dialog';

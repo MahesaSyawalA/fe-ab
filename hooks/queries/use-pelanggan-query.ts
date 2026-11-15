@@ -13,6 +13,7 @@ import type {
   CreatePelangganInput,
   UpdatePelangganInput,
 } from '@/types/customer.types';
+import type { CreateKontakInput, Kontak } from '@/types/contact.types';
 
 export const pelangganKeys = {
   all: ['pelanggan'] as const,
@@ -111,6 +112,28 @@ export function useDeletePelangganMutation(
     },
     onError: (...args) => {
       console.warn('[Delete Pelanggan Error]:', getErrorMessage(args[0]));
+      options?.onError?.(...args);
+    },
+  });
+}
+
+export function useAddPelangganContactMutation(
+  idPelanggan: string,
+  options?: UseMutationOptions<ApiResponse<Kontak>, Error, Omit<CreateKontakInput, 'id_pelanggan'>>,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...options,
+    mutationFn: (payload: Omit<CreateKontakInput, 'id_pelanggan'>) =>
+      pelangganService.addContact({ ...payload, id_pelanggan: idPelanggan }),
+    onSuccess: async (...args) => {
+      await queryClient.invalidateQueries({ queryKey: pelangganKeys.detail(idPelanggan) });
+      await queryClient.invalidateQueries({ queryKey: pelangganKeys.all });
+      await options?.onSuccess?.(...args);
+    },
+    onError: (...args) => {
+      console.warn('[Add Pelanggan Contact Error]:', getErrorMessage(args[0]));
       options?.onError?.(...args);
     },
   });

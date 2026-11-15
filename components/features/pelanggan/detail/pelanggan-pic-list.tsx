@@ -1,18 +1,33 @@
+'use client';
+
+import * as React from 'react';
+import { Plus } from 'lucide-react';
 import { Kontak } from '@/types/contact.types';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { PicCard } from '@/components/ui/pic-card';
+import { PelangganAddPicModal } from './pelanggan-add-pic-modal';
 
 interface PelangganPicListProps {
+  idPelanggan: string;
   contacts: Kontak[];
+  canEdit?: boolean;
   className?: string;
 }
 
-export function PelangganPicList({ contacts, className }: PelangganPicListProps) {
+export function PelangganPicList({
+  idPelanggan,
+  contacts,
+  canEdit = false,
+  className,
+}: PelangganPicListProps) {
+  const [isAddOpen, setIsAddOpen] = React.useState(false);
+
   return (
     <div className={cn('flex flex-col gap-3.5', className)}>
-      <div className='flex items-center justify-between'>
+      <div className='flex items-center justify-between gap-2'>
         <div className='flex items-center gap-2'>
           <h3 className='text-sm sm:text-base font-bold text-foreground'>
             Daftar PIC
@@ -24,6 +39,19 @@ export function PelangganPicList({ contacts, className }: PelangganPicListProps)
             {contacts.length}
           </Badge>
         </div>
+
+        {canEdit && (
+          <Button
+            type='button'
+            variant='outline'
+            size='sm'
+            onClick={() => setIsAddOpen(true)}
+            className='h-8 gap-1 rounded-lg border-primary/30 bg-primary/5 px-2.5 text-xs font-semibold text-primary hover:bg-primary/10 cursor-pointer shadow-none'
+          >
+            <Plus className='size-3.5' />
+            <span>Tambah PIC</span>
+          </Button>
+        )}
       </div>
 
       {contacts.length > 0 ? (
@@ -49,6 +77,14 @@ export function PelangganPicList({ contacts, className }: PelangganPicListProps)
             Belum ada PIC yang didaftarkan untuk outlet ini.
           </CardContent>
         </Card>
+      )}
+
+      {canEdit && (
+        <PelangganAddPicModal
+          idPelanggan={idPelanggan}
+          open={isAddOpen}
+          onOpenChange={setIsAddOpen}
+        />
       )}
     </div>
   );
