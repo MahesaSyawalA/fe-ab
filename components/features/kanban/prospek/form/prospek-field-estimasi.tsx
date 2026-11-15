@@ -18,7 +18,7 @@ export function ProspekFieldEstimasi({
       errorMessage={error}
       value={value}
       onChange={onChange}
-      placeholder='Default'
+      placeholder='0'
       prefix='RP'
       prefixClassName='text-secondary-foreground'
       inputClassName='font-medium text-foreground'

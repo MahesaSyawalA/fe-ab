@@ -45,10 +45,6 @@ export const kanbanKeys = {
     [...kanbanKeys.ticket(ticketId), 'history'] as const,
 };
 
-// ---------------------------------------------------------
-// QUERY HOOKS
-// ---------------------------------------------------------
-
 export function useKanbanStagesQuery(
   options?: Omit<
     UseQueryOptions<ApiResponse<TahapKanban[]>, Error>,
@@ -91,14 +87,7 @@ export function useKanbanTicketDetailQuery(
   });
 }
 
-/**
- * Backward-compatible alias for useKanbanTicketDetailQuery
- */
 export const useKanbanTicketQuery = useKanbanTicketDetailQuery;
-
-// ---------------------------------------------------------
-// MUTATION HOOKS
-// ---------------------------------------------------------
 
 interface MoveTicketContext {
   previousQueries: [readonly unknown[], ApiResponse<TiketWithDetails[]> | undefined][];
@@ -121,10 +110,8 @@ export function useMoveTicketMutation(
     onMutate: async (...args) => {
       const payload = args[0];
 
-      // 1. Cancel outgoing queries
       await queryClient.cancelQueries({ queryKey: kanbanKeys.all });
 
-      // 2. Snapshot current cache
       const previousQueries = queryClient.getQueriesData<ApiResponse<TiketWithDetails[]>>({
         queryKey: ['kanban', 'board'],
       });
@@ -134,7 +121,6 @@ export function useMoveTicketMutation(
 
       const targetStageId = payload.id_tahap || payload.id_tahap_tujuan || payload.toStageId;
 
-      // 3. Optimistic update in cache
       if (targetStageId) {
         queryClient.setQueriesData<ApiResponse<TiketWithDetails[]>>(
           { queryKey: ['kanban', 'board'] },
@@ -178,7 +164,6 @@ export function useMoveTicketMutation(
     onError: (...args) => {
       const [err, variables, context] = args;
 
-      // Rollback
       if (context?.previousQueries) {
         context.previousQueries.forEach(([qKey, prevData]) => {
           queryClient.setQueryData(qKey, prevData);
@@ -203,7 +188,7 @@ export function useMoveTicketMutation(
           ),
         });
       } catch {
-        // ignore fallback
+
       }
 
       options?.onError?.(...args);
@@ -424,4 +409,3 @@ export function useUpdateTicketMutation(
     },
   });
 }
-

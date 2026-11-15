@@ -17,7 +17,6 @@ export const api = axios.create({
   timeout: 30000,
 });
 
-// Mutex & antrean (queue) untuk menahan request paralel saat proses refresh token berlangsung
 interface QueueItem {
   resolve: (value?: unknown) => void;
   reject: (reason?: unknown) => void;
@@ -37,7 +36,6 @@ const processQueue = (error: unknown = null) => {
   failedQueue = [];
 };
 
-// Request Interceptor: Menyematkan Bearer token dari Session Auth.js secara otomatis jika tersedia
 api.interceptors.request.use(
   async (config) => {
     if (typeof window !== 'undefined' && !config.headers.Authorization) {
@@ -56,13 +54,11 @@ api.interceptors.request.use(
   (error) => Promise.reject(error),
 );
 
-// Response Interceptor: Silent Token Refresh & Penanganan Error Terpusat
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config as (InternalAxiosRequestConfig & { _retry?: boolean }) | undefined;
 
-    // Jika tidak ada config request atau respons bukan error, teruskan reject
     if (!originalRequest) {
       return Promise.reject(error);
     }
@@ -73,9 +69,8 @@ api.interceptors.response.use(
       requestUrl.includes('/auth/refresh') ||
       requestUrl.includes('/auth/logout');
 
-    // Tangani HTTP 401 Unauthorized (kecuali pada endpoint auth itu sendiri untuk cegah infinite loop)
     if (error.response?.status === 401 && !isAuthEndpoint) {
-      // 1. Jika request sudah pernah di-retry dan tetap 401, jangan ulangi lagi
+
       if (originalRequest._retry) {
         if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
           await logoutUser();
@@ -83,7 +78,6 @@ api.interceptors.response.use(
         return Promise.reject(error);
       }
 
-      // 2. Jika proses refresh sedang berjalan oleh request lain, antrekan request ini
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -96,7 +90,7 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        // 3. Panggil endpoint silent refresh backend (dengan withCredentials agar cookie dikirim)
+
         const refreshResponse = await axios.post(
           `${baseURL}/auth/refresh`,
           {},
@@ -110,7 +104,6 @@ api.interceptors.response.use(
           },
         );
 
-        // Ekstrak token baru jika backend mengembalikan token pada body respons
         const resData = refreshResponse.data?.data || refreshResponse.data;
         const newAccessToken =
           resData?.accessToken ||
@@ -121,13 +114,11 @@ api.interceptors.response.use(
           originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         }
 
-        // Selesaikan semua antrean request yang menunggu
         processQueue(null);
 
-        // Replay (ulangi) request awal yang sempat gagal
         return api(originalRequest);
       } catch (refreshError) {
-        // Refresh token kedaluwarsa atau server menolak refresh -> bersihkan antrean & logout
+
         processQueue(refreshError);
 
         console.warn('[Silent Refresh] Sesi kedaluwarsa. Mengarahkan ke login...');
@@ -153,9 +144,6 @@ api.interceptors.response.use(
   },
 );
 
-/**
- * Helper terstandarisasi untuk mengekstrak pesan error ramah pengguna dari error Axios atau generik
- */
 export function getErrorMessage(error: unknown): string {
   if (isAxiosError<ApiErrorResponse>(error)) {
     const data = error.response?.data;

@@ -27,7 +27,7 @@ export function StageFormQuotation({
         isRequired
         readOnly
         value={noQuotation || 'QTN-2024-0145-R2'}
-        placeholder='QTN-2024-0145-R2'
+        placeholder='Contoh: QTN-2026-001'
         inputClassName='bg-muted/60 text-muted-foreground cursor-default'
       />
 

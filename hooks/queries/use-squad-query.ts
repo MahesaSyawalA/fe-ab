@@ -33,7 +33,6 @@ export function useSquadDetailQuery(id: string) {
   });
 }
 
-/** Mutasi create/update/delete; semuanya membatalkan cache squad (list + detail). */
 function useSquadMutation<TInput>(
   mutationFn: (input: TInput) => Promise<unknown>,
   label: string,

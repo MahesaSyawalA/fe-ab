@@ -154,7 +154,7 @@ function EditUserModalContent({
         <div className='grid grid-cols-1 sm:grid-cols-2 gap-3.5'>
           <UserTextFieldInput
             label='Nama Lengkap *'
-            placeholder='Nama lengkap'
+            placeholder='Masukkan nama lengkap'
             value={nama}
             onChange={(val) => {
               setNama(val);
@@ -167,7 +167,7 @@ function EditUserModalContent({
           <UserTextFieldInput
             label='Email *'
             type='email'
-            placeholder='nama@abmedical.id'
+            placeholder='contoh@abmedical.id'
             value={email}
             onChange={(val) => {
               setEmail(val);

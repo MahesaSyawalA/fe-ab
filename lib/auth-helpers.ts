@@ -1,9 +1,6 @@
 import { signOut } from 'next-auth/react';
 import { api } from '@/lib/axios';
 
-/**
- * Mendapatkan inisial 1-2 huruf kapital dari nama pengguna
- */
 export function getUserInitials(name?: string | null): string {
   if (!name || !name.trim()) return 'AB';
   const parts = name.trim().split(/\s+/);
@@ -11,9 +8,6 @@ export function getUserInitials(name?: string | null): string {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
-/**
- * Format label role yang ramah pembaca untuk tampilan UI
- */
 export function formatRoleLabel(role?: string | null): string {
   if (!role) return 'User';
   const clean = role.trim().toLowerCase();
@@ -24,9 +18,6 @@ export function formatRoleLabel(role?: string | null): string {
   return role.charAt(0).toUpperCase() + role.slice(1).toLowerCase();
 }
 
-/**
- * Logout dua arah: panggil endpoint backend /auth/logout (jika ada) lalu hapus sesi NextAuth
- */
 export async function logoutUser(): Promise<void> {
   try {
     await api.post('/auth/logout');
@@ -36,4 +27,3 @@ export async function logoutUser(): Promise<void> {
     await signOut({ callbackUrl: '/login', redirect: true });
   }
 }
-

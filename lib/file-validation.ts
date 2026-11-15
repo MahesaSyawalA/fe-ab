@@ -1,11 +1,5 @@
-/**
- * Utilitas validasi berkas fleksibel & perlindungan anti-malware/script.
- * Mendukung format operasional lapangan sales (foto outlet/evidence, rekaman audio, dokumen transaksi).
- */
+export const DEFAULT_MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 
-export const DEFAULT_MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
-
-/** Ekstensi berbahaya yang mutlak dilarang (anti-executable & script) */
 export const DANGEROUS_EXTENSIONS = new Set([
   '.py',
   '.exe',
@@ -30,7 +24,6 @@ export const DANGEROUS_EXTENSIONS = new Set([
   '.rpm',
 ]);
 
-/** Ekstensi gambar yang didukung (termasuk foto kamera iPhone HEIC/HEIF) */
 export const ALLOWED_IMAGE_EXTENSIONS = new Set([
   '.jpg',
   '.jpeg',
@@ -42,7 +35,6 @@ export const ALLOWED_IMAGE_EXTENSIONS = new Set([
   '.heif',
 ]);
 
-/** Ekstensi rekaman suara / audio yang didukung */
 export const ALLOWED_AUDIO_EXTENSIONS = new Set([
   '.mp3',
   '.m4a',
@@ -55,7 +47,6 @@ export const ALLOWED_AUDIO_EXTENSIONS = new Set([
   '.flac',
 ]);
 
-/** Ekstensi dokumen transaksi yang didukung */
 export const ALLOWED_DOC_EXTENSIONS = new Set([
   '.pdf',
   '.doc',
@@ -77,9 +68,6 @@ export interface FileValidationResult {
   errorMessage?: string;
 }
 
-/**
- * Format ukuran file ke string yang ramah dibaca (KB / MB).
- */
 export function formatBytes(bytes: number): string {
   if (bytes === 0) return '0 B';
   const k = 1024;
@@ -88,18 +76,12 @@ export function formatBytes(bytes: number): string {
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
 }
 
-/**
- * Ambil ekstensi berkas dalam huruf kecil dengan titik di depan (misal: ".jpg").
- */
 export function getFileExtension(filename: string): string {
   const lastDot = filename.lastIndexOf('.');
   if (lastDot === -1) return '';
   return filename.slice(lastDot).toLowerCase();
 }
 
-/**
- * Memeriksa apakah berkas merupakan gambar yang sah berdasarkan MIME type atau ekstensi.
- */
 export function isImageFile(file: File): boolean {
   if (file.type && file.type.startsWith('image/')) {
     return true;
@@ -108,9 +90,6 @@ export function isImageFile(file: File): boolean {
   return ALLOWED_IMAGE_EXTENSIONS.has(ext);
 }
 
-/**
- * Memeriksa apakah berkas merupakan audio yang sah berdasarkan MIME type atau ekstensi.
- */
 export function isAudioFile(file: File): boolean {
   if (file.type && file.type.startsWith('audio/')) {
     return true;
@@ -119,9 +98,6 @@ export function isAudioFile(file: File): boolean {
   return ALLOWED_AUDIO_EXTENSIONS.has(ext);
 }
 
-/**
- * Memeriksa apakah berkas merupakan dokumen yang diizinkan (.pdf, .doc, .docx, .xls, .xlsx, .txt).
- */
 export function isDocFile(file: File): boolean {
   const ext = getFileExtension(file.name);
   if (ALLOWED_DOC_EXTENSIONS.has(ext)) {
@@ -138,9 +114,6 @@ export function isDocFile(file: File): boolean {
   return docMimes.includes(file.type);
 }
 
-/**
- * Validasi berkas fleksibel dengan proteksi anti-malware/script.
- */
 export function validateAllowedFile(
   file: File,
   options: ValidateFileOptions = {},
@@ -154,7 +127,6 @@ export function validateAllowedFile(
     return { isValid: false, errorMessage: 'Berkas tidak ditemukan' };
   }
 
-  // 1. Validasi Batas Ukuran Berkas
   if (file.size > maxSizeBytes) {
     return {
       isValid: false,
@@ -162,7 +134,6 @@ export function validateAllowedFile(
     };
   }
 
-  // 2. Proteksi Mutlak Anti-Script / Anti-Executable (Blacklist)
   const ext = getFileExtension(file.name);
   if (DANGEROUS_EXTENSIONS.has(ext)) {
     return {
@@ -171,7 +142,6 @@ export function validateAllowedFile(
     };
   }
 
-  // 3. Validasi Berdasarkan Kategori
   if (category === 'image-only') {
     if (!isImageFile(file)) {
       return {
@@ -199,11 +169,6 @@ export function validateAllowedFile(
   return { isValid: true };
 }
 
-/**
- * Memastikan berkas audio memiliki MIME type "audio/*" yang valid sebelum diunggah ke backend.
- * Sebagian browser memberikan MIME "application/ogg" atau string kosong pada berkas audio seperti WhatsApp PTT (.ogg/.opus).
- * Backend Express memvalidasi tipe file audio dengan `req.file.mimetype.startsWith('audio/')`.
- */
 export function normalizeAudioFile(file: File): File {
   const ext = getFileExtension(file.name);
   if (['.ogg', '.oga', '.opus'].includes(ext) && !file.type.startsWith('audio/')) {
@@ -220,5 +185,3 @@ export function normalizeAudioFile(file: File): File {
   }
   return file;
 }
-
-

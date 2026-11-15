@@ -25,7 +25,7 @@ export function KontakDraftForm({
         icon={<User className='size-4' />}
         value={draft.nama}
         onChange={(val) => onChange({ nama: val })}
-        placeholder='Contoh: dr. Budi Santoso'
+        placeholder='Masukkan nama lengkap PIC'
       />
 
       <PelangganTextInput
@@ -60,7 +60,7 @@ export function KontakDraftForm({
           icon={<Mail className='size-4' />}
           value={draft.email}
           onChange={(val) => onChange({ email: val })}
-          placeholder='budi@hospital.com'
+          placeholder='pic@instansi.co.id'
         />
       </div>
 

@@ -38,7 +38,7 @@ export function PelangganEditProfileSection({ formState }: PelangganEditProfileS
             onChange={field.onChange}
             isInvalid={Boolean(error)}
             errorMessage={error?.message}
-            placeholder='Contoh: RS Ibu & Anak Kasih Bunda'
+            placeholder='Contoh: RSUD / Klinik Medika'
           />
         )}
       />
@@ -75,7 +75,7 @@ export function PelangganEditProfileSection({ formState }: PelangganEditProfileS
             onChange={field.onChange}
             isInvalid={Boolean(error)}
             errorMessage={error?.message}
-            placeholder='Masukkan nama jalan, nomor, kecamatan, kota...'
+            placeholder='Masukkan alamat lengkap outlet...'
           />
         )}
       />

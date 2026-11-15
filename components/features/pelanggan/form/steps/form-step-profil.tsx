@@ -40,7 +40,7 @@ export function FormStepProfil({ control, onNext, onFileChange }: FormStepProfil
             onChange={field.onChange}
             isInvalid={Boolean(error)}
             errorMessage={error?.message}
-            placeholder='Contoh: RS Ibu & Anak Kasih Bunda'
+            placeholder='Contoh: RSUD / Klinik Medika'
           />
         )}
       />
@@ -81,7 +81,7 @@ export function FormStepProfil({ control, onNext, onFileChange }: FormStepProfil
             onChange={field.onChange}
             isInvalid={Boolean(error)}
             errorMessage={error?.message}
-            placeholder='Contoh: Jl. Salemba Raya No. 42A, RT 03 / RW 05, Kenari, Senen, Jakarta Pusat 10430'
+            placeholder='Masukkan alamat lengkap outlet...'
           />
         )}
       />

@@ -18,7 +18,7 @@ export function ProspekFieldJudul({
       errorMessage={error}
       value={value}
       onChange={onChange}
-      placeholder='Default'
+      placeholder='Masukkan judul prospek'
     />
   );
 }

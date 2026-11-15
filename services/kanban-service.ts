@@ -17,7 +17,7 @@ import type {
   EvidenceItem,
 } from '@/types/activity.types';
 import type { BuktiKunjungan } from '@/types/visit-proof.types';
-/*  */
+
 export interface KanbanBoardData {
   stages: (KanbanStageColumn | TahapKanban)[];
   ticketsByStage: Record<string, TiketWithDetails[]>;
@@ -55,28 +55,17 @@ export interface MoveTicketPayload {
 }
 
 export const kanbanService = {
-  /**
-   * Fetch all stages from backend
-   * GET /tahap-kanban
-   */
+
   async getStages(): Promise<ApiResponse<TahapKanban[]>> {
     const response = await api.get<ApiResponse<TahapKanban[]>>('/tahap-kanban');
     return response.data;
   },
 
-  /**
-   * Fetch Kanban board tickets
-   * GET /tiket
-   */
   async getBoard(params?: KanbanBoardFilterParams): Promise<ApiResponse<TiketWithDetails[]>> {
     const response = await api.get<ApiResponse<TiketWithDetails[]>>('/tiket', { params });
     return response.data;
   },
 
-  /**
-   * Fetch single ticket detail by ID
-   * GET /tiket/:id (diperkaya dengan relasi bukti lampiran dari GET /aktivitas)
-   */
   async getTicketById(id: string): Promise<ApiResponse<TiketWithDetails>> {
     const [ticketResponse, aktivitasResponse] = await Promise.all([
       api.get<ApiResponse<TiketWithDetails>>(`/tiket/${id}`),
@@ -112,28 +101,16 @@ export const kanbanService = {
     return ticket;
   },
 
-  /**
-   * Create a new ticket
-   * POST /tiket
-   */
   async createTicket(payload: CreateTiketInput): Promise<ApiResponse<TiketWithDetails>> {
     const response = await api.post<ApiResponse<TiketWithDetails>>('/tiket', payload);
     return response.data;
   },
 
-  /**
-   * Update an existing ticket
-   * PUT /tiket/:id
-   */
   async updateTicket(id: string, payload: UpdateTiketInput): Promise<ApiResponse<TiketWithDetails>> {
     const response = await api.put<ApiResponse<TiketWithDetails>>(`/tiket/${id}`, payload);
     return response.data;
   },
 
-  /**
-   * Move ticket to a new stage
-   * PATCH /tiket/:id
-   */
   async moveTicketStage(
     id: string,
     payload: MoveTicketStagePayload
@@ -150,10 +127,6 @@ export const kanbanService = {
     return response.data;
   },
 
-  /**
-   * Backward-compatible moveTicket wrapper.
-   * If payload has id_tiket and id_tahap/toStageId, calls PATCH /tiket/:id.
-   */
   async moveTicket(payload: MoveTicketPayload): Promise<ApiResponse<TiketWithDetails>> {
     const targetStageId = payload.id_tahap || payload.id_tahap_tujuan || payload.toStageId;
     if (payload.id_tiket && targetStageId) {
@@ -168,10 +141,6 @@ export const kanbanService = {
     return response.data;
   },
 
-  /**
-   * Create an activity record
-   * POST /aktivitas
-   */
   async createAktivitas(
     payload: CreateAktivitasInput
   ): Promise<ApiResponse<AktivitasWithDetails>> {
@@ -179,10 +148,6 @@ export const kanbanService = {
     return response.data;
   },
 
-  /**
-   * Upload visit proof (selfie & GPS metadata)
-   * POST /bukti-kunjungan
-   */
   async createBuktiKunjungan(
     formData: FormData
   ): Promise<ApiResponse<BuktiKunjungan>> {
@@ -196,10 +161,6 @@ export const kanbanService = {
     return response.data;
   },
 
-  /**
-   * Upload stage evidence (document, photo, audio)
-   * POST /evidence
-   */
   async createEvidence(
     formData: FormData
   ): Promise<ApiResponse<EvidenceItem>> {
@@ -213,19 +174,11 @@ export const kanbanService = {
     return response.data;
   },
 
-  /**
-   * Create a new Kanban stage
-   * POST /tahap-kanban
-   */
   async createTahap(payload: CreateTahapKanbanInput): Promise<ApiResponse<TahapKanban>> {
     const response = await api.post<ApiResponse<TahapKanban>>('/tahap-kanban', payload);
     return response.data;
   },
 
-  /**
-   * Update an existing Kanban stage
-   * PUT /tahap-kanban/:id
-   */
   async updateTahap(
     id: string,
     payload: UpdateTahapKanbanInput
@@ -234,10 +187,6 @@ export const kanbanService = {
     return response.data;
   },
 
-  /**
-   * Delete a Kanban stage
-   * DELETE /tahap-kanban/:id
-   */
   async deleteTahap(id: string): Promise<ApiResponse<void>> {
     const response = await api.delete<ApiResponse<void>>(`/tahap-kanban/${id}`);
     return response.data;

@@ -5,4 +5,3 @@ export const authService = {
 };
 
 export { logoutUser };
-

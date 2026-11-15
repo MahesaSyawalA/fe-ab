@@ -99,7 +99,7 @@ export function KanbanFilterFields({ draft, setDraft }: KanbanFilterFieldsProps)
                 aria-label={label}
                 value={draft[key]}
                 onChange={(val) => setField(key, val)}
-                placeholder='Default'
+                placeholder='0'
               />
             </div>
           ))}

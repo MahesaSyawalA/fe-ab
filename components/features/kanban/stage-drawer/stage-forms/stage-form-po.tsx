@@ -31,7 +31,7 @@ export function StageFormPo({
         isRequired
         readOnly
         value={noPo || 'PO-RS-2026-892'}
-        placeholder='PO-RS-2026-892'
+        placeholder='Contoh: PO-2026-001'
         inputClassName='bg-muted/60 text-muted-foreground cursor-default'
       />
 

@@ -2,10 +2,6 @@ import { type UserRole } from '@/types/user.types';
 
 export type NormalizedRole = 'sales' | 'manager' | 'director' | 'admin';
 
-/**
- * Normalisasi role backend/DB/session ke format standar ('sales' | 'manager' | 'director' | 'admin').
- * Menangani case-insensitive ('DIRECTOR', 'SALES_MANAGER', 'Sales', 'Admin', dll).
- */
 export function normalizeRole(role?: string | null): NormalizedRole | null {
   if (!role) return null;
   const clean = role.trim().toLowerCase();
@@ -16,9 +12,6 @@ export function normalizeRole(role?: string | null): NormalizedRole | null {
   return null;
 }
 
-/**
- * Mendapatkan rute home default berdasarkan role pengguna
- */
 export function getDefaultHome(role?: UserRole | string | null): string {
   const normalized = normalizeRole(role);
   switch (normalized) {
@@ -35,9 +28,6 @@ export function getDefaultHome(role?: UserRole | string | null): string {
   }
 }
 
-/**
- * Memeriksa apakah suatu pathname diizinkan untuk role yang diberikan
- */
 export function isRouteAllowedForRole(pathname: string, role?: string | null): boolean {
   const normalized = normalizeRole(role);
   if (!normalized) return false;
@@ -54,4 +44,3 @@ export function isRouteAllowedForRole(pathname: string, role?: string | null): b
 
   return true;
 }
-

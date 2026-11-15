@@ -9,7 +9,7 @@ import type {
 } from '@/types/squad.types';
 
 export interface SquadListParams extends PaginationQueryParams {
-  /** Batasi ke squad yang di-supervisi user ini (dipakai role manager). */
+
   id_supervisor?: string;
   is_active?: boolean;
 }

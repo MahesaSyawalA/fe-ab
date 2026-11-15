@@ -41,7 +41,7 @@ export function SquadFormView({ basePath, squad }: SquadFormViewProps) {
               <SquadTextFieldInput
                 label='Nama Squad'
                 isRequired
-                placeholder='Team Eca'
+                placeholder='Contoh: Squad Jakarta Timur'
                 value={field.value}
                 onChange={field.onChange}
                 isInvalid={Boolean(error)}
@@ -82,7 +82,7 @@ export function SquadFormView({ basePath, squad }: SquadFormViewProps) {
               <SquadTextFieldInput
                 label='Kode Squad'
                 isRequired
-                placeholder='S0123'
+                placeholder='Contoh: SQD-01'
                 value={field.value}
                 onChange={field.onChange}
                 isInvalid={Boolean(error)}
@@ -99,7 +99,7 @@ export function SquadFormView({ basePath, squad }: SquadFormViewProps) {
               <SquadTextFieldInput
                 label='Wilayah'
                 isRequired
-                placeholder='Bandung'
+                placeholder='Contoh: Jakarta Selatan'
                 value={field.value}
                 onChange={field.onChange}
                 isInvalid={Boolean(error)}

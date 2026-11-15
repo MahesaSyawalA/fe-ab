@@ -3,7 +3,6 @@ import { id } from 'date-fns/locale';
 
 export { cn } from "cn"
 
-/** Contoh: `10 Sep 2026`. */
 export function formatShortDate(date: Date | string): string {
   return format(new Date(date), 'd MMM yyyy', { locale: id });
 }
