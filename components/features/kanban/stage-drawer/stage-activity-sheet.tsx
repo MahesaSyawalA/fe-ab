@@ -60,11 +60,9 @@ export function StageActivitySheet({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!form.evidenceFile) {
-      form.setEvidenceError(true);
+    if (!form.validateForm()) {
       return;
     }
-    form.setEvidenceError(false);
 
     if (mode === 'create') {
       await onCreateTicket?.(

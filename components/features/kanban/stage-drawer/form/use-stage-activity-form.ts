@@ -40,6 +40,7 @@ export function useStageActivityForm({
   const tanggalAktivitas = waktuAktivitas.slice(0, 10);
   const [prioritas, setPrioritas] = React.useState<TiketPrioritas>('sedang');
   const [catatan, setCatatan] = React.useState('');
+  const [catatanTouched, setCatatanTouched] = React.useState(false);
 
   const [evidenceFile, setEvidenceFile] = React.useState<EvidenceFileState | null>(null);
   const [evidenceError, setEvidenceError] = React.useState(false);
@@ -120,7 +121,7 @@ export function useStageActivityForm({
 
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setEvidenceError(false);
-
+    setCatatanTouched(false);
     setEvidenceFile(null);
 
     const randNum = Math.floor(100 + Math.random() * 900);
@@ -247,6 +248,22 @@ export function useStageActivityForm({
     }
   }, [open, mode, ticket, targetStage, pelangganList]);
 
+  const catatanTrimmed = catatan.trim();
+  const isCatatanValid = catatanTrimmed.length >= 5;
+  const catatanError =
+    catatanTouched && !isCatatanValid
+      ? catatanTrimmed.length === 0
+        ? 'Catatan wajib diisi'
+        : 'Catatan minimal 5 karakter'
+      : undefined;
+
+  const validateForm = React.useCallback(() => {
+    const hasEvidence = Boolean(evidenceFile);
+    setEvidenceError(!hasEvidence);
+    setCatatanTouched(true);
+    return hasEvidence && catatan.trim().length >= 5;
+  }, [evidenceFile, catatan]);
+
   return {
     pelangganList,
     kontakList,
@@ -265,6 +282,10 @@ export function useStageActivityForm({
     setPrioritas,
     catatan,
     setCatatan,
+    catatanTouched,
+    setCatatanTouched,
+    catatanError,
+    validateForm,
     evidenceFile,
     setEvidenceFile,
     evidenceError,

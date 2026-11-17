@@ -15,10 +15,16 @@ export interface ApiPaginatedResponse<T = unknown> {
   message?: string;
 }
 
+export interface ApiErrorItem {
+  path?: unknown;
+  field?: string;
+  message?: string;
+}
+
 export interface ApiErrorResponse {
   success?: boolean;
   message?: string;
   error?: string;
-  errors?: Record<string, string[] | string>;
+  errors?: Record<string, string[] | string> | Array<ApiErrorItem | string>;
 }
 

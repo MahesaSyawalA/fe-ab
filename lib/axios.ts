@@ -159,13 +159,27 @@ api.interceptors.response.use(
 export function getErrorMessage(error: unknown): string {
   if (isAxiosError<ApiErrorResponse>(error)) {
     const data = error.response?.data;
+    if (data?.errors) {
+      if (Array.isArray(data.errors) && data.errors.length > 0) {
+        const firstItem = data.errors[0];
+        if (typeof firstItem === 'string' && firstItem) return firstItem;
+        if (
+          firstItem &&
+          typeof firstItem === 'object' &&
+          'message' in firstItem &&
+          typeof firstItem.message === 'string' &&
+          firstItem.message
+        ) {
+          return firstItem.message;
+        }
+      } else if (typeof data.errors === 'object') {
+        const firstError = Object.values(data.errors)[0];
+        if (Array.isArray(firstError) && firstError[0]) return firstError[0];
+        if (typeof firstError === 'string' && firstError) return firstError;
+      }
+    }
     if (data?.message) return data.message;
     if (data?.error) return data.error;
-    if (data?.errors) {
-      const firstError = Object.values(data.errors)[0];
-      if (Array.isArray(firstError) && firstError[0]) return firstError[0];
-      if (typeof firstError === 'string') return firstError;
-    }
     if (error.message) return error.message;
   }
 

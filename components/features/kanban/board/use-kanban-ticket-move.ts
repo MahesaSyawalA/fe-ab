@@ -10,6 +10,7 @@ import {
   useCreateEvidenceMutation,
 } from '@/hooks/queries/use-kanban-query';
 import { normalizeAudioFile } from '@/lib/file-validation';
+import { getErrorMessage } from '@/lib/axios';
 import { detectFileType } from '../stage-drawer/types';
 import type { KanbanStageColumn } from '@/constants/kanban-constants';
 import type { CreateTiketInput, TiketWithDetails } from '@/types/ticket.types';
@@ -170,10 +171,7 @@ export function useKanbanTicketMove({
       setIsStageDrawerOpen(false);
       setPendingStageMove(null);
     } catch (err: unknown) {
-      const message =
-        err instanceof Error
-          ? err.message
-          : 'Terjadi kesalahan saat memproses aktivitas tiket.';
+      const message = getErrorMessage(err);
       toast.danger('Gagal Memproses Perpindahan', {
         description: React.createElement(
           'span',
@@ -249,7 +247,13 @@ export function useKanbanTicketMove({
             }
           }
         } catch (chainErr) {
-          console.warn('[Chaining Bukti/Aktivitas Warning]:', chainErr);
+          toast.warning('Prospek Dibuat, Aktivitas Gagal Disimpan', {
+            description: React.createElement(
+              'span',
+              { className: 'text-xs sm:text-sm text-secondary-foreground leading-relaxed' },
+              getErrorMessage(chainErr),
+            ),
+          });
         }
       }
 
@@ -267,10 +271,7 @@ export function useKanbanTicketMove({
       setIsStageDrawerOpen(false);
       setPendingStageMove(null);
     } catch (err: unknown) {
-      const message =
-        err instanceof Error
-          ? err.message
-          : 'Terjadi kesalahan saat membuat tiket prospek.';
+      const message = getErrorMessage(err);
       toast.danger('Gagal Membuat Prospek', {
         description: React.createElement(
           'span',

@@ -127,6 +127,24 @@ export function useSquadForm({ basePath, squad }: UseSquadFormOptions) {
 
   const confirmDelete = async () => {
     if (!squad) return;
+
+    const hasActiveMembers =
+      (squad.members?.length ?? 0) > 0 ||
+      (squad.member_count ?? 0) > 0 ||
+      memberIds.length > 0;
+
+    if (hasActiveMembers) {
+      setDialog(null);
+      toast.warning('Squad Tidak Dapat Dihapus', {
+        description: React.createElement(
+          'span',
+          { className: 'text-xs sm:text-sm text-secondary-foreground leading-relaxed' },
+          'Squad tidak dapat dihapus karena masih memiliki anggota aktif. Keluarkan seluruh anggota terlebih dahulu.',
+        ),
+      });
+      return;
+    }
+
     try {
       await deleteMutation.mutateAsync(squad.id_squad);
       toast.success('Data berhasil dihapus', {

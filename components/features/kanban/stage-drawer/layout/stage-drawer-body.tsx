@@ -122,15 +122,22 @@ export function StageDrawerBody({ mode, stageType, form }: StageDrawerBodyProps)
 
       <div className='flex flex-col gap-1'>
         <StageTextAreaInput
-          label={mode === 'move' ? 'Catatan Aktivitas' : 'Catatan Pelanggan (opsional)'}
-          isRequired={mode === 'move'}
+          label={mode === 'move' ? 'Catatan Aktivitas' : 'Catatan Prospek'}
+          isRequired
           rows={3}
           value={form.catatan}
-          onChange={form.setCatatan}
+          onChange={(val) => {
+            form.setCatatan(val);
+            if (!form.catatanTouched) {
+              form.setCatatanTouched(true);
+            }
+          }}
+          isInvalid={Boolean(form.catatanError)}
+          errorMessage={form.catatanError}
           placeholder={
             mode === 'move'
-              ? 'Tuliskan catatan aktivitas...'
-              : 'Tuliskan kebutuhan atau catatan prospek...'
+              ? 'Tuliskan catatan aktivitas (minimal 5 karakter)...'
+              : 'Tuliskan kebutuhan atau catatan prospek (minimal 5 karakter)...'
           }
         />
         <div className='flex justify-end text-[10px] text-muted-foreground pr-1'>
