@@ -35,7 +35,8 @@ export function usePelangganEditForm({
       radius_kunjungan: pelanggan.radius_kunjungan || 200,
       img_url: pelanggan.img_url || '',
     },
-    mode: 'onTouched',
+    mode: 'onChange',
+    reValidateMode: 'onChange',
   });
 
   const [prevOpen, setPrevOpen] = React.useState(open);
@@ -92,6 +93,9 @@ export function usePelangganEditForm({
       setServerError(null);
       await updateMutation.mutateAsync({
         ...values,
+        latitude: Number(values.latitude),
+        longitude: Number(values.longitude),
+        radius_kunjungan: Number(values.radius_kunjungan),
         file: selectedFile,
       });
       toast.success('Data pelanggan berhasil disimpan', {

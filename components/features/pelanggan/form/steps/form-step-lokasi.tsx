@@ -47,8 +47,8 @@ export function FormStepLokasi({
 
         <div className='md:col-span-7 flex flex-col gap-2'>
           <PelangganResponsiveMap
-            latitude={latitude}
-            longitude={longitude}
+            latitude={Number.isFinite(Number(latitude)) ? Number(latitude) : -6.208812}
+            longitude={Number.isFinite(Number(longitude)) ? Number(longitude) : 106.845648}
             onLocationChange={handleMapLocationChange}
             mobile={{ interactive: true, height: '200px' }}
             desktop={{ interactive: true, height: '320px' }}
@@ -71,8 +71,8 @@ export function FormStepLokasi({
                   required
                   type='number'
                   step='any'
-                  value={field.value}
-                  onChange={(val) => field.onChange(parseFloat(val) || 0)}
+                  value={field.value ?? ''}
+                  onChange={field.onChange}
                   isInvalid={Boolean(error)}
                   errorMessage={error?.message}
                   placeholder='-6.208812'
@@ -89,8 +89,8 @@ export function FormStepLokasi({
                   required
                   type='number'
                   step='any'
-                  value={field.value}
-                  onChange={(val) => field.onChange(parseFloat(val) || 0)}
+                  value={field.value ?? ''}
+                  onChange={field.onChange}
                   isInvalid={Boolean(error)}
                   errorMessage={error?.message}
                   placeholder='106.845648'
@@ -104,17 +104,14 @@ export function FormStepLokasi({
             name='radius_kunjungan'
             render={({ field, fieldState: { error } }) => (
               <PelangganTextInput
-                label='Radius Kunjungan'
+                label='Radius Kunjungan (meter)'
                 optionalText='(Opsional)'
-                type='text'
-                value={field.value ? `${field.value} m` : ''}
-                onChange={(val) => {
-                  const numeric = parseInt(val.replace(/[^0-9]/g, ''), 10);
-                  field.onChange(isNaN(numeric) ? 0 : numeric);
-                }}
+                type='number'
+                value={field.value ?? ''}
+                onChange={field.onChange}
                 isInvalid={Boolean(error)}
                 errorMessage={error?.message}
-                placeholder='200 m'
+                placeholder='200'
               />
             )}
           />

@@ -50,7 +50,8 @@ export function usePelangganWizard({
   const form = useForm<CreateCustomerInput>({
     resolver: zodResolver(createCustomerSchema) as Resolver<CreateCustomerInput>,
     defaultValues: DEFAULT_WIZARD_VALUES,
-    mode: 'onTouched',
+    mode: 'onChange',
+    reValidateMode: 'onChange',
   });
 
   const rawContacts = useWatch({ control: form.control, name: 'kontak' });

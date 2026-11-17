@@ -47,8 +47,8 @@ export function PelangganEditLocationSection({ formState }: PelangganEditLocatio
 
       <div className='flex flex-col gap-2'>
         <PelangganResponsiveMap
-          latitude={Number(latitude) || 0}
-          longitude={Number(longitude) || 0}
+          latitude={Number.isFinite(Number(latitude)) ? Number(latitude) : 0}
+          longitude={Number.isFinite(Number(longitude)) ? Number(longitude) : 0}
           onLocationChange={handleMapLocationChange}
           mobile={{ interactive: true, height: '180px' }}
           desktop={{ interactive: true, height: '220px' }}
@@ -107,9 +107,7 @@ export function PelangganEditLocationSection({ formState }: PelangganEditLocatio
             label='Radius Kunjungan (meter)'
             required
             type='number'
-            min={50}
-            max={5000}
-            value={field.value ?? 200}
+            value={field.value ?? ''}
             onChange={field.onChange}
             isInvalid={Boolean(error)}
             errorMessage={error?.message}

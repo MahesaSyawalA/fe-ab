@@ -30,10 +30,10 @@ export interface StageFormVisitProps {
 
 export function StageFormVisit({
   mode = 'create',
-  koordinatGps = '-6.2088, 106.8456',
-  statusRadius = 'Dalam Radius (38m)',
+  koordinatGps = 'Lokasi GPS belum tersedia',
+  statusRadius = 'Menunggu GPS',
   isLocating = false,
-  isWithinRadius = true,
+  isWithinRadius = false,
   onRefreshLocation,
   waktuAktivitas = '',
   onWaktuChange,
