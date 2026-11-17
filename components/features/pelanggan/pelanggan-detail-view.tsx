@@ -37,6 +37,15 @@ export function PelangganDetailView({
   const isAllowedToEdit = canEdit ?? (session?.user?.role !== 'director');
 
   const handleDelete = async () => {
+    const activeTicketCount = pelanggan.tiket_aktif ?? 0;
+    if (activeTicketCount > 0) {
+      setIsDeleteOpen(false);
+      toast.warning('Pelanggan Tidak Dapat Dihapus', {
+        description: `Pelanggan tidak dapat dihapus karena masih memiliki ${activeTicketCount} tiket aktif.`,
+      });
+      return;
+    }
+
     try {
       await deleteMutation.mutateAsync(pelanggan.id_pelanggan);
       toast.success('Data berhasil dihapus', {

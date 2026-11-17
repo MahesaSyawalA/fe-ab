@@ -27,7 +27,7 @@ const toFormValues = (squad: SquadWithDetails): SquadFormValues => ({
   kode_squad: squad.kode_squad,
   wilayah: squad.wilayah,
   is_active: squad.is_active,
-  member_ids: squad.members.map((m) => m.id_user),
+  member_ids: squad.members.filter((m) => m.role === 'sales').map((m) => m.id_user),
 });
 
 export function useSquadForm({ basePath, squad }: UseSquadFormOptions) {
@@ -43,7 +43,7 @@ export function useSquadForm({ basePath, squad }: UseSquadFormOptions) {
   const createMutation = useCreateSquadMutation();
   const updateMutation = useUpdateSquadMutation(squad?.id_squad ?? '');
   const deleteMutation = useDeleteSquadMutation();
-  const users = useUserListQuery().data?.data;
+  const users = useUserListQuery({ limit: 100 }).data?.data;
 
   const [dialog, setDialog] = React.useState<'cancel' | 'delete' | 'picker' | null>(null);
   const closeDialog = (open: boolean) => !open && setDialog(null);
@@ -67,7 +67,9 @@ export function useSquadForm({ basePath, squad }: UseSquadFormOptions) {
   const memberIds = useWatch({ control: form.control, name: 'member_ids' });
   const members: SquadMember[] = React.useMemo(() => {
     const byId = new Map<string, SquadMember>(
-      [...(squad?.members ?? []), ...(users ?? [])].map((u) => [u.id_user, u]),
+      [...(squad?.members ?? []), ...(users ?? [])]
+        .filter((u) => u.role === 'sales')
+        .map((u) => [u.id_user, u]),
     );
     return memberIds.flatMap((id) => byId.get(id) ?? []);
   }, [memberIds, users, squad]);
