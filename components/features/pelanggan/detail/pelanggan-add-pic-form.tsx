@@ -218,9 +218,11 @@ export function PelangganAddPicFields({ formState }: { formState: PelangganAddPi
 export function PelangganAddPicFooterActions({
   onCancel,
   isPending,
+  submitLabel = 'Simpan PIC',
 }: {
   onCancel: () => void;
   isPending: boolean;
+  submitLabel?: string;
 }) {
   return (
     <div className='grid grid-cols-2 gap-3 w-full sm:flex sm:w-auto sm:justify-end sm:items-center sm:gap-2.5'>
@@ -239,7 +241,7 @@ export function PelangganAddPicFooterActions({
         className='h-10 sm:h-9 w-full sm:w-auto sm:min-w-[140px] sm:px-5 rounded-md text-xs font-semibold text-white shadow-sm bg-primary-default hover:bg-primary-hover active:bg-primary data-[pressed=true]:bg-primary transition-all cursor-pointer disabled:opacity-60'
       >
         {isPending && <Loader2 className='mr-1.5 size-3.5 animate-spin' />}
-        <span>{isPending ? 'Menyimpan...' : 'Simpan PIC'}</span>
+        <span>{isPending ? 'Menyimpan...' : submitLabel}</span>
       </Button>
     </div>
   );

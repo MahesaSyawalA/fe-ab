@@ -7,7 +7,7 @@ import type {
   CreatePelangganInput,
   UpdatePelangganInput,
 } from '@/types/customer.types';
-import type { CreateKontakInput, Kontak } from '@/types/contact.types';
+import type { CreateKontakInput, Kontak, UpdateKontakInput } from '@/types/contact.types';
 
 export interface PelangganListParams extends PaginationQueryParams {
   tipe_outlet?: string;
@@ -129,6 +129,16 @@ export const pelangganService = {
 
   async addContact(payload: CreateKontakInput): Promise<ApiResponse<Kontak>> {
     const response = await api.post<ApiResponse<Kontak>>('/kontak', payload);
+    return response.data;
+  },
+
+  async updateContact(idKontak: string, payload: UpdateKontakInput): Promise<ApiResponse<Kontak>> {
+    const response = await api.patch<ApiResponse<Kontak>>(`/kontak/${idKontak}`, payload);
+    return response.data;
+  },
+
+  async deleteContact(idKontak: string): Promise<ApiResponse<null>> {
+    const response = await api.delete<ApiResponse<null>>(`/kontak/${idKontak}`);
     return response.data;
   },
 };

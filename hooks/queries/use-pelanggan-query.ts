@@ -13,7 +13,7 @@ import type {
   CreatePelangganInput,
   UpdatePelangganInput,
 } from '@/types/customer.types';
-import type { CreateKontakInput, Kontak } from '@/types/contact.types';
+import type { CreateKontakInput, Kontak, UpdateKontakInput } from '@/types/contact.types';
 
 export const pelangganKeys = {
   all: ['pelanggan'] as const,
@@ -171,6 +171,53 @@ export function useAddPelangganContactMutation(
     },
     onError: (...args) => {
       console.warn('[Add Pelanggan Contact Error]:', getErrorMessage(args[0]));
+      options?.onError?.(...args);
+    },
+  });
+}
+
+export function useUpdatePelangganContactMutation(
+  idPelanggan: string,
+  options?: UseMutationOptions<
+    ApiResponse<Kontak>,
+    Error,
+    { idKontak: string; data: UpdateKontakInput }
+  >,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...options,
+    mutationFn: ({ idKontak, data }: { idKontak: string; data: UpdateKontakInput }) =>
+      pelangganService.updateContact(idKontak, data),
+    onSuccess: async (...args) => {
+      await queryClient.invalidateQueries({ queryKey: pelangganKeys.detail(idPelanggan) });
+      await queryClient.invalidateQueries({ queryKey: pelangganKeys.all });
+      await options?.onSuccess?.(...args);
+    },
+    onError: (...args) => {
+      console.warn('[Update Pelanggan Contact Error]:', getErrorMessage(args[0]));
+      options?.onError?.(...args);
+    },
+  });
+}
+
+export function useDeletePelangganContactMutation(
+  idPelanggan: string,
+  options?: UseMutationOptions<ApiResponse<null>, Error, string>,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...options,
+    mutationFn: (idKontak: string) => pelangganService.deleteContact(idKontak),
+    onSuccess: async (...args) => {
+      await queryClient.invalidateQueries({ queryKey: pelangganKeys.detail(idPelanggan) });
+      await queryClient.invalidateQueries({ queryKey: pelangganKeys.all });
+      await options?.onSuccess?.(...args);
+    },
+    onError: (...args) => {
+      console.warn('[Delete Pelanggan Contact Error]:', getErrorMessage(args[0]));
       options?.onError?.(...args);
     },
   });

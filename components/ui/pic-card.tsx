@@ -13,6 +13,7 @@ export interface PicCardProps {
   email?: string;
   kategoriPeran?: string | null;
   inisial?: string | null;
+  actions?: React.ReactNode;
   className?: string;
 }
 
@@ -36,6 +37,7 @@ export function PicCard({
   email,
   kategoriPeran = 'KOL / Penentu Klinis',
   inisial,
+  actions,
   className,
 }: PicCardProps) {
   const displayInitials = getInitials(nama, inisial);
@@ -50,37 +52,43 @@ export function PicCard({
       )}
     >
       <CardContent className='gap-3 px-4'>
-        {/* Top Info: Avatar + Name + Badge + Position */}
-        <div className='flex items-start gap-3'>
-          <Avatar
-            size='lg'
-            className='rounded-xl after:rounded-xl after:border-0'
-          >
-            <AvatarFallback className='rounded-xl bg-kanban-purple text-xs font-semibold text-white'>
-              {displayInitials}
-            </AvatarFallback>
-          </Avatar>
+        <div className='flex items-start justify-between gap-2'>
+          <div className='flex min-w-0 flex-1 items-start gap-3'>
+            <Avatar
+              size='lg'
+              className='rounded-xl after:rounded-xl after:border-0'
+            >
+              <AvatarFallback className='rounded-xl bg-kanban-purple text-xs font-semibold text-white'>
+                {displayInitials}
+              </AvatarFallback>
+            </Avatar>
 
-          <div className='flex min-w-0 flex-1 flex-col gap-1'>
-            <h4 className='text-xs sm:text-sm font-bold text-foreground leading-snug'>
-              {nama}
-            </h4>
+            <div className='flex min-w-0 flex-1 flex-col gap-1'>
+              <h4 className='text-xs sm:text-sm font-bold text-foreground leading-snug'>
+                {nama}
+              </h4>
 
-            {kategoriPeran && (
-              <Badge className='h-5 rounded-md bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary'>
-                {kategoriPeran}
-              </Badge>
-            )}
+              {kategoriPeran && (
+                <Badge className='h-5 rounded-md bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary'>
+                  {kategoriPeran}
+                </Badge>
+              )}
 
-            {jabatan && (
-              <p className='mt-0.5 text-xs text-secondary-foreground leading-relaxed'>
-                {jabatan}
-              </p>
-            )}
+              {jabatan && (
+                <p className='mt-0.5 text-xs text-secondary-foreground leading-relaxed'>
+                  {jabatan}
+                </p>
+              )}
+            </div>
           </div>
+
+          {actions && (
+            <div className='flex items-center gap-1 shrink-0'>
+              {actions}
+            </div>
+          )}
         </div>
 
-        {/* Middle Contact Details Box */}
         <div className='flex flex-col gap-2 rounded-xl bg-secondary/60 p-3'>
           {noTelp && (
             <div className='flex items-center gap-2.5 text-xs font-medium text-foreground/85'>
@@ -96,7 +104,6 @@ export function PicCard({
           )}
         </div>
 
-        {/* Bottom 3 Action Buttons: Telepon, WhatsApp, Email */}
         <div className='grid grid-cols-3 gap-2'>
           <Button
             variant='ghost'
