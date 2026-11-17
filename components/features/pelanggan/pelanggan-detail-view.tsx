@@ -41,7 +41,11 @@ export function PelangganDetailView({
     if (activeTicketCount > 0) {
       setIsDeleteOpen(false);
       toast.warning('Pelanggan Tidak Dapat Dihapus', {
-        description: `Pelanggan tidak dapat dihapus karena masih memiliki ${activeTicketCount} tiket aktif.`,
+        description: (
+          <span className='text-xs sm:text-sm text-secondary-foreground leading-relaxed'>
+            Pelanggan tidak dapat dihapus karena masih memiliki <strong>{activeTicketCount}</strong> tiket aktif.
+          </span>
+        ),
       });
       return;
     }
@@ -49,13 +53,21 @@ export function PelangganDetailView({
     try {
       await deleteMutation.mutateAsync(pelanggan.id_pelanggan);
       toast.success('Data berhasil dihapus', {
-        description: `Pelanggan "${pelanggan.nama_outlet}" telah dihapus.`,
+        description: (
+          <span className='text-xs sm:text-sm text-secondary-foreground leading-relaxed'>
+            Pelanggan <strong>{pelanggan.nama_outlet}</strong> telah dihapus.
+          </span>
+        ),
       });
       setIsDeleteOpen(false);
       onBack();
     } catch {
       toast.danger('Gagal Menghapus Pelanggan', {
-        description: 'Terjadi kesalahan sistem saat menghapus data outlet.',
+        description: (
+          <span className='text-xs sm:text-sm text-secondary-foreground leading-relaxed'>
+            Terjadi kesalahan sistem saat menghapus data outlet.
+          </span>
+        ),
       });
     }
   };

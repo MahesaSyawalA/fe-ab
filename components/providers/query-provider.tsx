@@ -26,7 +26,7 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
 
             toast.danger('Terjadi Kesalahan Jaringan', {
               description: (
-                <span className='text-xs text-secondary-foreground'>
+                <span className='text-xs sm:text-sm text-secondary-foreground leading-relaxed'>
                   {error.message || 'Gagal memproses data dari server'}
                 </span>
               ),
@@ -44,7 +44,7 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
 
             toast.danger('Terjadi Kesalahan Jaringan', {
               description: (
-                <span className='text-xs text-secondary-foreground'>
+                <span className='text-xs sm:text-sm text-secondary-foreground leading-relaxed'>
                   {error.message || 'Gagal memproses data dari server'}
                 </span>
               ),

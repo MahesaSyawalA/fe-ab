@@ -61,7 +61,7 @@ export function StageFileInput({
       setInternalError(msg);
       toast.danger('Berkas Tidak Valid', {
         description: (
-          <span className='text-xs text-secondary-foreground leading-relaxed'>
+          <span className='text-xs sm:text-sm text-secondary-foreground leading-relaxed'>
             {msg}
           </span>
         ),

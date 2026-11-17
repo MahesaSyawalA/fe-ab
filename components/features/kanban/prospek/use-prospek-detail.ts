@@ -212,7 +212,7 @@ export function useProspekDetail({
       toast.success('Aktivitas Berhasil Disimpan', {
         description: React.createElement(
           'span',
-          { className: 'text-xs text-secondary-foreground leading-relaxed' },
+          { className: 'text-xs sm:text-sm text-secondary-foreground leading-relaxed' },
           'Catatan aktivitas dan berkas bukti berhasil diperbarui.',
         ),
       });
@@ -222,7 +222,7 @@ export function useProspekDetail({
       toast.danger('Gagal Menyimpan Aktivitas', {
         description: React.createElement(
           'span',
-          { className: 'text-xs text-secondary-foreground leading-relaxed' },
+          { className: 'text-xs sm:text-sm text-secondary-foreground leading-relaxed' },
           err instanceof Error ? err.message : 'Terjadi kesalahan sistem.',
         ),
       });
