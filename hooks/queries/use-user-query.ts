@@ -1,4 +1,9 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  type UseQueryOptions,
+} from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import {
   userService,
@@ -7,20 +12,64 @@ import {
   type CreateUserApiPayload,
   type UpdateUserApiPayload,
 } from '@/services/user-service';
+import type { ApiPaginatedResponse } from '@/types/api.types';
+import type { PublicUserWithSquad } from '@/types/user.types';
 import { getErrorMessage } from '@/lib/axios';
 
 export const userKeys = {
   all: ['users'] as const,
   lists: () => [...userKeys.all, 'list'] as const,
   list: (params?: UserListParams) => [...userKeys.lists(), params] as const,
+  counts: (search?: string) => [...userKeys.all, 'counts', { search: search || undefined }] as const,
   detail: (id: string) => [...userKeys.all, 'detail', id] as const,
   me: () => [...userKeys.all, 'me'] as const,
 };
 
-export function useUserListQuery(params?: UserListParams) {
+export function useUserListQuery(
+  params?: UserListParams,
+  options?: Omit<
+    UseQueryOptions<ApiPaginatedResponse<PublicUserWithSquad>, Error>,
+    'queryKey' | 'queryFn'
+  >,
+) {
   return useQuery({
     queryKey: userKeys.list(params),
     queryFn: () => userService.getList(params),
+    ...options,
+  });
+}
+
+export function useUserCountsSourceQuery(search?: string) {
+  const normalizedSearch = search?.trim() || undefined;
+  return useQuery({
+    queryKey: userKeys.counts(normalizedSearch),
+    queryFn: async () => {
+      const firstPage = await userService.getList({
+        page: 1,
+        limit: 100,
+        search: normalizedSearch,
+      });
+      const items = [...(firstPage.data ?? [])];
+      const totalPages = firstPage.meta?.total_pages ?? 1;
+      if (totalPages > 1) {
+        const restPages = await Promise.all(
+          Array.from({ length: totalPages - 1 }, (_, idx) =>
+            userService.getList({
+              page: idx + 2,
+              limit: 100,
+              search: normalizedSearch,
+            }),
+          ),
+        );
+        for (const pageRes of restPages) {
+          if (Array.isArray(pageRes.data)) {
+            items.push(...pageRes.data);
+          }
+        }
+      }
+      return items;
+    },
+    staleTime: 60_000,
   });
 }
 

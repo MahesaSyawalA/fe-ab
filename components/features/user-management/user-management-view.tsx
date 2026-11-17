@@ -21,6 +21,7 @@ import {
 import { useDebounce } from '@/hooks/use-debounce';
 import {
   useUserListQuery,
+  useUserCountsSourceQuery,
   useCreateUserMutation,
   useUpdateUserMutation,
 } from '@/hooks/queries/use-user-query';
@@ -68,33 +69,40 @@ export function UserManagementView() {
     role: selectedRole === 'all' ? undefined : (selectedRole as ManagedUser['role']),
   });
 
+  const { data: userCountsData } = useUserCountsSourceQuery(debouncedSearch);
+
+  const mapAndFilterUsers = React.useCallback(
+    (rawUsers?: typeof userListData extends undefined ? never : NonNullable<typeof userListData>['data']) => {
+      if (!rawUsers) return [];
+      let list: ManagedUser[] = rawUsers
+        .filter((u) => {
+          if (u.role === 'admin') return false;
+          if (currentUserRole === 'director' && u.role === 'director') return false;
+          if (currentUserRole === 'manager' && u.role !== 'sales') return false;
+          return true;
+        })
+        .map((u) => ({
+          id: u.id_user,
+          nama: u.nama,
+          email: u.email,
+          no_telp: u.no_telp || '-',
+          role: u.role,
+          id_squad: u.id_squad,
+          squad: u.squad?.nama_squad ?? null,
+          status: (u.is_active ? 'aktif' : 'nonaktif') as ManagedUser['status'],
+        }));
+
+      if (selectedStatus !== 'all') {
+        list = list.filter((u) => u.status === selectedStatus);
+      }
+
+      return list;
+    },
+    [currentUserRole, selectedStatus],
+  );
+
   const users: ManagedUser[] = React.useMemo(() => {
-    if (!userListData?.data) return [];
-
-    let list = userListData.data
-      .filter((u) => {
-        if (u.role === 'admin') return false;
-
-        if (currentUserRole === 'director' && u.role === 'director') return false;
-
-        if (currentUserRole === 'manager' && u.role !== 'sales') return false;
-
-        return true;
-      })
-      .map((u) => ({
-        id: u.id_user,
-        nama: u.nama,
-        email: u.email,
-        no_telp: u.no_telp || '-',
-        role: u.role,
-        id_squad: u.id_squad,
-        squad: u.squad?.nama_squad ?? null,
-        status: (u.is_active ? 'aktif' : 'nonaktif') as ManagedUser['status'],
-      }));
-
-    if (selectedStatus !== 'all') {
-      list = list.filter((u) => u.status === selectedStatus);
-    }
+    const list = mapAndFilterUsers(userListData?.data);
 
     if (sortBy === 'name_asc') {
       list.sort((a, b) => a.nama.localeCompare(b.nama));
@@ -103,7 +111,7 @@ export function UserManagementView() {
     }
 
     return list;
-  }, [userListData, currentUserRole, selectedStatus, sortBy]);
+  }, [mapAndFilterUsers, userListData, sortBy]);
 
   const filterOptions: RoleFilterOption[] = React.useMemo(() => {
     if (currentUserRole === 'director') {
@@ -113,13 +121,14 @@ export function UserManagementView() {
   }, [currentUserRole]);
 
   const roleCounts: Record<RoleFilterValue, number> = React.useMemo(() => {
+    const allVisibleUsers = mapAndFilterUsers(userCountsData);
     return {
-      all: users.length,
-      director: users.filter((u) => u.role === 'director').length,
-      sales_manager: users.filter((u) => u.role === 'sales_manager').length,
-      sales: users.filter((u) => u.role === 'sales').length,
+      all: allVisibleUsers.length,
+      director: allVisibleUsers.filter((u) => u.role === 'director').length,
+      sales_manager: allVisibleUsers.filter((u) => u.role === 'sales_manager').length,
+      sales: allVisibleUsers.filter((u) => u.role === 'sales').length,
     };
-  }, [users]);
+  }, [mapAndFilterUsers, userCountsData]);
 
   const activeFilterCount = countActiveUserFilters(selectedRole, selectedStatus, sortBy);
 

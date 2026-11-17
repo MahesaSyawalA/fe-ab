@@ -7,6 +7,7 @@ import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/layout/sidebar/app-sidebar';
 import { AppHeader } from '@/components/layout/header/app-header';
 import { normalizeRole } from '@/lib/rbac';
+import { useSessionGuard } from '@/hooks/use-session-guard';
 
 interface RoleLayoutShellProps {
   role: 'sales' | 'manager' | 'director' | 'admin';
@@ -14,12 +15,11 @@ interface RoleLayoutShellProps {
 }
 
 export function RoleLayoutShell({ role, children }: RoleLayoutShellProps) {
+  useSessionGuard();
   const pathname = usePathname();
   const { data: session } = useSession();
   const activeRole = normalizeRole(session?.user?.role) || normalizeRole(role) || 'sales';
 
-  // Standalone full-screen pages (e.g. /pelanggan/tambah, /kanban/[id], /squad/tambah, /pengaturan, /profile)
-  // render without Sidebar and without AppHeader on mobile
   const isStandaloneSubpage =
     /\/(pelanggan|kanban|squad)\/.+/.test(pathname) ||
     /\/(pengaturan|profile|profil)/.test(pathname);

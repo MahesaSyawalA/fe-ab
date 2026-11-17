@@ -23,7 +23,23 @@ interface QueueItem {
 }
 
 let isRefreshing = false;
+let isLoggingOut = false;
 let failedQueue: QueueItem[] = [];
+
+const triggerForcedLogout = async () => {
+  if (typeof window === 'undefined' || window.location.pathname.startsWith('/login')) {
+    return;
+  }
+  if (isLoggingOut) return;
+  isLoggingOut = true;
+  try {
+    await logoutUser();
+  } catch {
+    await signOut({ callbackUrl: '/login', redirect: true });
+  } finally {
+    isLoggingOut = false;
+  }
+};
 
 const processQueue = (error: unknown = null) => {
   failedQueue.forEach((item) => {
@@ -72,9 +88,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !isAuthEndpoint) {
 
       if (originalRequest._retry) {
-        if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
-          await logoutUser();
-        }
+        await triggerForcedLogout();
         return Promise.reject(error);
       }
 
@@ -122,22 +136,20 @@ api.interceptors.response.use(
         processQueue(refreshError);
 
         console.warn('[Silent Refresh] Sesi kedaluwarsa. Mengarahkan ke login...');
-        if (typeof window !== 'undefined') {
-          if (!window.location.pathname.startsWith('/login')) {
-            try {
-              await logoutUser();
-            } catch {
-              await signOut({ callbackUrl: '/login', redirect: true });
-            }
-          }
-        }
+        await triggerForcedLogout();
 
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
       }
     } else if (error.response?.status === 403) {
-      console.warn('[HTTP 403] Akses ditolak. Pengguna tidak memiliki izin untuk tindakan ini.');
+      const responseData = error.response?.data as ApiErrorResponse | undefined;
+      const errMsg = (responseData?.message || responseData?.error || '').toLowerCase();
+      if (errMsg.includes('dinonaktifkan') || errMsg.includes('inactive')) {
+        await triggerForcedLogout();
+      } else {
+        console.warn('[HTTP 403] Akses ditolak. Pengguna tidak memiliki izin untuk tindakan ini.');
+      }
     }
 
     return Promise.reject(error);

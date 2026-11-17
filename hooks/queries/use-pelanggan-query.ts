@@ -19,9 +19,46 @@ export const pelangganKeys = {
   all: ['pelanggan'] as const,
   lists: () => [...pelangganKeys.all, 'list'] as const,
   list: (params?: PelangganListParams) => [...pelangganKeys.lists(), params] as const,
+  counts: (search?: string) => [...pelangganKeys.all, 'counts', { search: search || undefined }] as const,
   details: () => [...pelangganKeys.all, 'detail'] as const,
   detail: (id: string) => [...pelangganKeys.details(), id] as const,
 };
+
+export function usePelangganCountsSourceQuery(search?: string) {
+  const normalizedSearch = search?.trim() || undefined;
+  return useQuery({
+    queryKey: pelangganKeys.counts(normalizedSearch),
+    queryFn: async () => {
+      const firstPage = await pelangganService.getList({
+        page: 1,
+        limit: 100,
+        order: 'desc',
+        search: normalizedSearch,
+      });
+      const items = [...(firstPage.data ?? [])];
+      const totalPages = firstPage.meta?.total_pages ?? 1;
+      if (totalPages > 1) {
+        const restPages = await Promise.all(
+          Array.from({ length: totalPages - 1 }, (_, idx) =>
+            pelangganService.getList({
+              page: idx + 2,
+              limit: 100,
+              order: 'desc',
+              search: normalizedSearch,
+            }),
+          ),
+        );
+        for (const pageRes of restPages) {
+          if (Array.isArray(pageRes.data)) {
+            items.push(...pageRes.data);
+          }
+        }
+      }
+      return items;
+    },
+    staleTime: 60_000,
+  });
+}
 
 export function usePelangganListQuery(
   params?: PelangganListParams,

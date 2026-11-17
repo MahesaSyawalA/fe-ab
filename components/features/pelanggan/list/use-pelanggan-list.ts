@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ChipFilterItem } from '@/components/ui/chip-filter';
 import { PELANGGAN_CATEGORY_CHIPS } from '@/constants/pelanggan-constants';
-import { usePelangganListQuery } from '@/hooks/queries';
+import { usePelangganListQuery, usePelangganCountsSourceQuery } from '@/hooks/queries';
 import { useDebounce } from '@/hooks/use-debounce';
 import {
   usePelangganFilterStore,
@@ -67,6 +67,7 @@ export function usePelangganList() {
   );
 
   const query = usePelangganListQuery(queryParams);
+  const countQuery = usePelangganCountsSourceQuery(debouncedSearchQuery);
 
   const rawList = query.data?.data;
   const pelangganList: PelangganWithDetails[] = React.useMemo(() => {
@@ -74,6 +75,20 @@ export function usePelangganList() {
     if (Array.isArray(query.data)) return query.data as unknown as PelangganWithDetails[];
     return [];
   }, [rawList, query.data]);
+
+  const allPelangganForCounts: PelangganWithDetails[] = React.useMemo(() => {
+    const baseList = Array.isArray(countQuery.data) ? countQuery.data : [];
+    const queryStr = debouncedSearchQuery.trim().toLowerCase();
+    if (!queryStr) return baseList;
+    return baseList.filter((item) => {
+      const matchNama = item.nama_outlet?.toLowerCase().includes(queryStr);
+      const matchAlamat = item.alamat?.toLowerCase().includes(queryStr);
+      const matchKontak = Boolean(
+        item.kontak_list?.some((k) => k.nama?.toLowerCase().includes(queryStr)),
+      );
+      return matchNama || matchAlamat || matchKontak;
+    });
+  }, [countQuery.data, debouncedSearchQuery]);
 
   const filteredList = React.useMemo(() => {
     const queryStr = debouncedSearchQuery.trim().toLowerCase();
@@ -110,17 +125,17 @@ export function usePelangganList() {
       {
         id: 'semua',
         label: 'Semua',
-        count: pelangganList.length,
+        count: allPelangganForCounts.length,
         dotColor: 'bg-kanban-purple',
       },
       ...PELANGGAN_CATEGORY_CHIPS.map((chip) => ({
         ...chip,
-        count: pelangganList.filter((p) =>
+        count: allPelangganForCounts.filter((p) =>
           matchesCategory(p.tipe_outlet, chip.id),
         ).length,
       })),
     ],
-    [pelangganList],
+    [allPelangganForCounts],
   );
 
   return {
