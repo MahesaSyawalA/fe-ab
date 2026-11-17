@@ -144,13 +144,19 @@ export function StageActivityDialog({
                       PRIORITY_CONFIG[ticket.prioritas]?.badgeClass || 'bg-muted text-muted-foreground',
                     )}
                   >
+                    <span
+                      className={cn(
+                        'size-1.5 rounded-full',
+                        PRIORITY_CONFIG[ticket.prioritas]?.dotClass,
+                      )}
+                    />
                     {PRIORITY_CONFIG[ticket.prioritas]?.label || ticket.prioritas}
                   </span>
                   <span>·</span>
-                  <span>{ticket.nama_pic || 'PIC Outlet'}</span>
+                  <span className='text-secondary-foreground'>{ticket.nama_pic || 'PIC Outlet'}</span>
                 </span>
               ) : (
-                <span className='text-[11px] text-muted-foreground'>
+                <span className='text-[11px] text-secondary-foreground'>
                   Lengkapi data prospek baru dan unggah bukti pendukung awal
                 </span>
               )}

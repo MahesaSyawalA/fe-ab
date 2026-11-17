@@ -76,7 +76,7 @@ export function StageDrawerHeader({
         </button>
       </div>
 
-      <DrawerTitle className='text-sm sm:text-base font-bold text-foreground truncate text-left w-full'>
+      <DrawerTitle className='text-sm sm:text-base font-bold text-foreground text-left w-full'>
         {mode === 'move' && ticket ? (
           <span className='flex items-center gap-1.5 truncate text-left'>
             <span className='text-foreground'>{ticket.kode_tiket}</span>
@@ -84,7 +84,7 @@ export function StageDrawerHeader({
             <span className='truncate font-semibold'>{ticket.judul}</span>
           </span>
         ) : (
-          'Tambah Card'
+          `Tambah Card ke Tahap ${targetStage.nama_tahap}`
         )}
       </DrawerTitle>
 
@@ -107,10 +107,12 @@ export function StageDrawerHeader({
               />
               {PRIORITY_CONFIG[ticket.prioritas]?.label || ticket.prioritas}
             </span>
+            <span>·</span>
+            <span className='text-secondary-foreground'>{ticket.nama_pic || 'PIC Outlet'}</span>
           </span>
         ) : (
-          <span className='text-left'>
-            Lengkapi data prospek dan bukti aktivitas tahap <strong className='font-semibold text-foreground'>{targetStage.nama_tahap}</strong>.
+          <span className='text-[11px] text-secondary-foreground text-left'>
+            Lengkapi data prospek baru dan unggah bukti pendukung awal
           </span>
         )}
       </DrawerDescription>
