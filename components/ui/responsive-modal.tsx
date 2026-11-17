@@ -48,13 +48,13 @@ export function ResponsiveModal({
         <>
           <DrawerTitle className='text-base font-bold text-foreground text-left'>{title}</DrawerTitle>
           {description && (
-            <DrawerDescription className='text-xs text-muted-foreground text-left'>{description}</DrawerDescription>
+            <DrawerDescription className='text-xs text-secondary-foreground text-left'>{description}</DrawerDescription>
           )}
         </>
       ) : (
         <>
           <DialogTitle className='text-left'>{title}</DialogTitle>
-          {description && <DialogDescription className='text-left'>{description}</DialogDescription>}
+          {description && <DialogDescription className='text-left text-secondary-foreground'>{description}</DialogDescription>}
         </>
       )}
     </div>
