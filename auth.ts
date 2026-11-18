@@ -1,3 +1,4 @@
+import { isAxiosError } from 'axios';
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { api } from '@/lib/axios';
@@ -81,7 +82,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             accessToken,
             refreshToken,
           };
-        } catch {
+        } catch (error) {
+          // Tanpa log ini, semua kegagalan (429, jaringan, URL salah) tampil sebagai CredentialsSignin.
+          console.error(
+            '[authorize] login ke BE gagal:',
+            isAxiosError(error)
+              ? `${error.response?.status ?? 'no-response'} ${error.code ?? ''} ${error.message}`
+              : error,
+          );
           return null;
         }
       },
