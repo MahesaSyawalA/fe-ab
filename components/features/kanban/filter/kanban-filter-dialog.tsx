@@ -53,7 +53,7 @@ function KanbanFilterDialogContent({
         </p>
       </Modal.Header>
 
-      <Modal.Body className='no-scrollbar flex-1 min-h-0 overflow-y-auto px-6 py-4'>
+      <Modal.Body className='no-scrollbar flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-6 py-4'>
         <KanbanFilterFields draft={draft} setDraft={setDraft} />
       </Modal.Body>
 
@@ -62,14 +62,14 @@ function KanbanFilterDialogContent({
           type='button'
           variant='outline'
           onClick={handleReset}
-          className='h-10 rounded-xl text-xs font-semibold shadow-none cursor-pointer'
+          className='h-10 sm:h-9 w-full rounded-md text-xs font-semibold cursor-pointer border-border bg-card shadow-none hover:bg-muted/50'
         >
           Reset
         </Button>
         <Button
           type='button'
           onClick={handleApply}
-          className='h-10 rounded-xl text-xs font-semibold cursor-pointer'
+          className='h-10 sm:h-9 w-full rounded-md text-xs font-semibold text-white shadow-sm bg-primary-default hover:bg-primary-hover active:bg-primary data-[pressed=true]:bg-primary transition-all cursor-pointer'
         >
           Terapkan Filter
         </Button>

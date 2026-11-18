@@ -4,7 +4,7 @@ import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { JenisTahap } from '@/types/kanban-stage.types';
 import { JENIS_TAHAP_OPTIONS } from '@/constants/kanban-constants';
-import { useKanbanStore } from '@/lib/kanban-store';
+import { useKanbanStore } from '@/store/kanban-store';
 import { useCreateTahapMutation } from '@/hooks/queries';
 import { getErrorMessage } from '@/lib/axios';
 import {

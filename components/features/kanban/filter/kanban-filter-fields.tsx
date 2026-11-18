@@ -52,14 +52,14 @@ export function KanbanFilterFields({ draft, setDraft }: KanbanFilterFieldsProps)
 
   const salesOptions = React.useMemo<FilterSelectOption[]>(
     () => [
-      { value: '', label: 'Default' },
+      { value: '', label: 'Semua Sales' },
       ...SALES_OPTIONS.map((s) => ({ value: s.id, label: s.name })),
     ],
     [],
   );
 
   return (
-    <div className='flex flex-col gap-4'>
+    <div className='flex w-full min-w-0 flex-col gap-4'>
       <PillGroup
         label='Tahap'
         options={JENIS_TAHAP_OPTIONS}
@@ -73,12 +73,12 @@ export function KanbanFilterFields({ draft, setDraft }: KanbanFilterFieldsProps)
         onToggle={toggleIn('priorities')}
       />
 
-      <div className='flex flex-col gap-2'>
-        <Label className='text-xs font-bold text-foreground'>Target Closing</Label>
+      <div className='flex w-full min-w-0 flex-col gap-2'>
+        <Label className='text-xs sm:text-sm font-medium text-foreground'>Target Closing</Label>
         <div className='grid grid-cols-2 gap-3'>
           {DATE_FIELDS.map(({ key, label }) => (
-            <div key={key} className='flex flex-col gap-1'>
-              <span className='text-[11px] text-muted-foreground'>{label}</span>
+            <div key={key} className='flex min-w-0 flex-col gap-1'>
+              <span className='text-xs text-secondary-foreground font-semibold'>{label}</span>
               <FilterDatePicker
                 aria-label={label}
                 value={draft[key]}
@@ -89,12 +89,12 @@ export function KanbanFilterFields({ draft, setDraft }: KanbanFilterFieldsProps)
         </div>
       </div>
 
-      <div className='flex flex-col gap-2'>
-        <Label className='text-xs font-bold text-foreground'>Estimasi Nilai</Label>
+      <div className='flex w-full min-w-0 flex-col gap-2'>
+        <Label className='text-xs sm:text-sm font-medium text-foreground'>Estimasi Nilai</Label>
         <div className='grid grid-cols-2 gap-3'>
           {ESTIMATE_FIELDS.map(({ key, label }) => (
-            <div key={key} className='flex flex-col gap-1'>
-              <span className='text-[11px] text-muted-foreground'>{label}</span>
+            <div key={key} className='flex min-w-0 flex-col gap-1'>
+              <span className='text-xs text-secondary-foreground font-semibold'>{label}</span>
               <FilterCurrencyInput
                 aria-label={label}
                 value={draft[key]}

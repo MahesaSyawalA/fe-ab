@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { usePelangganStore } from '@/lib/pelanggan-store';
+import { usePelangganStore } from '@/store/pelanggan-store';
 import { usePelangganListQuery } from '@/hooks/queries/use-pelanggan-query';
 import { TiketPrioritas } from '@/types/ticket.types';
 import { StageActivityDrawerProps, EvidenceFileState } from '../types';

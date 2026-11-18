@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useSession } from 'next-auth/react';
 import { toast } from '@heroui/react';
-import { useKanbanStore } from '@/lib/kanban-store';
+import { useKanbanStore } from '@/store/kanban-store';
 import {
   useMoveTicketMutation,
   useCreateTicketMutation,

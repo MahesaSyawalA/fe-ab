@@ -8,7 +8,7 @@ import {
   AKTIVITAS_STAGE_CONFIG,
   KanbanStageColumn,
 } from '@/constants/kanban-constants';
-import { useKanbanStore } from '@/lib/kanban-store';
+import { useKanbanStore } from '@/store/kanban-store';
 import {
   useKanbanTicketDetailQuery,
   useKanbanStagesQuery,

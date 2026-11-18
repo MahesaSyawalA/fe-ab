@@ -98,7 +98,7 @@ export function FilterDatePicker({
               className={cn(
                 'text-foreground',
                 'data-[type=literal]:text-foreground/50',
-                'data-placeholder:text-muted-foreground',
+                'data-placeholder:text-foreground',
                 classNames?.segment,
               )}
             />

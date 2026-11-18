@@ -86,7 +86,7 @@ export function FilterCurrencyInput({
           readOnly={readOnly}
           placeholder={placeholder}
           className={cn(
-            'text-xs text-foreground placeholder:text-muted-foreground',
+            'text-xs text-foreground placeholder:text-foreground',
             !prefix && 'px-3',
             inputClassName,
           )}

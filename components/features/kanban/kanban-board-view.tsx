@@ -66,6 +66,7 @@ export function KanbanBoardView({ role, basePath }: KanbanBoardViewProps) {
         <SearchFilterBar
           searchQuery={board.searchQuery}
           onSearchChange={board.setSearchQuery}
+          placeholder='Cari judul prospek, outlet, atau kode tiket...'
           onOpenFilterModal={() => board.setFilterOpen(true)}
           activeFilterCount={board.activeFilterCount}
         />

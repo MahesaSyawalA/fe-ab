@@ -83,11 +83,11 @@ export function FilterSelectInput({
       className={cn('flex w-full min-w-0 flex-col gap-1.5', className)}
     >
       {label && (
-        <Label className='text-sm font-bold text-foreground'>{label}</Label>
+        <Label className='text-sm font-medium text-foreground'>{label}</Label>
       )}
 
       {hint && !invalid && (
-        <Description className='text-xs text-muted-foreground'>
+        <Description className='text-xs text-secondary-foreground font-semibold'>
           {hint}
         </Description>
       )}
@@ -125,7 +125,7 @@ export function FilterSelectInput({
             );
           }}
         </Select.Value>
-        <Select.Indicator className='size-3.5 shrink-0 text-muted-foreground' />
+        <Select.Indicator className='size-3.5 shrink-0 text-secondary-foreground' />
       </Select.Trigger>
 
       <Select.Popover className='z-60 min-w-(--trigger-width) max-h-60 overflow-y-auto rounded-xl border border-border bg-popover shadow-md'>

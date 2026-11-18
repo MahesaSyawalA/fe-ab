@@ -55,12 +55,12 @@ function KanbanFilterSheetContent({
         <DrawerTitle className='text-base font-bold text-foreground'>
           Filter Tiket
         </DrawerTitle>
-        <DrawerDescription className='text-xs text-muted-foreground'>
+        <DrawerDescription className='text-xs text-secondary-foreground font-semibold'>
           {activeCount} filter dipilih
         </DrawerDescription>
       </DrawerHeader>
 
-      <div className='no-scrollbar flex-1 min-h-0 overflow-y-auto px-5 py-3'>
+      <div className='no-scrollbar flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-5 py-3'>
         <KanbanFilterFields draft={draft} setDraft={setDraft} />
       </div>
 
@@ -69,14 +69,14 @@ function KanbanFilterSheetContent({
           type='button'
           variant='outline'
           onClick={handleReset}
-          className='h-10 rounded-xl text-xs font-semibold shadow-none cursor-pointer'
+          className='h-10 sm:h-9 w-full rounded-md text-xs font-semibold cursor-pointer border-border bg-card shadow-none hover:bg-muted/50'
         >
           Reset
         </Button>
         <Button
           type='button'
           onClick={handleApply}
-          className='h-10 rounded-xl text-xs font-semibold cursor-pointer'
+          className='h-10 sm:h-9 w-full rounded-md text-xs font-semibold text-white shadow-sm bg-primary-default hover:bg-primary-hover active:bg-primary data-[pressed=true]:bg-primary transition-all cursor-pointer'
         >
           Terapkan Filter
         </Button>

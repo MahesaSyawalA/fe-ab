@@ -12,7 +12,7 @@ interface PillGroupProps {
 export function PillGroup({ label, options, selected, onToggle }: PillGroupProps) {
   return (
     <div className='flex flex-col gap-2'>
-      <Label className='text-xs font-bold text-foreground'>{label}</Label>
+      <Label className='text-xs sm:text-sm font-medium text-foreground'>{label}</Label>
       <div className='flex flex-wrap gap-2'>
         {options.map((option) => (
           <Button
@@ -25,7 +25,7 @@ export function PillGroup({ label, options, selected, onToggle }: PillGroupProps
               'h-8 rounded-full px-3.5 text-xs font-medium shadow-none transition-all cursor-pointer',
               selected.includes(option.id)
                 ? 'border-[#F97316] bg-[#FFF7ED] font-semibold text-[#EA580C] hover:bg-[#FFEDD5] hover:text-[#EA580C]'
-                : 'border-border bg-card text-muted-foreground hover:bg-muted/40 hover:text-foreground',
+                : 'border-border bg-card text-foreground hover:bg-muted/40',
             )}
           >
             {option.label}

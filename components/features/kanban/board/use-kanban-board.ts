@@ -2,7 +2,7 @@ import * as React from 'react';
 import type { ChipFilterItem } from '@/components/ui/chip-filter';
 import { countActiveFilters } from '../filter';
 import { useKanbanFilterStore } from '@/store/kanban-filter-store';
-import { useKanbanStore } from '@/lib/kanban-store';
+import { useKanbanStore } from '@/store/kanban-store';
 import {
   INITIAL_KANBAN_STAGES,
   AKTIVITAS_STAGE_CONFIG,
@@ -97,7 +97,6 @@ export function useKanbanBoard() {
       squadId: filterState.squadId || undefined,
       priorities:
         filterState.priorities.length > 0 ? filterState.priorities : undefined,
-      stages: filterState.stages.length > 0 ? filterState.stages : undefined,
       minEstimate: minVal,
       maxEstimate: maxVal,
       closingFrom: filterState.closingFrom || undefined,
@@ -161,6 +160,7 @@ export function useKanbanBoard() {
 
   const filteredTicketsByStage = React.useMemo(() => {
     const result: Record<string, TiketWithDetails[]> = {};
+    const stageJenisById = new Map(stages.map((s) => [s.id_tahap, s.jenis_tahap]));
     const q = debouncedSearchQuery.trim().toLowerCase();
     const minVal = filterState.minEstimate
       ? Number(filterState.minEstimate.replace(/\D/g, ''))
@@ -180,12 +180,15 @@ export function useKanbanBoard() {
         ) {
           return false;
         }
-        if (
-          filterState.stages.length > 0 &&
-          !filterState.stages.includes(ticket.id_tahap) &&
-          !filterState.stages.includes(ticket.status)
-        ) {
-          return false;
+        if (filterState.stages.length > 0) {
+          const stageJenis = stageJenisById.get(ticket.id_tahap);
+          const matchesStage =
+            filterState.stages.includes(ticket.id_tahap) ||
+            (stageJenis ? filterState.stages.includes(stageJenis) : false) ||
+            filterState.stages.includes(ticket.status);
+          if (!matchesStage) {
+            return false;
+          }
         }
         if (
           filterState.priorities.length > 0 &&
