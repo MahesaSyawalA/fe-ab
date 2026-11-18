@@ -75,7 +75,7 @@ export function KanbanBoardColumn({
         <KanbanColumnContent
           value={stage.id_tahap}
           className={cn(
-            'flex flex-col gap-2.5',
+            'flex flex-col gap-2.5 max-h-[calc(100vh-320px)] min-h-[120px] overflow-y-auto no-scrollbar pr-1',
             !isLoading && items.length === 0 && '-mb-1',
           )}
         >

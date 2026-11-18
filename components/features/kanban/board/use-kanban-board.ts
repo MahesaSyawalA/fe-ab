@@ -125,6 +125,14 @@ export function useKanbanBoard() {
         map[stageId] = [ticket];
       }
     });
+    Object.values(map).forEach((list) => {
+      list.sort((a, b) => {
+        const posDiff =
+          (a.posisi ?? Number.MAX_SAFE_INTEGER) - (b.posisi ?? Number.MAX_SAFE_INTEGER);
+        if (posDiff !== 0) return posDiff;
+        return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+      });
+    });
     return map;
   }, [stages, rawTickets]);
 

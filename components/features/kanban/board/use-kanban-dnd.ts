@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { arrayMove } from '@dnd-kit/sortable';
 import type {
   KanbanMoveEvent,
@@ -6,6 +7,7 @@ import type {
 } from '@/components/reui/kanban';
 import type { KanbanStageColumn } from '@/constants/kanban-constants';
 import type { TiketWithDetails } from '@/types/ticket.types';
+import { kanbanService } from '@/services/kanban-service';
 
 type KanbanProps = KanbanRootProps<TiketWithDetails>;
 type DragStartEvent = Parameters<NonNullable<KanbanProps['onDragStart']>>[0];
@@ -31,8 +33,41 @@ export function useKanbanDnd({
   setTicketsByStage,
   startMove,
 }: UseKanbanDndProps) {
+  const queryClient = useQueryClient();
   const [activeDraggedTicketId, setActiveDraggedTicketId] = React.useState<string | null>(null);
   const dragSourceStageRef = React.useRef<string | null>(null);
+
+  const reorderSameStage = React.useCallback(
+    (stageId: string, oldIdx: number, newIdx: number) => {
+      if (oldIdx === -1 || newIdx === -1 || oldIdx === newIdx) return;
+      const list = normalizedTicketsByStage[stageId] ?? [];
+      const reordered = arrayMove(list, oldIdx, newIdx).map((ticket, idx) => ({
+        ...ticket,
+        posisi: idx + 1,
+      }));
+
+      setTicketsByStage({
+        ...normalizedTicketsByStage,
+        [stageId]: reordered,
+      });
+
+      const originalPosById = new Map(list.map((ticket, idx) => [ticket.id_tiket, ticket.posisi ?? idx + 1]));
+      const changedTickets = reordered.filter(
+        (ticket) => originalPosById.get(ticket.id_tiket) !== ticket.posisi,
+      );
+
+      if (changedTickets.length > 0) {
+        void Promise.allSettled(
+          changedTickets.map((ticket) =>
+            kanbanService.updateTicketPosition(ticket.id_tiket, ticket.posisi),
+          ),
+        ).then(() => {
+          void queryClient.invalidateQueries({ queryKey: ['kanban', 'board'] });
+        });
+      }
+    },
+    [normalizedTicketsByStage, setTicketsByStage, queryClient],
+  );
 
   const activeHoldingStageId = React.useMemo(() => {
     if (!activeDraggedTicketId) return null;
@@ -77,15 +112,10 @@ export function useKanbanDnd({
     if (!fromStageId || !toStageId || !draggedTicket) return;
 
     if (fromStageId === toStageId) {
-      const list = [...(normalizedTicketsByStage[fromStageId] ?? [])];
+      const list = normalizedTicketsByStage[fromStageId] ?? [];
       const oldIdx = list.findIndex((t) => t.id_tiket === activeId);
       const newIdx = list.findIndex((t) => t.id_tiket === overId);
-      if (oldIdx !== -1 && newIdx !== -1 && oldIdx !== newIdx) {
-        setTicketsByStage({
-          ...normalizedTicketsByStage,
-          [fromStageId]: arrayMove(list, oldIdx, newIdx),
-        });
-      }
+      reorderSameStage(fromStageId, oldIdx, newIdx);
       return;
     }
 
@@ -133,11 +163,7 @@ export function useKanbanDnd({
     overIndex,
   }: KanbanMoveEvent) => {
     if (activeContainer === overContainer) {
-      const list = normalizedTicketsByStage[activeContainer] ?? [];
-      setTicketsByStage({
-        ...normalizedTicketsByStage,
-        [activeContainer]: arrayMove(list, activeIndex, overIndex),
-      });
+      reorderSameStage(activeContainer, activeIndex, overIndex);
       return;
     }
 

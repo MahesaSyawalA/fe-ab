@@ -1,5 +1,5 @@
 import { api } from '@/lib/axios';
-import type { ApiResponse } from '@/types/api.types';
+import type { ApiPaginatedResponse, ApiResponse } from '@/types/api.types';
 import type {
   TiketWithDetails,
   CreateTiketInput,
@@ -62,8 +62,41 @@ export const kanbanService = {
   },
 
   async getBoard(params?: KanbanBoardFilterParams): Promise<ApiResponse<TiketWithDetails[]>> {
-    const response = await api.get<ApiResponse<TiketWithDetails[]>>('/tiket', { params });
-    return response.data;
+    const firstResponse = await api.get<ApiPaginatedResponse<TiketWithDetails>>('/tiket', {
+      params: {
+        ...params,
+        page: 1,
+        limit: 100,
+      },
+    });
+    const firstPayload = firstResponse.data;
+    const allTickets = [...(Array.isArray(firstPayload?.data) ? firstPayload.data : [])];
+    const totalPages = firstPayload?.meta?.total_pages ?? 1;
+
+    if (totalPages > 1) {
+      const restResponses = await Promise.all(
+        Array.from({ length: totalPages - 1 }, (_, idx) =>
+          api.get<ApiPaginatedResponse<TiketWithDetails>>('/tiket', {
+            params: {
+              ...params,
+              page: idx + 2,
+              limit: 100,
+            },
+          }),
+        ),
+      );
+      for (const res of restResponses) {
+        if (Array.isArray(res.data?.data)) {
+          allTickets.push(...res.data.data);
+        }
+      }
+    }
+
+    return {
+      success: firstPayload?.success ?? true,
+      data: allTickets,
+      message: firstPayload?.message,
+    };
   },
 
   async getTicketById(id: string): Promise<ApiResponse<TiketWithDetails>> {
@@ -108,6 +141,11 @@ export const kanbanService = {
 
   async updateTicket(id: string, payload: UpdateTiketInput): Promise<ApiResponse<TiketWithDetails>> {
     const response = await api.put<ApiResponse<TiketWithDetails>>(`/tiket/${id}`, payload);
+    return response.data;
+  },
+
+  async updateTicketPosition(id: string, posisi: number): Promise<ApiResponse<TiketWithDetails>> {
+    const response = await api.patch<ApiResponse<TiketWithDetails>>(`/tiket/${id}`, { posisi });
     return response.data;
   },
 
