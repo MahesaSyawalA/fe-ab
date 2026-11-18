@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { Modal } from '@heroui/react';
 import { Button } from '@/components/ui/button';
+import { guardPopupDismiss } from '@/lib/utils';
 import {
   INITIAL_KANBAN_FILTER,
   KanbanFilterState,
@@ -85,7 +86,7 @@ export function KanbanFilterDialog({
   onApply,
 }: KanbanFilterDialogProps) {
   return (
-    <Modal.Backdrop isOpen={open} onOpenChange={onOpenChange} variant='blur'>
+    <Modal.Backdrop isOpen={open} onOpenChange={guardPopupDismiss(onOpenChange)} variant='blur'>
       <Modal.Container>
         <KanbanFilterDialogContent
           key={open ? 'open' : 'closed'}

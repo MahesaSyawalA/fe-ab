@@ -6,7 +6,7 @@ import { ArrowRight, Plus } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { INITIAL_KANBAN_STAGES, PRIORITY_CONFIG } from '@/constants/kanban-constants';
 import { JenisTahap } from '@/types/kanban-stage.types';
-import { cn } from '@/lib/utils';
+import { cn, guardPopupDismiss } from '@/lib/utils';
 import {
   StageActivityDrawerProps,
   StageDrawerBody,
@@ -77,7 +77,7 @@ export function StageActivityDialog({
     );
 
   return (
-    <Modal.Backdrop isOpen={open} onOpenChange={onOpenChange} variant='blur'>
+    <Modal.Backdrop isOpen={open} onOpenChange={guardPopupDismiss(onOpenChange)} variant='blur'>
       <Modal.Container>
         <Modal.Dialog className='sm:max-w-2xl max-h-[90vh] flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl p-0'>
           <Modal.CloseTrigger className='text-secondary-foreground' onClick={handleClose} />

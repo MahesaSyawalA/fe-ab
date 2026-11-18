@@ -15,7 +15,7 @@ import {
   DrawerFooter,
 } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { cn, guardPopupDismiss } from '@/lib/utils';
 
 export interface UserModalShellProps {
   open: boolean;
@@ -134,7 +134,7 @@ export function UserModalShell({
   }
 
   return (
-    <Modal.Backdrop isOpen={open} onOpenChange={onOpenChange} variant='blur'>
+    <Modal.Backdrop isOpen={open} onOpenChange={guardPopupDismiss(onOpenChange)} variant='blur'>
       <Modal.Container>
         <Modal.Dialog
           className={cn(

@@ -3,6 +3,14 @@ import { id } from 'date-fns/locale';
 
 export { cn } from "cn"
 
+/** Cegah dialog tertutup saat klik di luar sedang menutup dropdown/popover yang terbuka di dalamnya. */
+export function guardPopupDismiss(onOpenChange: (open: boolean) => void) {
+  return (nextOpen: boolean) => {
+    if (!nextOpen && document.querySelector('[aria-haspopup][aria-expanded="true"]')) return;
+    onOpenChange(nextOpen);
+  };
+}
+
 export function formatShortDate(date: Date | string): string {
   return format(new Date(date), 'd MMM yyyy', { locale: id });
 }

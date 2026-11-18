@@ -8,6 +8,7 @@ import {
 } from './form/prospek-edit-form-fields';
 import type { ProspekFormState } from './form/use-prospek-form';
 import type { TiketWithDetails } from '@/types/ticket.types';
+import { guardPopupDismiss } from '@/lib/utils';
 
 export interface ProspekEditDialogProps {
   open: boolean;
@@ -25,7 +26,7 @@ export function ProspekEditDialog({
   const { onSubmit, isPending } = formState;
 
   return (
-    <Modal.Backdrop isOpen={open} onOpenChange={onOpenChange} variant='blur'>
+    <Modal.Backdrop isOpen={open} onOpenChange={guardPopupDismiss(onOpenChange)} variant='blur'>
       <Modal.Container>
         <Modal.Dialog className='sm:max-w-2xl max-h-[90vh] flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl p-0'>
           <Modal.CloseTrigger className='text-secondary-foreground' />
