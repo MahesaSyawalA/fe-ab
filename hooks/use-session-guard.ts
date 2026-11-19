@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useSession } from 'next-auth/react';
 import { isAxiosError } from 'axios';
+import { toast } from '@heroui/react';
 import { api } from '@/lib/axios';
 import { logoutUser } from '@/lib/auth-helpers';
 
@@ -13,13 +14,33 @@ interface AuthMeResponse {
   data?: {
     id_user?: string;
     is_active?: boolean;
+    must_change_password?: boolean;
   };
 }
 
 export function useSessionGuard() {
-  const { status } = useSession();
+  const { data: session, status } = useSession();
   const isCheckingRef = React.useRef(false);
   const isLoggingOutRef = React.useRef(false);
+  const hasNotifiedMustChangeRef = React.useRef(false);
+
+  const notifyMustChangePassword = React.useCallback(() => {
+    if (hasNotifiedMustChangeRef.current) return;
+    hasNotifiedMustChangeRef.current = true;
+    toast.warning('Segera Ganti Password Sementara', {
+      description: React.createElement(
+        'span',
+        { className: 'text-xs sm:text-sm text-secondary-foreground leading-relaxed' },
+        'Akun Anda masih menggunakan password sementara. Segera ganti password di halaman Pengaturan.',
+      ),
+    });
+  }, []);
+
+  React.useEffect(() => {
+    if (status === 'authenticated' && session?.user?.must_change_password) {
+      notifyMustChangePassword();
+    }
+  }, [status, session?.user?.must_change_password, notifyMustChangePassword]);
 
   const triggerLogout = React.useCallback(async () => {
     if (typeof window === 'undefined' || window.location.pathname.startsWith('/login')) {
@@ -45,6 +66,8 @@ export function useSessionGuard() {
       const user = response.data?.data;
       if (!user?.id_user || user.is_active === false) {
         await triggerLogout();
+      } else if (user.must_change_password) {
+        notifyMustChangePassword();
       }
     } catch (error) {
       if (isAxiosError(error) && error.response?.status === 401) {
@@ -53,7 +76,7 @@ export function useSessionGuard() {
     } finally {
       isCheckingRef.current = false;
     }
-  }, [status, triggerLogout]);
+  }, [status, triggerLogout, notifyMustChangePassword]);
 
   React.useEffect(() => {
     if (status !== 'authenticated') return;

@@ -3,11 +3,13 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import { AlertTriangle } from 'lucide-react';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { ConfirmModal } from '@/components/ui/confirm-modal';
 import { Button } from '@/components/ui/button';
 import { SettingsProfileCard } from './settings-profile-card';
 import { SettingsAccountInfoCard } from './settings-account-info-card';
+import { ChangePasswordModal } from './modal';
 import { formatRoleLabel, getUserInitials, logoutUser } from '@/lib/auth-helpers';
 import { useUserProfileQuery, useUpdateProfileMutation } from '@/hooks/queries/use-user-query';
 import { updateProfileSchema } from '@/schemas/profile.schema';
@@ -36,6 +38,11 @@ export function SettingsView() {
   const [showLogoutConfirm, setShowLogoutConfirm] = React.useState(false);
   const [isLoggingOut, setIsLoggingOut] = React.useState(false);
   const [showSecurityModal, setShowSecurityModal] = React.useState(false);
+  const [showChangePasswordModal, setShowChangePasswordModal] = React.useState(false);
+
+  const mustChangePassword = Boolean(
+    userProfile?.must_change_password ?? session?.user?.must_change_password,
+  );
 
   const displayName = isEditing ? draftName : baseName;
   const displayPhone = isEditing ? draftPhone : basePhone;
@@ -145,10 +152,35 @@ export function SettingsView() {
       </div>
 
       <div className='w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-4 pb-12'>
+        {mustChangePassword && (
+          <div className='mb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-amber-300/70 bg-amber-50/90 p-4 text-amber-900 shadow-2xs'>
+            <div className='flex items-start gap-2.5'>
+              <AlertTriangle className='size-4 shrink-0 mt-0.5 text-amber-600' />
+              <div className='flex flex-col gap-0.5'>
+                <p className='text-xs sm:text-sm font-semibold'>
+                  Akun Masih Menggunakan Password Sementara
+                </p>
+                <p className='text-[11px] sm:text-xs text-amber-800/90 leading-relaxed'>
+                  Demi keamanan akun Anda, disarankan segera mengganti password sementara dengan password baru.
+                </p>
+              </div>
+            </div>
+            <Button
+              type='button'
+              size='sm'
+              onClick={() => setShowChangePasswordModal(true)}
+              className='h-8 shrink-0 rounded-lg bg-amber-600 px-3 text-xs font-semibold text-white hover:bg-amber-700 cursor-pointer'
+            >
+              Ubah Password Sekarang
+            </Button>
+          </div>
+        )}
+
         <div className='grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-start'>
           <div className='lg:col-span-5 flex flex-col gap-5'>
             <SettingsProfileCard
               name={displayName}
+              phone={displayPhone}
               role={displayRole}
               initials={initials}
               isEditing={isEditing}
@@ -157,6 +189,7 @@ export function SettingsView() {
               onCancelEdit={handleCancelEdit}
               onSaveEdit={handleSaveEdit}
               onNameChange={setDraftName}
+              onPhoneChange={setDraftPhone}
               onAvatarClick={handleAvatarClick}
             />
 
@@ -183,16 +216,17 @@ export function SettingsView() {
           <div className='lg:col-span-7 flex flex-col gap-5'>
             <SettingsAccountInfoCard
               email={email}
-              phone={displayPhone}
-              isEditing={isEditing}
-              isSaving={updateProfileMutation.isPending}
-              onPhoneChange={setDraftPhone}
               onRequestChangeEmail={handleRequestChangeSecurity}
-              onRequestChangePassword={handleRequestChangeSecurity}
+              onRequestChangePassword={() => setShowChangePasswordModal(true)}
             />
           </div>
         </div>
       </div>
+
+      <ChangePasswordModal
+        open={showChangePasswordModal}
+        onOpenChange={setShowChangePasswordModal}
+      />
 
       <ConfirmModal
         open={showSecurityModal}

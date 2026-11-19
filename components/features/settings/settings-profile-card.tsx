@@ -4,10 +4,11 @@ import * as React from 'react';
 import { Pencil, Check, X, Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { SettingsTextFieldInput } from './inputs';
+import { SettingsTextFieldInput, SettingsPhoneInput } from './inputs';
 
 interface SettingsProfileCardProps {
   name: string;
+  phone: string;
   role: string;
   initials: string;
   isEditing: boolean;
@@ -16,11 +17,13 @@ interface SettingsProfileCardProps {
   onCancelEdit: () => void;
   onSaveEdit: () => void;
   onNameChange: (newName: string) => void;
+  onPhoneChange: (newPhone: string) => void;
   onAvatarClick?: () => void;
 }
 
 export function SettingsProfileCard({
   name,
+  phone,
   role,
   initials,
   isEditing,
@@ -29,6 +32,7 @@ export function SettingsProfileCard({
   onCancelEdit,
   onSaveEdit,
   onNameChange,
+  onPhoneChange,
   onAvatarClick,
 }: SettingsProfileCardProps) {
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -58,7 +62,7 @@ export function SettingsProfileCard({
               variant='outline'
               size='sm'
               onClick={onStartEdit}
-              className='h-8 rounded-lg px-2.5 text-xs font-semibold text-primary border-primary/30 hover:bg-primary/5 cursor-pointer shadow-none shrink-0'
+              className='h-8 rounded-md px-2.5 text-xs font-semibold text-primary border-primary/30 hover:bg-primary/5 cursor-pointer shadow-none shrink-0'
               title='Edit Profil & Nomor Telepon'
             >
               <Pencil className='mr-1 size-3' />
@@ -116,42 +120,17 @@ export function SettingsProfileCard({
                 </button>
               }
             />
-
-            {isEditing && (
-              <div className='flex items-center justify-end gap-2 pt-1.5'>
-                <Button
-                  type='button'
-                  variant='outline'
-                  size='sm'
-                  onClick={onCancelEdit}
-                  disabled={isSaving}
-                  className='h-8.5 rounded-lg px-3 text-xs font-semibold cursor-pointer border-border shadow-none hover:bg-muted/50'
-                >
-                  <X className='mr-1 size-3.5' />
-                  Batal
-                </Button>
-                <Button
-                  type='button'
-                  size='sm'
-                  onClick={onSaveEdit}
-                  disabled={isSaving}
-                  className='h-8.5 rounded-lg px-4 text-xs font-semibold text-white bg-primary-default hover:bg-primary-hover active:bg-primary cursor-pointer shadow-sm disabled:opacity-70'
-                >
-                  {isSaving ? (
-                    <>
-                      <Loader2 className='mr-1.5 size-3.5 animate-spin' />
-                      Menyimpan...
-                    </>
-                  ) : (
-                    <>
-                      <Check className='mr-1 size-3.5' />
-                      Simpan Perubahan
-                    </>
-                  )}
-                </Button>
-              </div>
-            )}
           </div>
+
+          <SettingsPhoneInput
+            id='user-phone'
+            label='Nomor Telepon'
+            aria-label='Nomor Telepon'
+            value={phone}
+            onChange={onPhoneChange}
+            disabled={!isEditing || isSaving}
+            placeholder='+62 812-xxxx-xxxx'
+          />
 
           <SettingsTextFieldInput
             id='user-role'
@@ -161,6 +140,41 @@ export function SettingsProfileCard({
             disabled
             readOnly
           />
+
+          {isEditing && (
+            <div className='flex items-center justify-end gap-2 pt-1'>
+              <Button
+                type='button'
+                variant='outline'
+                size='sm'
+                onClick={onCancelEdit}
+                disabled={isSaving}
+                className='h-8.5 rounded-md px-3 text-xs font-semibold cursor-pointer border-border shadow-none hover:bg-muted/50'
+              >
+                <X className='mr-1 size-3.5' />
+                Batal
+              </Button>
+              <Button
+                type='button'
+                size='sm'
+                onClick={onSaveEdit}
+                disabled={isSaving}
+                className='h-8.5 rounded-md px-4 text-xs font-semibold text-white bg-primary-default hover:bg-primary-hover active:bg-primary cursor-pointer shadow-sm disabled:opacity-70'
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className='mr-1.5 size-3.5 animate-spin' />
+                    Menyimpan...
+                  </>
+                ) : (
+                  <>
+                    <Check className='mr-1 size-3.5' />
+                    Simpan Perubahan
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

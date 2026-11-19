@@ -12,6 +12,7 @@ import {
   type CreateUserApiPayload,
   type UpdateUserApiPayload,
 } from '@/services/user-service';
+import { authService, type ChangePasswordPayload } from '@/services/auth-service';
 import type { ApiPaginatedResponse } from '@/types/api.types';
 import type { PublicUserWithSquad } from '@/types/user.types';
 import { getErrorMessage } from '@/lib/axios';
@@ -169,6 +170,20 @@ export function useResetPasswordMutation() {
     },
     onError: (error) => {
       console.warn('[useResetPasswordMutation Error]:', getErrorMessage(error));
+    },
+  });
+}
+
+export function useChangePasswordMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: ChangePasswordPayload) => authService.changePassword(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: userKeys.me() });
+    },
+    onError: (error) => {
+      console.warn('[useChangePasswordMutation Error]:', getErrorMessage(error));
     },
   });
 }
