@@ -254,7 +254,7 @@ export function useProspekDetail({
         ),
       });
       setIsDeleteOpen(false);
-      router.push(basePath);
+      router.replace(basePath);
     } catch (err) {
       toast.danger('Gagal Menghapus Tiket', {
         description: React.createElement(

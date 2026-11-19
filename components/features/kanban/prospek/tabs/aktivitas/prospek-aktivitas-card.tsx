@@ -149,12 +149,12 @@ export function ProspekAktivitasCard({
 
         <div className='grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs sm:text-sm bg-card p-2.5 sm:p-3 rounded-xl border border-border'>
           <div className='flex items-center gap-2'>
-            <span className='text-muted-foreground'>Petugas:</span>
-            <span className='font-semibold text-foreground'>{akt.nama_petugas || 'Sales'}</span>
+            <span className='text-secondary-foreground'>Petugas:</span>
+            <span className='font-semibold text-secondary-foreground'>{akt.nama_petugas || 'Sales'}</span>
           </div>
           <div className='flex items-center gap-2'>
-            <span className='text-muted-foreground'>PIC Ditemui:</span>
-            <span className='font-semibold text-foreground'>{akt.pic_ditemui || 'PIC Outlet'}</span>
+            <span className='text-secondary-foreground'>PIC Ditemui:</span>
+            <span className='font-semibold text-secondary-foreground'>{akt.pic_ditemui || 'PIC Outlet'}</span>
           </div>
         </div>
 
@@ -162,7 +162,7 @@ export function ProspekAktivitasCard({
           <span className='text-xs font-bold text-foreground'>
             Catatan & Pembahasan:
           </span>
-          <p className='text-xs sm:text-sm leading-relaxed text-muted-foreground'>
+          <p className='text-xs sm:text-sm leading-relaxed text-secondary-foreground'>
             {akt.catatan || 'Tidak ada catatan tambahan.'}
           </p>
         </div>

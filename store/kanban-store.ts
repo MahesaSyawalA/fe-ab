@@ -4,6 +4,41 @@ import {
   KanbanStageColumn,
 } from '@/constants/kanban-constants';
 import { AktivitasWithDetails, TiketWithDetails } from '@/types/ticket.types';
+import type { JenisKegiatan } from '@/types/activity.types';
+
+export interface DeletedActivityLog {
+  id_log: string;
+  id_tiket: string;
+  jenis_kegiatan: JenisKegiatan;
+  catatan: string;
+  nama_user: string;
+  waktu_hapus: string;
+}
+
+const DELETED_LOGS_STORAGE_KEY = 'ab_kanban_deleted_activity_logs';
+
+function loadDeletedActivityLogs(): Record<string, DeletedActivityLog[]> {
+  if (typeof window === 'undefined') return {};
+  try {
+    const raw = window.localStorage.getItem(DELETED_LOGS_STORAGE_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw) as unknown;
+    return parsed && typeof parsed === 'object'
+      ? (parsed as Record<string, DeletedActivityLog[]>)
+      : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveDeletedActivityLogs(logs: Record<string, DeletedActivityLog[]>) {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(DELETED_LOGS_STORAGE_KEY, JSON.stringify(logs));
+  } catch {
+    return;
+  }
+}
 
 interface MoveTicketWithStageUpdateParams {
   id_tiket: string;
@@ -36,6 +71,9 @@ interface KanbanStoreState {
   ) => void;
   addActivity: (id_tiket: string, activity: AktivitasWithDetails) => void;
   getTicketById: (id_tiket: string) => TiketWithDetails | undefined;
+  deletedActivityLogs: Record<string, DeletedActivityLog[]>;
+  hydrateDeletedActivityLogs: () => void;
+  addDeletedActivityLog: (log: DeletedActivityLog) => void;
 }
 
 const STAGE_DOT_COLORS = ['#8B5CF6', '#EC4899', '#14B8A6', '#06B6D4', '#F97316'];
@@ -286,4 +324,22 @@ export const useKanbanStore = create<KanbanStoreState>((set, get) => ({
     }
     return undefined;
   },
+
+  deletedActivityLogs: {},
+
+  hydrateDeletedActivityLogs: () =>
+    set(() => ({
+      deletedActivityLogs: loadDeletedActivityLogs(),
+    })),
+
+  addDeletedActivityLog: (log) =>
+    set((state) => {
+      const current = state.deletedActivityLogs[log.id_tiket] ?? [];
+      const nextLogs: Record<string, DeletedActivityLog[]> = {
+        ...state.deletedActivityLogs,
+        [log.id_tiket]: [log, ...current],
+      };
+      saveDeletedActivityLogs(nextLogs);
+      return { deletedActivityLogs: nextLogs };
+    }),
 }));

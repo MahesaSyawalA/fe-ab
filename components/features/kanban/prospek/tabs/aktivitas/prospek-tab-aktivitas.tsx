@@ -1,11 +1,13 @@
 'use client';
 
 import * as React from 'react';
+import { useSession } from 'next-auth/react';
 import { Plus, Trash2 } from 'lucide-react';
 import { toast } from '@heroui/react';
 import { Button } from '@/components/ui/button';
 import { ConfirmModal } from '@/components/ui/confirm-modal';
 import { useDeleteAktivitasMutation } from '@/hooks/queries/use-kanban-query';
+import { useKanbanStore } from '@/store/kanban-store';
 import { getErrorMessage } from '@/lib/axios';
 import type { AktivitasWithDetails, TiketWithDetails } from '@/types/ticket.types';
 import { ProspekAktivitasCard } from './prospek-aktivitas-card';
@@ -23,6 +25,8 @@ export function ProspekTabAktivitas({
   canEdit = false,
   onAdd,
 }: ProspekTabAktivitasProps) {
+  const { data: session } = useSession();
+  const addDeletedActivityLog = useKanbanStore((s) => s.addDeletedActivityLog);
   const aktivitasList = ticket.aktivitas_list ?? [];
   const [editingAktivitas, setEditingAktivitas] = React.useState<AktivitasWithDetails | null>(null);
   const [deletingAktivitas, setDeletingAktivitas] = React.useState<AktivitasWithDetails | null>(null);
@@ -32,6 +36,19 @@ export function ProspekTabAktivitas({
     if (!deletingAktivitas) return;
     try {
       await deleteAktivitasMutation.mutateAsync(deletingAktivitas.id_aktivitas);
+      const actorName =
+        session?.user?.nama ||
+        session?.user?.name ||
+        deletingAktivitas.nama_petugas ||
+        'Pengguna';
+      addDeletedActivityLog({
+        id_log: `del-akt-${deletingAktivitas.id_aktivitas}-${Date.now()}`,
+        id_tiket: ticket.id_tiket,
+        jenis_kegiatan: deletingAktivitas.jenis_kegiatan,
+        catatan: deletingAktivitas.catatan || '',
+        nama_user: actorName,
+        waktu_hapus: new Date().toISOString(),
+      });
       toast.success('Aktivitas Berhasil Dihapus', {
         description: (
           <span className='text-xs sm:text-sm text-secondary-foreground leading-relaxed'>

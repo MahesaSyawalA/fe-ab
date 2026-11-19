@@ -24,7 +24,7 @@ export function ProspekInfoRow({
           : 'items-center justify-between',
       )}
     >
-      <span className='text-muted-foreground font-medium shrink-0'>{label}</span>
+      <span className='text-secondary-foreground font-medium shrink-0'>{label}</span>
       {href && typeof value === 'string' ? (
         <a
           href={href}
