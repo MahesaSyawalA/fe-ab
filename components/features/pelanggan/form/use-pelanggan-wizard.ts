@@ -165,7 +165,9 @@ export function usePelangganWizard({
         description: React.createElement(
           'span',
           { className: 'text-xs sm:text-sm text-secondary-foreground leading-relaxed' },
-          `Pelanggan "${createdPelanggan?.nama_outlet || ''}" berhasil didaftarkan.`,
+          'Pelanggan ',
+          React.createElement('strong', null, createdPelanggan?.nama_outlet || ''),
+          ' berhasil didaftarkan.',
         ),
       });
 

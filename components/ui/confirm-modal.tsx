@@ -17,7 +17,7 @@ export interface ConfirmModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   title: string;
-  description: string;
+  description: React.ReactNode;
   cancelLabel?: string;
   confirmLabel?: string;
   onConfirm: () => void | Promise<void>;

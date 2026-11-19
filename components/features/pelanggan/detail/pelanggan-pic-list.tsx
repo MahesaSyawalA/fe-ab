@@ -160,7 +160,11 @@ export function PelangganPicList({
               if (!open) setDeletingContact(null);
             }}
             title='Hapus Kontak PIC?'
-            description={`Kontak "${deletingContact?.nama ?? ''}" akan dihapus secara permanen dari daftar PIC outlet ini.`}
+            description={
+              <>
+                Kontak <strong className='font-semibold text-foreground'>{deletingContact?.nama ?? ''}</strong> akan dihapus secara permanen dari daftar PIC outlet ini.
+              </>
+            }
             confirmLabel='Hapus'
             cancelLabel='Batal'
             icon={<Trash2 className='size-7 text-rose-600' />}

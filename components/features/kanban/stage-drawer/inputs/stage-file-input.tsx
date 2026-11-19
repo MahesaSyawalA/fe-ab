@@ -235,7 +235,11 @@ export function StageFileInput({
         open={showConfirmRemove}
         onOpenChange={setShowConfirmRemove}
         title='Hapus Berkas Bukti?'
-        description={`Berkas "${value?.name || 'bukti ini'}" akan dihapus dari formulir aktivitas.`}
+        description={
+          <>
+            Berkas <strong className='font-semibold text-foreground'>{value?.name || 'bukti ini'}</strong> akan dihapus dari formulir aktivitas.
+          </>
+        }
         confirmLabel='Hapus'
         cancelLabel='Batal'
         icon={<Trash2 className='size-7 text-rose-600' />}

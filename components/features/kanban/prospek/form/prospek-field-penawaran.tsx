@@ -92,7 +92,11 @@ export function ProspekFieldPenawaran({
         open={showConfirmRemove}
         onOpenChange={setShowConfirmRemove}
         title='Hapus Berkas Penawaran?'
-        description={`Berkas "${value?.name || 'penawaran ini'}" akan dihapus dari formulir prospek.`}
+        description={
+          <>
+            Berkas <strong className='font-semibold text-foreground'>{value?.name || 'penawaran ini'}</strong> akan dihapus dari formulir prospek.
+          </>
+        }
         confirmLabel='Hapus'
         cancelLabel='Batal'
         icon={<Trash2 className='size-7 text-rose-600' />}

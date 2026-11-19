@@ -208,7 +208,11 @@ export function ProspekDetailView(props: ProspekDetailViewProps) {
         open={isDeleteOpen}
         onOpenChange={setIsDeleteOpen}
         title='Hapus Tiket Prospek?'
-        description={`Prospek "${ticket.judul}" beserta seluruh riwayat dan aktivitas terkait akan dihapus secara permanen dari sistem.`}
+        description={
+          <>
+            Prospek <strong className='font-semibold text-foreground'>{ticket.judul}</strong> beserta seluruh riwayat dan aktivitas terkait akan dihapus secara permanen dari sistem.
+          </>
+        }
         confirmLabel='Hapus'
         cancelLabel='Batal'
         icon={<Trash2 className='size-7 text-rose-600' />}

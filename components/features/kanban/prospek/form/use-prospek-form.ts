@@ -150,7 +150,9 @@ export function useProspekForm({
           description: React.createElement(
             'span',
             { className: 'text-xs sm:text-sm text-secondary-foreground leading-relaxed' },
-            `Perubahan data prospek ${values.judul} berhasil disimpan.`,
+            'Perubahan data prospek ',
+            React.createElement('strong', null, values.judul),
+            ' berhasil disimpan.',
           ),
         });
         onSuccess?.();
@@ -174,7 +176,9 @@ export function useProspekForm({
           description: React.createElement(
             'span',
             { className: 'text-xs sm:text-sm text-secondary-foreground leading-relaxed' },
-            `Prospek ${values.judul} berhasil didaftarkan ke pipa penjualan.`,
+            'Prospek ',
+            React.createElement('strong', null, values.judul),
+            ' berhasil didaftarkan ke pipa penjualan.',
           ),
         });
         onSuccess?.();

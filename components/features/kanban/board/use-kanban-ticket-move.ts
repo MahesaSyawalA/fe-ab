@@ -261,7 +261,9 @@ export function useKanbanTicketMove({
         description: React.createElement(
           'span',
           { className: 'text-xs sm:text-sm text-secondary-foreground leading-relaxed' },
-          `Prospek "${createPayload.judul}" berhasil ditambahkan.`,
+          'Prospek ',
+          React.createElement('strong', null, createPayload.judul),
+          ' berhasil ditambahkan.',
         ),
       });
 

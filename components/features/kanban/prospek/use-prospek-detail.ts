@@ -132,7 +132,9 @@ export function useProspekDetail({
         description: React.createElement(
           'span',
           { className: 'text-xs sm:text-sm text-secondary-foreground leading-relaxed' },
-          `Status prospek berhasil diperbarui menjadi ${result}.`,
+          'Status prospek berhasil diperbarui menjadi ',
+          React.createElement('strong', null, result),
+          '.',
         ),
       });
       refetch();
@@ -250,7 +252,9 @@ export function useProspekDetail({
         description: React.createElement(
           'span',
           { className: 'text-xs sm:text-sm text-secondary-foreground leading-relaxed' },
-          `Prospek "${ticket.judul}" telah dihapus dari sistem.`,
+          'Prospek ',
+          React.createElement('strong', null, ticket.judul),
+          ' telah dihapus dari sistem.',
         ),
       });
       setIsDeleteOpen(false);

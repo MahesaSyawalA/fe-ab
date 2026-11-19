@@ -159,7 +159,11 @@ export function PelangganDetailView({
         open={isDeleteOpen}
         onOpenChange={setIsDeleteOpen}
         title='Hapus Pelanggan?'
-        description={`Data pelanggan "${pelanggan.nama_outlet}" dan seluruh riwayat terkait akan dihapus secara permanen dari sistem.`}
+        description={
+          <>
+            Data pelanggan <strong className='font-semibold text-foreground'>{pelanggan.nama_outlet}</strong> dan seluruh riwayat terkait akan dihapus secara permanen dari sistem.
+          </>
+        }
         confirmLabel='Hapus'
         cancelLabel='Batal'
         icon={<Trash2 className='size-7 text-rose-600' />}

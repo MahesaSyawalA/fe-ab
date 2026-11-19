@@ -200,7 +200,11 @@ export function SquadFormView({ basePath, squad }: SquadFormViewProps) {
         open={Boolean(memberToRemove)}
         onOpenChange={(open) => !open && setMemberToRemove(null)}
         title='Keluarkan Anggota?'
-        description={`Yakin ingin mengeluarkan "${memberToRemove?.nama || 'anggota ini'}" dari squad?`}
+        description={
+          <>
+            Yakin ingin mengeluarkan <strong className='font-semibold text-foreground'>{memberToRemove?.nama || 'anggota ini'}</strong> dari squad?
+          </>
+        }
         confirmLabel='Keluarkan'
         cancelLabel='Batal'
         icon={<UserMinus className='size-7 text-rose-600' />}

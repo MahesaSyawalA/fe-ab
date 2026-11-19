@@ -100,7 +100,9 @@ export function useSquadForm({ basePath, squad }: UseSquadFormOptions) {
         description: React.createElement(
           'span',
           { className: 'text-xs sm:text-sm text-secondary-foreground leading-relaxed' },
-          `Squad "${values.nama_squad}" berhasil disimpan.`,
+          'Squad ',
+          React.createElement('strong', null, values.nama_squad),
+          ' berhasil disimpan.',
         ),
       });
       goBack();
@@ -151,7 +153,9 @@ export function useSquadForm({ basePath, squad }: UseSquadFormOptions) {
         description: React.createElement(
           'span',
           { className: 'text-xs sm:text-sm text-secondary-foreground leading-relaxed' },
-          `Squad "${squad.nama_squad}" berhasil dihapus.`,
+          'Squad ',
+          React.createElement('strong', null, squad.nama_squad),
+          ' berhasil dihapus.',
         ),
       });
       goBack();
