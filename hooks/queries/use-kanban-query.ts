@@ -27,6 +27,7 @@ import type {
 } from '@/types/kanban-stage.types';
 import type {
   CreateAktivitasInput,
+  UpdateAktivitasInput,
   AktivitasWithDetails,
   EvidenceItem,
 } from '@/types/activity.types';
@@ -405,6 +406,73 @@ export function useUpdateTicketMutation(
     },
     onError: (...args) => {
       console.warn('[Update Ticket Error]:', getErrorMessage(args[0]));
+      options?.onError?.(...args);
+    },
+  });
+}
+
+export function useDeleteTicketMutation(
+  options?: UseMutationOptions<ApiResponse<null>, Error, string>,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...options,
+    mutationFn: (id: string) => kanbanService.deleteTicket(id),
+    onSuccess: async (...args) => {
+      await queryClient.invalidateQueries({ queryKey: kanbanKeys.board() });
+      await queryClient.invalidateQueries({ queryKey: kanbanKeys.all });
+      await options?.onSuccess?.(...args);
+    },
+    onError: (...args) => {
+      console.warn('[Delete Ticket Error]:', getErrorMessage(args[0]));
+      options?.onError?.(...args);
+    },
+  });
+}
+
+export function useUpdateAktivitasMutation(
+  idTiket: string,
+  options?: UseMutationOptions<
+    ApiResponse<AktivitasWithDetails>,
+    Error,
+    { id: string; data: UpdateAktivitasInput }
+  >,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...options,
+    mutationFn: ({ id, data }: { id: string; data: UpdateAktivitasInput }) =>
+      kanbanService.updateAktivitas(id, data),
+    onSuccess: async (...args) => {
+      await queryClient.invalidateQueries({ queryKey: kanbanKeys.ticket(idTiket) });
+      await queryClient.invalidateQueries({ queryKey: kanbanKeys.activities(idTiket) });
+      await options?.onSuccess?.(...args);
+    },
+    onError: (...args) => {
+      console.warn('[Update Aktivitas Error]:', getErrorMessage(args[0]));
+      options?.onError?.(...args);
+    },
+  });
+}
+
+export function useDeleteAktivitasMutation(
+  idTiket: string,
+  options?: UseMutationOptions<ApiResponse<null>, Error, string>,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...options,
+    mutationFn: (id: string) => kanbanService.deleteAktivitas(id),
+    onSuccess: async (...args) => {
+      await queryClient.invalidateQueries({ queryKey: kanbanKeys.ticket(idTiket) });
+      await queryClient.invalidateQueries({ queryKey: kanbanKeys.activities(idTiket) });
+      await options?.onSuccess?.(...args);
+    },
+    onError: (...args) => {
+      console.warn('[Delete Aktivitas Error]:', getErrorMessage(args[0]));
       options?.onError?.(...args);
     },
   });

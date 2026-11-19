@@ -2,10 +2,11 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { AlertCircle, ArrowLeft, Pencil, RotateCcw } from 'lucide-react';
+import { AlertCircle, ArrowLeft, Pencil, RotateCcw, Trash2 } from 'lucide-react';
 import { SubpageHeader } from '@/components/ui/subpage-header';
 import { SurfaceCard } from '@/components/ui/surface-card';
 import { Button } from '@/components/ui/button';
+import { ConfirmModal } from '@/components/ui/confirm-modal';
 import { Skeleton } from '@/components/ui/skeleton';
 import { StageActivityDrawer } from './stage-activity-drawer';
 import {
@@ -40,12 +41,17 @@ export function ProspekDetailView(props: ProspekDetailViewProps) {
     setNegotiationDrawerOpen,
     isEditModalOpen,
     setIsEditModalOpen,
+    isDeleteOpen,
+    setIsDeleteOpen,
+    canDeleteTicket,
+    isDeletingTicket,
     isSubmittingActivity,
     isTicketLoading,
     isError,
     refetch,
     handleNegotiationResult,
     handleConfirmActivity,
+    handleDeleteTicket,
   } = useProspekDetail(props);
 
   if (isTicketLoading && !ticket) {
@@ -70,7 +76,7 @@ export function ProspekDetailView(props: ProspekDetailViewProps) {
         subtitle='Informasi lengkap prospek, progres tahapan pipa penjualan, dan log aktivitas kunjungan'
         onBack={() => router.push(basePath)}
         rightAction={
-          <>
+          <div className='flex items-center gap-1.5'>
             <Button
               type='button'
               variant='ghost'
@@ -82,6 +88,19 @@ export function ProspekDetailView(props: ProspekDetailViewProps) {
               <Pencil className='size-4' />
             </Button>
 
+            {canDeleteTicket && (
+              <Button
+                type='button'
+                variant='ghost'
+                size='icon-sm'
+                onClick={() => setIsDeleteOpen(true)}
+                className='size-8 rounded-full text-destructive hover:bg-destructive/10 cursor-pointer md:hidden'
+                aria-label='Hapus Tiket'
+              >
+                <Trash2 className='size-4' />
+              </Button>
+            )}
+
             <Button
               type='button'
               variant='outline'
@@ -92,7 +111,20 @@ export function ProspekDetailView(props: ProspekDetailViewProps) {
               <Pencil className='size-3.5' />
               <span>Edit Prospek</span>
             </Button>
-          </>
+
+            {canDeleteTicket && (
+              <Button
+                type='button'
+                variant='outline'
+                size='sm'
+                onClick={() => setIsDeleteOpen(true)}
+                className='hidden md:flex h-9 rounded-xl border-destructive/30 bg-destructive/5 text-destructive shadow-2xs hover:bg-destructive/10 gap-1.5 px-3.5 cursor-pointer text-xs font-semibold'
+              >
+                <Trash2 className='size-3.5' />
+                <span>Hapus</span>
+              </Button>
+            )}
+          </div>
         }
       />
 
@@ -125,6 +157,7 @@ export function ProspekDetailView(props: ProspekDetailViewProps) {
               {activeTab === 'aktivitas' && (
                 <ProspekTabAktivitas
                   ticket={ticket}
+                  canEdit={canDeleteTicket}
                   onAdd={() => setActivityDrawerOpen(true)}
                 />
               )}
@@ -169,6 +202,18 @@ export function ProspekDetailView(props: ProspekDetailViewProps) {
         onOpenChange={setIsEditModalOpen}
         basePath={basePath}
         onSuccess={() => refetch()}
+      />
+
+      <ConfirmModal
+        open={isDeleteOpen}
+        onOpenChange={setIsDeleteOpen}
+        title='Hapus Tiket Prospek?'
+        description={`Prospek "${ticket.judul}" beserta seluruh riwayat dan aktivitas terkait akan dihapus secara permanen dari sistem.`}
+        confirmLabel='Hapus'
+        cancelLabel='Batal'
+        icon={<Trash2 className='size-7 text-rose-600' />}
+        onConfirm={handleDeleteTicket}
+        isLoading={isDeletingTicket}
       />
     </div>
   );

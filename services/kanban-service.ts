@@ -13,6 +13,7 @@ import type {
 } from '@/types/kanban-stage.types';
 import type {
   CreateAktivitasInput,
+  UpdateAktivitasInput,
   AktivitasWithDetails,
   EvidenceItem,
 } from '@/types/activity.types';
@@ -149,6 +150,11 @@ export const kanbanService = {
     return response.data;
   },
 
+  async deleteTicket(id: string): Promise<ApiResponse<null>> {
+    const response = await api.delete<ApiResponse<null>>(`/tiket/${id}`);
+    return response.data;
+  },
+
   async moveTicketStage(
     id: string,
     payload: MoveTicketStagePayload
@@ -183,6 +189,19 @@ export const kanbanService = {
     payload: CreateAktivitasInput
   ): Promise<ApiResponse<AktivitasWithDetails>> {
     const response = await api.post<ApiResponse<AktivitasWithDetails>>('/aktivitas', payload);
+    return response.data;
+  },
+
+  async updateAktivitas(
+    id: string,
+    payload: UpdateAktivitasInput
+  ): Promise<ApiResponse<AktivitasWithDetails>> {
+    const response = await api.patch<ApiResponse<AktivitasWithDetails>>(`/aktivitas/${id}`, payload);
+    return response.data;
+  },
+
+  async deleteAktivitas(id: string): Promise<ApiResponse<null>> {
+    const response = await api.delete<ApiResponse<null>>(`/aktivitas/${id}`);
     return response.data;
   },
 

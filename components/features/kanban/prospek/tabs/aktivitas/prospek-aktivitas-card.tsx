@@ -1,6 +1,8 @@
 import * as React from 'react';
+import { Pencil, Trash2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { formatRelativeTime } from '@/lib/date-utils';
 import { AKTIVITAS_STAGE_CONFIG } from '@/constants/kanban-constants';
 import { AktivitasWithDetails } from '@/types/ticket.types';
@@ -10,7 +12,19 @@ import { cn } from '@/lib/utils';
 import { ProspekAktivitasEvidence } from './prospek-aktivitas-evidence';
 import { AktivitasEvidence } from './normalize-evidence';
 
-export function ProspekAktivitasCard({ akt }: { akt: AktivitasWithDetails }) {
+interface ProspekAktivitasCardProps {
+  akt: AktivitasWithDetails;
+  canEdit?: boolean;
+  onEdit?: (akt: AktivitasWithDetails) => void;
+  onDelete?: (akt: AktivitasWithDetails) => void;
+}
+
+export function ProspekAktivitasCard({
+  akt,
+  canEdit = false,
+  onEdit,
+  onDelete,
+}: ProspekAktivitasCardProps) {
   const config = AKTIVITAS_STAGE_CONFIG[akt.jenis_kegiatan] || {
     label: akt.jenis_kegiatan,
     badgeClass: 'bg-primary/10 text-primary border-primary/20',
@@ -102,9 +116,35 @@ export function ProspekAktivitasCard({ akt }: { akt: AktivitasWithDetails }) {
           >
             {config.label}
           </Badge>
-          <span className='text-[11px] sm:text-xs text-muted-foreground'>
-            {formattedWaktu}
-          </span>
+          <div className='flex items-center gap-1.5'>
+            <span className='text-[11px] sm:text-xs text-muted-foreground'>
+              {formattedWaktu}
+            </span>
+            {canEdit && (
+              <div className='flex items-center gap-1'>
+                <Button
+                  type='button'
+                  variant='ghost'
+                  size='icon-sm'
+                  onClick={() => onEdit?.(akt)}
+                  aria-label='Edit Aktivitas'
+                  className='h-7 w-7 sm:h-8 sm:w-8 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer'
+                >
+                  <Pencil className='size-3.5' />
+                </Button>
+                <Button
+                  type='button'
+                  variant='ghost'
+                  size='icon-sm'
+                  onClick={() => onDelete?.(akt)}
+                  aria-label='Hapus Aktivitas'
+                  className='h-7 w-7 sm:h-8 sm:w-8 rounded-lg border border-destructive/20 bg-destructive/5 text-destructive hover:bg-destructive/15 cursor-pointer'
+                >
+                  <Trash2 className='size-3.5' />
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className='grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs sm:text-sm bg-card p-2.5 sm:p-3 rounded-xl border border-border'>

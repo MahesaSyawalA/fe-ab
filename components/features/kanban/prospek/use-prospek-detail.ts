@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { toast } from '@heroui/react';
 import {
@@ -13,10 +14,13 @@ import {
   useKanbanTicketDetailQuery,
   useKanbanStagesQuery,
   useMoveTicketMutation,
+  useDeleteTicketMutation,
   useCreateAktivitasMutation,
   useCreateBuktiKunjunganMutation,
   useCreateEvidenceMutation,
 } from '@/hooks/queries/use-kanban-query';
+import { getErrorMessage } from '@/lib/axios';
+import { normalizeRole } from '@/lib/rbac';
 import { detectFileType } from '../stage-drawer/types';
 import { normalizeAudioFile } from '@/lib/file-validation';
 import type { StageActivityDrawerProps } from '../stage-activity-drawer';
@@ -25,9 +29,13 @@ import type { DetailTab, NegotiationResult, ProspekDetailViewProps } from './typ
 export function useProspekDetail({
   ticketId: propTicketId,
   ticket: propTicket,
+  basePath,
 }: ProspekDetailViewProps) {
+  const router = useRouter();
   const { data: session } = useSession();
   const { addActivity, moveTicketToStage, updateTicket } = useKanbanStore();
+  const normalizedRole = normalizeRole(session?.user?.role);
+  const canDeleteTicket = normalizedRole !== 'director';
 
   const ticketId = propTicketId || propTicket?.id_tiket || '';
 
@@ -64,9 +72,12 @@ export function useProspekDetail({
   const ticket = ticketResponse?.data ?? propTicket;
 
   const moveTicketMutation = useMoveTicketMutation();
+  const deleteTicketMutation = useDeleteTicketMutation();
   const createAktivitasMutation = useCreateAktivitasMutation();
   const createBuktiKunjunganMutation = useCreateBuktiKunjunganMutation();
   const createEvidenceMutation = useCreateEvidenceMutation();
+
+  const [isDeleteOpen, setIsDeleteOpen] = React.useState(false);
 
   const [activeTab, setActiveTab] = React.useState<DetailTab>('info');
   const [activityDrawerOpen, setActivityDrawerOpen] = React.useState(false);
@@ -231,6 +242,30 @@ export function useProspekDetail({
     }
   };
 
+  const handleDeleteTicket = async () => {
+    if (!ticket) return;
+    try {
+      await deleteTicketMutation.mutateAsync(ticket.id_tiket);
+      toast.success('Tiket Prospek Dihapus', {
+        description: React.createElement(
+          'span',
+          { className: 'text-xs sm:text-sm text-secondary-foreground leading-relaxed' },
+          `Prospek "${ticket.judul}" telah dihapus dari sistem.`,
+        ),
+      });
+      setIsDeleteOpen(false);
+      router.push(basePath);
+    } catch (err) {
+      toast.danger('Gagal Menghapus Tiket', {
+        description: React.createElement(
+          'span',
+          { className: 'text-xs sm:text-sm text-secondary-foreground leading-relaxed' },
+          getErrorMessage(err) || 'Terjadi kesalahan sistem saat menghapus tiket.',
+        ),
+      });
+    }
+  };
+
   return {
     ticket,
     stages,
@@ -244,12 +279,17 @@ export function useProspekDetail({
     setNegotiationDrawerOpen,
     isEditModalOpen,
     setIsEditModalOpen,
+    isDeleteOpen,
+    setIsDeleteOpen,
+    canDeleteTicket,
+    isDeletingTicket: deleteTicketMutation.isPending,
     isSubmittingActivity,
     isTicketLoading,
     isError,
     refetch,
     handleNegotiationResult,
     handleConfirmActivity,
+    handleDeleteTicket,
   };
 }
 
