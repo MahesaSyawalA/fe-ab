@@ -55,11 +55,11 @@ export function ProspekDetailView(props: ProspekDetailViewProps) {
     handleDeleteTicket,
   } = useProspekDetail(props);
 
-  if (isTicketDeleted || (isTicketLoading && !ticket)) {
+  if (isTicketLoading && !ticket) {
     return <ProspekDetailSkeleton onBack={() => router.push(basePath)} />;
   }
 
-  if (isError || (!isTicketLoading && !ticket)) {
+  if (!isTicketDeleted && (isError || (!isTicketLoading && !ticket))) {
     return (
       <ProspekNotFoundView
         onBack={() => router.push(basePath)}

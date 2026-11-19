@@ -40,6 +40,10 @@ export function useProspekDetail({
   const ticketId = propTicketId || propTicket?.id_tiket || '';
   const [isTicketDeleted, setIsTicketDeleted] = React.useState(false);
 
+  React.useEffect(() => {
+    router.prefetch(basePath);
+  }, [router, basePath]);
+
   const {
     data: ticketResponse,
     isLoading: isTicketLoading,

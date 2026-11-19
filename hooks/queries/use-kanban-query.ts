@@ -423,8 +423,7 @@ export function useDeleteTicketMutation(
     onSuccess: async (...args) => {
       const deletedId = args[1];
       await queryClient.cancelQueries({ queryKey: kanbanKeys.ticket(deletedId) });
-      queryClient.removeQueries({ queryKey: kanbanKeys.ticket(deletedId) });
-      queryClient.removeQueries({ queryKey: kanbanKeys.activities(deletedId) });
+      await queryClient.cancelQueries({ queryKey: kanbanKeys.activities(deletedId) });
       await queryClient.invalidateQueries({ queryKey: kanbanKeys.boards() });
       await options?.onSuccess?.(...args);
     },
