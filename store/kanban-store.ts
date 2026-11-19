@@ -55,6 +55,7 @@ interface KanbanStoreState {
   setTicketsByStage: (next: Record<string, TiketWithDetails[]>) => void;
   addTicket: (ticket: TiketWithDetails) => void;
   updateTicket: (id_tiket: string, updated: Partial<TiketWithDetails>) => void;
+  removeTicket: (id_tiket: string) => void;
   moveTicketToStage: (id_tiket: string, targetStageId: string) => void;
   moveTicketWithStageUpdate: (params: MoveTicketWithStageUpdateParams) => void;
   addStage: (
@@ -324,6 +325,15 @@ export const useKanbanStore = create<KanbanStoreState>((set, get) => ({
     }
     return undefined;
   },
+
+  removeTicket: (id_tiket) =>
+    set((state) => {
+      const nextMap: Record<string, TiketWithDetails[]> = {};
+      Object.entries(state.ticketsByStage).forEach(([stageId, items]) => {
+        nextMap[stageId] = items.filter((item) => item.id_tiket !== id_tiket);
+      });
+      return { ticketsByStage: nextMap };
+    }),
 
   deletedActivityLogs: {},
 

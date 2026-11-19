@@ -36,8 +36,9 @@ import type { BuktiKunjungan } from '@/types/visit-proof.types';
 export const kanbanKeys = {
   all: ['kanban'] as const,
   stages: () => [...kanbanKeys.all, 'stages'] as const,
+  boards: () => [...kanbanKeys.all, 'board'] as const,
   board: (params?: KanbanBoardFilterParams) =>
-    [...kanbanKeys.all, 'board', params] as const,
+    [...kanbanKeys.boards(), params] as const,
   tickets: () => [...kanbanKeys.all, 'tickets'] as const,
   ticket: (id: string) => [...kanbanKeys.tickets(), id] as const,
   activities: (ticketId: string) =>
@@ -83,8 +84,8 @@ export function useKanbanTicketDetailQuery(
   return useQuery({
     queryKey: kanbanKeys.ticket(id),
     queryFn: () => kanbanService.getTicketById(id),
-    enabled: Boolean(id),
     ...options,
+    enabled: Boolean(id) && (options?.enabled ?? true),
   });
 }
 
@@ -424,7 +425,7 @@ export function useDeleteTicketMutation(
       await queryClient.cancelQueries({ queryKey: kanbanKeys.ticket(deletedId) });
       queryClient.removeQueries({ queryKey: kanbanKeys.ticket(deletedId) });
       queryClient.removeQueries({ queryKey: kanbanKeys.activities(deletedId) });
-      await queryClient.invalidateQueries({ queryKey: kanbanKeys.board() });
+      await queryClient.invalidateQueries({ queryKey: kanbanKeys.boards() });
       await options?.onSuccess?.(...args);
     },
     onError: (...args) => {

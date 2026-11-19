@@ -33,11 +33,12 @@ export function useProspekDetail({
 }: ProspekDetailViewProps) {
   const router = useRouter();
   const { data: session } = useSession();
-  const { addActivity, moveTicketToStage, updateTicket } = useKanbanStore();
+  const { addActivity, moveTicketToStage, updateTicket, removeTicket } = useKanbanStore();
   const normalizedRole = normalizeRole(session?.user?.role);
   const canDeleteTicket = normalizedRole !== 'director';
 
   const ticketId = propTicketId || propTicket?.id_tiket || '';
+  const [isTicketDeleted, setIsTicketDeleted] = React.useState(false);
 
   const {
     data: ticketResponse,
@@ -45,7 +46,7 @@ export function useProspekDetail({
     isError,
     refetch,
   } = useKanbanTicketDetailQuery(ticketId, {
-    enabled: Boolean(ticketId),
+    enabled: Boolean(ticketId) && !isTicketDeleted,
     initialData: propTicket ? { success: true, data: propTicket } : undefined,
   });
 
@@ -246,8 +247,10 @@ export function useProspekDetail({
 
   const handleDeleteTicket = async () => {
     if (!ticket) return;
+    setIsTicketDeleted(true);
     try {
       await deleteTicketMutation.mutateAsync(ticket.id_tiket);
+      removeTicket(ticket.id_tiket);
       toast.success('Tiket Prospek Dihapus', {
         description: React.createElement(
           'span',
@@ -260,6 +263,7 @@ export function useProspekDetail({
       setIsDeleteOpen(false);
       router.replace(basePath);
     } catch (err) {
+      setIsTicketDeleted(false);
       toast.danger('Gagal Menghapus Tiket', {
         description: React.createElement(
           'span',
@@ -287,6 +291,7 @@ export function useProspekDetail({
     setIsDeleteOpen,
     canDeleteTicket,
     isDeletingTicket: deleteTicketMutation.isPending,
+    isTicketDeleted,
     isSubmittingActivity,
     isTicketLoading,
     isError,
