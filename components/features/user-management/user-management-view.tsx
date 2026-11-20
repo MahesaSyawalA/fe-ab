@@ -89,6 +89,7 @@ export function UserManagementView() {
           role: u.role,
           id_squad: u.id_squad,
           squad: u.squad?.nama_squad ?? null,
+          biaya_bulanan: u.biaya_bulanan ?? null,
           status: (u.is_active ? 'aktif' : 'nonaktif') as ManagedUser['status'],
         }));
 

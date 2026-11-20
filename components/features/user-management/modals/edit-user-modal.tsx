@@ -10,6 +10,7 @@ import {
 } from '../inputs';
 import { UserModalShell, UserModalFooterActions } from './shared';
 import { normalizeRole } from '@/lib/rbac';
+import { formatNumberInput } from '@/lib/utils';
 import { editUserSchema } from '@/schemas/user-management.schema';
 import type { UpdateUserApiPayload } from '@/services/user-service';
 import type { ManagedUser, ManagedUserRole, UserStatus } from '../types';
@@ -86,6 +87,8 @@ function EditUserModalContent({
   const [noTelp, setNoTelp] = React.useState(user.no_telp === '-' ? '' : user.no_telp);
   const [role, setRole] = React.useState<ManagedUserRole>(user.role);
   const [status, setStatus] = React.useState<UserStatus>(user.status);
+  const [biaya, setBiaya] = React.useState(formatNumberInput(user.biaya_bulanan ?? 0));
+  const canEditBiaya = (currentUserRole === 'director' || currentUserRole === 'admin') && role === 'sales';
   const [errors, setErrors] = React.useState<Record<string, string>>({});
 
   const handleRoleChange = (newRole: string) => {
@@ -129,6 +132,7 @@ function EditUserModalContent({
       role: validation.data.role as 'sales' | 'sales_manager' | 'director',
       id_squad: user.id_squad ?? null,
       is_active: validation.data.status === 'aktif',
+      ...(canEditBiaya && { biaya_bulanan: biaya ? Number(biaya.replace(/\D/g, '')) : null }),
     };
 
     await onUpdateUser(user.id, updatePayload);
@@ -208,6 +212,15 @@ function EditUserModalContent({
             onChange={(val) => setStatus(val as UserStatus)}
             errorMessage={errors.status}
           />
+
+          {canEditBiaya && (
+            <UserTextFieldInput
+              label='Gaji/Biaya Bulanan (Rp)'
+              placeholder='Untuk perhitungan ROI'
+              value={biaya}
+              onChange={(val) => setBiaya(formatNumberInput(val))}
+            />
+          )}
         </div>
       </div>
     </UserModalShell>

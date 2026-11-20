@@ -38,6 +38,7 @@ export interface UpdateUserApiPayload {
   role?: 'sales' | 'sales_manager' | 'director';
   id_squad?: string | null;
   is_active?: boolean;
+  biaya_bulanan?: number | null;
   password?: string;
 }
 

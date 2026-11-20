@@ -11,6 +11,7 @@ export interface ManagedUser {
   squad: string | null;
   id_squad?: string | null;
   status: UserStatus;
+  biaya_bulanan?: number | null;
   avatar_url?: string | null;
 }
 

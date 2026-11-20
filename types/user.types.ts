@@ -11,6 +11,8 @@ export interface User {
   password_hash: string;
   is_active: boolean;
   must_change_password: boolean;
+  /** Gaji/biaya bulanan sales (rupiah), dasar ROI. */
+  biaya_bulanan?: number | null;
   created_at: Date | string;
   updated_at: Date | string;
 }
@@ -43,6 +45,7 @@ export interface UpdateUserInput {
   email?: string;
   no_telp?: string;
   is_active?: boolean;
+  biaya_bulanan?: number | null;
   password?: string;
 }
 
