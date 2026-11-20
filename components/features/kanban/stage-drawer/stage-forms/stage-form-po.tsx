@@ -30,8 +30,8 @@ export function StageFormPo({
         label='Nomor PO (Auto-Generated)'
         isRequired
         readOnly
-        value={noPo || 'PO-RS-2026-892'}
-        placeholder='Contoh: PO-2026-001'
+        value={noPo}
+        placeholder='Dibuat otomatis saat disimpan'
         inputClassName='bg-muted/60 text-muted-foreground cursor-default'
       />
 

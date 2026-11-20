@@ -87,7 +87,6 @@ export function StageDrawerBody({ mode, stageType, form }: StageDrawerBodyProps)
           nilaiQuotation={form.nilaiQuotation}
           onNilaiQuotationChange={form.setNilaiQuotation}
           revisiKe={form.revisiKe}
-          onRevisiKeChange={form.setRevisiKe}
         />
       )}
 

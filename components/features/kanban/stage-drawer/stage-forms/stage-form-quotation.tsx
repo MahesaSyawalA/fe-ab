@@ -9,7 +9,6 @@ export interface StageFormQuotationProps {
   nilaiQuotation: string;
   onNilaiQuotationChange: (val: string) => void;
   revisiKe: string;
-  onRevisiKeChange: (val: string) => void;
 }
 
 export function StageFormQuotation({
@@ -17,7 +16,6 @@ export function StageFormQuotation({
   nilaiQuotation,
   onNilaiQuotationChange,
   revisiKe,
-  onRevisiKeChange,
 }: StageFormQuotationProps) {
   return (
     <div className='flex flex-col gap-3'>
@@ -26,8 +24,8 @@ export function StageFormQuotation({
         label='Nomor Penawaran (Auto-Generated)'
         isRequired
         readOnly
-        value={noQuotation || 'QTN-2024-0145-R2'}
-        placeholder='Contoh: QTN-2026-001'
+        value={noQuotation}
+        placeholder='Dibuat otomatis saat disimpan'
         inputClassName='bg-muted/60 text-muted-foreground cursor-default'
       />
 
@@ -45,20 +43,9 @@ export function StageFormQuotation({
       <StageTextFieldInput
         label='Penawaran ke-'
         isRequired
-        type='text'
-        inputMode='numeric'
+        readOnly
         value={revisiKe}
-        placeholder='1'
-        onChange={(val) => {
-          const digitsOnly = val.replace(/\D/g, '');
-          onRevisiKeChange(digitsOnly);
-        }}
-        onBlur={() => {
-          if (!revisiKe || revisiKe === '0') {
-            onRevisiKeChange('1');
-          }
-        }}
-        inputClassName='[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
+        inputClassName='bg-muted/60 text-muted-foreground cursor-default'
       />
     </div>
   );

@@ -124,7 +124,6 @@ export function useStageActivityForm({
     setCatatanTouched(false);
     setEvidenceFile(null);
 
-    const randNum = Math.floor(100 + Math.random() * 900);
 
     if (mode === 'create') {
       const defaultPelanggan = pelangganList[0];
@@ -156,13 +155,11 @@ export function useStageActivityForm({
           setCatatan('');
           break;
         case 'quotation':
-          setNoQuotation('QTN-2024-0145-R2');
           setNilaiQuotation('45.000.000');
           setRevisiKe('1');
           setCatatan('');
           break;
         case 'po':
-          setNoPo(`PO-RS-2026-${randNum}`);
           setNominalPo('45.000.000');
           setTargetPengiriman(new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10));
           setCatatan('');
@@ -199,7 +196,6 @@ export function useStageActivityForm({
     );
     setJadwalFollowUp(new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10));
 
-    const codeNum = ticket.kode_tiket.replace(/\D/g, '') || '01';
     switch (targetStage.jenis_tahap) {
       case 'visit':
         setCatatan(
@@ -221,17 +217,15 @@ export function useStageActivityForm({
         );
         break;
       case 'quotation':
-        setNoQuotation(`QUO/ABM/2026/10/${codeNum}`);
         setNilaiQuotation(
           ticket.estimasi_nilai ? ticket.estimasi_nilai.toLocaleString('id-ID') : '45.000.000',
         );
-        setRevisiKe('1');
+        setRevisiKe(String((ticket.jumlah_penawaran ?? 0) + 1));
         setCatatan(
           `Surat penawaran resmi diterbitkan dan dikirimkan ke pihak manajemen ${ticket.nama_outlet}. Sudah termasuk PPN 11% & garansi 1 tahun.`,
         );
         break;
       case 'po':
-        setNoPo(`PO-${ticket.nama_outlet.replace(/\s+/g, '').slice(0, 6).toUpperCase()}-2026-${codeNum}`);
         setNominalPo(
           ticket.estimasi_nilai ? ticket.estimasi_nilai.toLocaleString('id-ID') : '45.000.000',
         );
