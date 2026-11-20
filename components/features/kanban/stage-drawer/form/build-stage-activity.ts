@@ -231,6 +231,7 @@ export function buildMoveParams({
   if (stageType === 'revenue') {
     ticketUpdates.status = f.statusClosing;
     ticketUpdates.tanggal_closing = f.tanggalAktivitas;
+    if (f.statusClosing === 'lost') ticketUpdates.alasan_lost = f.catatan.trim() || null;
   }
 
   if (stageType === 'kebutuhan' && f.spesifikasiKebutuhan) {

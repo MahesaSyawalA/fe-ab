@@ -41,6 +41,24 @@ export interface MoveTicketStagePayload {
   id_tahap_tujuan?: string;
   catatan?: string;
   posisi?: number;
+  ticketUpdates?: Partial<TiketWithDetails>;
+}
+
+/** Field tiket dari form tahap yang ikut dikirim ke backend saat pindah tahap (nilai, tanggal, hasil closing). */
+const STAGE_TICKET_FIELDS = [
+  'estimasi_nilai',
+  'estimasi_closing',
+  'status',
+  'tanggal_closing',
+  'tanggal_penawaran_awal',
+  'kebutuhan_pelanggan',
+  'alasan_lost',
+] as const;
+
+function pickStageTicketFields(updates: Partial<TiketWithDetails> = {}) {
+  return Object.fromEntries(
+    STAGE_TICKET_FIELDS.flatMap((key) => (updates[key] === undefined ? [] : [[key, updates[key]]])),
+  );
 }
 
 export interface MoveTicketPayload {
@@ -163,6 +181,7 @@ export const kanbanService = {
       id_tahap: payload.id_tahap || payload.id_tahap_tujuan,
       catatan: payload.catatan,
       posisi: payload.posisi,
+      ...pickStageTicketFields(payload.ticketUpdates),
     };
     const response = await api.patch<ApiResponse<TiketWithDetails>>(
       `/tiket/${id}`,
@@ -179,6 +198,7 @@ export const kanbanService = {
         id_tahap_tujuan: targetStageId,
         catatan: payload.catatan,
         posisi: payload.posisi ?? payload.targetIndex,
+        ticketUpdates: payload.ticketUpdates,
       });
     }
     const response = await api.patch<ApiResponse<TiketWithDetails>>(`/tiket/${payload.id_tiket}`, payload);
