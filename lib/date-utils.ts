@@ -2,8 +2,10 @@ import {
   differenceInMinutes,
   differenceInHours,
   differenceInDays,
+  endOfMonth,
   format,
   isValid,
+  startOfMonth,
 } from 'date-fns';
 import { id } from 'date-fns/locale';
 
@@ -38,4 +40,13 @@ export function formatRelativeTime(
   }
 
   return format(targetDate, 'd MMM yyyy', { locale: id });
+}
+
+/** Awal dan akhir bulan berjalan (waktu lokal) sebagai YYYY-MM-DD, default periode laporan. */
+export function currentMonthRange(): { from: string; to: string } {
+  const now = new Date();
+  return {
+    from: format(startOfMonth(now), 'yyyy-MM-dd'),
+    to: format(endOfMonth(now), 'yyyy-MM-dd'),
+  };
 }
