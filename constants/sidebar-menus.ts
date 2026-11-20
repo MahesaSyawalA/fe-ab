@@ -7,6 +7,7 @@ export const salesMenu = [
 
 export const managerMenu = [
   { title: 'CRM Kanban', url: '/manager/kanban', icon: KanbanSquare },
+  { title: 'Rekap Penjualan', url: '/manager/rekap', icon: LayoutGridCircles },
   { title: 'Squad', url: '/manager/squad', icon: Users },
   { title: 'Data Pelanggan', url: '/manager/pelanggan', icon: Hospital },
 ];
