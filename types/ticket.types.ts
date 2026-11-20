@@ -57,6 +57,8 @@ export interface TiketWithDetails extends Tiket {
   } | null;
   aktivitas_list?: AktivitasWithDetails[];
   riwayat_list?: RiwayatTahapWithDetails[];
+  /** Hari dari masuk tahap quotation sampai revenue; null bila belum closing. */
+  durasi_siklus_hari?: number | null;
 }
 
 export interface TeamContributionItem {

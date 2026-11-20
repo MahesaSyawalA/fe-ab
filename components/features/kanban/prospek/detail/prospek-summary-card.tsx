@@ -56,6 +56,17 @@ export function ProspekSummaryCard({
             </span>
           </div>
 
+          {ticket.durasi_siklus_hari != null && (
+            <div className='col-span-2 flex flex-col gap-0.5'>
+              <span className='text-[11px] text-secondary-foreground tracking-wider font-normal'>
+                Durasi Siklus (Penawaran sampai Closing)
+              </span>
+              <span className='text-xs font-semibold text-foreground'>
+                {ticket.durasi_siklus_hari.toLocaleString('id-ID')} hari
+              </span>
+            </div>
+          )}
+
           <div className='flex flex-col gap-0.5'>
             <span className='text-[11px] text-secondary-foreground tracking-wider font-normal'>
               Estimasi Closing
