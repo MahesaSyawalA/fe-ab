@@ -2,8 +2,16 @@ import { Building2, Calendar } from 'lucide-react';
 import { SurfaceCard } from '@/components/ui/surface-card';
 import { CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import {
+  PenawaranStatusBadge,
+  PenawaranValidityBadge,
+} from '@/components/ui/penawaran-badges';
 import { Separator } from '@/components/ui/separator';
 import { PRIORITY_CONFIG, AKTIVITAS_STAGE_CONFIG } from '@/constants/kanban-constants';
+import {
+  getPenawaranValidity,
+  isPenawaranActiveForValidity,
+} from '@/lib/penawaran-utils';
 import { TiketWithDetails } from '@/types/ticket.types';
 import { cn, formatFullRupiah, formatShortDate } from '@/lib/utils';
 
@@ -24,6 +32,12 @@ export function ProspekSummaryCard({
       solidClass: 'bg-kanban-purple text-white',
       dotColor: '#7C5CFC',
     };
+
+  const latestPenawaran = ticket.penawaran_list?.[0];
+  const latestValidity =
+    latestPenawaran && isPenawaranActiveForValidity(latestPenawaran.status)
+      ? getPenawaranValidity(latestPenawaran.tanggal_penawaran)
+      : null;
 
   return (
     <SurfaceCard>
@@ -83,7 +97,7 @@ export function ProspekSummaryCard({
           </div>
         </div>
 
-        <div className='flex items-center gap-1.5 pt-0.5'>
+        <div className='flex flex-wrap items-center gap-1.5 pt-0.5'>
           <Badge
             className={cn(
               'h-5 rounded-full border-0 px-2.5 text-[10px] font-medium text-white',
@@ -101,6 +115,12 @@ export function ProspekSummaryCard({
             <span className={cn('size-1.5 rounded-full', priority.dotClass)} />
             {priority.label}
           </Badge>
+          {latestPenawaran && (
+            <PenawaranStatusBadge status={latestPenawaran.status} />
+          )}
+          {latestValidity && (
+            <PenawaranValidityBadge validity={latestValidity} />
+          )}
         </div>
       </CardContent>
     </SurfaceCard>

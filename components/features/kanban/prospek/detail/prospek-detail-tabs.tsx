@@ -7,6 +7,7 @@ import { DetailTab } from '../types';
 interface ProspekDetailTabsProps {
   active: DetailTab;
   onChange: (tab: DetailTab) => void;
+  penawaranCount: number;
   riwayatCount: number;
   aktivitasCount: number;
 }
@@ -14,11 +15,13 @@ interface ProspekDetailTabsProps {
 export function ProspekDetailTabs({
   active,
   onChange,
+  penawaranCount,
   riwayatCount,
   aktivitasCount,
 }: ProspekDetailTabsProps) {
   const tabs: { id: DetailTab; label: string }[] = [
     { id: 'info', label: 'Info' },
+    { id: 'penawaran', label: `Penawaran (${penawaranCount})` },
     { id: 'riwayat', label: `Riwayat (${riwayatCount})` },
     { id: 'aktivitas', label: `Aktivitas (${aktivitasCount})` },
   ];
@@ -32,7 +35,7 @@ export function ProspekDetailTabs({
     >
       <Tabs.List
         aria-label='Detail Prospek Tabs'
-        className='grid w-full grid-cols-3 border-b border-border/70 bg-muted/20 p-0 rounded-none h-12'
+        className='grid w-full grid-cols-4 border-b border-border/70 bg-muted/20 p-0 rounded-none h-12'
       >
         {tabs.map((tab) => (
           <Tabs.Tab

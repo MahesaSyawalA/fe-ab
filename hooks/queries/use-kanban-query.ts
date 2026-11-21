@@ -32,6 +32,7 @@ import type {
   EvidenceItem,
 } from '@/types/activity.types';
 import type { BuktiKunjungan } from '@/types/visit-proof.types';
+import type { Penawaran, UpdatePenawaranInput } from '@/types/offer.types';
 
 export const kanbanKeys = {
   all: ['kanban'] as const,
@@ -476,6 +477,34 @@ export function useDeleteAktivitasMutation(
     },
     onError: (...args) => {
       console.warn('[Delete Aktivitas Error]:', getErrorMessage(args[0]));
+      options?.onError?.(...args);
+    },
+  });
+}
+
+export function useUpdatePenawaranMutation(
+  idTiket: string,
+  options?: UseMutationOptions<
+    ApiResponse<Penawaran>,
+    Error,
+    { id: string; payload: UpdatePenawaranInput }
+  >,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...options,
+    mutationFn: ({ id, payload }: { id: string; payload: UpdatePenawaranInput }) =>
+      kanbanService.updatePenawaran(id, payload),
+    onSuccess: async (...args) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: kanbanKeys.ticket(idTiket) }),
+        queryClient.invalidateQueries({ queryKey: kanbanKeys.all }),
+      ]);
+      await options?.onSuccess?.(...args);
+    },
+    onError: (...args) => {
+      console.warn('[Update Penawaran Error]:', getErrorMessage(args[0]));
       options?.onError?.(...args);
     },
   });

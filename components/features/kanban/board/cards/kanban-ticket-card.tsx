@@ -2,10 +2,15 @@ import * as React from 'react';
 import { Building2, Calendar } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { PenawaranValidityBadge } from '@/components/ui/penawaran-badges';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { TiketWithDetails } from '@/types/ticket.types';
 import { PRIORITY_CONFIG } from '@/constants/kanban-constants';
+import {
+  getPenawaranValidity,
+  isPenawaranActiveForValidity,
+} from '@/lib/penawaran-utils';
 import { cn, formatCompactRupiah } from '@/lib/utils';
 
 interface KanbanTicketCardProps {
@@ -23,6 +28,14 @@ export function KanbanTicketCard({
 }: KanbanTicketCardProps) {
   const priorityConfig =
     PRIORITY_CONFIG[ticket.prioritas] ?? PRIORITY_CONFIG.rendah;
+
+  const latestPenawaran = ticket.penawaran_list?.[0];
+  const latestValidity =
+    latestPenawaran && isPenawaranActiveForValidity(latestPenawaran.status)
+      ? getPenawaranValidity(latestPenawaran.tanggal_penawaran)
+      : null;
+  const showValidityAlert =
+    latestValidity && latestValidity.state !== 'valid';
 
   return (
     <Card
@@ -60,6 +73,11 @@ export function KanbanTicketCard({
             <Building2 className='size-3.5 shrink-0 text-muted-foreground' />
             <span className='truncate'>{ticket.nama_outlet}</span>
           </div>
+          {showValidityAlert && (
+            <div className='pt-1'>
+              <PenawaranValidityBadge validity={latestValidity} compact />
+            </div>
+          )}
         </div>
 
         <Separator className='bg-border/60' />

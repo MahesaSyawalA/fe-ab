@@ -18,6 +18,7 @@ import type {
   EvidenceItem,
 } from '@/types/activity.types';
 import type { BuktiKunjungan } from '@/types/visit-proof.types';
+import type { Penawaran, UpdatePenawaranInput } from '@/types/offer.types';
 
 export interface KanbanBoardData {
   stages: (KanbanStageColumn | TahapKanban)[];
@@ -42,6 +43,9 @@ export interface MoveTicketStagePayload {
   catatan?: string;
   posisi?: number;
   ticketUpdates?: Partial<TiketWithDetails>;
+  create_stage_document?: boolean;
+  tanggal_dokumen?: string | Date;
+  nilai_dokumen?: number;
 }
 
 /** Field tiket dari form tahap yang ikut dikirim ke backend saat pindah tahap (nilai, tanggal, hasil closing). */
@@ -71,6 +75,9 @@ export interface MoveTicketPayload {
   id_tahap_tujuan?: string;
   catatan?: string;
   posisi?: number;
+  create_stage_document?: boolean;
+  tanggal_dokumen?: string | Date;
+  nilai_dokumen?: number;
 }
 
 export const kanbanService = {
@@ -142,6 +149,11 @@ export const kanbanService = {
               ...fresh,
               evidence: fresh.evidence ?? akt.evidence,
               bukti_kunjungan: fresh.bukti_kunjungan ?? akt.bukti_kunjungan,
+              penawaran:
+                Array.isArray(fresh.penawaran) && fresh.penawaran.length > 0
+                  ? fresh.penawaran
+                  : (akt.penawaran ?? fresh.penawaran),
+              purchase_order: fresh.purchase_order ?? akt.purchase_order,
             };
           }
           return akt;
@@ -181,6 +193,15 @@ export const kanbanService = {
       id_tahap: payload.id_tahap || payload.id_tahap_tujuan,
       catatan: payload.catatan,
       posisi: payload.posisi,
+      ...(payload.create_stage_document !== undefined && {
+        create_stage_document: payload.create_stage_document,
+      }),
+      ...(payload.tanggal_dokumen !== undefined && {
+        tanggal_dokumen: payload.tanggal_dokumen,
+      }),
+      ...(payload.nilai_dokumen !== undefined && {
+        nilai_dokumen: payload.nilai_dokumen,
+      }),
       ...pickStageTicketFields(payload.ticketUpdates),
     };
     const response = await api.patch<ApiResponse<TiketWithDetails>>(
@@ -199,6 +220,9 @@ export const kanbanService = {
         catatan: payload.catatan,
         posisi: payload.posisi ?? payload.targetIndex,
         ticketUpdates: payload.ticketUpdates,
+        create_stage_document: payload.create_stage_document,
+        tanggal_dokumen: payload.tanggal_dokumen,
+        nilai_dokumen: payload.nilai_dokumen,
       });
     }
     const response = await api.patch<ApiResponse<TiketWithDetails>>(`/tiket/${payload.id_tiket}`, payload);
@@ -266,6 +290,14 @@ export const kanbanService = {
 
   async deleteTahap(id: string): Promise<ApiResponse<void>> {
     const response = await api.delete<ApiResponse<void>>(`/tahap-kanban/${id}`);
+    return response.data;
+  },
+
+  async updatePenawaran(
+    id: string,
+    payload: UpdatePenawaranInput
+  ): Promise<ApiResponse<Penawaran>> {
+    const response = await api.patch<ApiResponse<Penawaran>>(`/penawaran/${id}`, payload);
     return response.data;
   },
 };

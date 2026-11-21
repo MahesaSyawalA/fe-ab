@@ -13,7 +13,7 @@ export interface ProspekDetailViewProps {
   basePath: string;
 }
 
-export type DetailTab = 'info' | 'riwayat' | 'aktivitas';
+export type DetailTab = 'info' | 'penawaran' | 'riwayat' | 'aktivitas';
 
 export type NegotiationResult = 'negosiasi' | 'won' | 'lost';
 

@@ -8,6 +8,7 @@ import type {
   RiwayatTahap,
   RiwayatTahapWithDetails,
 } from './stage-history.types';
+import type { Penawaran } from './offer.types';
 
 export type TiketStatus = 'open' | 'won' | 'lost';
 export type TiketPrioritas = 'rendah' | 'sedang' | 'tinggi';
@@ -57,6 +58,7 @@ export interface TiketWithDetails extends Tiket {
   } | null;
   aktivitas_list?: AktivitasWithDetails[];
   riwayat_list?: RiwayatTahapWithDetails[];
+  penawaran_list?: Penawaran[];
   /** Hari dari masuk tahap quotation sampai revenue; null bila belum closing. */
   durasi_siklus_hari?: number | null;
   /** Jumlah revisi penawaran yang sudah dibuat; form quotation berikutnya = jumlah + 1. */
@@ -85,6 +87,7 @@ export interface CreateTiketInput {
   tanggal_penawaran_awal?: string | Date | null;
   tanggal_closing?: string | Date | null;
   alasan_lost?: string | null;
+  tanggal_dokumen?: string | Date | null;
 }
 
 export interface UpdateTiketInput {
@@ -102,4 +105,5 @@ export interface UpdateTiketInput {
   tanggal_penawaran_awal?: string | Date | null;
   tanggal_closing?: string | Date | null;
   alasan_lost?: string | null;
+  tanggal_dokumen?: string | Date | null;
 }

@@ -20,6 +20,7 @@ import { ProspekEditModal } from './prospek/prospek-edit-modal';
 import {
   ProspekTabAktivitas,
   ProspekTabInfo,
+  ProspekTabPenawaran,
   ProspekTabRiwayat,
 } from './prospek/tabs';
 import { ProspekDetailViewProps } from './prospek/types';
@@ -150,10 +151,19 @@ export function ProspekDetailView(props: ProspekDetailViewProps) {
               <ProspekDetailTabs
                 active={activeTab}
                 onChange={setActiveTab}
+                penawaranCount={ticket.penawaran_list?.length ?? ticket.jumlah_penawaran ?? 0}
                 riwayatCount={ticket.riwayat_list?.length ?? 0}
                 aktivitasCount={ticket.aktivitas_list?.length ?? 0}
               />
               {activeTab === 'info' && <ProspekTabInfo ticket={ticket} />}
+              {activeTab === 'penawaran' && (
+                <ProspekTabPenawaran
+                  ticket={ticket}
+                  canEdit={canDeleteTicket}
+                  isQuotationStage={currentStage?.jenis_tahap === 'quotation'}
+                  onAddQuotation={() => setActivityDrawerOpen(true)}
+                />
+              )}
               {activeTab === 'riwayat' && <ProspekTabRiwayat ticket={ticket} />}
               {activeTab === 'aktivitas' && (
                 <ProspekTabAktivitas
