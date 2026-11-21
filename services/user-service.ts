@@ -42,6 +42,11 @@ export interface UpdateUserApiPayload {
   password?: string;
 }
 
+export interface UpdateProfileApiPayload {
+  nama?: string;
+  no_telp?: string;
+}
+
 export type ResetPasswordApiPayload = ResetPasswordInput;
 
 function extractUserData<T>(raw: unknown): { data: T; message?: string } {
@@ -123,6 +128,12 @@ export const userService = {
 
   async getUserById(id: string): Promise<ApiResponse<UserProfile>> {
     const response = await api.get<unknown>(`/users/${id}`);
+    const { data, message } = extractUserData<UserProfile>(response.data);
+    return { success: true, data, message };
+  },
+
+  async updateMe(payload: UpdateProfileApiPayload): Promise<ApiResponse<UserProfile>> {
+    const response = await api.patch<unknown>('/users/me', payload);
     const { data, message } = extractUserData<UserProfile>(response.data);
     return { success: true, data, message };
   },

@@ -10,6 +10,7 @@ import {
   type UserListParams,
   type UserProfile,
   type CreateUserApiPayload,
+  type UpdateProfileApiPayload,
   type UpdateUserApiPayload,
 } from '@/services/user-service';
 import { authService, type ChangePasswordPayload } from '@/services/auth-service';
@@ -81,20 +82,29 @@ export function useUserProfileQuery() {
   return useQuery({
     queryKey: userKeys.me(),
     queryFn: async () => {
+      let meData: UserProfile | null = null;
       try {
         const meRes = await userService.getMe();
         if (meRes.data && meRes.data.id_user) {
-          return meRes.data;
+          meData = meRes.data;
+          if (meData.no_telp !== undefined) {
+            return meData;
+          }
         }
       } catch (err) {
         console.warn('[useUserProfileQuery] getMe warning, mencoba fallback getUserById:', err);
       }
 
       if (userId) {
-        const userRes = await userService.getUserById(userId);
-        return userRes.data;
+        try {
+          const userRes = await userService.getUserById(userId);
+          return meData ? { ...meData, ...userRes.data } : userRes.data;
+        } catch (err) {
+          if (meData) return meData;
+          throw err;
+        }
       }
-      return null;
+      return meData;
     },
     enabled: Boolean(userId),
     staleTime: 1000 * 60 * 5,
@@ -105,15 +115,15 @@ export function useUpdateProfileMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: { nama?: string; no_telp?: string } }) =>
-      userService.updateUser(id, data),
+    mutationFn: (data: UpdateProfileApiPayload) => userService.updateMe(data),
     onSuccess: (res, variables) => {
       queryClient.invalidateQueries({ queryKey: userKeys.all });
       queryClient.setQueryData(userKeys.me(), (old: UserProfile | null | undefined) => {
         if (!old) return res.data;
         return {
           ...old,
-          ...variables.data,
+          ...res.data,
+          ...variables,
         };
       });
     },

@@ -88,11 +88,8 @@ export function SettingsView() {
 
     try {
       const updatedUser = await updateProfileMutation.mutateAsync({
-        id: userId,
-        data: {
-          nama: validation.data.nama,
-          no_telp: validation.data.no_telp,
-        },
+        nama: validation.data.nama,
+        no_telp: validation.data.no_telp,
       });
 
       toast.success('Profil Berhasil Diperbarui', {
