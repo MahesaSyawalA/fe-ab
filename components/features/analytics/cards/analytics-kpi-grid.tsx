@@ -32,7 +32,7 @@ export function AnalyticsKpiGrid({
     {
       label: 'Total Kunjungan',
       value: toFiniteNumber(totalKunjungan).toLocaleString('id-ID'),
-      icon: <Footprints className='size-4 text-amber-600' />,
+      icon: <Footprints className='size-4 sm:size-5 text-amber-600' />,
       iconBgClass: 'bg-amber-50',
     },
     {
@@ -41,19 +41,19 @@ export function AnalyticsKpiGrid({
         avgCycleDays == null
           ? '-'
           : `${toFiniteNumber(avgCycleDays).toLocaleString('id-ID')} hari`,
-      icon: <Timer className='size-4 text-orange-500' />,
+      icon: <Timer className='size-4 sm:size-5 text-orange-500' />,
       iconBgClass: 'bg-orange-50',
     },
   ];
 
   if (variant === 'dashboard') {
     items.push({
-      label: 'ROI tim',
+      label: 'Return on Investment (ROI) tim',
       value:
         roiPersen == null
           ? '-'
           : `${toFiniteNumber(roiPersen).toLocaleString('id-ID')}%`,
-      icon: <Percent className='size-4 text-amber-600' />,
+      icon: <Percent className='size-4 sm:size-5 text-amber-600' />,
       iconBgClass: 'bg-amber-50',
     });
   }
@@ -62,18 +62,21 @@ export function AnalyticsKpiGrid({
     <div
       className={cn(
         'grid gap-3 sm:gap-4',
-        variant === 'rekap' ? 'grid-cols-2' : 'grid-cols-1 sm:grid-cols-3',
+        variant === 'rekap' ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-3',
       )}
     >
-      {items.map((item) => (
+      {items.map((item, idx) => (
         <Card
           key={item.label}
-          className='rounded-2xl border border-border bg-card py-0 shadow-2xs ring-0'
+          className={cn(
+            'rounded-2xl border border-border bg-card py-0 shadow-2xs ring-0',
+            variant === 'dashboard' && idx === 2 && 'col-span-2 sm:col-span-1',
+          )}
         >
           <CardContent className='flex flex-col gap-2 p-3.5 sm:p-4'>
             <span
               className={cn(
-                'flex size-8 items-center justify-center rounded-lg',
+                'flex size-8 sm:size-10 items-center justify-center rounded-xl shrink-0',
                 item.iconBgClass,
               )}
             >

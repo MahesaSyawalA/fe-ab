@@ -22,9 +22,9 @@ export function AnalyticsHeroRevenueCard({
   return (
     <Card className='rounded-2xl border-0 bg-linear-to-r from-[#1D4ED8] via-[#2563EB] to-[#3B82F6] py-0 text-white shadow-sm ring-0'>
       <CardContent className='flex flex-col gap-3 p-4 sm:p-5'>
-        <div className='flex items-center gap-2'>
-          <span className='flex size-7 items-center justify-center rounded-lg bg-white/15'>
-            <Banknote className='size-4 text-white' />
+        <div className='flex items-center gap-2.5'>
+          <span className='flex size-8 sm:size-10 items-center justify-center rounded-xl bg-white/15 shrink-0'>
+            <Banknote className='size-4 sm:size-5 text-white' />
           </span>
           <span className='text-sm sm:text-base font-medium text-white/90'>
             Total Revenue

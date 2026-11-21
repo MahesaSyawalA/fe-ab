@@ -35,7 +35,7 @@ export function SalesRoiCard({ items, isLoading = false }: SalesRoiCardProps) {
           <div className='flex flex-col gap-0.5'>
             <h2 className='text-sm sm:text-base font-semibold text-foreground'>ROI per Sales</h2>
             <p className='text-xs sm:text-sm text-secondary-foreground'>
-              Revenue ÷ (Gaji + Biaya)
+              Perbandingan Return on Investment (ROI) per sales
             </p>
           </div>
           <Tooltip delay={150}>
@@ -45,8 +45,8 @@ export function SalesRoiCard({ items, isLoading = false }: SalesRoiCardProps) {
             >
               <Info className='size-4' />
             </Tooltip.Trigger>
-            <Tooltip.Content className='max-w-xs rounded-lg border border-border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-md'>
-              Rasio dihitung dari total revenue dibagi gaji/biaya bulanan sales pada periode terpilih.
+            <Tooltip.Content className='max-w-xs rounded-lg border border-border bg-popover px-3 py-2 text-xs leading-relaxed text-popover-foreground shadow-md'>
+              Rasio dihitung dari total revenue dibagi gaji atau biaya bulanan sales pada periode terpilih.
             </Tooltip.Content>
           </Tooltip>
         </div>

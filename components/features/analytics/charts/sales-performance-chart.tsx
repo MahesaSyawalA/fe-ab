@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import { Tabs } from '@heroui/react';
 import { Inbox } from 'lucide-react';
 import {
   Bar,
@@ -19,6 +18,7 @@ import { CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatFullRupiah, toFiniteNumber } from '@/lib/utils';
 import type { PerformaSalesItem } from '@/types/analytics.types';
+import { SegmentedTabs } from './segmented-tabs';
 
 type ChartMode = 'vertical' | 'horizontal';
 
@@ -48,27 +48,40 @@ function SalesChartTooltip({ active, payload }: ChartTooltipProps) {
   if (!active || !datum) return null;
 
   return (
-    <div className='rounded-xl border border-border bg-popover px-3 py-2 text-xs shadow-md'>
-      <p className='mb-1 font-semibold text-foreground'>{datum.nama}</p>
-      <div className='flex flex-col gap-0.5 text-[11px]'>
-        <span className='text-secondary-foreground'>
-          Revenue:{' '}
-          <strong className='font-semibold text-primary'>
+    <div className='min-w-[190px] rounded-xl border border-border bg-card px-3.5 py-2.5 text-xs shadow-lg'>
+      <p className='font-bold text-foreground'>{datum.nama}</p>
+      <div className='my-1.5 h-px bg-border/80' />
+      <div className='flex flex-col gap-1 text-[11px]'>
+        <div className='flex items-center gap-2'>
+          <span
+            className='size-2.5 shrink-0 rounded-full'
+            style={{ backgroundColor: 'var(--primary-default)' }}
+          />
+          <span className='text-secondary-foreground'>Revenue:</span>
+          <strong className='font-bold text-foreground'>
             {formatFullRupiah(datum.revenueRaw)}
           </strong>
-        </span>
-        <span className='text-secondary-foreground'>
-          Kunjungan:{' '}
-          <strong className='font-semibold text-foreground'>
+        </div>
+        <div className='flex items-center gap-2'>
+          <span
+            className='size-2.5 shrink-0 rounded-full'
+            style={{ backgroundColor: 'var(--color-kanban-orange)' }}
+          />
+          <span className='text-secondary-foreground'>Kunjungan:</span>
+          <strong className='font-bold text-foreground'>
             {datum.kunjungan.toLocaleString('id-ID')}
           </strong>
-        </span>
-        <span className='text-secondary-foreground'>
-          Closing:{' '}
-          <strong className='font-semibold text-foreground'>
+        </div>
+        <div className='flex items-center gap-2'>
+          <span
+            className='size-2.5 shrink-0 rounded-full'
+            style={{ backgroundColor: 'var(--accent-default)' }}
+          />
+          <span className='text-secondary-foreground'>Closing:</span>
+          <strong className='font-bold text-foreground'>
             {datum.closing.toLocaleString('id-ID')}
           </strong>
-        </span>
+        </div>
       </div>
     </div>
   );
@@ -114,32 +127,15 @@ export function SalesPerformanceChart({
         <div className='flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between'>
           <h2 className='text-sm sm:text-base font-semibold text-foreground'>{title}</h2>
 
-          <Tabs
-            selectedKey={mode}
-            onSelectionChange={(key) => setMode(String(key) as ChartMode)}
-            variant='secondary'
-            className='w-fit'
-          >
-            <Tabs.List
-              aria-label='Mode tampilan grafik performa sales'
-              className='inline-flex rounded-md bg-muted/60 p-1'
-            >
-              <Tabs.Tab
-                id='vertical'
-                className='relative z-10 rounded-lg px-3 py-1.5 text-xs sm:text-sm font-semibold text-muted-foreground transition-colors data-[selected=true]:text-white cursor-pointer'
-              >
-                Bar Chart
-                <Tabs.Indicator className='absolute inset-0 -z-10 rounded-md bg-primary shadow-xs' />
-              </Tabs.Tab>
-              <Tabs.Tab
-                id='horizontal'
-                className='relative z-10 rounded-md px-3 py-1.5 text-xs sm:text-sm font-semibold text-muted-foreground transition-colors data-[selected=true]:text-white cursor-pointer'
-              >
-                Horizontal
-                <Tabs.Indicator className='absolute inset-0 -z-10 rounded-lg bg-primary shadow-xs' />
-              </Tabs.Tab>
-            </Tabs.List>
-          </Tabs>
+          <SegmentedTabs
+            ariaLabel='Mode tampilan grafik performa sales'
+            options={[
+              { id: 'vertical', label: 'Bar Chart' },
+              { id: 'horizontal', label: 'Horizontal' },
+            ]}
+            value={mode}
+            onChange={setMode}
+          />
         </div>
 
         {isLoading ? (
@@ -185,7 +181,11 @@ export function SalesPerformanceChart({
                   axisLine={false}
                   tickLine={false}
                 />
-                <Tooltip content={<SalesChartTooltip />} />
+                <Tooltip
+                  content={<SalesChartTooltip />}
+                  wrapperStyle={{ zIndex: 50 }}
+                  cursor={{ fill: 'var(--muted)', opacity: 0.45 }}
+                />
                 <Legend
                   wrapperStyle={{ fontSize: 11, paddingTop: 8 }}
                   iconType='circle'
@@ -238,7 +238,11 @@ export function SalesPerformanceChart({
                   axisLine={false}
                   tickLine={false}
                 />
-                <Tooltip content={<SalesChartTooltip />} />
+                <Tooltip
+                  content={<SalesChartTooltip />}
+                  wrapperStyle={{ zIndex: 50 }}
+                  cursor={{ fill: 'var(--muted)', opacity: 0.45 }}
+                />
                 <Legend
                   wrapperStyle={{ fontSize: 11, paddingTop: 8 }}
                   iconType='circle'

@@ -1,16 +1,17 @@
 'use client';
 
 import * as React from 'react';
-import { Tabs } from '@heroui/react';
 import { ChevronRight } from 'lucide-react';
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 import { SurfaceCard } from '@/components/ui/surface-card';
 import { CardContent } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { formatCompactRupiah, formatFullRupiah, toFiniteNumber } from '@/lib/utils';
 import type { TopSpenderItem } from '@/types/analytics.types';
 import { TopSpendersAllDrawer } from '../modals/top-spenders-all-drawer';
+import { SegmentedTabs } from './segmented-tabs';
 
 type TopSpenderMode = 'pie' | 'list';
 
@@ -41,24 +42,103 @@ interface DonutTooltipProps {
   payload?: Array<{ payload?: PieSliceDatum }>;
 }
 
+interface DonutLabelProps {
+  cx?: number;
+  cy?: number;
+  midAngle?: number;
+  outerRadius?: number;
+  value?: number;
+  percent?: number;
+  payload?: PieSliceDatum;
+}
+
+const RADIAN = Math.PI / 180;
+
+function createDonutOuterLabel(isMobile: boolean) {
+  return function renderDonutOuterLabel({
+    cx = 0,
+    cy = 0,
+    midAngle = 0,
+    outerRadius = 0,
+    payload,
+  }: DonutLabelProps) {
+    if (!payload || payload.percent < 3) return null;
+    const radius = outerRadius + (isMobile ? 12 : 18);
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+    const isRight = x >= cx;
+
+    if (isMobile) {
+      return (
+        <text
+          x={x}
+          y={y}
+          textAnchor={isRight ? 'start' : 'end'}
+          dominantBaseline='central'
+          fontSize={10}
+        >
+          <tspan x={x} dy={-5} fill={payload.color} fontWeight={600}>
+            {formatCompactRupiah(payload.value)}
+          </tspan>
+          <tspan x={x} dy={11} fill='var(--foreground)' fontWeight={700}>
+            {`${payload.percent.toFixed(1).replace('.', ',')}%`}
+          </tspan>
+        </text>
+      );
+    }
+
+    return (
+      <text
+        x={x}
+        y={y}
+        textAnchor={isRight ? 'start' : 'end'}
+        dominantBaseline='central'
+        fontSize={11}
+      >
+        <tspan fill={payload.color} fontWeight={600}>
+          {formatCompactRupiah(payload.value)}
+        </tspan>
+        <tspan fill='var(--foreground)' fontWeight={700}>
+          {` ${payload.percent.toFixed(1).replace('.', ',')}%`}
+        </tspan>
+      </text>
+    );
+  };
+}
+
 function DonutTooltip({ active, payload }: DonutTooltipProps) {
   const datum = payload?.[0]?.payload;
   if (!active || !datum) return null;
 
   return (
-    <div className='rounded-xl border border-border bg-popover px-3 py-2 text-xs shadow-md'>
-      <p className='mb-1 font-semibold text-foreground'>{datum.name}</p>
-      <p className='text-[11px] font-bold text-primary'>
-        {formatFullRupiah(datum.value)}
-      </p>
-      <p className='text-[11px] text-secondary-foreground'>
-        {datum.jumlahPo} PO · {datum.percent.toFixed(1).replace('.', ',')}%
-      </p>
+    <div className='min-w-[190px] rounded-xl border border-border bg-card px-3.5 py-2.5 text-xs shadow-lg'>
+      <p className='font-bold text-foreground'>{datum.name}</p>
+      <div className='my-1.5 h-px bg-border/80' />
+      <div className='flex flex-col gap-1 text-[11px]'>
+        <div className='flex items-center gap-2'>
+          <span
+            className='size-2.5 shrink-0 rounded-full'
+            style={{ backgroundColor: datum.color }}
+          />
+          <span className='text-secondary-foreground'>Nilai PO:</span>
+          <strong className='font-bold text-foreground'>
+            {formatFullRupiah(datum.value)}
+          </strong>
+        </div>
+        <div className='flex items-center gap-2'>
+          <span className='size-2.5 shrink-0 rounded-full bg-muted-foreground/40' />
+          <span className='text-secondary-foreground'>Transaksi:</span>
+          <strong className='font-bold text-foreground'>
+            {datum.jumlahPo} PO ({datum.percent.toFixed(1).replace('.', ',')}%)
+          </strong>
+        </div>
+      </div>
     </div>
   );
 }
 
 export function TopSpendersCard({ items, isLoading = false }: TopSpendersCardProps) {
+  const isMobile = useIsMobile();
   const [mode, setMode] = React.useState<TopSpenderMode>('pie');
   const [allOpen, setAllOpen] = React.useState(false);
 
@@ -124,10 +204,12 @@ export function TopSpendersCard({ items, isLoading = false }: TopSpendersCardPro
   return (
     <SurfaceCard>
       <CardContent className='flex flex-col gap-4 p-4 lg:p-5'>
-        <div className='flex items-start justify-between gap-2'>
+        <div className='flex items-center sm:items-start justify-between gap-2'>
           <div className='flex flex-col gap-0.5'>
             <h2 className='text-sm sm:text-base font-semibold text-foreground'>Top Spenders</h2>
-            <p className='text-xs sm:text-sm text-secondary-foreground'>Nilai PO terbesar</p>
+            <p className='hidden sm:block text-xs sm:text-sm text-secondary-foreground'>
+              Nilai Purchase Order (PO) terbesar
+            </p>
           </div>
           {sortedItems.length > 0 && (
             <button
@@ -141,66 +223,60 @@ export function TopSpendersCard({ items, isLoading = false }: TopSpendersCardPro
           )}
         </div>
 
-        <Tabs
-          selectedKey={mode}
-          onSelectionChange={(key) => setMode(String(key) as TopSpenderMode)}
-          variant='secondary'
-          className='w-fit'
-        >
-          <Tabs.List
-            aria-label='Mode tampilan Top Spenders'
-            className='inline-flex rounded-md bg-muted/60 p-1'
-          >
-            <Tabs.Tab
-              id='pie'
-              className='relative z-10 rounded-md px-3 py-1.5 text-xs sm:text-sm font-semibold text-muted-foreground transition-colors data-[selected=true]:text-white cursor-pointer'
-            >
-              Pie Chart
-              <Tabs.Indicator className='absolute inset-0 -z-10 rounded-md bg-primary shadow-xs' />
-            </Tabs.Tab>
-            <Tabs.Tab
-              id='list'
-              className='relative z-10 rounded-md px-3 py-1.5 text-xs sm:text-sm font-semibold text-muted-foreground transition-colors data-[selected=true]:text-white cursor-pointer'
-            >
-              List
-              <Tabs.Indicator className='absolute inset-0 -z-10 rounded-md bg-primary shadow-xs' />
-            </Tabs.Tab>
-          </Tabs.List>
-        </Tabs>
+        <SegmentedTabs
+          ariaLabel='Mode tampilan Top Spenders'
+          options={[
+            { id: 'pie', label: 'Pie Chart' },
+            { id: 'list', label: 'List' },
+          ]}
+          value={mode}
+          onChange={setMode}
+        />
 
         {isLoading ? (
-          <Skeleton className='h-56 w-full rounded-xl' />
+          <Skeleton className='h-64 sm:h-88 w-full rounded-xl' />
         ) : sortedItems.length === 0 ? (
           <EmptyState title='Belum ada PO' />
         ) : mode === 'pie' ? (
-          <div className='flex flex-col gap-4'>
-            <div className='relative h-56 w-full min-w-0'>
+          <div className='flex flex-col gap-3 sm:gap-4'>
+            <div className='relative h-64 sm:h-88 w-full min-w-0'>
               <ResponsiveContainer width='100%' height='100%'>
-                <PieChart>
+                <PieChart
+                  margin={
+                    isMobile
+                      ? { top: 8, right: 8, bottom: 8, left: 8 }
+                      : { top: 20, right: 32, bottom: 20, left: 32 }
+                  }
+                >
                   <Pie
                     data={pieSlices}
                     dataKey='value'
                     nameKey='name'
                     cx='50%'
                     cy='50%'
-                    innerRadius={54}
-                    outerRadius={82}
+                    innerRadius={isMobile ? '34%' : '34%'}
+                    outerRadius={isMobile ? '66%' : '78%'}
                     paddingAngle={2}
                     stroke='none'
+                    labelLine={{ strokeWidth: 1, stroke: 'var(--border)' }}
+                    label={createDonutOuterLabel(isMobile)}
                   >
                     {pieSlices.map((slice) => (
                       <Cell key={slice.id} fill={slice.color} />
                     ))}
                   </Pie>
-                  <Tooltip content={<DonutTooltip />} />
+                  <Tooltip
+                    content={<DonutTooltip />}
+                    wrapperStyle={{ zIndex: 50 }}
+                  />
                 </PieChart>
               </ResponsiveContainer>
 
-              <div className='pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center'>
-                <span className='text-[10px] font-medium text-secondary-foreground'>
+              <div className='pointer-events-none absolute inset-0 z-0 flex flex-col items-center justify-center text-center'>
+                <span className='text-[10px] sm:text-xs font-medium text-secondary-foreground'>
                   {totalPo} PO
                 </span>
-                <span className='text-xs sm:text-sm font-bold text-foreground'>
+                <span className='text-xs sm:text-sm font-bold text-foreground px-2'>
                   {formatCompactRupiah(totalValue)}
                 </span>
               </div>
@@ -213,11 +289,8 @@ export function TopSpendersCard({ items, isLoading = false }: TopSpendersCardPro
                     className='size-2.5 shrink-0 rounded-full'
                     style={{ backgroundColor: slice.color }}
                   />
-                  <span className='max-w-[130px] truncate font-medium text-foreground'>
+                  <span className='max-w-[160px] truncate font-medium text-foreground'>
                     {slice.name}
-                  </span>
-                  <span className='text-[11px] text-secondary-foreground'>
-                    ({slice.percent.toFixed(1).replace('.', ',')}%)
                   </span>
                 </div>
               ))}
