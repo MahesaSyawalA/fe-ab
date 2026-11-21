@@ -8,7 +8,7 @@ import { AKTIVITAS_STAGE_CONFIG } from '@/constants/kanban-constants';
 import { AktivitasWithDetails } from '@/types/ticket.types';
 import { EvidenceItem } from '@/types/activity.types';
 import { BuktiKunjungan } from '@/types/visit-proof.types';
-import { cn } from '@/lib/utils';
+import { cn, formatFullRupiah, formatShortDate } from '@/lib/utils';
 import { ProspekAktivitasEvidence } from './prospek-aktivitas-evidence';
 import { AktivitasEvidence } from './normalize-evidence';
 
@@ -103,6 +103,13 @@ export function ProspekAktivitasCard({
     return list;
   }, [akt.evidence, akt.bukti_kunjungan, formattedWaktu]);
 
+  const penawaranInfo = React.useMemo(() => {
+    if (!akt.penawaran) return null;
+    return Array.isArray(akt.penawaran)
+      ? (akt.penawaran[0] ?? null)
+      : akt.penawaran;
+  }, [akt.penawaran]);
+
   return (
     <Card className='rounded-xl border border-border/70 bg-card py-0 shadow-2xs'>
       <CardContent className='flex flex-col gap-3 p-4 sm:p-5'>
@@ -157,6 +164,56 @@ export function ProspekAktivitasCard({
             <span className='font-semibold text-secondary-foreground'>{akt.pic_ditemui || 'PIC Outlet'}</span>
           </div>
         </div>
+
+        {penawaranInfo && (
+          <div className='grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs sm:text-sm bg-muted/40 p-2.5 sm:p-3 rounded-xl border border-border'>
+            <div className='flex flex-col gap-0.5'>
+              <span className='text-[11px] text-muted-foreground'>Nomor Penawaran</span>
+              <span className='font-mono font-semibold text-foreground'>
+                {penawaranInfo.no_penawaran}
+              </span>
+            </div>
+            <div className='flex flex-col gap-0.5'>
+              <span className='text-[11px] text-muted-foreground'>Revisi</span>
+              <span className='font-semibold text-foreground'>
+                {penawaranInfo.revisi_ke === 0
+                  ? 'Penawaran Awal'
+                  : `Revisi ke-${penawaranInfo.revisi_ke}`}
+              </span>
+            </div>
+            <div className='flex flex-col gap-0.5'>
+              <span className='text-[11px] text-muted-foreground'>Nilai Penawaran</span>
+              <span className='font-bold text-accent'>
+                {formatFullRupiah(Number(penawaranInfo.total_nilai) || 0)}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {akt.purchase_order && (
+          <div className='grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs sm:text-sm bg-muted/40 p-2.5 sm:p-3 rounded-xl border border-border'>
+            <div className='flex flex-col gap-0.5'>
+              <span className='text-[11px] text-muted-foreground'>Nomor PO</span>
+              <span className='font-mono font-semibold text-foreground'>
+                {akt.purchase_order.no_po}
+              </span>
+            </div>
+            <div className='flex flex-col gap-0.5'>
+              <span className='text-[11px] text-muted-foreground'>Tanggal PO</span>
+              <span className='font-semibold text-foreground'>
+                {akt.purchase_order.tanggal_po
+                  ? formatShortDate(akt.purchase_order.tanggal_po)
+                  : '-'}
+              </span>
+            </div>
+            <div className='flex flex-col gap-0.5'>
+              <span className='text-[11px] text-muted-foreground'>Nilai PO</span>
+              <span className='font-bold text-accent'>
+                {formatFullRupiah(Number(akt.purchase_order.nilai_po) || 0)}
+              </span>
+            </div>
+          </div>
+        )}
 
         <div className='flex flex-col gap-1'>
           <span className='text-xs font-bold text-foreground'>

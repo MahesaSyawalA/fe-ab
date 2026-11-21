@@ -88,7 +88,19 @@ export function useKanbanTicketMove({
   > = async (params) => {
     setIsSubmittingMove(true);
 
-    moveTicketWithStageUpdate(params);
+    const isDocumentActivity =
+      params.activity?.jenis_kegiatan === 'quotation' ||
+      params.activity?.jenis_kegiatan === 'po' ||
+      params.activity?.jenis_kegiatan === 'revenue';
+    const moveTicketUpdates =
+      isDocumentActivity && params.ticketUpdates
+        ? (({ estimasi_nilai: _ignored, ...rest }) => rest)(params.ticketUpdates)
+        : params.ticketUpdates;
+
+    moveTicketWithStageUpdate({
+      ...params,
+      ticketUpdates: moveTicketUpdates,
+    });
 
     try {
       await moveTicketMutation.mutateAsync({
@@ -97,8 +109,12 @@ export function useKanbanTicketMove({
         fromStageId: params.fromStageId,
         toStageId: params.toStageId,
         targetIndex: params.targetIndex,
-        ticketUpdates: params.ticketUpdates,
+        ticketUpdates: moveTicketUpdates,
         catatan: params.activity?.catatan,
+        tanggal_dokumen: params.activity?.tanggal || undefined,
+        nilai_dokumen: isDocumentActivity
+          ? params.ticketUpdates?.estimasi_nilai
+          : undefined,
         posisi:
           typeof params.targetIndex === 'number'
             ? params.targetIndex + 1
@@ -115,6 +131,10 @@ export function useKanbanTicketMove({
           params.activity.catatan || `Aktivitas tahap ${params.toStageId}`,
         jenis_kegiatan: params.activity.jenis_kegiatan,
         jadwal_follow_up: params.activity.jadwal_follow_up,
+        ...(params.activity.jenis_kegiatan === 'quotation' &&
+        params.ticketUpdates?.estimasi_nilai !== undefined
+          ? { total_nilai: params.ticketUpdates.estimasi_nilai }
+          : {}),
       });
 
       const newAktivitasId = createdAktivitasRes?.data?.id_aktivitas;
@@ -193,6 +213,9 @@ export function useKanbanTicketMove({
       const createPayload: CreateTiketInput = {
         ...params.createPayload,
         id_user: userId,
+        ...(params.activityPayload?.tanggal
+          ? { tanggal_dokumen: params.activityPayload.tanggal }
+          : {}),
       };
 
       const res = await createTicketMutation.mutateAsync(createPayload);
@@ -208,6 +231,9 @@ export function useKanbanTicketMove({
             catatan: params.activityPayload.catatan,
             jenis_kegiatan: params.activityPayload.jenis_kegiatan,
             jadwal_follow_up: params.activityPayload.jadwal_follow_up,
+            ...(params.activityPayload.jenis_kegiatan === 'quotation'
+              ? { total_nilai: createPayload.estimasi_nilai }
+              : {}),
           });
 
           const newAktivitasId = createdAktivitasRes?.data?.id_aktivitas;

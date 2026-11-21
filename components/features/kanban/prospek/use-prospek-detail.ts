@@ -162,11 +162,24 @@ export function useProspekDetail({
     if (!ticket) return;
     try {
       setIsSubmittingActivity(true);
+      const isDocumentActivity =
+        params.activity.jenis_kegiatan === 'quotation' ||
+        params.activity.jenis_kegiatan === 'po' ||
+        params.activity.jenis_kegiatan === 'revenue';
+      const moveTicketUpdates =
+        isDocumentActivity && params.ticketUpdates
+          ? (({ estimasi_nilai: _ignored, ...rest }) => rest)(params.ticketUpdates)
+          : params.ticketUpdates;
+
       await moveTicketMutation.mutateAsync({
         id_tiket: params.id_tiket,
         id_tahap: params.toStageId,
-        ticketUpdates: params.ticketUpdates,
+        ticketUpdates: moveTicketUpdates,
         catatan: params.activity.catatan,
+        tanggal_dokumen: params.activity.tanggal || undefined,
+        nilai_dokumen: isDocumentActivity
+          ? params.ticketUpdates?.estimasi_nilai
+          : undefined,
       });
 
       const userId =
@@ -179,6 +192,10 @@ export function useProspekDetail({
           params.activity.catatan || `Aktivitas tahap ${params.toStageId}`,
         jenis_kegiatan: params.activity.jenis_kegiatan,
         jadwal_follow_up: params.activity.jadwal_follow_up,
+        ...(params.activity.jenis_kegiatan === 'quotation' &&
+        params.ticketUpdates?.estimasi_nilai !== undefined
+          ? { total_nilai: params.ticketUpdates.estimasi_nilai }
+          : {}),
       });
 
       const newAktivitasId = createdRes.data?.id_aktivitas;
@@ -223,8 +240,8 @@ export function useProspekDetail({
       }
 
       addActivity(ticket.id_tiket, params.activity);
-      if (params.ticketUpdates && Object.keys(params.ticketUpdates).length > 0) {
-        updateTicket(ticket.id_tiket, params.ticketUpdates);
+      if (moveTicketUpdates && Object.keys(moveTicketUpdates).length > 0) {
+        updateTicket(ticket.id_tiket, moveTicketUpdates);
       }
 
       toast.success('Aktivitas Berhasil Disimpan', {
