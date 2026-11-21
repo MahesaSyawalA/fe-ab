@@ -84,7 +84,7 @@ export function TopSpendersAllDrawer({
             <DrawerTitle className='text-base font-bold text-foreground'>
               Semua Top Spenders
             </DrawerTitle>
-            <DrawerDescription className='text-xs text-secondary-foreground'>
+            <DrawerDescription className='text-xs sm:text-sm text-secondary-foreground'>
               {items.length} pelanggan dengan transaksi PO
             </DrawerDescription>
           </DrawerHeader>
