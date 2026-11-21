@@ -83,7 +83,7 @@ export function ProspekProgressCard({
                           className={cn(
                             'size-6 lg:size-7 rounded-full transition-all text-xs font-semibold shrink-0 z-10',
                             isCompleted &&
-                              'bg-emerald-600 text-white border-transparent shadow-xs',
+                              'bg-primary text-primary-foreground border-transparent shadow-xs',
                             isCurrent &&
                               'bg-primary text-primary-foreground border-transparent ring-2 ring-primary/25 ring-offset-2 ring-offset-card shadow-xs font-bold',
                             !isCompleted &&
@@ -126,7 +126,7 @@ export function ProspekProgressCard({
                             'absolute top-[11px] lg:top-[13px] left-1/2 w-full m-0 h-0.5 rounded-none z-0',
                             'group-data-[orientation=horizontal]/stepper-nav:w-full group-data-[orientation=horizontal]/stepper-nav:flex-none',
                             'transition-colors',
-                            isCompleted ? 'bg-emerald-600' : 'bg-muted/70',
+                            isCompleted ? 'bg-primary' : 'bg-muted/70',
                           )}
                         />
                       )}
