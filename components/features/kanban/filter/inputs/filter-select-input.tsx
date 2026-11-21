@@ -30,6 +30,7 @@ export interface FilterSelectInputProps {
   name?: string;
   className?: string;
   triggerClassName?: string;
+  'aria-label'?: string;
 }
 
 const EMPTY_OPTION_KEY = '__empty__';
@@ -48,6 +49,7 @@ export function FilterSelectInput({
   name,
   className,
   triggerClassName,
+  'aria-label': ariaLabel,
 }: FilterSelectInputProps) {
   const invalid = isInvalid || Boolean(errorMessage);
   const hasEmptyOption = options.some((opt) => opt.value === '');
@@ -73,6 +75,7 @@ export function FilterSelectInput({
 
   return (
     <Select
+      aria-label={ariaLabel || label || placeholder || 'Pilih opsi'}
       isRequired={isRequired}
       isInvalid={invalid}
       isDisabled={isDisabled}

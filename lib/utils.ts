@@ -3,7 +3,6 @@ import { id } from 'date-fns/locale';
 
 export { cn } from "cn"
 
-/** Cegah dialog tertutup saat klik di luar sedang menutup dropdown/popover yang terbuka di dalamnya. */
 export function guardPopupDismiss(onOpenChange: (open: boolean) => void) {
   return (nextOpen: boolean) => {
     if (!nextOpen && document.querySelector('[aria-haspopup][aria-expanded="true"]')) return;
@@ -11,24 +10,37 @@ export function guardPopupDismiss(onOpenChange: (open: boolean) => void) {
   };
 }
 
+export function toFiniteNumber(value: unknown): number {
+  if (typeof value === 'number') return Number.isFinite(value) ? value : 0;
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (!trimmed) return 0;
+    const parsed = Number(trimmed);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+  return 0;
+}
+
 export function formatShortDate(date: Date | string): string {
   return format(new Date(date), 'd MMM yyyy', { locale: id });
 }
 
-export function formatCompactRupiah(amount: number): string {
-  if (amount >= 1_000_000_000) {
-    const val = (amount / 1_000_000_000).toFixed(2).replace(/\.?0+$/, '').replace('.', ',');
+export function formatCompactRupiah(amount: number | string | null | undefined): string {
+  const safeAmount = toFiniteNumber(amount);
+  if (safeAmount >= 1_000_000_000) {
+    const val = (safeAmount / 1_000_000_000).toFixed(2).replace(/\.?0+$/, '').replace('.', ',');
     return `Rp${val} M`;
   }
-  if (amount >= 1_000_000) {
-    const val = (amount / 1_000_000).toFixed(0);
+  if (safeAmount >= 1_000_000) {
+    const val = (safeAmount / 1_000_000).toFixed(0);
     return `Rp${val}jt`;
   }
-  return `Rp${amount.toLocaleString('id-ID')}`;
+  return `Rp${safeAmount.toLocaleString('id-ID')}`;
 }
 
-export function formatFullRupiah(amount: number): string {
-  return `Rp ${amount.toLocaleString('id-ID')}`;
+export function formatFullRupiah(amount: number | string | null | undefined): string {
+  const safeAmount = toFiniteNumber(amount);
+  return `Rp ${safeAmount.toLocaleString('id-ID')}`;
 }
 
 export function formatNumberInput(amount: number | string): string {

@@ -4,8 +4,6 @@ import * as React from 'react';
 import {
   Calendar,
   Check,
-  ExternalLink,
-  FileText,
   Pencil,
   Plus,
   Send,
@@ -15,9 +13,10 @@ import { toast } from '@heroui/react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { DocumentPreviewCard } from '@/components/ui/document-preview-card';
 import { EmptyState } from '@/components/ui/empty-state';
-import { NativeSelect } from '@/components/ui/native-select';
-import { Input } from '@/components/ui/input';
+import { FilterDatePicker } from '@/components/features/kanban/filter/inputs/filter-date-picker';
+import { FilterSelectInput } from '@/components/features/kanban/filter/inputs/filter-select-input';
 import {
   PenawaranStatusBadge,
   PenawaranValidityBadge,
@@ -197,12 +196,13 @@ export function ProspekTabPenawaran({
                       </span>
                       {isEditingDate ? (
                         <div className='flex items-center gap-1.5'>
-                          <Input
-                            type='date'
+                          <FilterDatePicker
+                            aria-label={`Tanggal penawaran ${item.no_penawaran}`}
                             value={draftDate}
-                            onChange={(e) => setDraftDate(e.target.value)}
-                            disabled={isBusy}
-                            className='h-8 text-xs'
+                            onChange={setDraftDate}
+                            isDisabled={isBusy}
+                            className='w-auto min-w-[148px]'
+                            groupClassName='h-8 rounded-lg text-xs'
                           />
                           <Button
                             type='button'
@@ -260,16 +260,14 @@ export function ProspekTabPenawaran({
                   </div>
 
                   {item.url_file_penawaran && (
-                    <a
-                      href={item.url_file_penawaran}
-                      target='_blank'
-                      rel='noopener noreferrer'
-                      className='inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:underline w-fit'
-                    >
-                      <FileText className='size-3.5 shrink-0' />
-                      <span>Lihat Dokumen Penawaran</span>
-                      <ExternalLink className='size-3 shrink-0' />
-                    </a>
+                    <DocumentPreviewCard
+                      url={item.url_file_penawaran}
+                      fileName={
+                        decodeURIComponent(
+                          item.url_file_penawaran.split('/').pop()?.split('?')[0] || '',
+                        ) || 'Dokumen Penawaran.pdf'
+                      }
+                    />
                   )}
 
                   {canEdit && (
@@ -278,21 +276,20 @@ export function ProspekTabPenawaran({
                         <span className='text-xs font-medium text-muted-foreground shrink-0'>
                           Status:
                         </span>
-                        <NativeSelect
+                        <FilterSelectInput
                           aria-label={`Ubah status penawaran ${item.no_penawaran}`}
+                          options={PENAWARAN_STATUS_OPTIONS.map((opt) => ({
+                            value: opt.value,
+                            label: opt.label,
+                          }))}
                           value={item.status}
-                          disabled={isBusy}
-                          onChange={(e) =>
-                            handleStatusChange(item, e.target.value as StatusPenawaran)
+                          isDisabled={isBusy}
+                          onChange={(val) =>
+                            handleStatusChange(item, val as StatusPenawaran)
                           }
-                          className='h-8 w-36 rounded-lg text-xs font-medium'
-                        >
-                          {PENAWARAN_STATUS_OPTIONS.map((opt) => (
-                            <option key={opt.value} value={opt.value}>
-                              {opt.label}
-                            </option>
-                          ))}
-                        </NativeSelect>
+                          className='w-36'
+                          triggerClassName='h-8 rounded-lg text-xs font-medium'
+                        />
                       </div>
 
                       <div className='flex flex-wrap items-center gap-1.5'>

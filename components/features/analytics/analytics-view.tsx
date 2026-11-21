@@ -15,14 +15,21 @@ import {
   useTopSpendersQuery,
 } from '@/hooks/queries/use-analytics-query';
 import { currentMonthRange } from '@/lib/date-utils';
-import { formatCompactRupiah, formatFullRupiah, formatShortDate } from '@/lib/utils';
+import {
+  formatCompactRupiah,
+  formatFullRupiah,
+  formatShortDate,
+  toFiniteNumber,
+} from '@/lib/utils';
 import type { AnalyticsParams } from '@/types/analytics.types';
 import { AnalyticsFilterBar } from './analytics-filter-bar';
 
 type Variant = 'dashboard' | 'rekap';
 
-const hari = (n: number | null) => (n === null ? '-' : `${n.toLocaleString('id-ID')} hari`);
-const persen = (n: number | null) => (n === null ? '-' : `${n.toLocaleString('id-ID')}%`);
+const hari = (n: number | string | null | undefined) =>
+  n == null ? '-' : `${toFiniteNumber(n).toLocaleString('id-ID')} hari`;
+const persen = (n: number | string | null | undefined) =>
+  n == null ? '-' : `${toFiniteNumber(n).toLocaleString('id-ID')}%`;
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -39,10 +46,6 @@ function Loading() {
   return <Skeleton className='h-32 w-full rounded-xl' />;
 }
 
-/**
- * `dashboard` (direktur): revenue vs kunjungan, top spenders, ROI.
- * `rekap` (manajer): siklus penjualan + efektivitas kunjungan; tanpa data gaji/ROI.
- */
 export function AnalyticsView({ variant }: { variant: Variant }) {
   const [params, setParams] = React.useState<AnalyticsParams>(currentMonthRange);
   const isDashboard = variant === 'dashboard';
@@ -69,11 +72,27 @@ export function AnalyticsView({ variant }: { variant: Variant }) {
       <AnalyticsFilterBar value={params} onChange={setParams} />
 
       <div className='grid grid-cols-2 gap-3 lg:grid-cols-4'>
-        <StatCard icon={<Banknote className='size-4' />} label='Total revenue' value={formatCompactRupiah(ringkasan?.total_revenue ?? 0)} />
-        <StatCard icon={<Footprints className='size-4' />} label='Total kunjungan' value={ringkasan?.total_kunjungan ?? 0} />
-        <StatCard icon={<Timer className='size-4' />} label='Rata-rata siklus' value={hari(siklus.data?.rata_rata_hari ?? null)} />
+        <StatCard
+          icon={<Banknote className='size-4' />}
+          label='Total revenue'
+          value={formatCompactRupiah(ringkasan?.total_revenue ?? 0)}
+        />
+        <StatCard
+          icon={<Footprints className='size-4' />}
+          label='Total kunjungan'
+          value={toFiniteNumber(ringkasan?.total_kunjungan)}
+        />
+        <StatCard
+          icon={<Timer className='size-4' />}
+          label='Rata-rata siklus'
+          value={hari(siklus.data?.rata_rata_hari)}
+        />
         {isDashboard && (
-          <StatCard icon={<Percent className='size-4' />} label='ROI tim' value={persen(ringkasan?.roi_persen ?? null)} />
+          <StatCard
+            icon={<Percent className='size-4' />}
+            label='ROI tim'
+            value={persen(ringkasan?.roi_persen)}
+          />
         )}
       </div>
 
@@ -87,7 +106,7 @@ export function AnalyticsView({ variant }: { variant: Variant }) {
             items={sales.map((s) => ({
               id: s.id_user,
               label: s.nama,
-              value: s.revenue,
+              value: toFiniteNumber(s.revenue),
               valueLabel: formatFullRupiah(s.revenue),
               sublabel: `${s.jumlah_kunjungan} kunjungan · ${s.jumlah_tiket_won} closing · ${
                 s.revenue_per_kunjungan === null
@@ -111,7 +130,7 @@ export function AnalyticsView({ variant }: { variant: Variant }) {
                 items={(topSpenders.data ?? []).map((c) => ({
                   id: c.id_pelanggan,
                   label: c.nama_outlet,
-                  value: c.total_nilai_po,
+                  value: toFiniteNumber(c.total_nilai_po),
                   valueLabel: formatCompactRupiah(c.total_nilai_po),
                   sublabel: `${c.tipe_outlet} · ${c.jumlah_po} PO`,
                 }))}
@@ -148,7 +167,7 @@ export function AnalyticsView({ variant }: { variant: Variant }) {
           ) : (
             <>
               <p className='text-xs text-secondary-foreground'>
-                Tercepat {hari(siklus.data?.tercepat_hari ?? null)} · terlama {hari(siklus.data?.terlama_hari ?? null)}
+                Tercepat {hari(siklus.data?.tercepat_hari)} · terlama {hari(siklus.data?.terlama_hari)}
               </p>
               <ul className='flex flex-col divide-y divide-border text-xs'>
                 {siklus.data?.items.map((t) => (

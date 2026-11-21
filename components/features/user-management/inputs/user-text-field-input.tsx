@@ -22,6 +22,7 @@ export interface UserTextFieldInputProps
   type?: string;
   autoFocus?: boolean;
   isDisabled?: boolean;
+  prefix?: React.ReactNode;
   inputClassName?: string;
   'aria-label'?: string;
 }
@@ -37,6 +38,7 @@ export function UserTextFieldInput({
   type = 'text',
   autoFocus,
   isDisabled,
+  prefix,
   inputClassName,
   className,
   'aria-label': ariaLabelProp,
@@ -70,6 +72,11 @@ export function UserTextFieldInput({
       )}
 
       <div className='relative flex w-full items-center'>
+        {prefix && (
+          <span className='pointer-events-none absolute left-3 text-xs font-semibold text-muted-foreground select-none'>
+            {prefix}
+          </span>
+        )}
         <Input
           type={effectiveType}
           autoFocus={autoFocus}
@@ -77,6 +84,7 @@ export function UserTextFieldInput({
           aria-label={effectiveAriaLabel}
           className={cn(
             'h-10 w-full rounded-md border border-border bg-card px-3 text-xs sm:text-sm text-foreground transition-all placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary aria-invalid:border-destructive aria-invalid:focus:border-destructive disabled:bg-muted/40 disabled:text-muted-foreground disabled:cursor-not-allowed',
+            prefix && 'pl-9',
             isPasswordField && 'pr-10',
             inputClassName
           )}

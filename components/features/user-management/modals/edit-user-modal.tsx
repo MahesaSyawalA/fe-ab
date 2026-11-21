@@ -215,7 +215,8 @@ function EditUserModalContent({
 
           {canEditBiaya && (
             <UserTextFieldInput
-              label='Gaji/Biaya Bulanan (Rp)'
+              label='Gaji/Biaya Bulanan'
+              prefix='Rp'
               placeholder='Untuk perhitungan ROI'
               value={biaya}
               onChange={(val) => setBiaya(formatNumberInput(val))}

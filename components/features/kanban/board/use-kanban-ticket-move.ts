@@ -94,7 +94,11 @@ export function useKanbanTicketMove({
       params.activity?.jenis_kegiatan === 'revenue';
     const moveTicketUpdates =
       isDocumentActivity && params.ticketUpdates
-        ? (({ estimasi_nilai: _ignored, ...rest }) => rest)(params.ticketUpdates)
+        ? (() => {
+            const rest = { ...params.ticketUpdates };
+            delete rest.estimasi_nilai;
+            return rest;
+          })()
         : params.ticketUpdates;
 
     moveTicketWithStageUpdate({
