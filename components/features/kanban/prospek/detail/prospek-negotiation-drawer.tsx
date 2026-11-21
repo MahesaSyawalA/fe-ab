@@ -1,10 +1,17 @@
+'use client';
+
+import * as React from 'react';
+import { Modal } from '@heroui/react';
 import { Button } from '@/components/ui/button';
 import {
   Drawer,
   DrawerContent,
+  DrawerDescription,
   DrawerHeader,
   DrawerTitle,
 } from '@/components/ui/drawer';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { guardPopupDismiss } from '@/lib/utils';
 import { NegotiationResult } from '../types';
 
 interface ProspekNegotiationDrawerProps {
@@ -13,45 +20,96 @@ interface ProspekNegotiationDrawerProps {
   onSelect: (result: NegotiationResult) => void;
 }
 
+function NegotiationOptionsContent({
+  onSelect,
+  onCancel,
+}: {
+  onSelect: (result: NegotiationResult) => void;
+  onCancel: () => void;
+}) {
+  return (
+    <div className='flex flex-col gap-2.5'>
+      <Button
+        type='button'
+        onClick={() => onSelect('negosiasi')}
+        className='h-11 w-full rounded-xl bg-primary text-xs font-semibold text-primary-foreground cursor-pointer'
+      >
+        Pindahkan ke Tahap Negosiasi
+      </Button>
+      <Button
+        type='button'
+        variant='outline'
+        onClick={() => onSelect('won')}
+        className='h-11 w-full rounded-xl border-emerald-500/40 bg-emerald-500/10 text-xs font-semibold text-emerald-700 hover:bg-emerald-500/15 cursor-pointer'
+      >
+        Menang (WON) — Masuk ke Tahap Selesai
+      </Button>
+      <Button
+        type='button'
+        variant='outline'
+        onClick={() => onSelect('lost')}
+        className='h-11 w-full rounded-xl border-rose-500/40 bg-rose-500/10 text-xs font-semibold text-rose-600 hover:bg-rose-500/15 cursor-pointer'
+      >
+        Kalah (LOST) — Tutup Tiket
+      </Button>
+      <Button
+        type='button'
+        variant='outline'
+        onClick={onCancel}
+        className='mt-1 h-10 w-full rounded-xl border-border bg-card text-xs font-semibold text-secondary-foreground shadow-none hover:bg-muted/50 cursor-pointer'
+      >
+        Batal
+      </Button>
+    </div>
+  );
+}
+
 export function ProspekNegotiationDrawer({
   open,
   onOpenChange,
   onSelect,
 }: ProspekNegotiationDrawerProps) {
+  const isMobile = useIsMobile();
+  const handleClose = () => onOpenChange(false);
+
+  if (isMobile) {
+    return (
+      <Drawer open={open} onOpenChange={onOpenChange} showSwipeHandle>
+        <DrawerContent className='fixed inset-x-0 bottom-0 mx-auto w-full sm:max-w-lg max-h-[92dvh] flex flex-col rounded-t-[28px] bg-card border-t border-border shadow-2xl overflow-hidden'>
+          <DrawerHeader className='shrink-0 px-5 pt-2 pb-2 text-left border-b border-border/60 bg-card'>
+            <DrawerTitle className='text-base font-bold text-foreground'>
+              Tentukan Hasil Negosiasi
+            </DrawerTitle>
+            <DrawerDescription className='text-xs text-muted-foreground'>
+              Pilih tindak lanjut tahap atau hasil akhir prospek ini.
+            </DrawerDescription>
+          </DrawerHeader>
+          <div className='px-5 py-3 pb-6'>
+            <NegotiationOptionsContent onSelect={onSelect} onCancel={handleClose} />
+          </div>
+        </DrawerContent>
+      </Drawer>
+    );
+  }
+
   return (
-    <Drawer open={open} onOpenChange={onOpenChange} showSwipeHandle>
-      <DrawerContent className='fixed inset-x-0 bottom-0 mx-auto w-full sm:max-w-lg max-h-[92dvh] flex flex-col rounded-t-[28px] bg-card border-t border-border shadow-2xl overflow-hidden'>
-        <DrawerHeader className='shrink-0 px-5 pt-2 pb-2 text-left border-b border-border/60 bg-card'>
-          <DrawerTitle className='text-base font-bold text-foreground'>
-            Tentukan Hasil Negosiasi
-          </DrawerTitle>
-        </DrawerHeader>
-        <div className='flex flex-col gap-2.5 px-5 py-3 pb-6'>
-          <Button
-            type='button'
-            onClick={() => onSelect('negosiasi')}
-            className='h-11 w-full rounded-xl bg-primary text-xs font-semibold text-primary-foreground cursor-pointer'
-          >
-            Pindahkan ke Tahap Negosiasi
-          </Button>
-          <Button
-            type='button'
-            variant='outline'
-            onClick={() => onSelect('won')}
-            className='h-11 w-full rounded-xl border-emerald-500/40 bg-emerald-500/10 text-xs font-semibold text-emerald-700 hover:bg-emerald-500/15 cursor-pointer'
-          >
-            Menang (WON) — Masuk ke Tahap Selesai
-          </Button>
-          <Button
-            type='button'
-            variant='outline'
-            onClick={() => onSelect('lost')}
-            className='h-11 w-full rounded-xl border-rose-500/40 bg-rose-500/10 text-xs font-semibold text-rose-600 hover:bg-rose-500/15 cursor-pointer'
-          >
-            Kalah (LOST) — Tutup Tiket
-          </Button>
-        </div>
-      </DrawerContent>
-    </Drawer>
+    <Modal.Backdrop isOpen={open} onOpenChange={guardPopupDismiss(onOpenChange)} variant='blur'>
+      <Modal.Container>
+        <Modal.Dialog className='sm:max-w-md flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl p-0'>
+          <Modal.CloseTrigger className='text-secondary-foreground' />
+          <Modal.Header className='shrink-0 flex flex-col gap-0.5 px-6 pt-5 pb-3 border-b border-border/70 text-left items-start'>
+            <Modal.Heading className='text-base font-bold text-foreground text-left'>
+              Tentukan Hasil Negosiasi
+            </Modal.Heading>
+            <p className='text-xs text-muted-foreground text-left'>
+              Pilih tindak lanjut tahap atau hasil akhir prospek ini.
+            </p>
+          </Modal.Header>
+          <Modal.Body className='px-6 py-4'>
+            <NegotiationOptionsContent onSelect={onSelect} onCancel={handleClose} />
+          </Modal.Body>
+        </Modal.Dialog>
+      </Modal.Container>
+    </Modal.Backdrop>
   );
 }
