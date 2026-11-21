@@ -19,7 +19,7 @@ interface AnalyticsFilterBarProps {
   onChange: (next: AnalyticsParams) => void;
 }
 
-function formatPeriodLabel(from?: string, to?: string): string {
+export function formatPeriodLabel(from?: string, to?: string): string {
   const fallback = currentMonthRange();
   const startStr = from || fallback.from;
   const endStr = to || fallback.to;
