@@ -83,7 +83,8 @@ api.interceptors.response.use(
     const isAuthEndpoint =
       requestUrl.includes('/auth/login') ||
       requestUrl.includes('/auth/refresh') ||
-      requestUrl.includes('/auth/logout');
+      requestUrl.includes('/auth/logout') ||
+      requestUrl.includes('/auth/change-password');
 
     if (error.response?.status === 401 && !isAuthEndpoint) {
 
@@ -158,7 +159,10 @@ api.interceptors.response.use(
 
 export function getErrorMessage(error: unknown): string {
   if (isAxiosError<ApiErrorResponse>(error)) {
-    const data = error.response?.data;
+    if (!error.response) {
+      return 'Koneksi jaringan bermasalah. Periksa koneksi internet Anda.';
+    }
+    const data = error.response.data;
     if (data?.errors) {
       if (Array.isArray(data.errors) && data.errors.length > 0) {
         const firstItem = data.errors[0];

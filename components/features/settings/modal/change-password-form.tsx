@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { isAxiosError } from 'axios';
 import { Controller, useForm, type Control } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useSession } from 'next-auth/react';
@@ -145,7 +146,14 @@ export function useChangePasswordForm({ open, onOpenChange }: ChangePasswordModa
       form.reset();
       onOpenChange(false);
     } catch (error) {
-      const msg = getErrorMessage(error);
+      let msg = getErrorMessage(error);
+      if (isAxiosError<{ message?: string }>(error)) {
+        if (!error.response) {
+          msg = 'Koneksi jaringan bermasalah. Silakan periksa koneksi internet Anda.';
+        } else if (error.response.status === 401) {
+          msg = error.response.data?.message || 'Password saat ini tidak sesuai.';
+        }
+      }
       setServerError(msg || 'Gagal memperbarui password. Silakan coba lagi.');
       toast.danger('Gagal Mengubah Password', {
         description: (
