@@ -218,7 +218,7 @@ export function useMoveTicketStageMutation(
       kanbanService.moveTicketStage(id, payload),
     onSuccess: async (...args) => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: kanbanKeys.board() }),
+        queryClient.invalidateQueries({ queryKey: kanbanKeys.boards() }),
         queryClient.invalidateQueries({ queryKey: kanbanKeys.ticket(args[1].id) }),
       ]);
       await options?.onSuccess?.(...args);
@@ -241,7 +241,7 @@ export function useCreateTahapMutation(
     onSuccess: async (...args) => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: kanbanKeys.stages() }),
-        queryClient.invalidateQueries({ queryKey: kanbanKeys.board() }),
+        queryClient.invalidateQueries({ queryKey: kanbanKeys.boards() }),
       ]);
       await options?.onSuccess?.(...args);
     },
@@ -268,7 +268,7 @@ export function useUpdateTahapMutation(
     onSuccess: async (...args) => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: kanbanKeys.stages() }),
-        queryClient.invalidateQueries({ queryKey: kanbanKeys.board() }),
+        queryClient.invalidateQueries({ queryKey: kanbanKeys.boards() }),
       ]);
       await options?.onSuccess?.(...args);
     },
@@ -290,7 +290,7 @@ export function useDeleteTahapMutation(
     onSuccess: async (...args) => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: kanbanKeys.stages() }),
-        queryClient.invalidateQueries({ queryKey: kanbanKeys.board() }),
+        queryClient.invalidateQueries({ queryKey: kanbanKeys.boards() }),
       ]);
       await options?.onSuccess?.(...args);
     },
@@ -375,7 +375,7 @@ export function useCreateTicketMutation(
     mutationFn: (payload: CreateTiketInput) => kanbanService.createTicket(payload),
     onSuccess: async (...args) => {
       await queryClient.invalidateQueries({ queryKey: kanbanKeys.all });
-      await queryClient.invalidateQueries({ queryKey: kanbanKeys.board() });
+      await queryClient.invalidateQueries({ queryKey: kanbanKeys.boards() });
       await options?.onSuccess?.(...args);
     },
     onError: (...args) => {
@@ -400,7 +400,7 @@ export function useUpdateTicketMutation(
       kanbanService.updateTicket(id, payload),
     onSuccess: async (...args) => {
       await queryClient.invalidateQueries({ queryKey: kanbanKeys.all });
-      await queryClient.invalidateQueries({ queryKey: kanbanKeys.board() });
+      await queryClient.invalidateQueries({ queryKey: kanbanKeys.boards() });
       await queryClient.invalidateQueries({
         queryKey: kanbanKeys.ticket(args[1].id),
       });

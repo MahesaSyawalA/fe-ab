@@ -213,7 +213,7 @@ export function useKanbanTicketMove({
   > = async (params) => {
     setIsCreatingTicket(true);
     try {
-      const userId = session?.user?.id_user || 'usr-1';
+      const userId = session?.user?.id_user || session?.user?.id || '';
       const createPayload: CreateTiketInput = {
         ...params.createPayload,
         id_user: userId,
