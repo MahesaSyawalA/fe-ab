@@ -26,6 +26,8 @@ export interface KanbanBoardData {
 }
 
 export interface KanbanBoardFilterParams {
+  id_user?: string;
+  id_squad?: string;
   squadId?: string;
   salesId?: string;
   search?: string;
@@ -35,6 +37,16 @@ export interface KanbanBoardFilterParams {
   closingTo?: string;
   minEstimate?: number;
   maxEstimate?: number;
+}
+
+function buildBoardQueryParams(params?: KanbanBoardFilterParams) {
+  if (!params) return {};
+  const { salesId, squadId, id_user, id_squad, ...rest } = params;
+  return {
+    ...rest,
+    ...(id_user ?? salesId ? { id_user: id_user ?? salesId } : {}),
+    ...(id_squad ?? squadId ? { id_squad: id_squad ?? squadId } : {}),
+  };
 }
 
 export interface MoveTicketStagePayload {
@@ -48,7 +60,6 @@ export interface MoveTicketStagePayload {
   nilai_dokumen?: number;
 }
 
-/** Field tiket dari form tahap yang ikut dikirim ke backend saat pindah tahap (nilai, tanggal, hasil closing). */
 const STAGE_TICKET_FIELDS = [
   'estimasi_nilai',
   'estimasi_closing',
@@ -88,9 +99,10 @@ export const kanbanService = {
   },
 
   async getBoard(params?: KanbanBoardFilterParams): Promise<ApiResponse<TiketWithDetails[]>> {
+    const query = buildBoardQueryParams(params);
     const firstResponse = await api.get<ApiPaginatedResponse<TiketWithDetails>>('/tiket', {
       params: {
-        ...params,
+        ...query,
         page: 1,
         limit: 100,
       },
@@ -104,7 +116,7 @@ export const kanbanService = {
         Array.from({ length: totalPages - 1 }, (_, idx) =>
           api.get<ApiPaginatedResponse<TiketWithDetails>>('/tiket', {
             params: {
-              ...params,
+              ...query,
               page: idx + 2,
               limit: 100,
             },

@@ -43,11 +43,18 @@ export interface KanbanFilterStoreState {
   resetFilters: () => void;
 }
 
-export const countActiveFilters = (filter: KanbanFilterValues): number => {
-  const { stages, priorities, ...scalars } = filter;
+export const countActiveFilters = (
+  filter: KanbanFilterValues,
+  options?: { hideTeamFilters?: boolean },
+): number => {
+  const { stages, priorities, salesId, squadId, ...scalars } = filter;
+  const teamCount = options?.hideTeamFilters
+    ? 0
+    : [salesId, squadId].filter(Boolean).length;
   return (
     stages.length +
     priorities.length +
+    teamCount +
     Object.values(scalars).filter(Boolean).length
   );
 };

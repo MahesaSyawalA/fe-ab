@@ -1,5 +1,7 @@
 import * as React from 'react';
+import { useSession } from 'next-auth/react';
 import type { ChipFilterItem } from '@/components/ui/chip-filter';
+import { normalizeRole } from '@/lib/rbac';
 import { countActiveFilters } from '../filter';
 import { useKanbanFilterStore } from '@/store/kanban-filter-store';
 import { useKanbanStore } from '@/store/kanban-store';
@@ -19,6 +21,7 @@ import {
   useKanbanBoardQuery,
   useMoveTicketMutation,
 } from '@/hooks/queries/use-kanban-query';
+import { useSquadListQuery } from '@/hooks/queries';
 import type { KanbanBoardFilterParams } from '@/services/kanban-service';
 import { useKanbanDnd, type PendingStageMove } from './use-kanban-dnd';
 import { useKanbanTicketMove } from './use-kanban-ticket-move';
@@ -26,6 +29,12 @@ import { useKanbanTicketMove } from './use-kanban-ticket-move';
 export type { PendingStageMove };
 
 export function useKanbanBoard() {
+  const { data: session, status: sessionStatus } = useSession();
+  const activeRole = normalizeRole(session?.user?.role);
+  const isSalesRole = activeRole === 'sales';
+  const currentUserId = session?.user?.id_user || session?.user?.id || '';
+  const currentUserSquadId = session?.user?.id_squad ?? null;
+
   const {
     ticketsByStage,
     setTicketsByStage,
@@ -46,6 +55,7 @@ export function useKanbanBoard() {
   } = useKanbanFilterStore();
 
   const stagesQuery = useKanbanStagesQuery();
+  const squadsQuery = useSquadListQuery({ limit: 100 });
   const moveTicketMutation = useMoveTicketMutation();
 
   const stages: KanbanStageColumn[] = React.useMemo(() => {
@@ -88,13 +98,21 @@ export function useKanbanBoard() {
       ? Number(filterState.maxEstimate.replace(/\D/g, ''))
       : undefined;
 
+    const selectedSalesId = isSalesRole
+      ? currentUserId || undefined
+      : filterState.salesId && filterState.salesId !== 'all'
+        ? filterState.salesId
+        : undefined;
+    const selectedSquadId = isSalesRole
+      ? undefined
+      : filterState.squadId && filterState.squadId !== 'all'
+        ? filterState.squadId
+        : undefined;
+
     return {
       search: debouncedSearchQuery.trim() || undefined,
-      salesId:
-        filterState.salesId && filterState.salesId !== 'all'
-          ? filterState.salesId
-          : undefined,
-      squadId: filterState.squadId || undefined,
+      id_user: selectedSalesId,
+      id_squad: selectedSquadId,
       priorities:
         filterState.priorities.length > 0 ? filterState.priorities : undefined,
       minEstimate: minVal,
@@ -102,9 +120,11 @@ export function useKanbanBoard() {
       closingFrom: filterState.closingFrom || undefined,
       closingTo: filterState.closingTo || undefined,
     };
-  }, [debouncedSearchQuery, filterState]);
+  }, [debouncedSearchQuery, filterState, isSalesRole, currentUserId]);
 
-  const boardQuery = useKanbanBoardQuery(queryParams);
+  const boardQuery = useKanbanBoardQuery(queryParams, {
+    enabled: sessionStatus !== 'loading' && (!isSalesRole || Boolean(currentUserId)),
+  });
 
   const rawTickets = React.useMemo(() => {
     const data = boardQuery.data?.data;
@@ -210,12 +230,28 @@ export function useKanbanBoard() {
         if (maxVal !== null && !isNaN(maxVal) && (ticket.estimasi_nilai ?? 0) > maxVal) {
           return false;
         }
-        if (
-          filterState.salesId &&
-          filterState.salesId !== 'all' &&
-          ticket.id_user !== filterState.salesId
-        ) {
-          return false;
+        if (isSalesRole) {
+          if (!currentUserId || ticket.id_user !== currentUserId) {
+            return false;
+          }
+        } else {
+          if (
+            filterState.salesId &&
+            filterState.salesId !== 'all' &&
+            ticket.id_user !== filterState.salesId
+          ) {
+            return false;
+          }
+          if (filterState.squadId && filterState.squadId !== 'all') {
+            const ticketSquadId =
+              ticket.id_squad ??
+              ticket.user?.id_squad ??
+              ticket.squad?.id_squad ??
+              ticket.user?.squad?.id_squad;
+            if (ticketSquadId && ticketSquadId !== filterState.squadId) {
+              return false;
+            }
+          }
         }
         if (filterState.closingFrom && ticket.estimasi_closing) {
           const ticketTime = new Date(ticket.estimasi_closing).getTime();
@@ -238,7 +274,7 @@ export function useKanbanBoard() {
     });
 
     return result;
-  }, [stages, normalizedTicketsByStage, debouncedSearchQuery, filterState]);
+  }, [stages, normalizedTicketsByStage, debouncedSearchQuery, filterState, isSalesRole, currentUserId]);
 
   const { totalPipelineLabel, activeTicketsCount, targetPercentage } =
     React.useMemo(() => {
@@ -312,7 +348,25 @@ export function useKanbanBoard() {
     [stages, filteredTicketsByStage],
   );
 
-  const activeFilterCount = countActiveFilters(filterState);
+  const activeFilterCount = countActiveFilters(filterState, {
+    hideTeamFilters: isSalesRole,
+  });
+
+  const squadLabel = React.useMemo(() => {
+    const squads = squadsQuery.data?.data ?? [];
+    if (isSalesRole) {
+      if (currentUserSquadId) {
+        const matched = squads.find((s) => s.id_squad === currentUserSquadId);
+        if (matched?.nama_squad) return matched.nama_squad;
+      }
+      return 'Prospek Saya';
+    }
+    if (filterState.squadId && filterState.squadId !== 'all') {
+      const matched = squads.find((s) => s.id_squad === filterState.squadId);
+      if (matched?.nama_squad) return matched.nama_squad;
+    }
+    return 'Semua Squad';
+  }, [squadsQuery.data, isSalesRole, currentUserSquadId, filterState.squadId]);
 
   const handleSelectStageChip = (stageId: string) => {
     setSelectedStageId(stageId);
@@ -375,6 +429,7 @@ export function useKanbanBoard() {
     teamContributions,
     stageChips,
     activeFilterCount,
+    squadLabel,
     nextStage,
     quickMoveTicket,
     isMovingTicket: moveTicketMutation.isPending,

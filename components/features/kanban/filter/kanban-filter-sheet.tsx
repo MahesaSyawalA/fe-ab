@@ -23,18 +23,21 @@ export interface KanbanFilterSheetProps {
   onOpenChange: (open: boolean) => void;
   value: KanbanFilterState;
   onApply: (nextFilter: KanbanFilterState) => void;
+  role?: 'sales' | 'manager' | 'director';
 }
 
 interface KanbanFilterSheetContentProps {
   value: KanbanFilterState;
   onApply: (nextFilter: KanbanFilterState) => void;
   onClose: () => void;
+  role?: 'sales' | 'manager' | 'director';
 }
 
 function KanbanFilterSheetContent({
   value,
   onApply,
   onClose,
+  role,
 }: KanbanFilterSheetContentProps) {
   const [draft, setDraft] = React.useState<KanbanFilterState>(value);
 
@@ -47,7 +50,9 @@ function KanbanFilterSheetContent({
     setDraft(INITIAL_KANBAN_FILTER);
   };
 
-  const activeCount = countActiveFilters(draft);
+  const activeCount = countActiveFilters(draft, {
+    hideTeamFilters: role === 'sales',
+  });
 
   return (
     <DrawerContent className='fixed inset-x-0 bottom-0 mx-auto w-full sm:max-w-lg max-h-[92dvh] flex flex-col rounded-t-[28px] bg-card border-t border-border shadow-2xl overflow-hidden'>
@@ -61,7 +66,7 @@ function KanbanFilterSheetContent({
       </DrawerHeader>
 
       <div className='no-scrollbar flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-5 py-3'>
-        <KanbanFilterFields draft={draft} setDraft={setDraft} />
+        <KanbanFilterFields draft={draft} setDraft={setDraft} role={role} />
       </div>
 
       <DrawerFooter className='shrink-0 z-10 grid grid-cols-2 gap-3 px-5 py-3 border-t border-border/70 bg-card shadow-[0_-4px_16px_rgba(0,0,0,0.06)] pb-4 sm:pb-3'>
@@ -90,6 +95,7 @@ export function KanbanFilterSheet({
   onOpenChange,
   value,
   onApply,
+  role,
 }: KanbanFilterSheetProps) {
   const handleDrawerOpenChange = React.useCallback(
     (nextOpen: boolean, eventDetails?: DrawerRootChangeEventDetails) => {
@@ -117,6 +123,7 @@ export function KanbanFilterSheet({
         value={value}
         onApply={onApply}
         onClose={() => onOpenChange(false)}
+        role={role}
       />
     </Drawer>
   );

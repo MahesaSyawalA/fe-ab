@@ -39,7 +39,7 @@ export function KanbanBoardView({ role, basePath }: KanbanBoardViewProps) {
           Papan Kanban
         </h1>
         <p className='text-xs sm:text-sm text-secondary-foreground leading-snug'>
-          Pipeline 7 Tahap Aktivitas Penjualan · Squad Jakarta 1
+          Pipeline 7 Tahap Aktivitas Penjualan · {board.squadLabel}
         </p>
       </div>
 
@@ -173,6 +173,7 @@ export function KanbanBoardView({ role, basePath }: KanbanBoardViewProps) {
         onOpenChange={board.setFilterOpen}
         value={board.filterState}
         onApply={board.setFilterState}
+        role={role}
       />
 
       {canCreateColumn && (

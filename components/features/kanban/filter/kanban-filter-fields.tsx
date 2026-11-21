@@ -12,8 +12,8 @@ import {
   JENIS_TAHAP_OPTIONS,
   PRIORITY_CONFIG,
   PRIORITY_ORDER,
-  SALES_OPTIONS,
 } from '@/constants/kanban-constants';
+import { useSquadListQuery, useUserListQuery } from '@/hooks/queries';
 import { KanbanFilterState } from './filter-state';
 import { PillGroup } from './pill-group';
 
@@ -36,9 +36,24 @@ const ESTIMATE_FIELDS: { key: ScalarKey; label: string }[] = [
 export interface KanbanFilterFieldsProps {
   draft: KanbanFilterState;
   setDraft: React.Dispatch<React.SetStateAction<KanbanFilterState>>;
+  role?: 'sales' | 'manager' | 'director';
 }
 
-export function KanbanFilterFields({ draft, setDraft }: KanbanFilterFieldsProps) {
+export function KanbanFilterFields({
+  draft,
+  setDraft,
+  role,
+}: KanbanFilterFieldsProps) {
+  const isSalesRole = role === 'sales';
+  const { data: usersData } = useUserListQuery(
+    { role: 'sales', limit: 100 },
+    { enabled: !isSalesRole },
+  );
+  const { data: squadsData } = useSquadListQuery(
+    { limit: 100 },
+    !isSalesRole,
+  );
+
   const toggleIn = (key: 'stages' | 'priorities') => (id: string) =>
     setDraft((prev) => ({
       ...prev,
@@ -47,15 +62,23 @@ export function KanbanFilterFields({ draft, setDraft }: KanbanFilterFieldsProps)
         : [...prev[key], id],
     }));
 
-  const setField = (key: ScalarKey | 'salesId', val: string) =>
+  const setField = (key: ScalarKey | 'salesId' | 'squadId', val: string) =>
     setDraft((prev) => ({ ...prev, [key]: val }));
 
   const salesOptions = React.useMemo<FilterSelectOption[]>(
     () => [
       { value: '', label: 'Semua Sales' },
-      ...SALES_OPTIONS.map((s) => ({ value: s.id, label: s.name })),
+      ...(usersData?.data?.map((u) => ({ value: u.id_user, label: u.nama })) ?? []),
     ],
-    [],
+    [usersData?.data],
+  );
+
+  const squadOptions = React.useMemo<FilterSelectOption[]>(
+    () => [
+      { value: '', label: 'Semua Squad' },
+      ...(squadsData?.data?.map((s) => ({ value: s.id_squad, label: s.nama_squad })) ?? []),
+    ],
+    [squadsData?.data],
   );
 
   return (
@@ -106,13 +129,24 @@ export function KanbanFilterFields({ draft, setDraft }: KanbanFilterFieldsProps)
         </div>
       </div>
 
-      <FilterSelectInput
-        label='Sales'
-        hint='Pilih sales'
-        value={draft.salesId}
-        onChange={(val) => setField('salesId', val)}
-        options={salesOptions}
-      />
+      {!isSalesRole && (
+        <>
+          <FilterSelectInput
+            label='Squad'
+            hint='Pilih squad'
+            value={draft.squadId ?? ''}
+            onChange={(val) => setField('squadId', val)}
+            options={squadOptions}
+          />
+          <FilterSelectInput
+            label='Sales'
+            hint='Pilih sales'
+            value={draft.salesId}
+            onChange={(val) => setField('salesId', val)}
+            options={salesOptions}
+          />
+        </>
+      )}
     </div>
   );
 }

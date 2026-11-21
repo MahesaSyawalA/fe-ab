@@ -59,10 +59,23 @@ export interface TiketWithDetails extends Tiket {
   aktivitas_list?: AktivitasWithDetails[];
   riwayat_list?: RiwayatTahapWithDetails[];
   penawaran_list?: Penawaran[];
-  /** Hari dari masuk tahap quotation sampai revenue; null bila belum closing. */
   durasi_siklus_hari?: number | null;
-  /** Jumlah revisi penawaran yang sudah dibuat; form quotation berikutnya = jumlah + 1. */
   jumlah_penawaran?: number;
+  id_squad?: string | null;
+  nama_squad?: string | null;
+  user?: {
+    id_user?: string;
+    nama?: string;
+    id_squad?: string | null;
+    squad?: {
+      id_squad?: string;
+      nama_squad?: string;
+    } | null;
+  } | null;
+  squad?: {
+    id_squad?: string;
+    nama_squad?: string;
+  } | null;
 }
 
 export interface TeamContributionItem {

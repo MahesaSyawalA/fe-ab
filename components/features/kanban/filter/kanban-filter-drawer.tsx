@@ -11,6 +11,7 @@ export interface KanbanFilterDrawerProps {
   onOpenChange: (open: boolean) => void;
   value: KanbanFilterState;
   onApply: (nextFilter: KanbanFilterState) => void;
+  role?: 'sales' | 'manager' | 'director';
 }
 
 export function KanbanFilterDrawer(props: KanbanFilterDrawerProps) {

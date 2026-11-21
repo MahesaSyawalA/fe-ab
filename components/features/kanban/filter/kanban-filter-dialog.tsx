@@ -16,18 +16,21 @@ export interface KanbanFilterDialogProps {
   onOpenChange: (open: boolean) => void;
   value: KanbanFilterState;
   onApply: (nextFilter: KanbanFilterState) => void;
+  role?: 'sales' | 'manager' | 'director';
 }
 
 interface KanbanFilterDialogContentProps {
   value: KanbanFilterState;
   onApply: (nextFilter: KanbanFilterState) => void;
   onClose: () => void;
+  role?: 'sales' | 'manager' | 'director';
 }
 
 function KanbanFilterDialogContent({
   value,
   onApply,
   onClose,
+  role,
 }: KanbanFilterDialogContentProps) {
   const [draft, setDraft] = React.useState<KanbanFilterState>(value);
 
@@ -40,7 +43,9 @@ function KanbanFilterDialogContent({
     setDraft(INITIAL_KANBAN_FILTER);
   };
 
-  const activeCount = countActiveFilters(draft);
+  const activeCount = countActiveFilters(draft, {
+    hideTeamFilters: role === 'sales',
+  });
 
   return (
     <Modal.Dialog className='sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl p-0'>
@@ -55,7 +60,7 @@ function KanbanFilterDialogContent({
       </Modal.Header>
 
       <Modal.Body className='no-scrollbar flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-6 py-4'>
-        <KanbanFilterFields draft={draft} setDraft={setDraft} />
+        <KanbanFilterFields draft={draft} setDraft={setDraft} role={role} />
       </Modal.Body>
 
       <Modal.Footer className='sticky bottom-0 z-10 shrink-0 border-t border-border/80 bg-card/95 backdrop-blur-md px-6 py-3 grid grid-cols-2 gap-3'>
@@ -84,6 +89,7 @@ export function KanbanFilterDialog({
   onOpenChange,
   value,
   onApply,
+  role,
 }: KanbanFilterDialogProps) {
   return (
     <Modal.Backdrop isOpen={open} onOpenChange={guardPopupDismiss(onOpenChange)} variant='blur'>
@@ -93,6 +99,7 @@ export function KanbanFilterDialog({
           value={value}
           onApply={onApply}
           onClose={() => onOpenChange(false)}
+          role={role}
         />
       </Modal.Container>
     </Modal.Backdrop>
