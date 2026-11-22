@@ -150,56 +150,36 @@ export function TopSpendersCard({ items, isLoading = false }: TopSpendersCardPro
     [items],
   );
 
+  const topFive = React.useMemo(() => sortedItems.slice(0, 5), [sortedItems]);
+  const topTen = React.useMemo(() => sortedItems.slice(0, 10), [sortedItems]);
+
   const totalValue = React.useMemo(
-    () => sortedItems.reduce((sum, item) => sum + toFiniteNumber(item.total_nilai_po), 0),
-    [sortedItems],
+    () => topFive.reduce((sum, item) => sum + toFiniteNumber(item.total_nilai_po), 0),
+    [topFive],
   );
 
   const totalPo = React.useMemo(
-    () => sortedItems.reduce((sum, item) => sum + toFiniteNumber(item.jumlah_po), 0),
-    [sortedItems],
+    () => topFive.reduce((sum, item) => sum + toFiniteNumber(item.jumlah_po), 0),
+    [topFive],
   );
 
-  const pieSlices: PieSliceDatum[] = React.useMemo(() => {
-    const topFive = sortedItems.slice(0, 5);
-    const others = sortedItems.slice(5);
-    const base = topFive.map((item, idx) => {
-      const val = toFiniteNumber(item.total_nilai_po);
-      return {
-        id: item.id_pelanggan,
-        name: item.nama_outlet,
-        value: val,
-        jumlahPo: toFiniteNumber(item.jumlah_po),
-        percent: totalValue > 0 ? (val / totalValue) * 100 : 0,
-        color: DONUT_COLORS[idx % DONUT_COLORS.length],
-      };
-    });
+  const pieSlices: PieSliceDatum[] = React.useMemo(
+    () =>
+      topFive.map((item, idx) => {
+        const val = toFiniteNumber(item.total_nilai_po);
+        return {
+          id: item.id_pelanggan,
+          name: item.nama_outlet,
+          value: val,
+          jumlahPo: toFiniteNumber(item.jumlah_po),
+          percent: totalValue > 0 ? (val / totalValue) * 100 : 0,
+          color: DONUT_COLORS[idx % DONUT_COLORS.length],
+        };
+      }),
+    [topFive, totalValue],
+  );
 
-    if (others.length > 0) {
-      const othersValue = others.reduce(
-        (sum, item) => sum + toFiniteNumber(item.total_nilai_po),
-        0,
-      );
-      const othersPo = others.reduce(
-        (sum, item) => sum + toFiniteNumber(item.jumlah_po),
-        0,
-      );
-      if (othersValue > 0) {
-        base.push({
-          id: 'lainnya',
-          name: 'Lainnya',
-          value: othersValue,
-          jumlahPo: othersPo,
-          percent: totalValue > 0 ? (othersValue / totalValue) * 100 : 0,
-          color: 'var(--muted-foreground)',
-        });
-      }
-    }
-
-    return base;
-  }, [sortedItems, totalValue]);
-
-  const topList = sortedItems.slice(0, 5);
+  const topList = topFive;
 
   return (
     <SurfaceCard>
@@ -211,13 +191,13 @@ export function TopSpendersCard({ items, isLoading = false }: TopSpendersCardPro
               Nilai Purchase Order (PO) terbesar
             </p>
           </div>
-          {sortedItems.length > 0 && (
+          {topTen.length > 0 && (
             <button
               type='button'
               onClick={() => setAllOpen(true)}
               className='inline-flex items-center gap-0.5 text-xs sm:text-sm font-semibold text-primary hover:underline cursor-pointer shrink-0'
             >
-              <span>Lihat Semua ({sortedItems.length})</span>
+              <span>Lihat Semua ({topTen.length})</span>
               <ChevronRight className='size-3.5' />
             </button>
           )}
@@ -328,7 +308,7 @@ export function TopSpendersCard({ items, isLoading = false }: TopSpendersCardPro
       <TopSpendersAllDrawer
         open={allOpen}
         onOpenChange={setAllOpen}
-        items={sortedItems}
+        items={topTen}
       />
     </SurfaceCard>
   );
