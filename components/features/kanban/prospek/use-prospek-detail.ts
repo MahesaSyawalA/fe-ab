@@ -179,14 +179,7 @@ export function useProspekDetail({
         params.activity.jenis_kegiatan === 'quotation' ||
         params.activity.jenis_kegiatan === 'po' ||
         params.activity.jenis_kegiatan === 'revenue';
-      const moveTicketUpdates =
-        isDocumentActivity && params.ticketUpdates
-          ? (() => {
-              const rest = { ...params.ticketUpdates };
-              delete rest.estimasi_nilai;
-              return rest;
-            })()
-          : params.ticketUpdates;
+      const moveTicketUpdates = params.ticketUpdates;
 
       await moveTicketMutation.mutateAsync({
         id_tiket: params.id_tiket,
