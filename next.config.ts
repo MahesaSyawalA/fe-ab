@@ -10,11 +10,7 @@ const securityHeaders = [
   },
 ];
 
-const nextConfig = {
-  /* config options here */
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+const nextConfig: NextConfig = {
   async headers() {
     return [
       {
@@ -33,4 +29,4 @@ const nextConfig = {
   },
 };
 
-export default nextConfig as NextConfig;
+export default nextConfig;
