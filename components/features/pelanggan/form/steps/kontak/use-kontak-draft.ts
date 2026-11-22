@@ -25,12 +25,13 @@ export function useKontakDraft({
 
   const isDraftValid = React.useMemo(() => {
     const isNameValid = draft.nama.trim().length >= 1;
+    const isJabatanValid = draft.jabatan.trim().length >= 1;
     const digitsCount = draft.no_telp.replace(/\D/g, '').length;
     const isPhoneValid = digitsCount >= 9;
     const isEmailValid = EMAIL_REGEX.test(draft.email.trim());
 
-    return isNameValid && isPhoneValid && isEmailValid;
-  }, [draft.nama, draft.no_telp, draft.email]);
+    return isNameValid && isJabatanValid && isPhoneValid && isEmailValid;
+  }, [draft.nama, draft.jabatan, draft.no_telp, draft.email]);
 
   const canSubmit = contacts.length > 0 || isDraftValid;
 

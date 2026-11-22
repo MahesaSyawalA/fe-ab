@@ -30,6 +30,7 @@ export function KontakDraftForm({
 
       <PelangganTextInput
         label='Jabatan'
+        required
         icon={<Briefcase className='size-4' />}
         value={draft.jabatan}
         onChange={(val) => onChange({ jabatan: val })}

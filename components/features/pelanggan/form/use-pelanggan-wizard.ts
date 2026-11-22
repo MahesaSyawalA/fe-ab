@@ -188,7 +188,55 @@ export function usePelangganWizard({
     }
   };
 
+  const extractFirstErrorMessage = (errors: FieldErrors<CreateCustomerInput>): string => {
+    const directFields: Array<keyof CreateCustomerInput> = [
+      'nama_outlet',
+      'tipe_outlet',
+      'alamat',
+      'img_url',
+      'latitude',
+      'longitude',
+      'radius_kunjungan',
+    ];
+    for (const key of directFields) {
+      const err = errors[key];
+      if (err && typeof err.message === 'string' && err.message) {
+        return err.message;
+      }
+    }
+    const kontakErr = errors.kontak;
+    if (Array.isArray(kontakErr)) {
+      for (const item of kontakErr) {
+        if (!item || typeof item !== 'object') continue;
+        for (const fieldErr of Object.values(item)) {
+          if (
+            fieldErr &&
+            typeof fieldErr === 'object' &&
+            'message' in fieldErr &&
+            typeof fieldErr.message === 'string' &&
+            fieldErr.message
+          ) {
+            return fieldErr.message;
+          }
+        }
+      }
+    } else if (kontakErr && typeof kontakErr.message === 'string' && kontakErr.message) {
+      return kontakErr.message;
+    }
+    return 'Mohon periksa kembali data yang wajib diisi sebelum menyimpan.';
+  };
+
   const onInvalid = (errors: FieldErrors<CreateCustomerInput>) => {
+    const firstMsg = extractFirstErrorMessage(errors);
+    setServerError(firstMsg);
+    toast.danger('Data Belum Lengkap atau Tidak Valid', {
+      description: React.createElement(
+        'span',
+        { className: 'text-xs sm:text-sm text-secondary-foreground leading-relaxed' },
+        firstMsg,
+      ),
+    });
+
     if (errors.nama_outlet || errors.tipe_outlet || errors.alamat || errors.img_url) {
       setCurrentStep(1);
     } else if (errors.latitude || errors.longitude || errors.radius_kunjungan) {
@@ -197,11 +245,13 @@ export function usePelangganWizard({
   };
 
   const handleFinalSubmit = (finalContacts: KontakInputItem[]) => {
+    if (createMutation.isPending) return;
+    setServerError(null);
     form.setValue('kontak', finalContacts, {
       shouldValidate: true,
       shouldDirty: true,
     });
-    form.handleSubmit(onValid, onInvalid)();
+    void form.handleSubmit(onValid, onInvalid)();
   };
 
   return {
