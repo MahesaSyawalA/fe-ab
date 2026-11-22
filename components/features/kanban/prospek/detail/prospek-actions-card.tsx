@@ -46,7 +46,7 @@ export function ProspekActionsCard({
               <XCircle className='size-4 shrink-0' />
             )}
             <span>
-              Hasil Prospek: {isWon ? 'Menang (WON)' : 'Kalah (LOST)'}
+              Hasil Prospek: {isWon ? 'WON' : 'LOST'}
             </span>
           </div>
         )}

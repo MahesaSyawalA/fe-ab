@@ -6,26 +6,18 @@ import { cn } from '@/lib/utils';
 
 interface TicketOutcomeBadgeProps {
   status?: TiketStatus | string | null;
-  verbose?: boolean;
   className?: string;
 }
 
 export function TicketOutcomeBadge({
   status,
-  verbose = false,
   className,
 }: TicketOutcomeBadgeProps) {
   if (status !== 'won' && status !== 'lost') return null;
 
   const isWon = status === 'won';
   const Icon = isWon ? CheckCircle2 : XCircle;
-  const label = isWon
-    ? verbose
-      ? 'Menang (WON)'
-      : 'Won'
-    : verbose
-      ? 'Kalah (LOST)'
-      : 'Lost';
+  const label = isWon ? 'Won' : 'Lost';
 
   return (
     <Badge

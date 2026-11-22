@@ -49,7 +49,7 @@ function NegotiationOptionsContent({
         onClick={() => onSelect('won')}
         className='h-11 w-full rounded-xl border-emerald-500/40 bg-emerald-500/10 text-xs font-semibold text-emerald-700 hover:bg-emerald-500/15 disabled:opacity-60 cursor-pointer'
       >
-        Menang (WON) — Masuk ke Tahap Selesai
+        WON — Masuk ke Tahap Selesai
         {currentStatus === 'won' ? ' (Saat Ini)' : ''}
       </Button>
       <Button
@@ -59,7 +59,7 @@ function NegotiationOptionsContent({
         onClick={() => onSelect('lost')}
         className='h-11 w-full rounded-xl border-rose-500/40 bg-rose-500/10 text-xs font-semibold text-rose-600 hover:bg-rose-500/15 disabled:opacity-60 cursor-pointer'
       >
-        Kalah (LOST) — Tutup Tiket
+        LOST — Tutup Tiket
         {currentStatus === 'lost' ? ' (Saat Ini)' : ''}
       </Button>
       <Button
@@ -88,7 +88,7 @@ export function ProspekNegotiationDrawer({
     ? 'Ubah Hasil Negosiasi'
     : 'Tentukan Hasil Negosiasi';
   const descriptionText = isDecided
-    ? `Status prospek saat ini: ${currentStatus === 'won' ? 'Menang (WON)' : 'Kalah (LOST)'}. Pilih status baru jika ingin memperbarui.`
+    ? `Status prospek saat ini: ${currentStatus === 'won' ? 'WON' : 'LOST'}. Pilih status baru jika ingin memperbarui.`
     : 'Pilih tindak lanjut tahap atau hasil akhir prospek ini.';
 
   if (isMobile) {

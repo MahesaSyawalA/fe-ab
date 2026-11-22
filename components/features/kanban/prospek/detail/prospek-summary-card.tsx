@@ -116,7 +116,7 @@ export function ProspekSummaryCard({
             <span className={cn('size-1.5 rounded-full', priority.dotClass)} />
             {priority.label}
           </Badge>
-          <TicketOutcomeBadge status={ticket.status} verbose />
+          <TicketOutcomeBadge status={ticket.status} />
           {latestPenawaran && (
             <PenawaranStatusBadge status={latestPenawaran.status} />
           )}
