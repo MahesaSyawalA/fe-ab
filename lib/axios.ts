@@ -22,9 +22,53 @@ interface QueueItem {
   reject: (reason?: unknown) => void;
 }
 
+const SESSION_CACHE_TTL_MS = 5 * 60 * 1000;
+
 let isRefreshing = false;
 let isLoggingOut = false;
 let failedQueue: QueueItem[] = [];
+let cachedAccessToken: string | null = null;
+let cachedTokenExpiresAt = 0;
+let pendingSessionPromise: Promise<string | null> | null = null;
+
+export function clearCachedAccessToken() {
+  cachedAccessToken = null;
+  cachedTokenExpiresAt = 0;
+  pendingSessionPromise = null;
+}
+
+export function setCachedAccessToken(token: string | null) {
+  if (token) {
+    cachedAccessToken = token;
+    cachedTokenExpiresAt = Date.now() + SESSION_CACHE_TTL_MS;
+  } else {
+    clearCachedAccessToken();
+  }
+}
+
+async function getAccessTokenCached(): Promise<string | null> {
+  if (cachedAccessToken && Date.now() < cachedTokenExpiresAt) {
+    return cachedAccessToken;
+  }
+  if (!pendingSessionPromise) {
+    pendingSessionPromise = getSession()
+      .then((session) => {
+        const token = session?.accessToken ?? null;
+        if (token) {
+          setCachedAccessToken(token);
+        }
+        return token;
+      })
+      .catch((sessionError) => {
+        console.warn('[HTTP Request Interceptor] Gagal membaca session:', sessionError);
+        return null;
+      })
+      .finally(() => {
+        pendingSessionPromise = null;
+      });
+  }
+  return pendingSessionPromise;
+}
 
 const triggerForcedLogout = async () => {
   if (typeof window === 'undefined' || window.location.pathname.startsWith('/login')) {
@@ -32,6 +76,7 @@ const triggerForcedLogout = async () => {
   }
   if (isLoggingOut) return;
   isLoggingOut = true;
+  clearCachedAccessToken();
   try {
     await logoutUser();
   } catch {
@@ -55,13 +100,9 @@ const processQueue = (error: unknown = null) => {
 api.interceptors.request.use(
   async (config) => {
     if (typeof window !== 'undefined' && !config.headers.Authorization) {
-      try {
-        const session = await getSession();
-        if (session?.accessToken) {
-          config.headers.Authorization = `Bearer ${session.accessToken}`;
-        }
-      } catch (sessionError) {
-        console.warn('[HTTP Request Interceptor] Gagal membaca session:', sessionError);
+      const accessToken = await getAccessTokenCached();
+      if (accessToken) {
+        config.headers.Authorization = `Bearer ${accessToken}`;
       }
     }
 
@@ -103,6 +144,7 @@ api.interceptors.response.use(
 
       originalRequest._retry = true;
       isRefreshing = true;
+      clearCachedAccessToken();
 
       try {
 
@@ -125,8 +167,11 @@ api.interceptors.response.use(
           resData?.tokens?.accessToken ||
           resData?.token;
 
-        if (newAccessToken && originalRequest.headers) {
-          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        if (newAccessToken) {
+          setCachedAccessToken(newAccessToken);
+          if (originalRequest.headers) {
+            originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+          }
         }
 
         processQueue(null);

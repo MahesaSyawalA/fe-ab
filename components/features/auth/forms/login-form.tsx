@@ -11,6 +11,7 @@ import { TextFieldInput } from '../inputs/text-field-input';
 import { PasswordFieldInput } from '../inputs/password-field-input';
 import { AuthButton } from '../buttons/auth-button';
 import { getDefaultHome, isRouteAllowedForRole } from '@/lib/rbac';
+import { clearCachedAccessToken, setCachedAccessToken } from '@/lib/axios';
 
 const loginSchema = z.object({
   email: z
@@ -72,7 +73,11 @@ export function LoginForm() {
           ),
         });
 
+        clearCachedAccessToken();
         const session = await getSession();
+        if (session?.accessToken) {
+          setCachedAccessToken(session.accessToken);
+        }
         const role = session?.user?.role;
         const defaultHome = getDefaultHome(role);
 

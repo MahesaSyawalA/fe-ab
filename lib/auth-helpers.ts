@@ -1,5 +1,5 @@
 import { signOut } from 'next-auth/react';
-import { api } from '@/lib/axios';
+import { api, clearCachedAccessToken } from '@/lib/axios';
 
 export function getUserInitials(name?: string | null): string {
   if (!name || !name.trim()) return 'AB';
@@ -24,6 +24,7 @@ export async function logoutUser(): Promise<void> {
   } catch (error) {
     console.warn('[Logout Warning] Gagal memanggil endpoint backend /auth/logout:', error);
   } finally {
+    clearCachedAccessToken();
     if (typeof window !== 'undefined') {
       try {
         window.localStorage.removeItem('ab_kanban_deleted_activity_logs');

@@ -43,6 +43,7 @@ export function useSessionGuard() {
   const isCheckingRef = React.useRef(false);
   const isLoggingOutRef = React.useRef(false);
   const hasNotifiedMustChangeRef = React.useRef(false);
+  const lastVerifiedAtRef = React.useRef(0);
   const [mustChangeFromServer, setMustChangeFromServer] = React.useState(false);
 
   const userId = session?.user?.id_user || session?.user?.id || '';
@@ -98,12 +99,18 @@ export function useSessionGuard() {
     }
   }, []);
 
-  const verifySession = React.useCallback(async () => {
+  const verifySession = React.useCallback(async (force = false) => {
     if (status !== 'authenticated') return;
     if (typeof window === 'undefined' || window.location.pathname.startsWith('/login')) return;
     if (isCheckingRef.current || isLoggingOutRef.current) return;
 
+    const now = Date.now();
+    if (!force && now - lastVerifiedAtRef.current < SESSION_POLL_INTERVAL_MS) {
+      return;
+    }
+
     isCheckingRef.current = true;
+    lastVerifiedAtRef.current = now;
     try {
       const response = await api.get<AuthMeResponse>('/auth/me');
       const user = response.data?.data;
