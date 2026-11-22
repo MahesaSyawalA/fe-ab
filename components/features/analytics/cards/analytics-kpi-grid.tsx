@@ -50,7 +50,7 @@ export function AnalyticsKpiGrid({
 
   if (variant === 'dashboard') {
     items.push({
-      label: 'Return on Investment (ROI) tim',
+      label: 'Return on Investment tim',
       value:
         roiPersen == null
           ? '-'

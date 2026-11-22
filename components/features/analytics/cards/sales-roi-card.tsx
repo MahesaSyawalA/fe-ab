@@ -41,7 +41,7 @@ export function SalesRoiCard({ items, isLoading = false }: SalesRoiCardProps) {
       <CardContent className='flex flex-col gap-4 p-4 lg:p-5'>
         <div className='flex items-start justify-between gap-2'>
           <div className='flex flex-col gap-0.5'>
-            <h2 className='text-sm sm:text-base font-semibold text-foreground'>ROI per Sales</h2>
+            <h2 className='text-sm sm:text-base font-semibold text-foreground'>Return on Investment per Sales</h2>
             <p className='text-xs sm:text-sm text-secondary-foreground'>
               Perbandingan Return on Investment (ROI) per sales
             </p>
