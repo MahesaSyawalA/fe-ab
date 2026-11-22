@@ -61,9 +61,19 @@ export const createCustomerSchema = z.object({
     .string()
     .trim()
     .min(1, { message: 'Foto outlet wajib diunggah' })
-    .refine((val) => Boolean(sanitizeSafeUrl(val)), {
-      message: 'URL foto outlet tidak valid',
-    }),
+    .refine(
+      (val) =>
+        Boolean(
+          sanitizeSafeUrl(val, {
+            allowBlob: true,
+            allowRelative: true,
+            allowDataImage: true,
+          }),
+        ),
+      {
+        message: 'URL foto outlet tidak valid',
+      },
+    ),
   kontak: z
     .array(
       z.object({
@@ -98,9 +108,20 @@ export const updateCustomerSchema = z.object({
   img_url: z
     .string()
     .trim()
-    .refine((val) => val === '' || Boolean(sanitizeSafeUrl(val)), {
-      message: 'URL foto outlet tidak valid',
-    })
+    .refine(
+      (val) =>
+        val === '' ||
+        Boolean(
+          sanitizeSafeUrl(val, {
+            allowBlob: true,
+            allowRelative: true,
+            allowDataImage: true,
+          }),
+        ),
+      {
+        message: 'URL foto outlet tidak valid',
+      },
+    )
     .optional(),
 });
 

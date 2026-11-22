@@ -56,17 +56,24 @@ export function hasDangerousXssPattern(value: string): boolean {
   return DANGEROUS_HTML_REGEX.test(value);
 }
 
+const SAFE_DATA_IMAGE_REGEX =
+  /^data:image\/(png|jpe?g|webp|gif|heic|heif);base64,[A-Za-z0-9+/=\s]+$/i;
+
 export function sanitizeSafeUrl(
   url?: string | null,
-  options: { allowBlob?: boolean; allowRelative?: boolean } = {
+  options: { allowBlob?: boolean; allowRelative?: boolean; allowDataImage?: boolean } = {
     allowBlob: true,
     allowRelative: true,
+    allowDataImage: false,
   },
 ): string {
   if (!url) return '';
   const trimmed = url.trim();
   if (!trimmed) return '';
   if (options.allowRelative && trimmed.startsWith('/') && !trimmed.startsWith('//')) {
+    return trimmed;
+  }
+  if (options.allowDataImage && SAFE_DATA_IMAGE_REGEX.test(trimmed)) {
     return trimmed;
   }
   try {

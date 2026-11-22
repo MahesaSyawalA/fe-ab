@@ -25,7 +25,11 @@ export function MediaLightbox({
   alt = 'Preview Gambar',
   title,
 }: MediaLightboxProps) {
-  const safeSrc = sanitizeSafeUrl(src);
+  const safeSrc = sanitizeSafeUrl(src, {
+    allowBlob: true,
+    allowRelative: true,
+    allowDataImage: true,
+  });
 
   const handleDownload = React.useCallback(() => {
     if (!safeSrc) return;

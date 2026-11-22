@@ -19,10 +19,19 @@ export const createVisitProofSchema = z.object({
     .string()
     .trim()
     .min(1, { message: 'Bukti foto kunjungan wajib diupload' })
-    .max(500, { message: 'URL foto maksimal 500 karakter' })
-    .refine((val) => Boolean(sanitizeSafeUrl(val)), {
-      message: 'URL foto kunjungan tidak valid',
-    }),
+    .refine(
+      (val) =>
+        Boolean(
+          sanitizeSafeUrl(val, {
+            allowBlob: true,
+            allowRelative: true,
+            allowDataImage: true,
+          }),
+        ),
+      {
+        message: 'URL foto kunjungan tidak valid',
+      },
+    ),
   file_url: z
     .string()
     .trim()
