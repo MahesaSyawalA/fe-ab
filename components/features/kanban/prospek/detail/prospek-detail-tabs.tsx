@@ -41,11 +41,11 @@ export function ProspekDetailTabs({
           <Tabs.Tab
             key={tab.id}
             id={tab.id}
-            className='relative flex items-center justify-center h-full rounded-none px-1 sm:px-2 py-0 text-xs sm:text-sm font-semibold transition-colors text-muted-foreground hover:bg-muted/40 hover:text-foreground data-[selected=true]:text-primary cursor-pointer'
+            className='relative flex items-center justify-center h-full rounded-none px-1 sm:px-2 py-0 whitespace-nowrap text-[11px] sm:text-sm font-semibold transition-colors text-muted-foreground hover:bg-muted/40 hover:text-foreground data-[selected=true]:text-primary cursor-pointer'
           >
             {tab.label}
             <Tabs.Indicator className='absolute top-auto -bottom-[1px] w-full h-0.5 flex justify-center bg-transparent shadow-none pointer-events-none z-10'>
-              <span className='h-0.5 w-[calc(100%-2rem)] sm:w-[calc(100%-4rem)] rounded-full bg-primary' />
+              <span className='h-0.5 w-[calc(100%-1rem)] sm:w-[calc(100%-3rem)] rounded-full bg-primary' />
             </Tabs.Indicator>
           </Tabs.Tab>
         ))}

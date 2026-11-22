@@ -4,13 +4,14 @@ import * as React from 'react';
 import { Banknote } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { formatCompactRupiah } from '@/lib/utils';
+import { cn, formatCompactRupiah } from '@/lib/utils';
 
 interface AnalyticsHeroRevenueCardProps {
   totalRevenue: number | string | null | undefined;
   totalClosing: number;
   periodLabel: string;
   isLoading?: boolean;
+  className?: string;
 }
 
 export function AnalyticsHeroRevenueCard({
@@ -18,10 +19,16 @@ export function AnalyticsHeroRevenueCard({
   totalClosing,
   periodLabel,
   isLoading = false,
+  className,
 }: AnalyticsHeroRevenueCardProps) {
   return (
-    <Card className='rounded-2xl border-0 bg-linear-to-r from-[#1D4ED8] via-[#2563EB] to-[#3B82F6] py-0 text-white shadow-sm ring-0'>
-      <CardContent className='flex flex-col gap-3 p-4 sm:p-5'>
+    <Card
+      className={cn(
+        'h-full rounded-2xl border-0 bg-linear-to-r from-[#1D4ED8] via-[#2563EB] to-[#3B82F6] py-0 text-white shadow-sm ring-0',
+        className,
+      )}
+    >
+      <CardContent className='flex h-full flex-col justify-between gap-3 p-4 sm:p-5'>
         <div className='flex items-center gap-2.5'>
           <span className='flex size-8 sm:size-10 items-center justify-center rounded-xl bg-white/15 shrink-0'>
             <Banknote className='size-4 sm:size-5 text-white' />

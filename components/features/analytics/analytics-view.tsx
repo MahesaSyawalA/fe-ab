@@ -8,7 +8,7 @@ import {
   useTopSpendersQuery,
 } from '@/hooks/queries/use-analytics-query';
 import { currentMonthRange } from '@/lib/date-utils';
-import { toFiniteNumber } from '@/lib/utils';
+import { cn, toFiniteNumber } from '@/lib/utils';
 import type { AnalyticsParams } from '@/types/analytics.types';
 import { AnalyticsFilterBar, formatPeriodLabel } from './analytics-filter-bar';
 import { AnalyticsHeroRevenueCard } from './cards/analytics-hero-revenue-card';
@@ -51,20 +51,29 @@ export function AnalyticsView({ variant }: { variant: Variant }) {
 
       <AnalyticsFilterBar value={params} onChange={setParams} />
 
-      <AnalyticsHeroRevenueCard
-        totalRevenue={ringkasan?.total_revenue ?? 0}
-        totalClosing={totalClosing}
-        periodLabel={periodLabel}
-        isLoading={performa.isLoading}
-      />
+      <div
+        className={cn(
+          'grid grid-cols-1 gap-3 sm:gap-4 items-stretch',
+          isDashboard ? 'lg:grid-cols-5' : 'lg:grid-cols-4',
+        )}
+      >
+        <AnalyticsHeroRevenueCard
+          totalRevenue={ringkasan?.total_revenue ?? 0}
+          totalClosing={totalClosing}
+          periodLabel={periodLabel}
+          isLoading={performa.isLoading}
+          className='lg:col-span-2'
+        />
 
-      <AnalyticsKpiGrid
-        variant={variant}
-        totalKunjungan={ringkasan?.total_kunjungan ?? 0}
-        avgCycleDays={siklus.data?.rata_rata_hari ?? null}
-        roiPersen={ringkasan?.roi_persen ?? null}
-        isLoading={performa.isLoading || siklus.isLoading}
-      />
+        <AnalyticsKpiGrid
+          variant={variant}
+          totalKunjungan={ringkasan?.total_kunjungan ?? 0}
+          avgCycleDays={siklus.data?.rata_rata_hari ?? null}
+          roiPersen={ringkasan?.roi_persen ?? null}
+          isLoading={performa.isLoading || siklus.isLoading}
+          className='lg:contents'
+        />
+      </div>
 
       <SalesPerformanceChart
         variant={variant}

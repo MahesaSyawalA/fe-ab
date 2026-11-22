@@ -12,6 +12,7 @@ interface AnalyticsKpiGridProps {
   avgCycleDays: number | string | null | undefined;
   roiPersen?: number | string | null | undefined;
   isLoading?: boolean;
+  className?: string;
 }
 
 interface KpiItem {
@@ -27,6 +28,7 @@ export function AnalyticsKpiGrid({
   avgCycleDays,
   roiPersen,
   isLoading = false,
+  className,
 }: AnalyticsKpiGridProps) {
   const items: KpiItem[] = [
     {
@@ -63,17 +65,18 @@ export function AnalyticsKpiGrid({
       className={cn(
         'grid gap-3 sm:gap-4',
         variant === 'rekap' ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-3',
+        className,
       )}
     >
       {items.map((item, idx) => (
         <Card
           key={item.label}
           className={cn(
-            'rounded-2xl border border-border bg-card py-0 shadow-2xs ring-0',
+            'h-full rounded-2xl border border-border bg-card py-0 shadow-2xs ring-0',
             variant === 'dashboard' && idx === 2 && 'col-span-2 sm:col-span-1',
           )}
         >
-          <CardContent className='flex flex-col gap-2 p-3.5 sm:p-4'>
+          <CardContent className='flex h-full flex-col justify-between gap-2 p-3.5 sm:p-4'>
             <span
               className={cn(
                 'flex size-8 sm:size-10 items-center justify-center rounded-xl shrink-0',
