@@ -22,10 +22,8 @@ export function TicketOutcomeBadge({
   return (
     <Badge
       className={cn(
-        'h-5 gap-1 rounded-full border px-2 text-[10px] font-bold tracking-wide uppercase',
-        isWon
-          ? 'border-emerald-500/30 bg-emerald-50 text-emerald-700'
-          : 'border-rose-500/30 bg-rose-50 text-rose-600',
+        'h-5 gap-1 rounded-full border-0 px-2 text-[10px] font-bold tracking-wide uppercase text-card',
+        isWon ? 'bg-success' : 'bg-destructive',
         className,
       )}
     >
