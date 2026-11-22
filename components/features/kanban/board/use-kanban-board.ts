@@ -381,7 +381,10 @@ export function useKanbanBoard() {
       ? stages[currentStageIndex + 1]
       : null;
   const activeStageTickets = filteredTicketsByStage[activeSelectedStageId] ?? [];
-  const quickMoveTicket = activeStageTickets[0];
+  const isAdminRole = activeRole === 'admin';
+  const quickMoveTicket = isAdminRole
+    ? undefined
+    : activeStageTickets.find((t) => t.status !== 'won' && t.status !== 'lost');
 
   const ticketMove = useKanbanTicketMove({
     stages,
@@ -397,6 +400,7 @@ export function useKanbanBoard() {
     normalizedTicketsByStage,
     setTicketsByStage,
     startMove: ticketMove.startMove,
+    disableDrag: isAdminRole,
   });
 
   return {

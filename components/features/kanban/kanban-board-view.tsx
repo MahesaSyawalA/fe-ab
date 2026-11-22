@@ -29,6 +29,7 @@ export function KanbanBoardView({ role, basePath }: KanbanBoardViewProps) {
   const board = useKanbanBoard();
   const { pendingStageMove, drawerMode, targetStageForAction } = board;
 
+  const isAdminRole = role === 'admin';
   const canCreateColumn =
     role === 'manager' || role === 'director' || role === 'admin';
 
@@ -114,6 +115,8 @@ export function KanbanBoardView({ role, basePath }: KanbanBoardViewProps) {
                 isFocused={board.selectedStageId === stage.id_tahap}
                 isHolding={board.activeHoldingStageId === stage.id_tahap}
                 activeDraggedTicketId={board.activeDraggedTicketId}
+                disableDrag={isAdminRole}
+                canAddCard={!isAdminRole}
                 columnRef={(el) => {
                   board.columnRefs.current[stage.id_tahap] = el;
                 }}
@@ -144,7 +147,7 @@ export function KanbanBoardView({ role, basePath }: KanbanBoardViewProps) {
         </Kanban>
       </div>
 
-      {board.quickMoveTicket && board.nextStage && (
+      {!isAdminRole && board.quickMoveTicket && board.nextStage && (
         <KanbanQuickMovePill
           nextStageName={board.nextStage.nama_tahap}
           onClick={board.handleQuickMove}

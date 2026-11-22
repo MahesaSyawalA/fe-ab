@@ -18,6 +18,8 @@ interface KanbanBoardColumnProps {
   isFocused: boolean;
   isHolding: boolean;
   activeDraggedTicketId: string | null;
+  disableDrag?: boolean;
+  canAddCard?: boolean;
   columnRef: (el: HTMLElement | null) => void;
   onTicketClick: (ticket: TiketWithDetails) => void;
   onAddCard: () => void;
@@ -31,6 +33,8 @@ export function KanbanBoardColumn({
   isFocused,
   isHolding,
   activeDraggedTicketId,
+  disableDrag = false,
+  canAddCard = true,
   columnRef,
   onTicketClick,
   onAddCard,
@@ -105,36 +109,48 @@ export function KanbanBoardColumn({
               </p>
             </div>
           ) : (
-            items.map((ticket) => (
-              <KanbanItem
-                key={ticket.id_tiket}
-                value={ticket.id_tiket}
-                className='rounded-2xl'
-              >
-                <KanbanItemHandle className='rounded-2xl'>
-                  {ticket.id_tiket === activeDraggedTicketId ? (
-                    <div className='h-[126px] w-full rounded-2xl bg-[#3B82F6] transition-all' />
-                  ) : (
-                    <KanbanTicketCard
-                      ticket={ticket}
-                      onClick={() => onTicketClick(ticket)}
-                    />
-                  )}
-                </KanbanItemHandle>
-              </KanbanItem>
-            ))
+            items.map((ticket) => {
+              const isTicketLocked =
+                ticket.status === 'won' || ticket.status === 'lost';
+              const isItemDragDisabled = disableDrag || isTicketLocked;
+
+              return (
+                <KanbanItem
+                  key={ticket.id_tiket}
+                  value={ticket.id_tiket}
+                  disabled={isItemDragDisabled}
+                  className='rounded-2xl data-[disabled=true]:opacity-100'
+                >
+                  <KanbanItemHandle
+                    cursor={!isItemDragDisabled}
+                    className='rounded-2xl'
+                  >
+                    {ticket.id_tiket === activeDraggedTicketId ? (
+                      <div className='h-[126px] w-full rounded-2xl bg-[#3B82F6] transition-all' />
+                    ) : (
+                      <KanbanTicketCard
+                        ticket={ticket}
+                        onClick={() => onTicketClick(ticket)}
+                      />
+                    )}
+                  </KanbanItemHandle>
+                </KanbanItem>
+              );
+            })
           )}
         </KanbanColumnContent>
 
-        <Button
-          type='button'
-          variant='outline'
-          onClick={onAddCard}
-          className='h-9 w-full gap-1.5 rounded-xl border-dashed border-border bg-white text-xs font-semibold text-muted-foreground shadow-none hover:border-primary/40 hover:bg-primary/5 hover:text-primary cursor-pointer'
-        >
-          <Plus className='size-3.5' />
-          Add Card
-        </Button>
+        {canAddCard && (
+          <Button
+            type='button'
+            variant='outline'
+            onClick={onAddCard}
+            className='h-9 w-full gap-1.5 rounded-xl border-dashed border-border bg-white text-xs font-semibold text-muted-foreground shadow-none hover:border-primary/40 hover:bg-primary/5 hover:text-primary cursor-pointer'
+          >
+            <Plus className='size-3.5' />
+            Add Card
+          </Button>
+        )}
       </KanbanColumn>
     </div>
   );

@@ -25,6 +25,11 @@ export interface UseKanbanDndProps {
   normalizedTicketsByStage: Record<string, TiketWithDetails[]>;
   setTicketsByStage: (tickets: Record<string, TiketWithDetails[]>) => void;
   startMove: (pending: PendingStageMove) => void;
+  disableDrag?: boolean;
+}
+
+function isTicketLocked(ticket?: TiketWithDetails | null): boolean {
+  return ticket?.status === 'won' || ticket?.status === 'lost';
 }
 
 export function useKanbanDnd({
@@ -32,6 +37,7 @@ export function useKanbanDnd({
   normalizedTicketsByStage,
   setTicketsByStage,
   startMove,
+  disableDrag = false,
 }: UseKanbanDndProps) {
   const queryClient = useQueryClient();
   const [activeDraggedTicketId, setActiveDraggedTicketId] = React.useState<string | null>(null);
@@ -109,7 +115,9 @@ export function useKanbanDnd({
       }
     }
 
-    if (!fromStageId || !toStageId || !draggedTicket) return;
+    if (!fromStageId || !toStageId || !draggedTicket || disableDrag || isTicketLocked(draggedTicket)) {
+      return;
+    }
 
     if (fromStageId === toStageId) {
       const list = normalizedTicketsByStage[fromStageId] ?? [];
@@ -133,6 +141,7 @@ export function useKanbanDnd({
   };
 
   const handleDragStart = (event: DragStartEvent) => {
+    if (disableDrag) return;
     const activeId = event.active.id as string;
     setActiveDraggedTicketId(activeId);
     for (const [stageId, list] of Object.entries(normalizedTicketsByStage)) {
@@ -162,7 +171,11 @@ export function useKanbanDnd({
     overContainer,
     overIndex,
   }: KanbanMoveEvent) => {
+    if (disableDrag) return;
+
     if (activeContainer === overContainer) {
+      const activeTicket = normalizedTicketsByStage[activeContainer]?.[activeIndex];
+      if (isTicketLocked(activeTicket)) return;
       reorderSameStage(activeContainer, activeIndex, overIndex);
       return;
     }
@@ -172,7 +185,7 @@ export function useKanbanDnd({
     const toStageObj = stages.find((s) => s.id_tahap === overContainer) ?? null;
     const draggedItem = normalizedTicketsByStage[activeContainer]?.[activeIndex];
 
-    if (!draggedItem || !toStageObj) return;
+    if (!draggedItem || !toStageObj || isTicketLocked(draggedItem)) return;
 
     startMove({
       ticket: draggedItem,
