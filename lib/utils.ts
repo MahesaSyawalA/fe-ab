@@ -101,3 +101,20 @@ export function sanitizeMailtoHref(email?: string | null): string {
   const cleaned = email.trim().replace(/[\r\n<>"]/g, '');
   return cleaned ? `mailto:${cleaned}` : '';
 }
+
+export function getJwtExpiryMs(token?: string | null): number | null {
+  if (!token) return null;
+  const parts = token.split('.');
+  if (parts.length !== 3) return null;
+  try {
+    const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), '=');
+    const decoded = atob(padded);
+    const payload = JSON.parse(decoded) as { exp?: unknown };
+    return typeof payload.exp === 'number' && Number.isFinite(payload.exp)
+      ? payload.exp * 1000
+      : null;
+  } catch {
+    return null;
+  }
+}

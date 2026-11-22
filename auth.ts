@@ -1,8 +1,108 @@
 import { isAxiosError } from 'axios';
 import NextAuth from 'next-auth';
+import type { JWT } from 'next-auth/jwt';
 import Credentials from 'next-auth/providers/credentials';
 import { api } from '@/lib/axios';
+import { getJwtExpiryMs } from '@/lib/utils';
 import { type UserRole } from '@/types/user.types';
+
+const TOKEN_REFRESH_BUFFER_MS = 60 * 1000;
+const FALLBACK_ACCESS_TTL_MS = 14 * 60 * 1000;
+
+const inflightRefreshes = new Map<string, Promise<JWT>>();
+
+function extractTokensFromSetCookie(rawHeader: string | string[] | undefined) {
+  const rawCookies: string[] = Array.isArray(rawHeader)
+    ? rawHeader
+    : typeof rawHeader === 'string'
+      ? [rawHeader]
+      : [];
+
+  let accessToken = '';
+  let refreshToken = '';
+
+  for (const cookieStr of rawCookies) {
+    if (cookieStr.includes('access_token=') || cookieStr.includes('accessToken=')) {
+      const match = cookieStr.match(/(?:access_token|accessToken)=([^;]+)/);
+      if (match) accessToken = match[1];
+    }
+    if (cookieStr.includes('refresh_token=') || cookieStr.includes('refreshToken=')) {
+      const match = cookieStr.match(/(?:refresh_token|refreshToken)=([^;]+)/);
+      if (match) refreshToken = match[1];
+    }
+  }
+
+  return { accessToken, refreshToken };
+}
+
+async function performBackendRefresh(token: JWT): Promise<JWT> {
+  if (!token.refreshToken) {
+    return { ...token, error: 'RefreshTokenError' };
+  }
+
+  try {
+    const response = await api.post(
+      '/auth/refresh',
+      {},
+      {
+        headers: {
+          Cookie: `refresh_token=${token.refreshToken}`,
+        },
+      },
+    );
+
+    const { accessToken: extractedAccessToken, refreshToken: extractedRefreshToken } =
+      extractTokensFromSetCookie(response.headers['set-cookie']);
+
+    const resJson = response.data;
+    const userObj = resJson?.data;
+    const newAccessToken =
+      extractedAccessToken || resJson?.accessToken || resJson?.token || userObj?.accessToken;
+    const newRefreshToken =
+      extractedRefreshToken || resJson?.refreshToken || userObj?.refreshToken || token.refreshToken;
+
+    if (!newAccessToken) {
+      return { ...token, error: 'RefreshTokenError' };
+    }
+
+    return {
+      ...token,
+      nama: userObj?.nama ? String(userObj.nama) : token.nama,
+      role: (userObj?.role as UserRole | undefined) ?? token.role,
+      id_squad: userObj && 'id_squad' in userObj ? (userObj.id_squad ?? null) : token.id_squad,
+      no_telp: userObj?.no_telp ? String(userObj.no_telp) : token.no_telp,
+      is_active: typeof userObj?.is_active === 'boolean' ? userObj.is_active : token.is_active,
+      must_change_password:
+        typeof userObj?.must_change_password === 'boolean'
+          ? userObj.must_change_password
+          : token.must_change_password,
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+      accessTokenExpires: getJwtExpiryMs(newAccessToken) ?? Date.now() + FALLBACK_ACCESS_TTL_MS,
+      error: undefined,
+    };
+  } catch (error) {
+    console.warn(
+      '[jwt] Gagal me-refresh access token ke BE:',
+      isAxiosError(error)
+        ? `${error.response?.status ?? 'no-response'} ${error.code ?? ''} ${error.message}`
+        : error,
+    );
+    return { ...token, error: 'RefreshTokenError' };
+  }
+}
+
+function refreshAccessToken(token: JWT): Promise<JWT> {
+  const key = token.refreshToken ?? token.id_user;
+  const existing = inflightRefreshes.get(key);
+  if (existing) return existing;
+
+  const promise = performBackendRefresh(token).finally(() => {
+    inflightRefreshes.delete(key);
+  });
+  inflightRefreshes.set(key, promise);
+  return promise;
+}
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -30,26 +130,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             return null;
           }
 
-          const rawHeader = response.headers['set-cookie'];
-          const rawCookies: string[] = Array.isArray(rawHeader)
-            ? rawHeader
-            : typeof rawHeader === 'string'
-              ? [rawHeader]
-              : [];
-
-          let extractedAccessToken = '';
-          let extractedRefreshToken = '';
-
-          for (const cookieStr of rawCookies) {
-            if (cookieStr.includes('access_token=') || cookieStr.includes('accessToken=')) {
-              const match = cookieStr.match(/(?:access_token|accessToken)=([^;]+)/);
-              if (match) extractedAccessToken = match[1];
-            }
-            if (cookieStr.includes('refresh_token=') || cookieStr.includes('refreshToken=')) {
-              const match = cookieStr.match(/(?:refresh_token|refreshToken)=([^;]+)/);
-              if (match) extractedRefreshToken = match[1];
-            }
-          }
+          const { accessToken: extractedAccessToken, refreshToken: extractedRefreshToken } =
+            extractTokensFromSetCookie(response.headers['set-cookie']);
 
           const accessToken =
             extractedAccessToken ||
@@ -107,6 +189,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.must_change_password = user.must_change_password;
         token.accessToken = user.accessToken;
         token.refreshToken = user.refreshToken;
+        token.accessTokenExpires =
+          getJwtExpiryMs(user.accessToken) ?? Date.now() + FALLBACK_ACCESS_TTL_MS;
+        token.error = undefined;
+        return token;
       }
       if (trigger === 'update' && session) {
         if (session.user?.nama || session.user?.name) {
@@ -122,6 +208,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           token.must_change_password = session.user.must_change_password;
         }
       }
+
+      const expiresAt = token.accessTokenExpires ?? getJwtExpiryMs(token.accessToken);
+      const isForceRefresh =
+        trigger === 'update' && Boolean((session as { forceRefresh?: boolean } | null)?.forceRefresh);
+
+      if (!isForceRefresh && expiresAt !== null && Date.now() < expiresAt - TOKEN_REFRESH_BUFFER_MS) {
+        return token;
+      }
+
+      if (isForceRefresh || expiresAt !== null) {
+        return refreshAccessToken(token);
+      }
+
       return token;
     },
     async session({ session, token }) {
@@ -140,6 +239,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           must_change_password: token.must_change_password,
         };
         session.accessToken = token.accessToken;
+        session.error = token.error;
       }
       return session;
     },

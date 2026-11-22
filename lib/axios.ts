@@ -1,6 +1,7 @@
 import axios, { isAxiosError, type InternalAxiosRequestConfig } from 'axios';
 import { getSession, signOut } from 'next-auth/react';
 import { logoutUser } from '@/lib/auth-helpers';
+import { getJwtExpiryMs } from '@/lib/utils';
 import type { ApiErrorResponse } from '@/types/api.types';
 
 const rawBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
@@ -18,11 +19,12 @@ export const api = axios.create({
 });
 
 interface QueueItem {
-  resolve: (value?: unknown) => void;
+  resolve: (token: string | null) => void;
   reject: (reason?: unknown) => void;
 }
 
 const SESSION_CACHE_TTL_MS = 5 * 60 * 1000;
+const CLIENT_REFRESH_BUFFER_MS = 60 * 1000;
 
 let isRefreshing = false;
 let isLoggingOut = false;
@@ -40,7 +42,11 @@ export function clearCachedAccessToken() {
 export function setCachedAccessToken(token: string | null) {
   if (token) {
     cachedAccessToken = token;
-    cachedTokenExpiresAt = Date.now() + SESSION_CACHE_TTL_MS;
+    const jwtExpMs = getJwtExpiryMs(token);
+    const maxCacheExpiry = Date.now() + SESSION_CACHE_TTL_MS;
+    cachedTokenExpiresAt = jwtExpMs
+      ? Math.min(maxCacheExpiry, jwtExpMs - CLIENT_REFRESH_BUFFER_MS)
+      : maxCacheExpiry;
   } else {
     clearCachedAccessToken();
   }
@@ -53,6 +59,10 @@ async function getAccessTokenCached(): Promise<string | null> {
   if (!pendingSessionPromise) {
     pendingSessionPromise = getSession()
       .then((session) => {
+        if (session?.error === 'RefreshTokenError') {
+          clearCachedAccessToken();
+          return null;
+        }
         const token = session?.accessToken ?? null;
         if (token) {
           setCachedAccessToken(token);
@@ -86,16 +96,33 @@ const triggerForcedLogout = async () => {
   }
 };
 
-const processQueue = (error: unknown = null) => {
+const processQueue = (error: unknown = null, newToken: string | null = null) => {
   failedQueue.forEach((item) => {
     if (error) {
       item.reject(error);
     } else {
-      item.resolve();
+      item.resolve(newToken);
     }
   });
   failedQueue = [];
 };
+
+function applyAuthHeader(config: InternalAxiosRequestConfig, token: string | null) {
+  if (!config.headers) return;
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  } else {
+    delete config.headers.Authorization;
+  }
+}
+
+function extractBearerToken(config: InternalAxiosRequestConfig): string | null {
+  const header = config.headers?.Authorization;
+  if (typeof header === 'string' && header.startsWith('Bearer ')) {
+    return header.slice(7);
+  }
+  return null;
+}
 
 api.interceptors.request.use(
   async (config) => {
@@ -128,26 +155,45 @@ api.interceptors.response.use(
       requestUrl.includes('/auth/change-password');
 
     if (error.response?.status === 401 && !isAuthEndpoint) {
-
       if (originalRequest._retry) {
         await triggerForcedLogout();
         return Promise.reject(error);
       }
 
       if (isRefreshing) {
-        return new Promise((resolve, reject) => {
+        return new Promise<string | null>((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         })
-          .then(() => api(originalRequest))
+          .then((newToken) => {
+            originalRequest._retry = true;
+            applyAuthHeader(originalRequest, newToken);
+            return api(originalRequest);
+          })
           .catch((err) => Promise.reject(err));
       }
 
       originalRequest._retry = true;
       isRefreshing = true;
+      const failedToken = extractBearerToken(originalRequest);
       clearCachedAccessToken();
 
       try {
+        // 1. Minta NextAuth memperbarui access token secara server-side memakai refresh_token di JWT.
+        const refreshedSession = await getSession();
 
+        if (refreshedSession?.error === 'RefreshTokenError') {
+          throw new Error('Refresh token expired or invalid');
+        }
+
+        const sessionAccessToken = refreshedSession?.accessToken ?? null;
+        if (sessionAccessToken && sessionAccessToken !== failedToken) {
+          setCachedAccessToken(sessionAccessToken);
+          applyAuthHeader(originalRequest, sessionAccessToken);
+          processQueue(null, sessionAccessToken);
+          return api(originalRequest);
+        }
+
+        // 2. Fallback: refresh langsung lewat browser cookie jika token NextAuth sama (mis. clock skew).
         const refreshResponse = await axios.post(
           `${baseURL}/auth/refresh`,
           {},
@@ -162,24 +208,23 @@ api.interceptors.response.use(
         );
 
         const resData = refreshResponse.data?.data || refreshResponse.data;
-        const newAccessToken =
+        const newAccessToken: string | null =
           resData?.accessToken ||
           resData?.tokens?.accessToken ||
-          resData?.token;
+          resData?.token ||
+          null;
 
         if (newAccessToken) {
           setCachedAccessToken(newAccessToken);
-          if (originalRequest.headers) {
-            originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-          }
         }
 
-        processQueue(null);
+        // Jika refresh hanya menyetel HttpOnly cookie, hapus Authorization lama agar BE membaca cookie baru.
+        applyAuthHeader(originalRequest, newAccessToken);
+        processQueue(null, newAccessToken);
 
         return api(originalRequest);
       } catch (refreshError) {
-
-        processQueue(refreshError);
+        processQueue(refreshError, null);
 
         console.warn('[Silent Refresh] Sesi kedaluwarsa. Mengarahkan ke login...');
         await triggerForcedLogout();

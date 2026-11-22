@@ -9,7 +9,7 @@ export const proxy = auth((req) => {
   const { nextUrl } = req;
   const pathname = nextUrl.pathname;
   const user = req.auth?.user;
-  const isAuthenticated = Boolean(user);
+  const isAuthenticated = Boolean(user) && req.auth?.error !== 'RefreshTokenError';
   const userRole = user?.role;
   const currentPrefix = normalizeRole(userRole);
 

@@ -28,6 +28,7 @@ declare module 'next-auth' {
   interface Session {
     user: AuthUser & DefaultSession['user'];
     accessToken: string;
+    error?: 'RefreshTokenError';
   }
 }
 
@@ -42,6 +43,8 @@ declare module 'next-auth/jwt' {
     must_change_password?: boolean;
     accessToken: string;
     refreshToken?: string;
+    accessTokenExpires?: number;
+    error?: 'RefreshTokenError';
   }
 }
 
@@ -61,6 +64,7 @@ declare module '@auth/core/types' {
   interface Session {
     user: AuthUser & DefaultSession['user'];
     accessToken: string;
+    error?: 'RefreshTokenError';
   }
 }
 
@@ -75,5 +79,7 @@ declare module '@auth/core/jwt' {
     must_change_password?: boolean;
     accessToken: string;
     refreshToken?: string;
+    accessTokenExpires?: number;
+    error?: 'RefreshTokenError';
   }
 }
