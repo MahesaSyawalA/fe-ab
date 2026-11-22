@@ -3,6 +3,7 @@ import { usePelangganStore } from '@/store/pelanggan-store';
 import { usePelangganListQuery } from '@/hooks/queries/use-pelanggan-query';
 import { TiketPrioritas } from '@/types/ticket.types';
 import { StageActivityDrawerProps, EvidenceFileState } from '../types';
+import { parseLostReason } from '../../shared/lost-reason-fields';
 import { useStageGeolocation } from './use-stage-geolocation';
 
 type FormArgs = Pick<
@@ -102,6 +103,9 @@ export function useStageActivityForm({
 
   const [statusClosing, setStatusClosing] = React.useState<'won' | 'lost'>('won');
   const [realisasiRevenue, setRealisasiRevenue] = React.useState('');
+  const [lostReasonCategory, setLostReasonCategory] = React.useState('');
+  const [lostReasonDetail, setLostReasonDetail] = React.useState('');
+  const [lostReasonTouched, setLostReasonTouched] = React.useState(false);
 
   const handleOutletChange = (pelangganId: string) => {
     setSelectedPelangganId(pelangganId);
@@ -167,6 +171,9 @@ export function useStageActivityForm({
         case 'revenue':
           setStatusClosing('won');
           setRealisasiRevenue('45.000.000');
+          setLostReasonCategory('');
+          setLostReasonDetail('');
+          setLostReasonTouched(false);
           setCatatan('');
           break;
       }
@@ -232,13 +239,18 @@ export function useStageActivityForm({
         setTargetPengiriman(new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10));
         setCatatan(`Purchase Order resmi terbit dan telah divalidasi oleh Bagian Pengadaan RS.`);
         break;
-      case 'revenue':
-        setStatusClosing('won');
+      case 'revenue': {
+        const parsedLost = parseLostReason(ticket.alasan_lost);
+        setStatusClosing(ticket.status === 'lost' ? 'lost' : 'won');
         setRealisasiRevenue(
           ticket.estimasi_nilai ? ticket.estimasi_nilai.toLocaleString('id-ID') : '45.000.000',
         );
+        setLostReasonCategory(parsedLost.category || '');
+        setLostReasonDetail(parsedLost.detail || '');
+        setLostReasonTouched(false);
         setCatatan(`Unit telah diterima, uji fungsi berhasil, dan pembayaran lunas 100%. Tiket berhasil closing (Won).`);
         break;
+      }
     }
   }, [open, mode, ticket, targetStage, pelangganList]);
 
@@ -255,8 +267,23 @@ export function useStageActivityForm({
     const hasEvidence = Boolean(evidenceFile);
     setEvidenceError(!hasEvidence);
     setCatatanTouched(true);
-    return hasEvidence && catatan.trim().length >= 5;
-  }, [evidenceFile, catatan]);
+    const isLostRevenue =
+      targetStage?.jenis_tahap === 'revenue' && statusClosing === 'lost';
+    if (isLostRevenue) {
+      setLostReasonTouched(true);
+    }
+    const isLostValid =
+      !isLostRevenue ||
+      (Boolean(lostReasonCategory) && lostReasonDetail.trim().length > 0);
+    return hasEvidence && catatan.trim().length >= 5 && isLostValid;
+  }, [
+    evidenceFile,
+    catatan,
+    targetStage?.jenis_tahap,
+    statusClosing,
+    lostReasonCategory,
+    lostReasonDetail,
+  ]);
 
   return {
     pelangganList,
@@ -320,6 +347,12 @@ export function useStageActivityForm({
     setStatusClosing,
     realisasiRevenue,
     setRealisasiRevenue,
+    lostReasonCategory,
+    setLostReasonCategory,
+    lostReasonDetail,
+    setLostReasonDetail,
+    lostReasonTouched,
+    setLostReasonTouched,
   };
 }
 

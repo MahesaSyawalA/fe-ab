@@ -207,6 +207,7 @@ export function ProspekDetailView(props: ProspekDetailViewProps) {
       <ProspekNegotiationDrawer
         open={negotiationDrawerOpen}
         onOpenChange={setNegotiationDrawerOpen}
+        ticket={ticket}
         currentStatus={ticket.status}
         onSelect={handleNegotiationResult}
       />

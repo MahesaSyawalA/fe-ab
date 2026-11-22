@@ -6,6 +6,7 @@ import {
   TiketWithDetails,
 } from '@/types/ticket.types';
 import { KanbanStageColumn } from '@/constants/kanban-constants';
+import { formatLostReason } from '../../shared/lost-reason-fields';
 import { StageActivityForm } from './use-stage-activity-form';
 import {
   CreateTicketDrawerParams,
@@ -26,6 +27,8 @@ type StageForm = Pick<
   | 'estimasiNilai'
   | 'targetClosing'
   | 'statusClosing'
+  | 'lostReasonCategory'
+  | 'lostReasonDetail'
   | 'spesifikasiKebutuhan'
   | 'gpsData'
 >;
@@ -110,6 +113,11 @@ export function buildCreatedTicketParams({
     note ||
     `Kebutuhan awal prospek ${f.judulProspek.trim() || namaPelanggan || 'pelanggan'}`;
 
+  const lostReasonFormatted =
+    stageType === 'revenue' && f.statusClosing === 'lost'
+      ? formatLostReason(f.lostReasonCategory, f.lostReasonDetail) || null
+      : null;
+
   const createPayload: CreateTiketInput = {
     id_pelanggan: selectedPelanggan?.id_pelanggan || '',
     id_user: 'usr-1',
@@ -128,7 +136,7 @@ export function buildCreatedTicketParams({
     posisi: 1,
     tanggal_penawaran_awal: null,
     tanggal_closing: stageType === 'revenue' ? f.tanggalAktivitas : null,
-    alasan_lost: null,
+    alasan_lost: lostReasonFormatted,
   };
 
   const newActivity: AktivitasWithDetails = {
@@ -162,7 +170,7 @@ export function buildCreatedTicketParams({
     posisi: 1,
     tanggal_penawaran_awal: null,
     tanggal_closing: createPayload.tanggal_closing ?? null,
-    alasan_lost: null,
+    alasan_lost: lostReasonFormatted,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     kode_tiket: kodeTiket,
@@ -231,7 +239,12 @@ export function buildMoveParams({
   if (stageType === 'revenue') {
     ticketUpdates.status = f.statusClosing;
     ticketUpdates.tanggal_closing = f.tanggalAktivitas;
-    if (f.statusClosing === 'lost') ticketUpdates.alasan_lost = f.catatan.trim() || null;
+    ticketUpdates.alasan_lost =
+      f.statusClosing === 'lost'
+        ? formatLostReason(f.lostReasonCategory, f.lostReasonDetail) ||
+          f.catatan.trim() ||
+          null
+        : null;
   }
 
   if (stageType === 'kebutuhan' && f.spesifikasiKebutuhan) {

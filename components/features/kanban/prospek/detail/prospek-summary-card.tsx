@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/penawaran-badges';
 import { TicketOutcomeBadge } from '@/components/ui/ticket-status-badge';
 import { Separator } from '@/components/ui/separator';
+import { parseLostReason } from '@/components/features/kanban/shared/lost-reason-fields';
 import { PRIORITY_CONFIG, AKTIVITAS_STAGE_CONFIG } from '@/constants/kanban-constants';
 import {
   getPenawaranValidity,
@@ -125,12 +126,26 @@ export function ProspekSummaryCard({
           )}
         </div>
 
-        {ticket.status === 'lost' && ticket.alasan_lost && (
-          <div className='rounded-xl border border-rose-200/80 bg-rose-50/70 px-3 py-2 text-xs text-rose-700'>
-            <span className='font-semibold'>Alasan Lost: </span>
-            <span>{ticket.alasan_lost}</span>
-          </div>
-        )}
+        {ticket.status === 'lost' && ticket.alasan_lost && (() => {
+          const parsedLost = parseLostReason(ticket.alasan_lost);
+          return (
+            <div className='flex flex-col gap-1.5 rounded-xl border border-rose-200/80 bg-rose-50/70 px-3 py-2.5 text-xs text-rose-700'>
+              <div className='flex flex-wrap items-center gap-1.5'>
+                <span className='font-semibold'>Alasan Lost:</span>
+                {parsedLost.category && (
+                  <span className='inline-flex items-center rounded-full border border-rose-300/80 bg-white/80 px-2 py-0.5 text-[10px] font-semibold text-rose-600'>
+                    {parsedLost.category}
+                  </span>
+                )}
+              </div>
+              {parsedLost.detail && (
+                <p className='text-xs leading-relaxed text-rose-700/90'>
+                  {parsedLost.detail}
+                </p>
+              )}
+            </div>
+          );
+        })()}
       </CardContent>
     </SurfaceCard>
   );

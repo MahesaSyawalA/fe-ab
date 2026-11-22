@@ -4,6 +4,7 @@ import * as React from 'react';
 import { CheckCircle2, XCircle } from 'lucide-react';
 import { Label } from '@heroui/react';
 import { cn } from '@/lib/utils';
+import { LostReasonFields } from '@/components/features/kanban/shared/lost-reason-fields';
 import { StageCurrencyInput } from '../inputs';
 
 export interface StageFormRevenueProps {
@@ -11,6 +12,12 @@ export interface StageFormRevenueProps {
   onStatusClosingChange: (val: 'won' | 'lost') => void;
   realisasiRevenue: string;
   onRealisasiRevenueChange: (val: string) => void;
+  lostReasonCategory: string;
+  onLostReasonCategoryChange: (val: string) => void;
+  lostReasonDetail: string;
+  onLostReasonDetailChange: (val: string) => void;
+  lostReasonTouched?: boolean;
+  onLostReasonTouchedChange?: (val: boolean) => void;
 }
 
 export function StageFormRevenue({
@@ -18,6 +25,12 @@ export function StageFormRevenue({
   onStatusClosingChange,
   realisasiRevenue,
   onRealisasiRevenueChange,
+  lostReasonCategory,
+  onLostReasonCategoryChange,
+  lostReasonDetail,
+  onLostReasonDetailChange,
+  lostReasonTouched,
+  onLostReasonTouchedChange,
 }: StageFormRevenueProps) {
   return (
     <div className='flex flex-col gap-3'>
@@ -133,6 +146,19 @@ export function StageFormRevenue({
           </div>
         </div>
       </div>
+
+      {statusClosing === 'lost' && (
+        <div className='rounded-xl border border-rose-200/80 bg-rose-50/30 p-3 dark:border-rose-900/50 dark:bg-rose-950/15'>
+          <LostReasonFields
+            selectedCategory={lostReasonCategory}
+            onCategoryChange={onLostReasonCategoryChange}
+            detail={lostReasonDetail}
+            onDetailChange={onLostReasonDetailChange}
+            touched={lostReasonTouched}
+            onTouchedChange={onLostReasonTouchedChange}
+          />
+        </div>
+      )}
 
       <StageCurrencyInput
         label='Nilai Revenue'

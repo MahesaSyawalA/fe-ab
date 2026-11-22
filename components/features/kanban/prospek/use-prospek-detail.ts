@@ -101,7 +101,10 @@ export function useProspekDetail({
 
   const stageLabel = currentStage?.nama_tahap ?? 'Tahap Prospek';
 
-  const handleNegotiationResult = async (result: NegotiationResult) => {
+  const handleNegotiationResult = async (
+    result: NegotiationResult,
+    alasanLost?: string | null,
+  ) => {
     if (!ticket) return;
 
     const targetStageType = result === 'negosiasi' ? 'follow_up' : 'revenue';
@@ -112,6 +115,7 @@ export function useProspekDetail({
 
     const newStatus =
       result === 'won' ? 'won' : result === 'lost' ? 'lost' : 'open';
+    const nextAlasanLost = result === 'lost' ? (alasanLost ?? null) : null;
 
     try {
       await moveTicketMutation.mutateAsync({
@@ -120,16 +124,25 @@ export function useProspekDetail({
         ticketUpdates: {
           status: newStatus,
           tanggal_closing: result !== 'negosiasi' ? new Date().toISOString() : null,
+          alasan_lost: nextAlasanLost,
         },
-        catatan: `Hasil negosiasi: ${result.toUpperCase()} dicatat oleh Sales.`,
+        catatan:
+          result === 'lost' && nextAlasanLost
+            ? `Hasil negosiasi: LOST (${nextAlasanLost}) dicatat oleh Sales.`
+            : `Hasil negosiasi: ${result.toUpperCase()} dicatat oleh Sales.`,
       });
 
       if (result === 'negosiasi') {
         moveTicketToStage(ticket.id_tiket, targetStageObj.id_tahap);
+        updateTicket(ticket.id_tiket, {
+          status: newStatus,
+          alasan_lost: null,
+        });
       } else {
         updateTicket(ticket.id_tiket, {
           status: newStatus,
           id_tahap: targetStageObj.id_tahap,
+          alasan_lost: nextAlasanLost,
         });
       }
 

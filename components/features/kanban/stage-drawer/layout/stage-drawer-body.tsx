@@ -107,6 +107,12 @@ export function StageDrawerBody({ mode, stageType, form }: StageDrawerBodyProps)
           onStatusClosingChange={form.setStatusClosing}
           realisasiRevenue={form.realisasiRevenue}
           onRealisasiRevenueChange={form.setRealisasiRevenue}
+          lostReasonCategory={form.lostReasonCategory}
+          onLostReasonCategoryChange={form.setLostReasonCategory}
+          lostReasonDetail={form.lostReasonDetail}
+          onLostReasonDetailChange={form.setLostReasonDetail}
+          lostReasonTouched={form.lostReasonTouched}
+          onLostReasonTouchedChange={form.setLostReasonTouched}
         />
       )}
 
