@@ -57,6 +57,7 @@ export function useKanbanStagesQuery(
   return useQuery({
     queryKey: kanbanKeys.stages(),
     queryFn: () => kanbanService.getStages(),
+    staleTime: 10 * 60 * 1000,
     ...options,
   });
 }
@@ -196,9 +197,10 @@ export function useMoveTicketMutation(
 
       options?.onError?.(...args);
     },
-    onSettled: async (...args) => {
-      await queryClient.invalidateQueries({ queryKey: kanbanKeys.all });
-      await options?.onSettled?.(...args);
+    onSettled: (...args) => {
+      void queryClient.invalidateQueries({ queryKey: kanbanKeys.boards() });
+      void queryClient.invalidateQueries({ queryKey: kanbanKeys.ticket(args[2].id_tiket) });
+      return options?.onSettled?.(...args);
     },
   });
 }
@@ -216,12 +218,10 @@ export function useMoveTicketStageMutation(
     ...options,
     mutationFn: ({ id, payload }: { id: string; payload: MoveTicketStagePayload }) =>
       kanbanService.moveTicketStage(id, payload),
-    onSuccess: async (...args) => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: kanbanKeys.boards() }),
-        queryClient.invalidateQueries({ queryKey: kanbanKeys.ticket(args[1].id) }),
-      ]);
-      await options?.onSuccess?.(...args);
+    onSuccess: (...args) => {
+      void queryClient.invalidateQueries({ queryKey: kanbanKeys.boards() });
+      void queryClient.invalidateQueries({ queryKey: kanbanKeys.ticket(args[1].id) });
+      return options?.onSuccess?.(...args);
     },
     onError: (...args) => {
       console.warn('[Move Ticket Stage Error]:', getErrorMessage(args[0]));
@@ -309,12 +309,10 @@ export function useCreateAktivitasMutation(
   return useMutation({
     ...options,
     mutationFn: (payload: CreateAktivitasInput) => kanbanService.createAktivitas(payload),
-    onSuccess: async (...args) => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: kanbanKeys.all }),
-        queryClient.invalidateQueries({ queryKey: kanbanKeys.ticket(args[1].id_tiket) }),
-      ]);
-      await options?.onSuccess?.(...args);
+    onSuccess: (...args) => {
+      void queryClient.invalidateQueries({ queryKey: kanbanKeys.boards() });
+      void queryClient.invalidateQueries({ queryKey: kanbanKeys.ticket(args[1].id_tiket) });
+      return options?.onSuccess?.(...args);
     },
     onError: (...args) => {
       console.warn('[Create Aktivitas Error]:', getErrorMessage(args[0]));
@@ -331,9 +329,10 @@ export function useCreateBuktiKunjunganMutation(
   return useMutation({
     ...options,
     mutationFn: (formData: FormData) => kanbanService.createBuktiKunjungan(formData),
-    onSuccess: async (...args) => {
-      await queryClient.invalidateQueries({ queryKey: kanbanKeys.all });
-      await options?.onSuccess?.(...args);
+    onSuccess: (...args) => {
+      void queryClient.invalidateQueries({ queryKey: kanbanKeys.boards() });
+      void queryClient.invalidateQueries({ queryKey: kanbanKeys.tickets() });
+      return options?.onSuccess?.(...args);
     },
     onError: (...args) => {
       console.warn('[Create Bukti Kunjungan Error]:', getErrorMessage(args[0]));
@@ -350,9 +349,10 @@ export function useCreateEvidenceMutation(
   return useMutation({
     ...options,
     mutationFn: (formData: FormData) => kanbanService.createEvidence(formData),
-    onSuccess: async (...args) => {
-      await queryClient.invalidateQueries({ queryKey: kanbanKeys.all });
-      await options?.onSuccess?.(...args);
+    onSuccess: (...args) => {
+      void queryClient.invalidateQueries({ queryKey: kanbanKeys.boards() });
+      void queryClient.invalidateQueries({ queryKey: kanbanKeys.tickets() });
+      return options?.onSuccess?.(...args);
     },
     onError: (...args) => {
       console.warn('[Create Evidence Error]:', getErrorMessage(args[0]));
@@ -373,10 +373,9 @@ export function useCreateTicketMutation(
   return useMutation({
     ...options,
     mutationFn: (payload: CreateTiketInput) => kanbanService.createTicket(payload),
-    onSuccess: async (...args) => {
-      await queryClient.invalidateQueries({ queryKey: kanbanKeys.all });
-      await queryClient.invalidateQueries({ queryKey: kanbanKeys.boards() });
-      await options?.onSuccess?.(...args);
+    onSuccess: (...args) => {
+      void queryClient.invalidateQueries({ queryKey: kanbanKeys.boards() });
+      return options?.onSuccess?.(...args);
     },
     onError: (...args) => {
       console.warn('[Create Ticket Error]:', getErrorMessage(args[0]));
@@ -398,13 +397,10 @@ export function useUpdateTicketMutation(
     ...options,
     mutationFn: ({ id, payload }: { id: string; payload: UpdateTiketInput }) =>
       kanbanService.updateTicket(id, payload),
-    onSuccess: async (...args) => {
-      await queryClient.invalidateQueries({ queryKey: kanbanKeys.all });
-      await queryClient.invalidateQueries({ queryKey: kanbanKeys.boards() });
-      await queryClient.invalidateQueries({
-        queryKey: kanbanKeys.ticket(args[1].id),
-      });
-      await options?.onSuccess?.(...args);
+    onSuccess: (...args) => {
+      void queryClient.invalidateQueries({ queryKey: kanbanKeys.boards() });
+      void queryClient.invalidateQueries({ queryKey: kanbanKeys.ticket(args[1].id) });
+      return options?.onSuccess?.(...args);
     },
     onError: (...args) => {
       console.warn('[Update Ticket Error]:', getErrorMessage(args[0]));
@@ -496,12 +492,10 @@ export function useUpdatePenawaranMutation(
     ...options,
     mutationFn: ({ id, payload }: { id: string; payload: UpdatePenawaranInput }) =>
       kanbanService.updatePenawaran(id, payload),
-    onSuccess: async (...args) => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: kanbanKeys.ticket(idTiket) }),
-        queryClient.invalidateQueries({ queryKey: kanbanKeys.all }),
-      ]);
-      await options?.onSuccess?.(...args);
+    onSuccess: (...args) => {
+      void queryClient.invalidateQueries({ queryKey: kanbanKeys.ticket(idTiket) });
+      void queryClient.invalidateQueries({ queryKey: kanbanKeys.boards() });
+      return options?.onSuccess?.(...args);
     },
     onError: (...args) => {
       console.warn('[Update Penawaran Error]:', getErrorMessage(args[0]));
