@@ -15,9 +15,14 @@ import { getDefaultHome, isRouteAllowedForRole } from '@/lib/rbac';
 const loginSchema = z.object({
   email: z
     .string()
+    .trim()
     .min(1, { message: 'Email wajib diisi' })
+    .max(150, { message: 'Email maksimal 150 karakter' })
     .email({ message: 'Format email tidak valid' }),
-  password: z.string().min(8, { message: 'Password minimal 8 karakter' }),
+  password: z
+    .string()
+    .min(8, { message: 'Password minimal 8 karakter' })
+    .max(72, { message: 'Password maksimal 72 karakter' }),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;

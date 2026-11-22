@@ -2,16 +2,17 @@ import { Check, MapPin } from 'lucide-react';
 import { PelangganWithDetails } from '@/types/customer.types';
 import { DEFAULT_OUTLET_IMAGE } from '@/constants/pelanggan-constants';
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
+import { cn, sanitizeSafeUrl } from '@/lib/utils';
 
 export function PelangganHero({ pelanggan }: { pelanggan: PelangganWithDetails }) {
   const isNonaktif = pelanggan.status === 'Nonaktif';
+  const safeImgUrl = sanitizeSafeUrl(pelanggan.img_url) || DEFAULT_OUTLET_IMAGE;
 
   return (
     <div className='relative h-52 md:h-64 lg:h-72 w-full overflow-hidden bg-slate-900 md:rounded-3xl md:border md:border-border/60 md:shadow-sm'>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={pelanggan.img_url || DEFAULT_OUTLET_IMAGE}
+        src={safeImgUrl}
         alt={pelanggan.nama_outlet}
         className='size-full object-cover'
       />

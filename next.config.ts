@@ -1,9 +1,27 @@
 import type { NextConfig } from "next";
 
+const securityHeaders = [
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "X-Frame-Options", value: "DENY" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  {
+    key: "Permissions-Policy",
+    value: "camera=(self), microphone=(self), geolocation=(self)",
+  },
+];
+
 const nextConfig = {
   /* config options here */
   eslint: {
     ignoreDuringBuilds: true,
+  },
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: securityHeaders,
+      },
+    ];
   },
   // UJI INTERNAL SAJA (Vercel): browser memanggil /backend/* di domain FE, lalu diteruskan ke BE.
   // Satu domain => cookie sameSite=lax tetap jalan. /api/auth/* dipakai NextAuth, jadi prefix harus /backend.

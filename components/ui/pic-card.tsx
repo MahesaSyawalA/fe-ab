@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Phone, Mail, MessageSquareText } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn, sanitizeMailtoHref, sanitizePhoneHref } from '@/lib/utils';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -110,7 +110,7 @@ export function PicCard({
             size='sm'
             nativeButton={false}
             className='h-9 w-full gap-1.5 rounded-lg bg-blue-50/90 hover:bg-blue-100/80 text-xs font-semibold text-primary hover:text-primary'
-            render={<a href={noTelp ? `tel:${noTelp}` : '#'} />}
+            render={<a href={sanitizePhoneHref(noTelp) || '#'} />}
           >
             <Phone className='size-3.5 shrink-0' />
             <span className='truncate'>Telepon</span>
@@ -138,7 +138,7 @@ export function PicCard({
             size='sm'
             nativeButton={false}
             className='h-9 w-full gap-1.5 rounded-lg bg-amber-50 hover:bg-amber-100/80 text-xs font-semibold text-amber-500 hover:text-amber-500'
-            render={<a href={email ? `mailto:${email}` : '#'} />}
+            render={<a href={sanitizeMailtoHref(email) || '#'} />}
           >
             <Mail className='size-3.5 shrink-0' />
             <span className='truncate'>Email</span>

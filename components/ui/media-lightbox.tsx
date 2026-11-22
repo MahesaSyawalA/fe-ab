@@ -4,6 +4,7 @@ import * as React from 'react';
 import { Modal } from '@heroui/react';
 import { Download, X } from 'lucide-react';
 import { Button } from './button';
+import { sanitizeSafeUrl } from '@/lib/utils';
 
 export interface MediaLightboxProps {
   isOpen: boolean;
@@ -24,20 +25,22 @@ export function MediaLightbox({
   alt = 'Preview Gambar',
   title,
 }: MediaLightboxProps) {
+  const safeSrc = sanitizeSafeUrl(src);
+
   const handleDownload = React.useCallback(() => {
-    if (!src) return;
+    if (!safeSrc) return;
     const link = document.createElement('a');
-    link.href = src;
+    link.href = safeSrc;
     link.target = '_blank';
     link.rel = 'noopener noreferrer';
-    const fallbackName = (src.split('/').pop() || 'image').split('?')[0];
+    const fallbackName = (safeSrc.split('/').pop() || 'image').split('?')[0];
     link.download = title || alt || fallbackName;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-  }, [src, title, alt]);
+  }, [safeSrc, title, alt]);
 
-  if (!src) return null;
+  if (!safeSrc) return null;
 
   return (
     <Modal.Backdrop
@@ -88,7 +91,7 @@ export function MediaLightbox({
           <div className='flex-1 flex items-center justify-center overflow-auto p-2 sm:p-4 min-h-[220px]'>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={src}
+              src={safeSrc}
               alt={alt}
               className='object-contain max-h-[75vh] w-auto mx-auto rounded-lg shadow-xl select-none'
             />

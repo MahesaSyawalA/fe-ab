@@ -41,12 +41,14 @@ function useProspekEditAktivitasForm({
   const updateAktivitasMutation = useUpdateAktivitasMutation(idTiket);
 
   const catatanTrimmed = catatan.trim();
-  const isCatatanValid = catatanTrimmed.length >= 5;
+  const isCatatanValid = catatanTrimmed.length >= 5 && catatanTrimmed.length <= 1000;
   const catatanError =
     catatanTouched && !isCatatanValid
       ? catatanTrimmed.length === 0
         ? 'Catatan wajib diisi'
-        : 'Catatan minimal 5 karakter'
+        : catatanTrimmed.length > 1000
+          ? 'Catatan maksimal 1000 karakter'
+          : 'Catatan minimal 5 karakter'
       : undefined;
 
   const stageConfig = aktivitas

@@ -157,6 +157,36 @@ api.interceptors.response.use(
   },
 );
 
+export function getFieldErrors(error: unknown): Record<string, string> {
+  const fieldErrors: Record<string, string> = {};
+  if (!isAxiosError<ApiErrorResponse>(error) || !error.response?.data?.errors) {
+    return fieldErrors;
+  }
+  const errors = error.response.data.errors;
+  if (Array.isArray(errors)) {
+    for (const item of errors) {
+      if (item && typeof item === 'object' && 'message' in item && typeof item.message === 'string') {
+        const key =
+          ('field' in item && typeof item.field === 'string' && item.field) ||
+          ('path' in item && Array.isArray(item.path) && item.path.map(String).join('.')) ||
+          '';
+        if (key && !fieldErrors[key]) {
+          fieldErrors[key] = item.message;
+        }
+      }
+    }
+  } else if (typeof errors === 'object') {
+    for (const [key, val] of Object.entries(errors)) {
+      if (Array.isArray(val) && typeof val[0] === 'string') {
+        fieldErrors[key] = val[0];
+      } else if (typeof val === 'string') {
+        fieldErrors[key] = val;
+      }
+    }
+  }
+  return fieldErrors;
+}
+
 export function getErrorMessage(error: unknown): string {
   if (isAxiosError<ApiErrorResponse>(error)) {
     if (!error.response) {
@@ -165,21 +195,27 @@ export function getErrorMessage(error: unknown): string {
     const data = error.response.data;
     if (data?.errors) {
       if (Array.isArray(data.errors) && data.errors.length > 0) {
-        const firstItem = data.errors[0];
-        if (typeof firstItem === 'string' && firstItem) return firstItem;
-        if (
-          firstItem &&
-          typeof firstItem === 'object' &&
-          'message' in firstItem &&
-          typeof firstItem.message === 'string' &&
-          firstItem.message
-        ) {
-          return firstItem.message;
+        const messages = data.errors
+          .map((item) => {
+            if (typeof item === 'string') return item;
+            if (item && typeof item === 'object' && 'message' in item && typeof item.message === 'string') {
+              return item.message;
+            }
+            return '';
+          })
+          .filter(Boolean);
+        if (messages.length > 0) {
+          const preview = messages.slice(0, 3).join('; ');
+          return messages.length > 3 ? `${preview} (+${messages.length - 3} lainnya)` : preview;
         }
       } else if (typeof data.errors === 'object') {
-        const firstError = Object.values(data.errors)[0];
-        if (Array.isArray(firstError) && firstError[0]) return firstError[0];
-        if (typeof firstError === 'string' && firstError) return firstError;
+        const messages = Object.values(data.errors)
+          .flatMap((val) => (Array.isArray(val) ? val : [val]))
+          .filter((msg): msg is string => typeof msg === 'string' && msg.length > 0);
+        if (messages.length > 0) {
+          const preview = messages.slice(0, 3).join('; ');
+          return messages.length > 3 ? `${preview} (+${messages.length - 3} lainnya)` : preview;
+        }
       }
     }
     if (data?.message) return data.message;

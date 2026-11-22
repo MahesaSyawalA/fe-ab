@@ -22,6 +22,11 @@ export const DANGEROUS_EXTENSIONS = new Set([
   '.app',
   '.deb',
   '.rpm',
+  '.svg',
+  '.html',
+  '.htm',
+  '.xml',
+  '.xhtml',
 ]);
 
 export const ALLOWED_IMAGE_EXTENSIONS = new Set([
@@ -30,7 +35,6 @@ export const ALLOWED_IMAGE_EXTENSIONS = new Set([
   '.png',
   '.webp',
   '.gif',
-  '.svg',
   '.heic',
   '.heif',
 ]);
@@ -83,10 +87,13 @@ export function getFileExtension(filename: string): string {
 }
 
 export function isImageFile(file: File): boolean {
+  const ext = getFileExtension(file.name);
+  if (ext === '.svg' || file.type.toLowerCase() === 'image/svg+xml') {
+    return false;
+  }
   if (file.type && file.type.startsWith('image/')) {
     return true;
   }
-  const ext = getFileExtension(file.name);
   return ALLOWED_IMAGE_EXTENSIONS.has(ext);
 }
 

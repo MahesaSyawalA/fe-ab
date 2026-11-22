@@ -19,10 +19,9 @@ interface AuthMeResponse {
   };
 }
 
-function getMustChangeStorageKey(userId?: string, accessToken?: string): string {
+function getMustChangeStorageKey(userId?: string): string {
   if (!userId) return '';
-  const suffix = accessToken ? accessToken.slice(-12) : 'active';
-  return `${MUST_CHANGE_TOAST_PREFIX}${userId}:${suffix}`;
+  return `${MUST_CHANGE_TOAST_PREFIX}${userId}`;
 }
 
 function clearMustChangeStorageKeys() {
@@ -47,7 +46,7 @@ export function useSessionGuard() {
   const [mustChangeFromServer, setMustChangeFromServer] = React.useState(false);
 
   const userId = session?.user?.id_user || session?.user?.id || '';
-  const sessionKey = getMustChangeStorageKey(userId, session?.accessToken);
+  const sessionKey = getMustChangeStorageKey(userId);
   const shouldNotifyMustChange = Boolean(
     session?.user?.must_change_password || mustChangeFromServer,
   );

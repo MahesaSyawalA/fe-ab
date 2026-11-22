@@ -16,7 +16,7 @@ export interface NormalizedEvidence {
   uploadedAt: string;
 }
 
-const IMAGE_EXTENSIONS = new Set(['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg', 'heic', 'heif']);
+const IMAGE_EXTENSIONS = new Set(['jpg', 'jpeg', 'png', 'webp', 'gif', 'heic', 'heif']);
 const AUDIO_EXTENSIONS = new Set([
   'mp3',
   'm4a',

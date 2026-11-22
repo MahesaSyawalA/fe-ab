@@ -9,7 +9,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
+import { cn, sanitizeSafeUrl } from '@/lib/utils';
 
 export interface DocumentPreviewCardProps {
   url: string;
@@ -101,12 +101,17 @@ export function DocumentPreviewCard({
   fileSize,
   className,
 }: DocumentPreviewCardProps) {
-  if (!url) return null;
+  const safeUrl = sanitizeSafeUrl(url);
+  if (!safeUrl) return null;
 
-  const displayName =
-    fileName ||
-    decodeURIComponent(url.split('/').pop()?.split('?')[0] || 'Dokumen');
-  const meta = getDocMeta(fileName || url);
+  let decodedFallback = 'Dokumen';
+  try {
+    decodedFallback = decodeURIComponent(safeUrl.split('/').pop()?.split('?')[0] || 'Dokumen');
+  } catch {
+    decodedFallback = safeUrl.split('/').pop()?.split('?')[0] || 'Dokumen';
+  }
+  const displayName = fileName || decodedFallback;
+  const meta = getDocMeta(fileName || safeUrl);
   const IconComponent = meta.icon;
 
   return (
@@ -162,7 +167,7 @@ export function DocumentPreviewCard({
       <div className='shrink-0 pl-1'>
         {meta.canViewInBrowser ? (
           <a
-            href={url}
+            href={safeUrl}
             target='_blank'
             rel='noopener noreferrer'
             className='inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg bg-primary/10 hover:bg-primary hover:text-white text-primary text-xs font-semibold border border-primary/20 transition-colors cursor-pointer'
@@ -173,7 +178,7 @@ export function DocumentPreviewCard({
           </a>
         ) : (
           <a
-            href={url}
+            href={safeUrl}
             download={displayName}
             target='_blank'
             rel='noopener noreferrer'

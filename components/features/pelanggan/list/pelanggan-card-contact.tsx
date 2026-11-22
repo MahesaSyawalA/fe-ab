@@ -2,6 +2,7 @@ import { ChevronRight, Phone, UserRound } from 'lucide-react';
 import { Kontak } from '@/types/contact.types';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { sanitizePhoneHref } from '@/lib/utils';
 
 export function PelangganCardContact({ contact }: { contact: Kontak }) {
   return (
@@ -31,7 +32,7 @@ export function PelangganCardContact({ contact }: { contact: Kontak }) {
             onClick={(e) => e.stopPropagation()}
             className='text-primary hover:bg-primary/10 hover:text-primary'
             title='Hubungi PIC'
-            render={<a href={`tel:${contact.no_telp}`} />}
+            render={<a href={sanitizePhoneHref(contact.no_telp) || '#'} />}
           >
             <Phone className='size-3.5' />
           </Button>

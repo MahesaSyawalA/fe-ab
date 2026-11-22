@@ -28,7 +28,21 @@ export function getDefaultHome(role?: UserRole | string | null): string {
   }
 }
 
+export function isSafeInternalPath(pathname?: string | null): boolean {
+  if (!pathname) return false;
+  const trimmed = pathname.trim();
+  // Hanya izinkan path internal relatif yang diawali satu "/" (bukan "//", bukan "/\", tanpa scheme)
+  if (!trimmed.startsWith('/') || trimmed.startsWith('//') || trimmed.startsWith('/\\')) {
+    return false;
+  }
+  if (/^\/[^/]*:/i.test(trimmed)) {
+    return false;
+  }
+  return true;
+}
+
 export function isRouteAllowedForRole(pathname: string, role?: string | null): boolean {
+  if (!isSafeInternalPath(pathname)) return false;
   const normalized = normalizeRole(role);
   if (!normalized) return false;
 
