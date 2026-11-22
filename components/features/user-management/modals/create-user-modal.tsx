@@ -95,7 +95,7 @@ function CreateUserModalContent({
     const validation = createUserSchema.safeParse({
       nama,
       email,
-      no_telp: noTelp || undefined,
+      no_telp: noTelp,
       role,
       id_squad: null,
       password_mode: passwordMode,
@@ -177,7 +177,7 @@ function CreateUserModalContent({
 
         <div className='grid grid-cols-1 sm:grid-cols-2 gap-3.5'>
           <UserPhoneInput
-            label='No. Telepon'
+            label='No. Telepon *'
             placeholder='+62 8xx-xxxx-xxxx'
             value={noTelp}
             onChange={(val) => {

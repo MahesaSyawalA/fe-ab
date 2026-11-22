@@ -119,7 +119,7 @@ export function SalesPerformanceChart({
   const title =
     variant === 'dashboard' ? 'Performa Sales' : 'Performa Sales';
 
-  const horizontalHeight = Math.max(chartData.length * 58, 220);
+  const horizontalHeight = Math.max(chartData.length * 62, 240);
 
   return (
     <SurfaceCard>
@@ -167,7 +167,7 @@ export function SalesPerformanceChart({
             <ResponsiveContainer width='100%' height='100%'>
               <BarChart
                 data={chartData}
-                margin={{ top: 8, right: 8, left: -16, bottom: 4 }}
+                margin={{ top: 8, right: -8, left: -12, bottom: 4 }}
               >
                 <CartesianGrid strokeDasharray='3 3' stroke='var(--border)' vertical={false} />
                 <XAxis
@@ -177,6 +177,16 @@ export function SalesPerformanceChart({
                   tickLine={false}
                 />
                 <YAxis
+                  yAxisId='revenue'
+                  tickFormatter={(val) => `${val}jt`}
+                  tick={{ fontSize: 11, fill: 'var(--secondary-foreground)' }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis
+                  yAxisId='count'
+                  orientation='right'
+                  allowDecimals={false}
                   tick={{ fontSize: 11, fill: 'var(--secondary-foreground)' }}
                   axisLine={false}
                   tickLine={false}
@@ -192,25 +202,28 @@ export function SalesPerformanceChart({
                   iconSize={8}
                 />
                 <Bar
-                  dataKey='closing'
-                  name='Closing'
-                  stackId='sales'
-                  fill='var(--accent-default)'
-                  radius={[0, 0, 0, 0]}
-                />
-                <Bar
-                  dataKey='kunjungan'
-                  name='Kunjungan'
-                  stackId='sales'
-                  fill='var(--color-kanban-orange)'
-                  radius={[0, 0, 0, 0]}
-                />
-                <Bar
+                  yAxisId='revenue'
                   dataKey='revenueJt'
                   name='Revenue (jt)'
-                  stackId='sales'
                   fill='var(--primary-default)'
                   radius={[4, 4, 0, 0]}
+                  maxBarSize={22}
+                />
+                <Bar
+                  yAxisId='count'
+                  dataKey='kunjungan'
+                  name='Kunjungan'
+                  fill='var(--color-kanban-orange)'
+                  radius={[4, 4, 0, 0]}
+                  maxBarSize={16}
+                />
+                <Bar
+                  yAxisId='count'
+                  dataKey='closing'
+                  name='Closing'
+                  fill='var(--accent-default)'
+                  radius={[4, 4, 0, 0]}
+                  maxBarSize={16}
                 />
               </BarChart>
             </ResponsiveContainer>
@@ -221,11 +234,22 @@ export function SalesPerformanceChart({
               <BarChart
                 data={chartData}
                 layout='vertical'
-                margin={{ top: 4, right: 16, left: 0, bottom: 4 }}
+                margin={{ top: 8, right: 16, left: 0, bottom: 4 }}
               >
                 <CartesianGrid strokeDasharray='3 3' stroke='var(--border)' horizontal={false} />
                 <XAxis
+                  xAxisId='revenue'
                   type='number'
+                  tickFormatter={(val) => `${val}jt`}
+                  tick={{ fontSize: 11, fill: 'var(--secondary-foreground)' }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <XAxis
+                  xAxisId='count'
+                  type='number'
+                  orientation='top'
+                  allowDecimals={false}
                   tick={{ fontSize: 11, fill: 'var(--secondary-foreground)' }}
                   axisLine={false}
                   tickLine={false}
@@ -249,6 +273,7 @@ export function SalesPerformanceChart({
                   iconSize={8}
                 />
                 <Bar
+                  xAxisId='revenue'
                   dataKey='revenueJt'
                   name='Revenue (jt)'
                   fill='var(--primary-default)'
@@ -256,6 +281,7 @@ export function SalesPerformanceChart({
                   radius={[0, 4, 4, 0]}
                 />
                 <Bar
+                  xAxisId='count'
                   dataKey='kunjungan'
                   name='Kunjungan'
                   fill='var(--color-kanban-orange)'
@@ -263,6 +289,7 @@ export function SalesPerformanceChart({
                   radius={[0, 4, 4, 0]}
                 />
                 <Bar
+                  xAxisId='count'
                   dataKey='closing'
                   name='Closing'
                   fill='var(--accent-default)'

@@ -1,7 +1,19 @@
 import { z } from 'zod';
 import { hasDangerousXssPattern } from '@/lib/utils';
 
-const phoneSchema = z
+const requiredPhoneSchema = z
+  .string()
+  .trim()
+  .min(1, 'Nomor telepon wajib diisi')
+  .max(20, 'Nomor telepon maksimal 20 karakter')
+  .refine(
+    (val) => /^[0-9+\s-]{9,20}$/.test(val) && val.replace(/\D/g, '').length >= 9,
+    {
+      message: 'Nomor telepon tidak valid (minimal 9 digit angka)',
+    },
+  );
+
+const optionalPhoneSchema = z
   .string()
   .trim()
   .max(20, 'Nomor telepon maksimal 20 karakter')
@@ -27,7 +39,7 @@ export const createUserSchema = z.object({
     .trim()
     .max(150, 'Email maksimal 150 karakter')
     .email('Format email tidak valid'),
-  no_telp: phoneSchema,
+  no_telp: requiredPhoneSchema,
   role: z.enum(['director', 'sales_manager', 'sales', 'admin'], {
     message: 'Pilih role pengguna',
   }),
@@ -57,7 +69,7 @@ export const editUserSchema = z.object({
     .trim()
     .max(150, 'Email maksimal 150 karakter')
     .email('Format email tidak valid'),
-  no_telp: phoneSchema,
+  no_telp: optionalPhoneSchema,
   role: z.enum(['director', 'sales_manager', 'sales', 'admin'], {
     message: 'Pilih role pengguna',
   }),
