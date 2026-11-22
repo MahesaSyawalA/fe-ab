@@ -12,18 +12,22 @@ import {
 } from '@/components/ui/drawer';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { guardPopupDismiss } from '@/lib/utils';
+import type { TiketStatus } from '@/types/ticket.types';
 import { NegotiationResult } from '../types';
 
 interface ProspekNegotiationDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  currentStatus?: TiketStatus;
   onSelect: (result: NegotiationResult) => void;
 }
 
 function NegotiationOptionsContent({
+  currentStatus,
   onSelect,
   onCancel,
 }: {
+  currentStatus?: TiketStatus;
   onSelect: (result: NegotiationResult) => void;
   onCancel: () => void;
 }) {
@@ -34,23 +38,29 @@ function NegotiationOptionsContent({
         onClick={() => onSelect('negosiasi')}
         className='h-11 w-full rounded-xl bg-primary text-xs font-semibold text-primary-foreground cursor-pointer'
       >
-        Pindahkan ke Tahap Negosiasi
+        {currentStatus === 'won' || currentStatus === 'lost'
+          ? 'Buka Kembali ke Tahap Negosiasi (Open)'
+          : 'Pindahkan ke Tahap Negosiasi'}
       </Button>
       <Button
         type='button'
         variant='outline'
+        disabled={currentStatus === 'won'}
         onClick={() => onSelect('won')}
-        className='h-11 w-full rounded-xl border-emerald-500/40 bg-emerald-500/10 text-xs font-semibold text-emerald-700 hover:bg-emerald-500/15 cursor-pointer'
+        className='h-11 w-full rounded-xl border-emerald-500/40 bg-emerald-500/10 text-xs font-semibold text-emerald-700 hover:bg-emerald-500/15 disabled:opacity-60 cursor-pointer'
       >
         Menang (WON) — Masuk ke Tahap Selesai
+        {currentStatus === 'won' ? ' (Saat Ini)' : ''}
       </Button>
       <Button
         type='button'
         variant='outline'
+        disabled={currentStatus === 'lost'}
         onClick={() => onSelect('lost')}
-        className='h-11 w-full rounded-xl border-rose-500/40 bg-rose-500/10 text-xs font-semibold text-rose-600 hover:bg-rose-500/15 cursor-pointer'
+        className='h-11 w-full rounded-xl border-rose-500/40 bg-rose-500/10 text-xs font-semibold text-rose-600 hover:bg-rose-500/15 disabled:opacity-60 cursor-pointer'
       >
         Kalah (LOST) — Tutup Tiket
+        {currentStatus === 'lost' ? ' (Saat Ini)' : ''}
       </Button>
       <Button
         type='button'
@@ -67,10 +77,19 @@ function NegotiationOptionsContent({
 export function ProspekNegotiationDrawer({
   open,
   onOpenChange,
+  currentStatus,
   onSelect,
 }: ProspekNegotiationDrawerProps) {
   const isMobile = useIsMobile();
   const handleClose = () => onOpenChange(false);
+
+  const isDecided = currentStatus === 'won' || currentStatus === 'lost';
+  const titleText = isDecided
+    ? 'Ubah Hasil Negosiasi'
+    : 'Tentukan Hasil Negosiasi';
+  const descriptionText = isDecided
+    ? `Status prospek saat ini: ${currentStatus === 'won' ? 'Menang (WON)' : 'Kalah (LOST)'}. Pilih status baru jika ingin memperbarui.`
+    : 'Pilih tindak lanjut tahap atau hasil akhir prospek ini.';
 
   if (isMobile) {
     return (
@@ -78,14 +97,18 @@ export function ProspekNegotiationDrawer({
         <DrawerContent className='fixed inset-x-0 bottom-0 mx-auto w-full sm:max-w-lg max-h-[92dvh] flex flex-col rounded-t-[28px] bg-card border-t border-border shadow-2xl overflow-hidden'>
           <DrawerHeader className='shrink-0 px-5 pt-2 pb-2 text-left border-b border-border/60 bg-card'>
             <DrawerTitle className='text-base font-bold text-foreground'>
-              Tentukan Hasil Negosiasi
+              {titleText}
             </DrawerTitle>
             <DrawerDescription className='text-xs text-muted-foreground'>
-              Pilih tindak lanjut tahap atau hasil akhir prospek ini.
+              {descriptionText}
             </DrawerDescription>
           </DrawerHeader>
           <div className='px-5 py-3 pb-6'>
-            <NegotiationOptionsContent onSelect={onSelect} onCancel={handleClose} />
+            <NegotiationOptionsContent
+              currentStatus={currentStatus}
+              onSelect={onSelect}
+              onCancel={handleClose}
+            />
           </div>
         </DrawerContent>
       </Drawer>
@@ -99,14 +122,18 @@ export function ProspekNegotiationDrawer({
           <Modal.CloseTrigger className='text-secondary-foreground' />
           <Modal.Header className='shrink-0 flex flex-col gap-0.5 px-6 pt-5 pb-3 border-b border-border/70 text-left items-start'>
             <Modal.Heading className='text-base font-bold text-foreground text-left'>
-              Tentukan Hasil Negosiasi
+              {titleText}
             </Modal.Heading>
             <p className='text-xs text-muted-foreground text-left'>
-              Pilih tindak lanjut tahap atau hasil akhir prospek ini.
+              {descriptionText}
             </p>
           </Modal.Header>
           <Modal.Body className='px-6 py-4'>
-            <NegotiationOptionsContent onSelect={onSelect} onCancel={handleClose} />
+            <NegotiationOptionsContent
+              currentStatus={currentStatus}
+              onSelect={onSelect}
+              onCancel={handleClose}
+            />
           </Modal.Body>
         </Modal.Dialog>
       </Modal.Container>

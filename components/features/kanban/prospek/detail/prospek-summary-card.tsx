@@ -6,6 +6,7 @@ import {
   PenawaranStatusBadge,
   PenawaranValidityBadge,
 } from '@/components/ui/penawaran-badges';
+import { TicketOutcomeBadge } from '@/components/ui/ticket-status-badge';
 import { Separator } from '@/components/ui/separator';
 import { PRIORITY_CONFIG, AKTIVITAS_STAGE_CONFIG } from '@/constants/kanban-constants';
 import {
@@ -115,6 +116,7 @@ export function ProspekSummaryCard({
             <span className={cn('size-1.5 rounded-full', priority.dotClass)} />
             {priority.label}
           </Badge>
+          <TicketOutcomeBadge status={ticket.status} verbose />
           {latestPenawaran && (
             <PenawaranStatusBadge status={latestPenawaran.status} />
           )}
@@ -122,6 +124,13 @@ export function ProspekSummaryCard({
             <PenawaranValidityBadge validity={latestValidity} />
           )}
         </div>
+
+        {ticket.status === 'lost' && ticket.alasan_lost && (
+          <div className='rounded-xl border border-rose-200/80 bg-rose-50/70 px-3 py-2 text-xs text-rose-700'>
+            <span className='font-semibold'>Alasan Lost: </span>
+            <span>{ticket.alasan_lost}</span>
+          </div>
+        )}
       </CardContent>
     </SurfaceCard>
   );

@@ -3,6 +3,7 @@ import { Building2, Calendar } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { PenawaranValidityBadge } from '@/components/ui/penawaran-badges';
+import { TicketOutcomeBadge } from '@/components/ui/ticket-status-badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { TiketWithDetails } from '@/types/ticket.types';
@@ -42,6 +43,8 @@ export function KanbanTicketCard({
       onClick={onClick}
       className={cn(
         'cursor-pointer rounded-2xl border border-border/80 bg-white py-0 shadow-xs ring-0 transition-all hover:border-primary/40 hover:shadow-md',
+        ticket.status === 'won' && 'border-emerald-200/90 hover:border-emerald-400',
+        ticket.status === 'lost' && 'border-rose-200/90 hover:border-rose-400',
         isSelected && 'border-primary ring-2 ring-primary/20 shadow-xl',
         className,
       )}
@@ -49,18 +52,21 @@ export function KanbanTicketCard({
       <CardContent className='flex flex-col gap-2.5 p-3.5'>
 
         <div className='flex items-center justify-between gap-2'>
-          <Badge
-            className={cn(
-              'h-5 gap-1.5 rounded-full px-2.5 text-[11px] font-semibold',
-              priorityConfig.badgeClass,
-            )}
-          >
-            <span
-              className={cn('size-1.5 rounded-full', priorityConfig.dotClass)}
-            />
-            {priorityConfig.label}
-          </Badge>
-          <span className='text-[11px] font-normal text-muted-foreground'>
+          <div className='flex flex-wrap items-center gap-1.5 min-w-0'>
+            <Badge
+              className={cn(
+                'h-5 gap-1.5 rounded-full px-2.5 text-[11px] font-semibold',
+                priorityConfig.badgeClass,
+              )}
+            >
+              <span
+                className={cn('size-1.5 rounded-full', priorityConfig.dotClass)}
+              />
+              {priorityConfig.label}
+            </Badge>
+            <TicketOutcomeBadge status={ticket.status} />
+          </div>
+          <span className='shrink-0 text-[11px] font-normal text-muted-foreground'>
             {ticket.kode_tiket}
           </span>
         </div>

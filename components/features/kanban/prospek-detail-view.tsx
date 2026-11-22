@@ -141,6 +141,7 @@ export function ProspekDetailView(props: ProspekDetailViewProps) {
           <div className='order-1 lg:order-2 lg:col-span-5 xl:col-span-4 flex flex-col gap-4 lg:sticky lg:top-20'>
             <ProspekSummaryCard ticket={ticket} stageLabel={stageLabel} />
             <ProspekActionsCard
+              status={ticket.status}
               onNegotiate={() => setNegotiationDrawerOpen(true)}
               onAddActivity={() => setActivityDrawerOpen(true)}
             />
@@ -182,7 +183,9 @@ export function ProspekDetailView(props: ProspekDetailViewProps) {
                 onClick={() => setNegotiationDrawerOpen(true)}
                 className='h-11 w-full rounded-md bg-primary-default hover:bg-primary-hover active:bg-primary data-[pressed=true]:bg-primary text-xs font-semibold text-white shadow-sm disabled:opacity-50 transition-all cursor-pointer'
               >
-                Tentukan Hasil Negosiasi
+                {ticket.status === 'won' || ticket.status === 'lost'
+                  ? 'Ubah Hasil Negosiasi'
+                  : 'Tentukan Hasil Negosiasi'}
               </Button>
             </div>
           </div>
@@ -204,6 +207,7 @@ export function ProspekDetailView(props: ProspekDetailViewProps) {
       <ProspekNegotiationDrawer
         open={negotiationDrawerOpen}
         onOpenChange={setNegotiationDrawerOpen}
+        currentStatus={ticket.status}
         onSelect={handleNegotiationResult}
       />
 
