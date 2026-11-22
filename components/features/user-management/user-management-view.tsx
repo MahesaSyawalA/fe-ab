@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useSession } from 'next-auth/react';
+import { Trash2 } from 'lucide-react';
 import { toast } from '@heroui/react';
 import { UserManagementHeader } from './user-management-header';
 import { UserManagementFilters } from './user-management-filters';
@@ -24,8 +25,10 @@ import {
   useUserCountsSourceQuery,
   useCreateUserMutation,
   useUpdateUserMutation,
+  useDeleteUserMutation,
 } from '@/hooks/queries/use-user-query';
 import { AppPagination } from '@/components/ui/app-pagination';
+import { ConfirmModal } from '@/components/ui/confirm-modal';
 import { normalizeRole } from '@/lib/rbac';
 import { getErrorMessage } from '@/lib/axios';
 import type { CreateUserApiPayload, UpdateUserApiPayload } from '@/services/user-service';
@@ -39,6 +42,8 @@ import {
 export function UserManagementView() {
   const { data: session } = useSession();
   const currentUserRole = normalizeRole(session?.user?.role);
+  const currentUserId = session?.user?.id_user || session?.user?.id || '';
+  const canDeleteUsers = currentUserRole === 'admin' || currentUserRole === 'director';
 
   const searchQuery = useUserManagementFilterStore((state) => state.searchQuery);
   const setSearchQuery = useUserManagementFilterStore((state) => state.setSearchQuery);
@@ -60,6 +65,7 @@ export function UserManagementView() {
   const [isCreateOpen, setIsCreateOpen] = React.useState(false);
   const [isEditOpen, setIsEditOpen] = React.useState(false);
   const [isResetPasswordOpen, setIsResetPasswordOpen] = React.useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = React.useState(false);
   const [selectedUser, setSelectedUser] = React.useState<ManagedUser | null>(null);
 
   const { data: userListData, isLoading: isUserLoading } = useUserListQuery({
@@ -135,6 +141,7 @@ export function UserManagementView() {
 
   const createMutation = useCreateUserMutation();
   const updateMutation = useUpdateUserMutation();
+  const deleteMutation = useDeleteUserMutation();
 
   const handleOpenCreate = () => {
     setIsCreateOpen(true);
@@ -148,6 +155,35 @@ export function UserManagementView() {
   const handleResetPassword = (user: ManagedUser) => {
     setSelectedUser(user);
     setIsResetPasswordOpen(true);
+  };
+
+  const handleRequestDeleteUser = (user: ManagedUser) => {
+    setSelectedUser(user);
+    setIsDeleteOpen(true);
+  };
+
+  const handleConfirmDeleteUser = async () => {
+    if (!selectedUser) return;
+    try {
+      await deleteMutation.mutateAsync(selectedUser.id);
+      toast.success('Pengguna Berhasil Dihapus', {
+        description: (
+          <span className='text-xs sm:text-sm text-secondary-foreground leading-relaxed'>
+            Akun <strong>{selectedUser.nama}</strong> telah dihapus dari sistem.
+          </span>
+        ),
+      });
+      setIsDeleteOpen(false);
+      setSelectedUser(null);
+    } catch (error) {
+      toast.danger('Gagal Menghapus Pengguna', {
+        description: (
+          <span className='text-xs sm:text-sm text-secondary-foreground leading-relaxed'>
+            {getErrorMessage(error) || 'Terjadi kesalahan pada server.'}
+          </span>
+        ),
+      });
+    }
   };
 
   const handleCreateUser = async (payload: CreateUserApiPayload) => {
@@ -232,8 +268,11 @@ export function UserManagementView() {
       <UserManagementTable
         users={users}
         isLoading={isUserLoading}
+        canDelete={canDeleteUsers}
+        currentUserId={currentUserId}
         onEditUser={handleEditUser}
         onResetPassword={handleResetPassword}
+        onDeleteUser={handleRequestDeleteUser}
       />
 
       {!isUserLoading && users.length > 0 && (
@@ -277,6 +316,22 @@ export function UserManagementView() {
         onOpenChange={setIsResetPasswordOpen}
         user={selectedUser}
         onResetSuccess={handleResetPasswordSuccess}
+      />
+
+      <ConfirmModal
+        open={isDeleteOpen}
+        onOpenChange={setIsDeleteOpen}
+        title='Hapus Pengguna?'
+        description={
+          <>
+            Akun <strong className='font-semibold text-foreground'>{selectedUser?.nama}</strong> ({selectedUser?.email}) akan dihapus secara permanen dari sistem.
+          </>
+        }
+        confirmLabel='Hapus'
+        cancelLabel='Batal'
+        icon={<Trash2 className='size-7 text-rose-600' />}
+        onConfirm={handleConfirmDeleteUser}
+        isLoading={deleteMutation.isPending}
       />
     </div>
   );

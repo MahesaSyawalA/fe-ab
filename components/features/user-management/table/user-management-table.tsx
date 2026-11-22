@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Table } from '@heroui/react';
-import { Pencil, KeyRound, Users } from 'lucide-react';
+import { Pencil, KeyRound, Trash2, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getUserInitials } from '@/lib/auth-helpers';
 import { cn } from '@/lib/utils';
@@ -12,8 +12,11 @@ import type { ManagedUser, ManagedUserRole } from '../types';
 interface UserManagementTableProps {
   users: ManagedUser[];
   isLoading?: boolean;
+  canDelete?: boolean;
+  currentUserId?: string;
   onEditUser: (user: ManagedUser) => void;
   onResetPassword: (user: ManagedUser) => void;
+  onDeleteUser?: (user: ManagedUser) => void;
 }
 
 function getRoleBadge(role: ManagedUserRole) {
@@ -49,8 +52,11 @@ function getRoleBadge(role: ManagedUserRole) {
 export function UserManagementTable({
   users,
   isLoading,
+  canDelete = false,
+  currentUserId,
   onEditUser,
   onResetPassword,
+  onDeleteUser,
 }: UserManagementTableProps) {
   if (isLoading) {
     return <UserManagementTableSkeleton />;
@@ -183,6 +189,20 @@ export function UserManagementTable({
                       >
                         <Pencil className='size-3.5' />
                       </Button>
+
+                      {canDelete && onDeleteUser && user.id !== currentUserId && (
+                        <Button
+                          type='button'
+                          variant='outline'
+                          size='icon'
+                          onClick={() => onDeleteUser(user)}
+                          className='size-8 rounded-lg border-rose-200/80 bg-rose-50/60 text-rose-600 hover:bg-rose-100 hover:text-rose-700 cursor-pointer shadow-none transition-all'
+                          title='Hapus Pengguna'
+                          aria-label={`Hapus ${user.nama}`}
+                        >
+                          <Trash2 className='size-3.5' />
+                        </Button>
+                      )}
                     </div>
                   </Table.Cell>
                 </Table.Row>

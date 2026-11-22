@@ -155,4 +155,9 @@ export const userService = {
     const { data, message } = extractUserData<PublicUserWithSquad>(response.data);
     return { success: true, data, message };
   },
+
+  async deleteUser(id: string): Promise<ApiResponse<null>> {
+    const response = await api.delete<ApiResponse<null>>(`/users/${id}`);
+    return response.data;
+  },
 };

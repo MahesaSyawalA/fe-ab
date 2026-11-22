@@ -184,6 +184,20 @@ export function useResetPasswordMutation() {
   });
 }
 
+export function useDeleteUserMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => userService.deleteUser(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: userKeys.all });
+    },
+    onError: (error) => {
+      console.warn('[useDeleteUserMutation Error]:', getErrorMessage(error));
+    },
+  });
+}
+
 export function useChangePasswordMutation() {
   const queryClient = useQueryClient();
 
