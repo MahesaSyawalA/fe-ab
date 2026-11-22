@@ -17,7 +17,7 @@ import {
   useKanbanBoard,
 } from './board';
 
-export type KanbanUserRole = 'sales' | 'manager' | 'director';
+export type KanbanUserRole = 'sales' | 'manager' | 'director' | 'admin';
 
 interface KanbanBoardViewProps {
   role: KanbanUserRole;
@@ -29,7 +29,8 @@ export function KanbanBoardView({ role, basePath }: KanbanBoardViewProps) {
   const board = useKanbanBoard();
   const { pendingStageMove, drawerMode, targetStageForAction } = board;
 
-  const canCreateColumn = role === 'manager' || role === 'director';
+  const canCreateColumn =
+    role === 'manager' || role === 'director' || role === 'admin';
 
   return (
     <div className='relative flex w-full max-w-full min-w-0 flex-col gap-3.5 pb-20'>

@@ -21,5 +21,10 @@ export const directorMenu = [
 ];
 
 export const adminMenu = [
+  { title: 'Dashboard', url: '/admin/dashboard', icon: LayoutGridCircles },
+  { title: 'Rekap Penjualan', url: '/admin/rekap', icon: LayoutGridCircles },
+  { title: 'CRM Kanban', url: '/admin/kanban', icon: KanbanSquare },
+  { title: 'Squad', url: '/admin/squad', icon: Users },
+  { title: 'Data Pelanggan', url: '/admin/pelanggan', icon: Hospital },
   { title: 'Kelola Pengguna', url: '/admin/kelola-pengguna', icon: UserCog },
 ];

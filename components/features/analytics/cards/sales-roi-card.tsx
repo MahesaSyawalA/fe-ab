@@ -2,7 +2,9 @@
 
 import * as React from 'react';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
 import { Info } from 'lucide-react';
+import { normalizeRole } from '@/lib/rbac';
 import { Tooltip } from '@heroui/react';
 import { SurfaceCard } from '@/components/ui/surface-card';
 import { CardContent } from '@/components/ui/card';
@@ -17,6 +19,12 @@ interface SalesRoiCardProps {
 }
 
 export function SalesRoiCard({ items, isLoading = false }: SalesRoiCardProps) {
+  const { data: session } = useSession();
+  const activeRole = normalizeRole(session?.user?.role);
+  const manageUsersHref =
+    activeRole === 'admin'
+      ? '/admin/kelola-pengguna'
+      : '/director/kelola-pengguna';
   const filledItems = items.filter((s) => toFiniteNumber(s.biaya) > 0);
   const unfilledCount = items.length - filledItems.length;
 
@@ -133,7 +141,7 @@ export function SalesRoiCard({ items, isLoading = false }: SalesRoiCardProps) {
               Belum diisi ({unfilledCount})
             </span>
             <Link
-              href='/director/kelola-pengguna'
+              href={manageUsersHref}
               className='font-semibold text-primary hover:underline text-xs sm:text-sm'
             >
               Isi Sekarang

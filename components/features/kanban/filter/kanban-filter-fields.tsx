@@ -36,7 +36,7 @@ const ESTIMATE_FIELDS: { key: ScalarKey; label: string }[] = [
 export interface KanbanFilterFieldsProps {
   draft: KanbanFilterState;
   setDraft: React.Dispatch<React.SetStateAction<KanbanFilterState>>;
-  role?: 'sales' | 'manager' | 'director';
+  role?: 'sales' | 'manager' | 'director' | 'admin';
 }
 
 export function KanbanFilterFields({

@@ -16,7 +16,7 @@ export function getDefaultHome(role?: UserRole | string | null): string {
   const normalized = normalizeRole(role);
   switch (normalized) {
     case 'admin':
-      return '/admin/kelola-pengguna';
+      return '/admin/dashboard';
     case 'director':
       return '/director/dashboard';
     case 'manager':
@@ -31,7 +31,6 @@ export function getDefaultHome(role?: UserRole | string | null): string {
 export function isSafeInternalPath(pathname?: string | null): boolean {
   if (!pathname) return false;
   const trimmed = pathname.trim();
-  // Hanya izinkan path internal relatif yang diawali satu "/" (bukan "//", bukan "/\", tanpa scheme)
   if (!trimmed.startsWith('/') || trimmed.startsWith('//') || trimmed.startsWith('/\\')) {
     return false;
   }

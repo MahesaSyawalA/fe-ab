@@ -16,14 +16,14 @@ export interface KanbanFilterDialogProps {
   onOpenChange: (open: boolean) => void;
   value: KanbanFilterState;
   onApply: (nextFilter: KanbanFilterState) => void;
-  role?: 'sales' | 'manager' | 'director';
+  role?: 'sales' | 'manager' | 'director' | 'admin';
 }
 
 interface KanbanFilterDialogContentProps {
   value: KanbanFilterState;
   onApply: (nextFilter: KanbanFilterState) => void;
   onClose: () => void;
-  role?: 'sales' | 'manager' | 'director';
+  role?: 'sales' | 'manager' | 'director' | 'admin';
 }
 
 function KanbanFilterDialogContent({

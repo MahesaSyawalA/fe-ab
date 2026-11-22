@@ -28,9 +28,7 @@ export async function logoutUser(): Promise<void> {
     if (typeof window !== 'undefined') {
       try {
         window.localStorage.removeItem('ab_kanban_deleted_activity_logs');
-      } catch {
-        // ignore storage errors
-      }
+      } catch {}
     }
     await signOut({ callbackUrl: '/login', redirect: true });
   }
