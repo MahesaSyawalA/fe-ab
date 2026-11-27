@@ -14,7 +14,7 @@ import {
   TiketWithDetails,
   TeamContributionItem,
 } from '@/types/ticket.types';
-import { formatCompactRupiah } from '@/lib/utils';
+import { formatCompactRupiah, ringkasPerSales, sumNilaiTiket } from '@/lib/utils';
 import { useDebounce } from '@/hooks/use-debounce';
 import {
   useKanbanStagesQuery,
@@ -276,15 +276,14 @@ export function useKanbanBoard() {
     return result;
   }, [stages, normalizedTicketsByStage, debouncedSearchQuery, filterState, isSalesRole, currentUserId]);
 
-  const { totalPipelineLabel, activeTicketsCount, targetPercentage } =
+  const { totalPipelineLabel, totalRevenueLabel, activeTicketsCount, targetPercentage } =
     React.useMemo(() => {
-      let total = 0;
+      const total = sumNilaiTiket(Object.values(filteredTicketsByStage).flat());
       let count = 0;
       let wonCount = 0;
 
       Object.values(filteredTicketsByStage).forEach((list) => {
         list.forEach((t) => {
-          total += t.estimasi_nilai || 0;
           count += 1;
           if (t.status === 'won' || t.id_tahap === 'revenue') {
             wonCount += 1;
@@ -295,47 +294,27 @@ export function useKanbanBoard() {
       const percentage = count > 0 ? Math.round((wonCount / count) * 100) : 0;
 
       return {
-        totalPipelineLabel: total > 0 ? formatCompactRupiah(total) : 'Rp0',
+        totalPipelineLabel: formatCompactRupiah(total.estimasi),
+        totalRevenueLabel: formatCompactRupiah(total.revenue),
         activeTicketsCount: count,
         targetPercentage: percentage,
       };
     }, [filteredTicketsByStage]);
 
-  const teamContributions: TeamContributionItem[] = React.useMemo(() => {
-    const salesMap: Record<
-      string,
-      { name: string; totalVal: number; count: number; wonCount: number }
-    > = {};
-
-    Object.values(normalizedTicketsByStage).forEach((list) => {
-      list.forEach((t) => {
-        const key = t.id_user || t.nama_sales || 'unknown';
-        const name = t.nama_sales || 'Sales';
-        if (!salesMap[key]) {
-          salesMap[key] = { name, totalVal: 0, count: 0, wonCount: 0 };
-        }
-        salesMap[key].totalVal += t.estimasi_nilai || 0;
-        salesMap[key].count += 1;
-        if (t.status === 'won' || t.id_tahap === 'revenue') {
-          salesMap[key].wonCount += 1;
-        }
-      });
-    });
-
-    const entries = Object.entries(salesMap);
-    if (entries.length === 0) return [];
-
-    return entries.slice(0, 3).map(([id, item]) => {
-      const rate =
-        item.count > 0 ? Math.round((item.wonCount / item.count) * 100) : 0;
-      return {
-        id,
-        name: item.name,
-        valueLabel: formatCompactRupiah(item.totalVal),
-        ticketsLabel: `${item.count} Tiket (${rate}%)`,
-      };
-    });
-  }, [normalizedTicketsByStage]);
+  // Ikut filter, supaya jumlahnya sama dengan total di kartu pipeline.
+  const teamContributions: TeamContributionItem[] = React.useMemo(
+    () =>
+      ringkasPerSales(Object.values(filteredTicketsByStage).flat()).map((m) => ({
+        id: m.id,
+        name: m.name,
+        valueLabel: formatCompactRupiah(m.estimasi),
+        revenueLabel: m.revenue > 0 ? formatCompactRupiah(m.revenue) : undefined,
+        ticketsLabel: `${m.count} Tiket (${m.closingRate}%)`,
+        ticketCount: m.count,
+        closingRate: m.closingRate,
+      })),
+    [filteredTicketsByStage],
+  );
 
   const stageChips: ChipFilterItem[] = React.useMemo(
     () =>
@@ -428,6 +407,7 @@ export function useKanbanBoard() {
     setIsStageDrawerOpen: ticketMove.setIsStageDrawerOpen,
     filteredTicketsByStage,
     totalPipelineLabel,
+    totalRevenueLabel,
     activeTicketsCount,
     targetPercentage,
     teamContributions,

@@ -3,26 +3,31 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TeamContributionItem } from '@/types/ticket.types';
+import { TeamDetailModal } from './team-detail-modal';
 
 interface KanbanPipelineCardProps {
   totalPipelineLabel: string;
+  totalRevenueLabel: string;
   activeTicketsCount: number;
   targetPercentage?: number;
   showTeamContributions?: boolean;
   teamContributions?: TeamContributionItem[];
-  onViewDetails?: () => void;
+  squadLabel?: string;
   isLoading?: boolean;
 }
 
 export function KanbanPipelineCard({
   totalPipelineLabel,
+  totalRevenueLabel,
   activeTicketsCount,
   targetPercentage = 62,
   showTeamContributions = false,
   teamContributions = [],
-  onViewDetails,
+  squadLabel,
   isLoading = false,
 }: KanbanPipelineCardProps) {
+  const [detailOpen, setDetailOpen] = React.useState(false);
+
   return (
     <Card className='rounded-2xl border-0 bg-linear-to-r from-[#1D4ED8] via-[#2563EB] to-[#3B82F6] py-0 text-white shadow-sm ring-0'>
       <CardContent className='flex flex-col gap-3.5 p-4 sm:p-5'>
@@ -37,6 +42,16 @@ export function KanbanPipelineCard({
             ) : (
               <span className='text-lg sm:text-xl font-bold tracking-tight text-white'>
                 {totalPipelineLabel}
+              </span>
+            )}
+            <span className='mt-1 text-xs sm:text-sm font-medium text-white/90'>
+              Revenue
+            </span>
+            {isLoading ? (
+              <Skeleton className='h-7 sm:h-8 w-36 rounded-lg bg-white/20' />
+            ) : (
+              <span className='text-lg sm:text-xl font-bold tracking-tight text-emerald-300'>
+                {totalRevenueLabel}
               </span>
             )}
           </div>
@@ -63,7 +78,7 @@ export function KanbanPipelineCard({
               </span>
               <button
                 type='button'
-                onClick={onViewDetails}
+                onClick={() => setDetailOpen(true)}
                 className='text-xs sm:text-sm font-medium text-white underline underline-offset-2 hover:text-white/80 cursor-pointer'
               >
                 Lihat Rincian
@@ -71,7 +86,7 @@ export function KanbanPipelineCard({
             </div>
 
             <div className='grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-2.5'>
-              {teamContributions.map((member) => (
+              {teamContributions.slice(0, 3).map((member) => (
                 <div
                   key={member.id}
                   className='flex flex-row sm:flex-col items-center justify-between sm:justify-center rounded-xl border border-white/15 bg-white/15 px-3.5 py-2.5 sm:px-2 sm:py-2.5 text-left sm:text-center backdrop-blur-xs transition-colors hover:bg-white/20'
@@ -86,10 +101,24 @@ export function KanbanPipelineCard({
                   </div>
                   <span className='text-xs sm:text-sm font-bold text-white shrink-0 sm:mt-0.5'>
                     {member.valueLabel}
+                    {member.revenueLabel && (
+                      <span className='block text-emerald-300' title='Revenue'>
+                        {member.revenueLabel}
+                      </span>
+                    )}
                   </span>
                 </div>
               ))}
             </div>
+            <TeamDetailModal
+              open={detailOpen}
+              onOpenChange={setDetailOpen}
+              squadLabel={squadLabel}
+              members={teamContributions}
+              totalTickets={activeTicketsCount}
+              totalEstimasiLabel={totalPipelineLabel}
+              totalRevenueLabel={totalRevenueLabel}
+            />
           </div>
         )}
       </CardContent>

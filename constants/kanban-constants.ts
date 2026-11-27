@@ -154,18 +154,24 @@ export const TEAM_CONTRIBUTIONS: TeamContributionItem[] = [
     name: 'Dimas A.',
     valueLabel: 'Rp2.85 M',
     ticketsLabel: '5 Tiket (92%)',
+    ticketCount: 5,
+    closingRate: 92,
   },
   {
     id: 'tc-2',
     name: 'Sarah N.',
     valueLabel: 'Rp2.40 M',
     ticketsLabel: '6 Tiket (88%)',
+    ticketCount: 6,
+    closingRate: 88,
   },
   {
     id: 'tc-3',
     name: 'Rizky A.',
     valueLabel: 'Rp2.20 M',
     ticketsLabel: '7 Tiket (76%)',
+    ticketCount: 7,
+    closingRate: 76,
   },
 ];
 

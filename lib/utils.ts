@@ -21,6 +21,56 @@ export function toFiniteNumber(value: unknown): number {
   return 0;
 }
 
+/** Tiket ber-revenue masuk `revenue` saja, tiket lost tidak dihitung, sisanya masuk `estimasi`. */
+export function sumNilaiTiket(
+  tickets: { estimasi_nilai?: number; nilai_revenue?: number | null; status?: string }[],
+): { estimasi: number; revenue: number } {
+  let estimasi = 0;
+  let revenue = 0;
+  for (const t of tickets) {
+    if (t.nilai_revenue != null) revenue += t.nilai_revenue;
+    else if (t.status !== 'lost') estimasi += toFiniteNumber(t.estimasi_nilai);
+  }
+  return { estimasi, revenue };
+}
+
+/** Semua anggota yang punya tiket, urut revenue terbesar lalu estimasi. */
+export function ringkasPerSales(
+  tickets: {
+    id_user?: string | null;
+    nama_sales?: string | null;
+    id_tahap?: string;
+    estimasi_nilai?: number;
+    nilai_revenue?: number | null;
+    status?: string;
+  }[],
+): {
+  id: string;
+  name: string;
+  count: number;
+  closingRate: number;
+  estimasi: number;
+  revenue: number;
+}[] {
+  const perSales = new Map<string, typeof tickets>();
+  for (const t of tickets) {
+    const key = t.id_user || t.nama_sales || 'unknown';
+    const list = perSales.get(key);
+    if (list) list.push(t);
+    else perSales.set(key, [t]);
+  }
+  return Array.from(perSales, ([id, list]) => {
+    const closing = list.filter((t) => t.status === 'won' || t.id_tahap === 'revenue').length;
+    return {
+      id,
+      name: list[0].nama_sales || 'Sales',
+      count: list.length,
+      closingRate: Math.round((closing / list.length) * 100),
+      ...sumNilaiTiket(list),
+    };
+  }).sort((a, b) => b.revenue - a.revenue || b.estimasi - a.estimasi);
+}
+
 export function formatShortDate(date: Date | string): string {
   return format(new Date(date), 'd MMM yyyy', { locale: id });
 }

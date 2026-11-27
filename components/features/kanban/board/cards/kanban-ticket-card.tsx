@@ -89,8 +89,14 @@ export function KanbanTicketCard({
         <Separator className='bg-border/60' />
 
         <div className='flex items-center justify-between gap-2 pt-0.5'>
-          <span className='text-sm font-bold text-accent'>
-            {formatCompactRupiah(ticket.estimasi_nilai)}
+          <span
+            title={ticket.nilai_revenue != null ? 'Revenue' : 'Estimasi'}
+            className={cn(
+              'text-sm font-bold',
+              ticket.nilai_revenue != null ? 'text-emerald-700 dark:text-emerald-400' : 'text-accent',
+            )}
+          >
+            {formatCompactRupiah(ticket.nilai_revenue ?? ticket.estimasi_nilai)}
           </span>
 
           <div className='flex items-center gap-2'>

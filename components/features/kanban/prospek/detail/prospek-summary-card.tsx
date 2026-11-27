@@ -65,10 +65,15 @@ export function ProspekSummaryCard({
         <div className='grid grid-cols-2 gap-3 rounded-xl bg-card p-3 border border-border'>
           <div className='flex flex-col gap-0.5'>
             <span className='text-[11px] text-secondary-foreground tracking-wider font-normal'>
-              Estimasi Revenue
+              {ticket.nilai_revenue != null ? 'Revenue' : 'Estimasi Revenue'}
             </span>
-            <span className='text-sm sm:text-base font-bold text-accent truncate'>
-              {formatFullRupiah(ticket.estimasi_nilai)}
+            <span
+              className={cn(
+                'text-sm sm:text-base font-bold truncate',
+                ticket.nilai_revenue != null ? 'text-emerald-700 dark:text-emerald-400' : 'text-accent',
+              )}
+            >
+              {formatFullRupiah(ticket.nilai_revenue ?? ticket.estimasi_nilai)}
             </span>
           </div>
 

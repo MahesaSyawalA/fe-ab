@@ -61,6 +61,8 @@ export interface TiketWithDetails extends Tiket {
   penawaran_list?: Penawaran[];
   durasi_siklus_hari?: number | null;
   jumlah_penawaran?: number;
+  /** Dari PO/realisasi; null sebelum PO atau lost. */
+  nilai_revenue?: number | null;
   id_squad?: string | null;
   nama_squad?: string | null;
   user?: {
@@ -82,7 +84,10 @@ export interface TeamContributionItem {
   id: string;
   name: string;
   valueLabel: string;
+  revenueLabel?: string;
   ticketsLabel: string;
+  ticketCount: number;
+  closingRate: number;
 }
 
 export interface CreateTiketInput {

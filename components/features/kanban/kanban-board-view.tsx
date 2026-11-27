@@ -77,10 +77,12 @@ export function KanbanBoardView({ role, basePath }: KanbanBoardViewProps) {
       <div className='w-full max-w-full min-w-0'>
         <KanbanPipelineCard
           totalPipelineLabel={board.totalPipelineLabel}
+          totalRevenueLabel={board.totalRevenueLabel}
           activeTicketsCount={board.activeTicketsCount}
           targetPercentage={board.targetPercentage}
           showTeamContributions={canCreateColumn}
           teamContributions={board.teamContributions}
+          squadLabel={board.squadLabel}
           isLoading={board.isLoading}
         />
       </div>
