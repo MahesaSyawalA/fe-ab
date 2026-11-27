@@ -21,3 +21,8 @@ export interface UpdateNotifikasiInput {
     isRead?: boolean;
     message?: string;
 }
+
+export interface NotifikasiListResponse {
+    data: Notifikasi[];
+    unread: number;
+}
