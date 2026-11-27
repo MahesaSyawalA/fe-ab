@@ -92,7 +92,9 @@ export function useKanbanTicketMove({
       params.activity?.jenis_kegiatan === 'quotation' ||
       params.activity?.jenis_kegiatan === 'po' ||
       params.activity?.jenis_kegiatan === 'revenue';
-    const moveTicketUpdates = params.ticketUpdates;
+    // Nilai dokumen (quotation/po/revenue) tidak boleh menimpa estimasi, juga di update optimistis.
+    const { estimasi_nilai: nilaiInput, ...tanpaEstimasi } = params.ticketUpdates ?? {};
+    const moveTicketUpdates = isDocumentActivity ? tanpaEstimasi : params.ticketUpdates;
 
     moveTicketWithStageUpdate({
       ...params,
@@ -110,7 +112,7 @@ export function useKanbanTicketMove({
         catatan: params.activity?.catatan,
         tanggal_dokumen: params.activity?.tanggal || undefined,
         nilai_dokumen: isDocumentActivity
-          ? params.ticketUpdates?.estimasi_nilai
+          ? nilaiInput
           : undefined,
         posisi:
           typeof params.targetIndex === 'number'
@@ -129,8 +131,8 @@ export function useKanbanTicketMove({
         jenis_kegiatan: params.activity.jenis_kegiatan,
         jadwal_follow_up: params.activity.jadwal_follow_up,
         ...(params.activity.jenis_kegiatan === 'quotation' &&
-        params.ticketUpdates?.estimasi_nilai !== undefined
-          ? { total_nilai: params.ticketUpdates.estimasi_nilai }
+        nilaiInput !== undefined
+          ? { total_nilai: nilaiInput }
           : {}),
       });
 

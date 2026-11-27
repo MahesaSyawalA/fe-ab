@@ -233,18 +233,16 @@ export function useStageActivityForm({
         );
         break;
       case 'po':
-        setNominalPo(
-          ticket.estimasi_nilai ? ticket.estimasi_nilai.toLocaleString('id-ID') : '45.000.000',
-        );
+        const nilaiPoAwal = ticket.nilai_revenue ?? ticket.estimasi_nilai;
+        setNominalPo(nilaiPoAwal ? nilaiPoAwal.toLocaleString('id-ID') : '45.000.000');
         setTargetPengiriman(new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10));
         setCatatan(`Purchase Order resmi terbit dan telah divalidasi oleh Bagian Pengadaan RS.`);
         break;
       case 'revenue': {
         const parsedLost = parseLostReason(ticket.alasan_lost);
         setStatusClosing(ticket.status === 'lost' ? 'lost' : 'won');
-        setRealisasiRevenue(
-          ticket.estimasi_nilai ? ticket.estimasi_nilai.toLocaleString('id-ID') : '45.000.000',
-        );
+        const nilaiAwal = ticket.nilai_revenue ?? ticket.estimasi_nilai;
+        setRealisasiRevenue(nilaiAwal ? nilaiAwal.toLocaleString('id-ID') : '45.000.000');
         setLostReasonCategory(parsedLost.category || '');
         setLostReasonDetail(parsedLost.detail || '');
         setLostReasonTouched(false);
